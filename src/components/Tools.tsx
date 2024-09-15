@@ -11,8 +11,8 @@ import { readStreamableValue } from "ai/rsc";
 
 // Constants
 const CREDITS_PER_GRADING = parseInt(
-  process.env.NEXT_PUBLIC_CREDITS_PER_GRADING || "10",
-  10
+  process.env.NEXT_PUBLIC_CREDITS_PER_GRADING || "100",
+  100
 );
 
 // Define types for the saveHistory function

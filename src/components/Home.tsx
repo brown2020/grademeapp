@@ -16,6 +16,7 @@ export default function Home() {
           alt="logo"
           width={128}
           height={128}
+          priority
         />
         <div className="text-3xl text-center text-white">GRADE.ME</div>
       </div>
