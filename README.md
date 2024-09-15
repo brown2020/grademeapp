@@ -1,7 +1,5 @@
 # GRADE.ME - AI-Powered Essay Grading Platform
 
-![Grade.me Logo](./assets/grade512.png)
-
 Welcome to **GRADE.ME**, an AI-powered essay grading platform that provides instant feedback and personalized recommendations to help users improve their writing skills. GRADE.ME leverages state-of-the-art language models to evaluate and grade essays, providing insights to enhance writing quality.
 
 ## Table of Contents
@@ -212,9 +210,10 @@ The `GRADE.ME` application integrates Stripe for secure payment processing. This
 Contributions are welcome! Please fork the repository, create a new branch, and submit a pull request.
 
 1. **Fork the Project**
-2. \*\*Create a Branch
-
-** (`git checkout -b feature/AmazingFeature`) 3. **Commit Your Changes** (`git commit -m 'Add some AmazingFeature'`) 4. **Push to the Branch** (`git push origin feature/AmazingFeature`) 5. **Open a Pull Request\*\*
+2. **Create a Branch** (`git checkout -b feature/AmazingFeature`)
+3. **Commit Your Changes** (`git commit -m 'Add some AmazingFeature'`)
+4. **Push to the Branch** (`git push origin feature/AmazingFeature`)
+5. **Open a Pull Request**
 
 ## License
 
