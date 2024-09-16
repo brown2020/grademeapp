@@ -8,11 +8,12 @@ import useProfileStore from "@/zustand/useProfileStore";
 import { PulseLoader } from "react-spinners";
 import { generateGrade } from "@/actions/generateResponse";
 import { readStreamableValue } from "ai/rsc";
+import TextareaAutosize from "react-textarea-autosize";
 
 // Constants
 const CREDITS_PER_GRADING = parseInt(
   process.env.NEXT_PUBLIC_CREDITS_PER_GRADING || "100",
-  100
+  10
 );
 
 // Define types for the saveHistory function
@@ -47,7 +48,6 @@ export default function Tools() {
   const [words, setWords] = useState<string>("");
   const [thinking, setThinking] = useState<boolean>(false);
   const [localCount, setLocalCount] = useState<number>(profile.credits);
-  const [height, setHeight] = useState<number | undefined>(undefined);
   const [isStreamingComplete, setIsStreamingComplete] =
     useState<boolean>(false);
   const [hasSaved, setHasSaved] = useState<boolean>(false);
@@ -110,14 +110,6 @@ export default function Tools() {
     }
   }, [isStreamingComplete, hasSaved, summary, uid, prompt, topic]);
 
-  // Handle textarea resizing
-  const handleResize = useCallback(
-    (event: React.ChangeEvent<HTMLTextAreaElement>): void => {
-      setHeight(event.target.scrollHeight);
-    },
-    []
-  );
-
   // Scroll into view when content changes
   useEffect(() => {
     if (summary) {
@@ -138,13 +130,12 @@ export default function Tools() {
       <form onSubmit={handleSubmit}>
         <label htmlFor="topic-field">
           Text
-          <textarea
+          <TextareaAutosize
             id="topic-field"
-            rows={4}
-            onInput={handleResize}
-            style={{ height }}
+            minRows={4}
             placeholder="Paste the essay to grade here."
             onChange={(e) => setTopic(e.target.value)}
+            value={topic}
           />
         </label>
 
@@ -155,6 +146,7 @@ export default function Tools() {
             id="words-field"
             placeholder="Enter the class level here."
             onChange={(e) => setWords(e.target.value)}
+            value={words}
           />
         </label>
 
