@@ -13,6 +13,7 @@ import {
 import { toast } from "react-hot-toast";
 import { db } from "@/firebase/firebaseClient";
 import { useAuthStore } from "@/zustand/useAuthStore";
+import ReactMarkdown from "react-markdown"; // Import ReactMarkdown
 
 type UserHistoryType = {
   timestamp: Timestamp;
@@ -65,7 +66,7 @@ export default function History() {
         const newSummaries = querySnapshot.docs.map((doc) => {
           const d = doc.data();
           return {
-            id: doc.id, // Ensure unique key using doc.id from Firestore
+            id: doc.id,
             prompt: d.prompt,
             response: d.response,
             timestamp: d.timestamp,
@@ -80,7 +81,7 @@ export default function History() {
         toast.success("History loaded successfully", { id });
       }
     },
-    [uid] // Only re-create fetchHistory if `uid` changes
+    [uid]
   );
 
   useEffect(() => {
@@ -113,15 +114,26 @@ export default function History() {
           )
           .map((summary, index) => (
             <div
-              key={`${summary.id}-${summary.timestamp.seconds}-${index}`} // Use index to make sure keys are unique
+              key={`${summary.id}-${summary.timestamp.seconds}-${index}`}
               className="p-3 rounded-md shadow-md"
             >
               <div>
                 {new Date(summary.timestamp.seconds * 1000).toLocaleString()}
               </div>
 
-              <div className="whitespace-pre-wrap">{summary.prompt}</div>
-              <div className="response">{summary.response}</div>
+              {/* Render prompt as Markdown with custom styling (white background) */}
+              <div className="px-5 py-2 mb-2 bg-white">
+                <ReactMarkdown className="markdown">
+                  {summary.prompt}
+                </ReactMarkdown>
+              </div>
+
+              {/* Render response as Markdown with custom styling */}
+              <div className="px-5 py-2 shadow-lg bg-orange-200 rounded-md">
+                <ReactMarkdown className="markdown">
+                  {summary.response}
+                </ReactMarkdown>
+              </div>
             </div>
           ))}
       </div>
