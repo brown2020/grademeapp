@@ -31,6 +31,7 @@ GRADE.ME is an innovative platform that uses AI to grade essays, helping users i
 - **Payment Integration**: Integrated with Stripe for secure payments and credit purchasing.
 - **History Management**: Track and review the history of submitted essays and grades.
 - **Responsive Design**: Optimized for both desktop and mobile devices.
+- **Markdown Rendering**: Feedback is rendered in Markdown format, providing clear, readable output with customized styling for consistent spacing.
 
 ## Tech Stack
 
@@ -39,7 +40,7 @@ GRADE.ME is an innovative platform that uses AI to grade essays, helping users i
 - **AI Integration**: Vercel AI SDK (`@ai-sdk/openai`) with Server Actions for OpenAI API calls
 - **State Management**: Zustand
 - **Payment Processing**: Stripe
-- **Utilities**: `react-hot-toast` for notifications, `react-spinners` for loading indicators, `lodash` for utility functions
+- **Utilities**: `react-hot-toast` for notifications, `react-spinners` for loading indicators, `lodash` for utility functions, `react-markdown` for rendering Markdown content
 
 ## Getting Started
 
@@ -203,7 +204,9 @@ The `GRADE.ME` application integrates Stripe for secure payment processing. This
 
 4. **Client-Side Components:**
    - **Payment Checkout Page**: Handles the client-side payment form and interacts with the Stripe API to confirm payments.
-   - **Payment Success Page**: Manages post-payment validation and updates the user's credits based on successful transactions.
+   - **Payment Success Page**: Manages post-payment validation and updates the user's credits
+
+based on successful transactions.
 
 ## Contributing
 
