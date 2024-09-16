@@ -5,13 +5,8 @@ import { CoreMessage, streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
 
 // Function to validate input parameters
-function validateInputs(
-  topic: string,
-  words: string
-): { valid: boolean; error?: string } {
+function validateInputs(topic: string): { valid: boolean; error?: string } {
   if (!topic.trim()) return { valid: false, error: "Topic cannot be empty." };
-  if (!words.trim())
-    return { valid: false, error: "Class level cannot be empty." };
   return { valid: true };
 }
 
@@ -44,7 +39,7 @@ function createGradingMessages(topic: string, words: string): CoreMessage[] {
 
 // Function specific to grading essays
 export async function generateGrade(topic: string, words: string) {
-  const validation = validateInputs(topic, words);
+  const validation = validateInputs(topic);
   if (!validation.valid) {
     throw new Error(validation.error);
   }

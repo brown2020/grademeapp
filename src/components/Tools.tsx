@@ -9,6 +9,7 @@ import { PulseLoader } from "react-spinners";
 import { generateGrade } from "@/actions/generateResponse";
 import { readStreamableValue } from "ai/rsc";
 import TextareaAutosize from "react-textarea-autosize";
+import ReactMarkdown from "react-markdown"; // Import ReactMarkdown
 
 // Constants
 const CREDITS_PER_GRADING = parseInt(
@@ -167,9 +168,9 @@ export default function Tools() {
         {flagged && <h3 id="flagged">{flagged}</h3>}
 
         {!flagged && summary && (
-          <div id="response">
-            <h3 className="item">{`Here's what I came up with:`}</h3>
-            <h3 className="response">{summary}</h3>
+          <div className="px-5 py-2 shadow-lg bg-orange-200 rounded-md">
+            {/* Render Markdown content with custom styling */}
+            <ReactMarkdown className="markdown">{summary}</ReactMarkdown>
           </div>
         )}
       </form>
