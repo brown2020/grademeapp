@@ -16,7 +16,8 @@
 }
 
 @layer components {
-  .markdown p {
+  .markdown p,
+  li {
     margin: 0; /* Removes all margin */
     padding: 0; /* Removes all padding */
     line-height: 1.5;
