@@ -9,13 +9,7 @@ import { PulseLoader } from "react-spinners";
 import { generateGrade } from "@/actions/generateResponse";
 import { readStreamableValue } from "ai/rsc";
 import TextareaAutosize from "react-textarea-autosize";
-import ReactMarkdown from "react-markdown"; // Import ReactMarkdown
-
-// Constants
-const CREDITS_PER_GRADING = parseInt(
-  process.env.NEXT_PUBLIC_CREDITS_PER_GRADING || "100",
-  10
-);
+import ReactMarkdown from "react-markdown";
 
 // Define types for the saveHistory function
 async function saveHistory(
@@ -40,7 +34,6 @@ async function saveHistory(
 export default function Tools() {
   const { uid } = useAuthStore();
   const { profile, minusCredits } = useProfileStore();
-
   const [prompt, setPrompt] = useState<string>("");
   const [summary, setSummary] = useState<string>("");
   const [flagged, setFlagged] = useState<string>("");
@@ -55,7 +48,7 @@ export default function Tools() {
 
   // Effect to update the active state
   useEffect(() => {
-    setActive(topic.length > 1 && localCount >= CREDITS_PER_GRADING);
+    setActive(topic.length > 1 && localCount > 0);
   }, [localCount, topic]);
 
   // Handle form submission
@@ -70,16 +63,16 @@ export default function Tools() {
       setHasSaved(false);
 
       try {
-        const hasEnoughCredits = await minusCredits(CREDITS_PER_GRADING);
-        if (!hasEnoughCredits) {
-          setFlagged("Not enough credits to grade the essay.");
-          setThinking(false);
-          return;
-        }
-
         const userPrompt = `Please grade the essay that follows: \n${topic}`;
-        const result = await generateGrade(topic, words);
+        const { result, creditsUsed } = await generateGrade(topic, words, profile.credits);
+        
         if (!result) throw new Error("No response");
+
+        const creditsDeducted = await minusCredits(creditsUsed);
+
+        if (!creditsDeducted) {
+          throw new Error("Failed to deduct credits.");
+        }
 
         for await (const content of readStreamableValue(result)) {
           if (content) {
@@ -87,6 +80,7 @@ export default function Tools() {
           }
         }
 
+        setLocalCount((prev) => prev - creditsUsed);
         setPrompt(userPrompt);
         setThinking(false);
         setIsStreamingComplete(true);
@@ -98,14 +92,13 @@ export default function Tools() {
         );
       }
     },
-    [topic, words, minusCredits]
+    [topic, words, minusCredits, profile.credits]
   );
 
   // Effect to handle saving to history
   useEffect(() => {
     if (isStreamingComplete && !hasSaved && summary) {
       saveHistory(uid, prompt, summary, topic).then(() => {
-        setLocalCount((prevCount) => prevCount - CREDITS_PER_GRADING);
         setHasSaved(true);
       });
     }
@@ -151,11 +144,16 @@ export default function Tools() {
           />
         </label>
 
-        <button className="bottom" type="submit" disabled={!active}>
-          Grade
-        </button>
+        <div className="flex flex-row gap-10">
+            <button className="bottom flex" type="submit" disabled={!active}>
+              Grade
+            </button>
+            <div className="flex">
+                <h3 className="text-gray-500 font-medium">{`Credits: ${localCount}`}</h3>
+            </div>
+        </div>
 
-        {!thinking && !prompt && localCount < CREDITS_PER_GRADING && (
+        {!thinking && !prompt && profile.credits < 10 && (
           <h3>{`You don't have enough credits to grade.`}</h3>
         )}
 
