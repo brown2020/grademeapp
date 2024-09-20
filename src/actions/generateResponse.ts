@@ -33,10 +33,10 @@ async function generateDeterministicResponse(messages: CoreMessage[], estimatedO
 
     // Estimate token usage before making the request
     const { inputTokens, outputTokens } = await estimateTokens(messages, estimatedOutputTokens);
-    const totalEstimatedCredits = (inputTokens * 0.000005) + (outputTokens * 0.000015) * 1.5; // Add 50% buffer
+    const estimatedCreditCost = (inputTokens * 0.000005) + (outputTokens * 0.000015) * 200 * 1.5; // 200 credits per $1, Add 50% buffer
 
     // If the user does not have enough credits, throw an error
-    if (availableCredits < totalEstimatedCredits) {
+    if (availableCredits < estimatedCreditCost) {
         throw new Error("Not enough credits to process the request.");
     }
 
@@ -50,7 +50,7 @@ async function generateDeterministicResponse(messages: CoreMessage[], estimatedO
     const stream = createStreamableValue(textStream);
 
     // Calculate the actual credits used based on the usage returned by the API
-    const creditsUsed = (await usage).promptTokens * 0.0005 + (await usage).completionTokens * 0.002;
+    const creditsUsed = ((await usage).promptTokens * 0.000005 + (await usage).completionTokens * 0.000015) * 200;
 
 
     return {
