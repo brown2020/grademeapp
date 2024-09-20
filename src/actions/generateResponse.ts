@@ -50,6 +50,7 @@ async function generateDeterministicResponse(messages: CoreMessage[], estimatedO
     const stream = createStreamableValue(textStream);
 
     // Calculate the actual credits used based on the usage returned by the API
+    // (10000 input tokens X $0.000005 + 1000 output tokens X $0.000015) * 200 credits/$ = 13 credits
     const creditsUsed = ((await usage).promptTokens * 0.000005 + (await usage).completionTokens * 0.000015) * 200;
 
 
