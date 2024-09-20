@@ -33,7 +33,7 @@ async function generateDeterministicResponse(messages: CoreMessage[], estimatedO
 
     // Estimate token usage before making the request
     const { inputTokens, outputTokens } = await estimateTokens(messages, estimatedOutputTokens);
-    const totalEstimatedCredits = (inputTokens * 0.0005) + (outputTokens * 0.002) * 1.5; // Add 50% buffer
+    const totalEstimatedCredits = (inputTokens * 0.000005) + (outputTokens * 0.000015) * 1.5; // Add 50% buffer
 
     // If the user does not have enough credits, throw an error
     if (availableCredits < totalEstimatedCredits) {
