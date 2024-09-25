@@ -12,6 +12,7 @@ import { parseDocumentFromUrl } from "@/actions/parseDocumentFromUrl";
 import { readStreamableValue } from "ai/rsc";
 import TextareaAutosize from "react-textarea-autosize";
 import ReactMarkdown from "react-markdown";
+import { extractGrade } from "@/utils/responseParser";
 
 // Define types for the saveHistory function
 async function saveHistory(
@@ -19,6 +20,8 @@ async function saveHistory(
     prompt: string,
     response: string,
     topic: string,
+    title: string,
+    grade: string,
     fileUrl: string | null
 ): Promise<void> {
     if (!uid) return;
@@ -29,6 +32,8 @@ async function saveHistory(
         prompt,
         response,
         topic,
+        title,
+        grade,
         fileUrl,
         timestamp: Timestamp.now(),
     });
@@ -43,13 +48,13 @@ export default function Tools() {
     const [flagged, setFlagged] = useState<string>("");
     const [active, setActive] = useState<boolean>(false);
     const [topic, setTopic] = useState<string>("");
+    const [title, setTitle] = useState<string>("");
+    const [grade, setGrade] = useState<string>("");
     const [words, setWords] = useState<string>("");
     const [thinking, setThinking] = useState<boolean>(false);
     const [localCount, setLocalCount] = useState<number>(profile.credits);
     const [isStreamingComplete, setIsStreamingComplete] = useState<boolean>(false);
     const [hasSaved, setHasSaved] = useState<boolean>(false);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [file, setFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState<boolean>(false);
     const [fileUrl, setFileUrl] = useState<string>("");
 
@@ -58,8 +63,7 @@ export default function Tools() {
         const selectedFile = e.target.files ? e.target.files[0] : null;
         if (selectedFile) {
             setUploading(true);
-
-            console.log(uid)
+            setTitle((selectedFile.name).split('.')[0]); // Set the title to the file name
 
             // Firebase Storage logic to upload the file
             try {
@@ -67,26 +71,21 @@ export default function Tools() {
                 await uploadBytes(fileRef, selectedFile);
                 const downloadURL = await getDownloadURL(fileRef);
                 setFileUrl(downloadURL); // Store the URL to use it later
-                console.log("File uploaded successfully:", downloadURL);
 
                 // Call the Server Action to parse the document using the file URL
                 const parsedText = await parseDocumentFromUrl(downloadURL);
-                console.log("Parsed text:", parsedText);
                 setTopic(parsedText); // Set the parsed text as the topic
             } catch (error) {
                 console.error('Failed to upload file:', error);
                 // Handle error with error message, etc. Toast?
             } finally {
                 setUploading(false);
-                setFile(null); // Reset the file state
             }
         }
     };
 
     // Effect to update the active state
     useEffect(() => {
-        console.log("Topic:", topic);
-        console.log("Local count:", localCount);
         setActive(topic.length > 1 && localCount > 0);
     }, [localCount, topic]);
 
@@ -116,6 +115,7 @@ export default function Tools() {
                 for await (const content of readStreamableValue(result)) {
                     if (content) {
                         setSummary(content.trim());
+                        setGrade(extractGrade(content.trim()));
                     }
                 }
 
@@ -137,11 +137,11 @@ export default function Tools() {
     // Effect to handle saving to history
     useEffect(() => {
         if (isStreamingComplete && !hasSaved && summary) {
-            saveHistory(uid, prompt, summary, topic, fileUrl || null).then(() => {
+            saveHistory(uid, prompt, summary, topic, title, grade, fileUrl || null).then(() => {
                 setHasSaved(true);
             });
         }
-    }, [isStreamingComplete, hasSaved, summary, uid, prompt, topic, fileUrl]);
+    }, [isStreamingComplete, hasSaved, summary, uid, prompt, topic, title, grade, fileUrl]);
 
     // Scroll into view when content changes
     useEffect(() => {
@@ -169,6 +169,17 @@ export default function Tools() {
                     />
                 </label>
                 {uploading && <p>Uploading...</p>}
+
+                <label htmlFor="title-field">
+                    Title
+                    <input
+                        type="text"
+                        id="title-field"
+                        placeholder="Enter the title here."
+                        onChange={(e) => setTitle(e.target.value)}
+                        value={title}
+                    />
+                </label>
 
                 <label htmlFor="topic-field">
                     Text
