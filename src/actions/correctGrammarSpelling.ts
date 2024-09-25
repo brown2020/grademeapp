@@ -1,6 +1,5 @@
 "use server";
 
-import { createStreamableValue } from "ai/rsc";
 import { CoreMessage, streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
 
@@ -107,7 +106,7 @@ export async function correctGrammarAndSpelling(text: string, availableCredits: 
         chunks = splitTextIntoChunks(text, maxInputTokens);
     }
 
-    let correctedTextArray: string[] = [];
+    const correctedTextArray: string[] = [];
     let totalCreditsUsed = 0;
 
     // Process each chunk and push the results to the array

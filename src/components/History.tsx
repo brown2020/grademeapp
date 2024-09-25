@@ -149,9 +149,9 @@ export default function History() {
                     )
                     .map((summary, index) => (
 
-                        <div className="flex flex-row gap-4 p-3 rounded-md shadow-md cursor-pointer hover:bg-gray-100 justify-between">
+                        <div key={`${summary.id}-${summary.timestamp.seconds}-${index}`} className="flex flex-row gap-4 p-3 rounded-md shadow-md cursor-pointer hover:bg-gray-100 justify-between">
                             <Link
-                                key={`${summary.id}-${summary.timestamp.seconds}-${index}`}
+                                
                                 href={`/history/${summary.id}`}
                             >
                                 <div className="flex flex-row flex-wrap gap-4">
