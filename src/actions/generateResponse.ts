@@ -29,11 +29,15 @@ async function estimateTokens(messages: CoreMessage[], estimatedOutputTokens: nu
 
 // Function to generate a deterministic response using OpenAI
 async function generateDeterministicResponse(messages: CoreMessage[], estimatedOutputTokens: number, availableCredits: number) {
+    const creditsPerDollar = Number(process.env.NEXT_PUBLIC_CREDITS_PER_DOLLAR) || 500 as number;
+    const creditsPerInputToken = Number(process.env.NEXT_PUBLIC_CREDITS_PER_INPUT_TOKEN) || 0.000005 as number;
+    const creditsPerOutputToken = Number(process.env.NEXT_PUBLIC_CREDITS_PER_OUTPUT_TOKEN) || 0.000015 as number;
+    
     const model = openai("gpt-4o");
 
     // Estimate token usage before making the request
     const { inputTokens, outputTokens } = await estimateTokens(messages, estimatedOutputTokens);
-    const estimatedCreditCost = (inputTokens * 0.000005) + (outputTokens * 0.000015) * 200 * 1.5; // 200 credits per $1, Add 50% buffer
+    const estimatedCreditCost = (inputTokens * 0.000005) + (outputTokens * 0.000015) * creditsPerDollar * 1.5; // Add 50% buffer
 
     // If the user does not have enough credits, throw an error
     if (availableCredits < estimatedCreditCost) {
@@ -50,8 +54,7 @@ async function generateDeterministicResponse(messages: CoreMessage[], estimatedO
     const stream = createStreamableValue(textStream);
 
     // Calculate the actual credits used based on the usage returned by the API
-    // (10000 input tokens X $0.000005 + 1000 output tokens X $0.000015) * 200 credits/$ = 13 credits
-    const creditsUsed = ((await usage).promptTokens * 0.000005 + (await usage).completionTokens * 0.000015) * 200;
+    const creditsUsed = ((await usage).promptTokens * creditsPerInputToken + (await usage).completionTokens * creditsPerOutputToken) * creditsPerDollar;
 
 
     return {
