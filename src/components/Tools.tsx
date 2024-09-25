@@ -13,6 +13,7 @@ import { readStreamableValue } from "ai/rsc";
 import TextareaAutosize from "react-textarea-autosize";
 import ReactMarkdown from "react-markdown";
 import { extractGrade } from "@/utils/responseParser";
+import { toast } from "react-hot-toast";
 
 // Define types for the saveHistory function
 async function saveHistory(
@@ -61,14 +62,21 @@ export default function Tools() {
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = e.target.files ? e.target.files[0] : null;
-        if (selectedFile) {
+        if (selectedFile && uid) {
             setUploading(true);
+            toast.loading("Uploading file...");
             setTitle((selectedFile.name).split('.')[0]); // Set the title to the file name
 
-            // Firebase Storage logic to upload the file
+            // Log file information for debugging
+            console.log('Uploading file:', selectedFile.name, 'of type:', selectedFile.type, 'and size:', selectedFile.size);
+
             try {
                 const fileRef = ref(storage, `uploads/${uid}/${selectedFile.name}`);
+
+                // Upload file to Firebase Storage
                 await uploadBytes(fileRef, selectedFile);
+
+                // Get download URL of the uploaded file
                 const downloadURL = await getDownloadURL(fileRef);
                 setFileUrl(downloadURL); // Store the URL to use it later
 
@@ -76,13 +84,21 @@ export default function Tools() {
                 const parsedText = await parseDocumentFromUrl(downloadURL);
                 setTopic(parsedText); // Set the parsed text as the topic
             } catch (error) {
+                // Log the full error for debugging
                 console.error('Failed to upload file:', error);
-                // Handle error with error message, etc. Toast?
+                toast.dismiss();
+                toast.error('Failed to upload file. Please try again.');
             } finally {
-                setUploading(false);
+                setUploading(false); // Reset the uploading state
+                toast.dismiss();
+                toast.success('File uploaded successfully.');
             }
+        } else if (!uid) {
+            toast.error('Please log in to upload a file.');
+            console.error('User is not authenticated');
         }
     };
+
 
     // Effect to update the active state
     useEffect(() => {
