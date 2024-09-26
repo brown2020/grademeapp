@@ -81,8 +81,8 @@ export default function AuthComponent() {
 
     try {
       await sendSignInLinkToEmail(auth, email, actionCodeSettings);
-      window.localStorage.setItem("generateEmail", email);
-      window.localStorage.setItem("generateName", name);
+      window.localStorage.setItem("grademeEmail", email);
+      window.localStorage.setItem("grademeName", name);
       setAuthDetails({ authPending: true });
     } catch (error) {
       console.error("Error sending sign-in link:", error);

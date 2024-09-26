@@ -20,8 +20,8 @@ export default function LoginFinishPage() {
           throw new Error("Sign in link is not valid");
         }
 
-        let email = window.localStorage.getItem("generateEmail");
-        const name = window.localStorage.getItem("generateName") || "";
+        let email = window.localStorage.getItem("grademeEmail");
+        const name = window.localStorage.getItem("grademeName") || "";
 
         console.log("User signed in successfully:", email, name);
         if (!email) {
@@ -72,9 +72,9 @@ export default function LoginFinishPage() {
         console.log("ERROR", errorMessage);
         alert(errorMessage);
       } finally {
-        window.localStorage.removeItem("generateEmail");
-        window.localStorage.removeItem("generateName");
-        router.replace("/generate");
+        window.localStorage.removeItem("grademeEmail");
+        window.localStorage.removeItem("grademeName");
+        router.replace("/");
       }
     }
 
