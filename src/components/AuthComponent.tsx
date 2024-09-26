@@ -31,19 +31,21 @@ export default function AuthComponent() {
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const modalRef = useRef<HTMLDivElement>(null);
 
-  const [showGoogleSignIn, setShowGoogleSignIn] = useState(true); // State to control Google Sign-In visibility
+  const [showGoogleLogin, setShowGoogleLogin] = useState(true); // State to control visibility
 
   const showModal = () => setIsVisible(true);
   const hideModal = () => setIsVisible(false);
 
   useEffect(() => {
-    // Hide Google Sign-In button and the divider if in a React Native WebView on iOS
-    setShowGoogleSignIn(!isIOSReactNativeWebView());
+    // Check if in a React Native WebView on iOS and hide Google login button if true
+    setShowGoogleLogin(!isIOSReactNativeWebView());
   }, []);
 
   const signInWithGoogle = async () => {
     if (!acceptTerms) {
-      formRef.current && formRef.current.reportValidity();
+      if (formRef.current) {
+        formRef.current.reportValidity();
+      }
       return;
     }
 
@@ -79,8 +81,8 @@ export default function AuthComponent() {
 
     try {
       await sendSignInLinkToEmail(auth, email, actionCodeSettings);
-      window.localStorage.setItem("grademeEmail", email);
-      window.localStorage.setItem("grademeName", name);
+      window.localStorage.setItem("generateEmail", email);
+      window.localStorage.setItem("generateName", name);
       setAuthDetails({ authPending: true });
     } catch (error) {
       console.error("Error sending sign-in link:", error);
@@ -111,12 +113,15 @@ export default function AuthComponent() {
   return (
     <>
       {uid && (
-        <button onClick={showModal} className="btn-primary max-w-md mx-auto">
+        <button
+          onClick={showModal}
+          className="btn-secondary max-w-md mx-auto text-white"
+        >
           You are signed in
         </button>
       )}
       {!uid && (
-        <button onClick={showModal} className="btn-primary max-w-md mx-auto">
+        <button onClick={showModal} className="btn-white max-w-md mx-auto">
           Sign In to Enable Your Account
         </button>
       )}
@@ -148,7 +153,7 @@ export default function AuthComponent() {
                 <div className="text-2xl text-center">Signing you in</div>
                 <div className="flex flex-col gap-3 border rounded-md px-3 py-2">
                   <div>
-                    {`Check your email at ${email} for a message from Grade.me`}
+                    {`Check your email at ${email} for a message from Generate.me`}
                   </div>
                   <div>{`If you don't see the message, check your spam folder. Mark it "not spam" or move it to your inbox.`}</div>
                   <div>
@@ -176,8 +181,8 @@ export default function AuthComponent() {
               >
                 <div className="text-3xl text-center pb-3">Sign In</div>
 
-                {/* Conditionally render the Google Sign-In button and the divider */}
-                {showGoogleSignIn && (
+                {/* Conditionally render the Google Sign-In button */}
+                {showGoogleLogin && (
                   <>
                     <button
                       type="button"
