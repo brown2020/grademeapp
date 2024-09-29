@@ -9,9 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@ai-sdk/openai": "^0.0.62",
+    "@ai-sdk/openai": "^0.0.63",
     "@stripe/react-stripe-js": "^2.8.0",
-    "ai": "^3.4.4",
+    "ai": "^3.4.7",
     "cookies-next": "^4.2.1",
     "decode-uri-component": "^0.4.1",
     "dotenv": "^16.4.5",
@@ -40,9 +40,9 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.17.9",
-    "@types/node": "^22.7.3",
+    "@types/node": "^22.7.4",
     "@types/pdf-parse": "^1.1.4",
-    "@types/react": "^18.3.9",
+    "@types/react": "^18.3.10",
     "@types/react-dom": "^18",
     "eslint": "^8.57.1",
     "eslint-config-next": "^14.2.13",
