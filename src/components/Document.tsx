@@ -5,7 +5,8 @@ import {
     getDocs,
     Timestamp,
     doc,
-    setDoc,
+    // setDoc,
+    updateDoc
 } from "firebase/firestore";
 import { toast } from "react-hot-toast";
 import { db } from "@/firebase/firebaseClient";
@@ -19,42 +20,29 @@ import ReactMarkdown from "react-markdown";
 import { PulseLoader } from "react-spinners";
 import { correctGrammarAndSpelling } from "@/actions/correctGrammarSpelling";
 import { extractGrade } from "@/utils/responseParser";
-
-type DocumentType = {
-    timestamp: Timestamp;
-    prompt: string;
-    response: string;
-    topic: string;
-    title: string;
-    grade: string;
-    fileUrl: string;
-    id: string;
-};
+import { FormData } from "@/types/formdata";
+import { UserHistoryType } from "@/types/user-history";
 
 // Define types for the saveHistory function
 async function saveHistory(
     uid: string | null,
-    prompt: string,
+    userInput: FormData,
     response: string,
-    topic: string,
-    title: string,
     grade: string,
     fileUrl: string | null
 ): Promise<void> {
     if (!uid) return;
 
     const docRef = doc(collection(db, "users", uid, "summaries"));
-    await setDoc(docRef, {
+    await updateDoc(docRef, {
         id: docRef.id,
-        prompt,
+        userInput,
         response,
-        topic,
-        title,
         grade,
         fileUrl,
         timestamp: Timestamp.now(),
     });
-    console.log("Document saved successfully.");
+    console.log("History saved successfully.");
 }
 
 const fetchDocumentById = async (uid: string, id: string) => {
@@ -68,12 +56,9 @@ const Document = () => {
     const { uid } = useAuthStore();
     const { profile, minusCredits } = useProfileStore();
     const { docID } = useParams();
-    const [userDoc, setUserDoc] = useState<DocumentType>();
+    const [userDoc, setUserDoc] = useState<UserHistoryType>();
     const [loading, setLoading] = useState<boolean>(true);
-    const [topic, setTopic] = useState<string>("");
-    const [title, setTitle] = useState<string>("");
     const [grade, setGrade] = useState<string>("");
-    const [words, setWords] = useState<string>("");
     const [thinking, setThinking] = useState<boolean>(false);
     const [localCount, setLocalCount] = useState<number>(profile.credits);
     const [isStreamingComplete, setIsStreamingComplete] = useState<boolean>(false);
@@ -84,12 +69,13 @@ const Document = () => {
     const [prompt, setPrompt] = useState<string>("");
     const [fileUrl, setFileUrl] = useState<string>("");
 
+
     useEffect(() => {
         const getDocument = async () => {
             try {
                 toast.loading("Loading document...");
                 const doc = await fetchDocumentById(uid as string, docID as string);
-                setUserDoc(doc[0] as DocumentType);
+                setUserDoc(doc[0] as UserHistoryType);
                 toast.dismiss();
                 toast.success("Document loaded successfully", { id: "loading" });
             } catch (error) {
@@ -104,19 +90,53 @@ const Document = () => {
         }
     }, [uid, docID]);
 
+    console.log(userDoc);
+
+    const [formData, setFormData] = useState<FormData>({
+        title: "",
+        text: "",
+        identity: "",
+        identityLevel: "",
+        assigner: "",
+        textType: "",
+        topic: "",
+        prose: "",
+        audience: "",
+        wordLimitType: "less than",
+        wordLimit: "",
+        customRubric: "",
+        rubric: "",
+    });
+
     useEffect(() => {
         if (userDoc) {
-            setTitle(userDoc.title || "");
-            setGrade(userDoc.grade || "");
-            setTopic(userDoc.topic || "");
-            setFileUrl(userDoc.fileUrl || "");
+            setFormData({
+                title: userDoc.userInput.title,
+                text: userDoc.userInput.text,
+                identity: userDoc.userInput.identity,
+                identityLevel: userDoc.userInput.identityLevel,
+                assigner: userDoc.userInput.assigner,
+                textType: userDoc.userInput.textType,
+                topic: userDoc.userInput.topic,
+                prose: userDoc.userInput.prose,
+                audience: userDoc.userInput.audience,
+                wordLimitType: userDoc.userInput.wordLimitType as "less than" | "more than" | "between",
+                wordLimit: userDoc.userInput.wordLimit,
+                customRubric: userDoc.userInput.customRubric,
+                rubric: userDoc.userInput.rubric,
+            });
+            setSummary(userDoc.response);
+            setGrade(userDoc.grade);
+            setFileUrl(userDoc.fileUrl);
         }
     }, [userDoc])
 
+
+
     // Effect to update the active state
     useEffect(() => {
-        setActive(topic.length > 1 && localCount > 0);
-    }, [localCount, topic]);
+        setActive(formData.text.length > 1 && localCount > 0);
+    }, [localCount, formData.text]);
 
     useEffect(() => {
         setLocalCount(profile.credits);
@@ -134,8 +154,22 @@ const Document = () => {
             setHasSaved(false);
 
             try {
-                const userPrompt = `Please grade the essay that follows: \n${topic}`;
-                const { result, creditsUsed } = await generateGrade(topic, words, profile.credits);
+                const { identity, identityLevel, assigner, topic, prose, audience, wordLimitType, wordLimit, title, rubric, text } = formData;
+
+            const { result, creditsUsed } = await generateGrade(
+                identity,
+                identityLevel,
+                assigner,
+                topic,
+                prose,
+                audience,
+                wordLimitType,
+                wordLimit,
+                rubric,
+                title,
+                text,
+                profile.credits
+            );
 
                 if (!result) throw new Error("No response");
 
@@ -153,7 +187,6 @@ const Document = () => {
                 }
 
                 setLocalCount((prev) => prev - creditsUsed);
-                setPrompt(userPrompt);
                 setThinking(false);
                 setIsStreamingComplete(true);
             } catch (error) {
@@ -164,23 +197,23 @@ const Document = () => {
                 );
             }
         },
-        [topic, words, minusCredits, profile.credits]
+        [formData, minusCredits, profile.credits]
     );
 
     // Effect to handle saving to history
     useEffect(() => {
         if (isStreamingComplete && !hasSaved && summary) {
-            saveHistory(uid, prompt, summary, topic, title, grade, fileUrl || null).then(() => {
+            saveHistory(uid, formData,summary, grade, fileUrl || null).then(() => {
                 setHasSaved(true);
             });
             toast.success("Document saved successfully");
         }
-    }, [isStreamingComplete, hasSaved, summary, uid, prompt, topic, title, grade, fileUrl]);
+    }, [isStreamingComplete, hasSaved, summary, uid, formData, grade, fileUrl]);
 
     // Handle saving the document
     const handleSave = async () => {
         toast.loading("Saving document...");
-        await saveHistory(uid, prompt, summary, topic, title, grade, fileUrl || null);
+        await saveHistory(uid, formData, summary, grade, fileUrl || null);
         toast.dismiss();
         toast.success("Document saved successfully");
     }
@@ -195,7 +228,7 @@ const Document = () => {
         setHasSaved(false);
 
         try {
-            const { correctedTextArray, totalCreditsUsed } = await correctGrammarAndSpelling(topic, profile.credits);
+            const { correctedTextArray, totalCreditsUsed } = await correctGrammarAndSpelling(formData.text, profile.credits);
             const finalText = correctedTextArray.join("");
             console.log(finalText)
 
@@ -208,10 +241,10 @@ const Document = () => {
             }
 
             setSummary(finalText);
-            setTopic(finalText);
+            setFormData((prev) => ({ ...prev, text: finalText }));
 
             setLocalCount((prev) => prev - totalCreditsUsed);
-            setPrompt(`Here is the corrected text: \n${topic}`);
+            setPrompt(`Here is the corrected text: \n${formData.text}`);
             setThinking(false);
             setIsStreamingComplete(true);
         } catch (error) {
@@ -224,15 +257,15 @@ const Document = () => {
     }
 
     // Scroll into view when content changes
-    // useEffect(() => {
-    //     if (summary) {
-    //         document.getElementById("response")?.scrollIntoView({ behavior: "smooth" });
-    //     } else if (prompt) {
-    //         document.getElementById("prompt")?.scrollIntoView({ behavior: "smooth" });
-    //     } else if (flagged) {
-    //         document.getElementById("flagged")?.scrollIntoView({ behavior: "smooth" });
-    //     }
-    // }, [summary, prompt, flagged]);
+    useEffect(() => {
+        if (summary) {
+            document.getElementById("response")?.scrollIntoView({ behavior: "smooth" });
+        } else if (prompt) {
+            document.getElementById("prompt")?.scrollIntoView({ behavior: "smooth" });
+        } else if (flagged) {
+            document.getElementById("flagged")?.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [summary, prompt, flagged]);
 
     if (loading) {
         return <div>Loading...</div>
@@ -245,7 +278,7 @@ const Document = () => {
     return (
         <div className="form-wrapper">
             <form onSubmit={handleSubmit}>
-                <h1 className="font-bold text-3xl">{title}</h1>
+                <h1 className="font-bold text-3xl">{formData.title}</h1>
                 <h2 className="font-medium text-2xl">( Grade: {grade} )</h2>
                 <label htmlFor="title-field">
                     Title
@@ -253,31 +286,20 @@ const Document = () => {
                         type="text"
                         id="title-field"
                         placeholder="Enter the title here."
-                        onChange={(e) => setTitle(e.target.value)}
-                        value={title}
+                        onChange={(e) => setFormData((prevFormData) => ({...prevFormData, title: e.target.value}))}
+                        value={formData.title}
                     />
                 </label>
 
-                <label htmlFor="topic-field">
+                <label htmlFor="text-field">
                     Text
                     <TextareaAutosize
-                        id="topic-field"
+                        id="text-field"
                         minRows={4}
                         maxRows={20}
                         placeholder="Upload your essay or paste it here."
-                        onChange={(e) => setTopic(e.target.value)}
-                        value={topic}
-                    />
-                </label>
-
-                <label htmlFor="words-field">
-                    Class level (Middle school, high school, college, etc.)
-                    <input
-                        type="text"
-                        id="words-field"
-                        placeholder="Enter the class level here."
-                        onChange={(e) => setWords(e.target.value)}
-                        value={words}
+                        onChange={(e) => setFormData((prevFormData) => ({...prevFormData, text: e.target.value}))}
+                        value={formData.text}
                     />
                 </label>
 

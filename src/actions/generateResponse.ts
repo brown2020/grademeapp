@@ -32,7 +32,7 @@ async function generateDeterministicResponse(messages: CoreMessage[], estimatedO
     const creditsPerDollar = Number(process.env.NEXT_PUBLIC_CREDITS_PER_DOLLAR) || 500 as number;
     const creditsPerInputToken = Number(process.env.NEXT_PUBLIC_CREDITS_PER_INPUT_TOKEN) || 0.000005 as number;
     const creditsPerOutputToken = Number(process.env.NEXT_PUBLIC_CREDITS_PER_OUTPUT_TOKEN) || 0.000015 as number;
-    
+
     const model = openai("gpt-4o");
 
     // Estimate token usage before making the request
@@ -64,9 +64,25 @@ async function generateDeterministicResponse(messages: CoreMessage[], estimatedO
 };
 
 // Helper function to create the grading messages
-function createGradingMessages(topic: string, words: string): CoreMessage[] {
-    const systemPrompt = `Respond as a writing teacher at the ${words || "college"} level. Your response should be in the form of a letter grade and an explanation.`;
-    const userPrompt = `Please grade the essay that follows: \n${topic}`;
+function createGradingMessages(
+    identity: string,
+    identityLevel: string,
+    assigner: string,
+    topic: string,
+    prose: string,
+    audience: string,
+    wordLimitType: string,
+    wordLimit: string,
+    rubricString: string,
+    title: string,
+    text: string,
+): CoreMessage[] {
+
+    // Construct the system prompt based on user-provided inputs for enhanced accuracy
+    const systemPrompt = `You are a ${assigner} grading a ${prose}, in which a ${identityLevel} ${identity} is writing about ${topic} for his/her ${audience}. Grade the paper according this rubric: ${rubricString}. The word limit for this assignment is ${wordLimitType} ${wordLimit}. Provide a letter grade and constructive feedback in the form of a detailed explanation. Please provide suggestions for improvement without directly giving the answers. Begin with positive feedback. Include specific examples from the text to support your evaluation with ideas for improvement. Be careful not to give examples that the student can use directly in their work.`;
+
+    // Provide the student's writing content to be graded
+    const userPrompt = `Title: ${title} \n\nPlease review and grade the following essay based on the instructions above:\n\n${text}`;
 
     return [
         { role: "system", content: systemPrompt },
@@ -75,16 +91,41 @@ function createGradingMessages(topic: string, words: string): CoreMessage[] {
 }
 
 // Function specific to grading essays
-export async function generateGrade(topic: string, words: string, availableCredits: number) {
-    const validation = validateInputs(topic);
+export async function generateGrade(
+    identity: string,
+    identityLevel: string,
+    assigner: string,
+    topic: string,
+    prose: string,
+    audience: string,
+    wordLimitType: string,
+    wordLimit: string,
+    rubricString: string,
+    title: string,
+    text: string,
+    availableCredits: number
+) {
+    const validation = validateInputs(text as string);
     if (!validation.valid) {
         throw new Error(validation.error);
     }
 
     // Estimate output tokens based on average response length (adjust this as needed)
     // TODO: Implement a more accurate way to estimate output tokens
-    const estimatedOutputTokens = 500; // Rough estimate for response size
+    const estimatedOutputTokens = 1000; // Rough estimate for response size
 
-    const messages = createGradingMessages(topic, words);
+    const messages = createGradingMessages(
+        identity,
+        identityLevel,
+        assigner,
+        topic,
+        prose,
+        audience,
+        wordLimitType,
+        wordLimit,
+        rubricString,
+        title,
+        text,
+    );
     return await generateDeterministicResponse(messages, estimatedOutputTokens, availableCredits);
 }
