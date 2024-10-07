@@ -118,8 +118,6 @@ export default function History() {
         }
     };
 
-    console.log(summaries);
-
     if (!uid) return <div>Not signed in</div>;
 
     return (

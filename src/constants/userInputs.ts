@@ -12,13 +12,13 @@ interface UserInputs {
     };
     textType: {
         value: string;
-        verb: string;
+        verbs: string[];
     }[];
     prose: {
         options: string[];
         details: {
             [textTypeKey: string]: {
-                verb: string;
+                verbs: string[];
                 options: string[];
             };
         };
@@ -48,9 +48,14 @@ interface UserInputs {
 }
 
 // Function to get the verb from a given value
-export function getVerbByValue(value: string) {
+export function getVerbsByValue(value: string) {
     const foundItem = userInputs.textType.find(item => item.value === value);
-    return foundItem ? foundItem.verb : null;
+    return foundItem ? foundItem.verbs : []; // Return the array of verbs or an empty array if not found
+}
+
+export function getValuebyVerb(verb: string) {
+    const foundItem = userInputs.textType.find(item => item.verbs.includes(verb));
+    return foundItem ? foundItem.value : ""; // Return the value or an empty string if not found
 }
 
 export const userInputs: UserInputs = {
@@ -71,7 +76,7 @@ export const userInputs: UserInputs = {
                 "3rd grade", "4th grade", "5th grade", "6th grade",
                 "7th grade", "8th grade", "9th grade", "10th grade",
                 "11th grade", "12th grade", "undergraduate", "graduate",
-                "postgraduate", "doctoral", 
+                "postgraduate", "doctoral",
                 // "law school", "medical school", "nursing school", "business school", "other"
             ],
             professional: [
@@ -132,17 +137,17 @@ export const userInputs: UserInputs = {
 
     // Type of text (Purpose/Goal of writing)
     textType: [
-        { value: "persuasive", verb: "argue" },
-        { value: "narrative", verb: "tell a story about" },
-        { value: "descriptive", verb: "describe" },
-        { value: "expository", verb: "explain" },
-        { value: "reflective", verb: "reflect on" },
-        { value: "critical analysis", verb: "analyze" },
-        { value: "review", verb: "review" },
-        { value: "instructional", verb: "instruct on how to" },
-        { value: "procedural", verb: "provide a procedure for" },
-        { value: "report", verb: "report on" }
-    ],
+        { value: "persuasive", verbs: ["argue", "persuade"] },
+        { value: "narrative", verbs: ["tell a story about", "narrate"] },
+        { value: "descriptive", verbs: ["describe", "depict"] },
+        { value: "expository", verbs: ["explain", "inform"] },
+        { value: "reflective", verbs: ["reflect on", "contemplate"] },
+        { value: "critical analysis", verbs: ["analyze", "critique", "evaluate"] },
+        { value: "review", verbs: ["review", "assess"] },
+        { value: "instructional", verbs: ["guide", "teach"] },
+        { value: "procedural", verbs: ["provide a procedure for"] },
+        { value: "report", verbs: ["report on", "summarize"] }
+    ],    
 
     // Type of prose (Form/structure of the piece)
     prose: {
@@ -151,64 +156,64 @@ export const userInputs: UserInputs = {
             "journal entry", "memoir", "report", "case study", "speech", "script", "press release"
         ],
         // Nested prose options for some specific text types with aligned action verbs
-        details: {
+        "details": {
             "persuasive": {
-                verb: "argue",
-                options: [
-                    "persuasive essay", "debate speech", "op-ed", "editorial"
+                "verbs": ["argue", "persuade"],
+                "options": [
+                    "persuasive essay", "debate speech", "op-ed", "editorial", "argumentative essay", "opinion paragraph"
                 ]
             },
             "narrative": {
-                verb: "tell a story about",
-                options: [
-                    "personal narrative", "short story", "novel excerpt", "memoir"
+                "verbs": ["tell a story about", "narrate", "recount"],
+                "options": [
+                    "personal narrative", "short story", "novel excerpt", "memoir", "vignette"
                 ]
             },
             "descriptive": {
-                verb: "describe",
-                options: [
-                    "descriptive essay", "character sketch", "place description"
+                "verbs": ["describe", "depict"],
+                "options": [
+                    "descriptive essay", "character sketch", "place description", "sensory description"
                 ]
             },
             "expository": {
-                verb: "explain",
-                options: [
-                    "research paper", "informational article", "report", "manual or guide"
+                "verbs": ["explain", "inform"],
+                "options": [
+                    "research paper", "informational article", "report", "book report", "simple research project"
                 ]
             },
             "reflective": {
-                verb: "reflect on",
-                options: [
-                    "personal reflection", "journal entry", "memoir", "reflective essay"
+                "verbs": ["reflect on", "contemplate", "ponder"],
+                "options": [
+                    "personal reflection", "journal entry", "memoir", "reflective essay", "personal essay"
                 ]
             },
             "critical analysis": {
-                verb: "analyze",
-                options: [
-                    "literary analysis", "art critique", "film review", "book review"
+                "verbs": ["analyze", "critique", "evaluate"],
+                "options": [
+                    "literary analysis", "art critique", "film review", "book review", "critical essay"
                 ]
             },
             "review": {
-                verb: "review",
-                options: [
+                "verbs": ["review", "assess"],
+                "options": [
                     "book review", "film review", "product review", "performance review"
                 ]
             },
             "instructional": {
-                verb: "instruct on how to",
-                options: [
-                    "how-to guide", "instructional manual", "tutorial"
+                "verbs": ["instruct on how to", "guide", "teach"],
+                "options": [
+                    "how-to guide", "instructional manual", "tutorial", "instructional article"
                 ]
             },
             "procedural": {
-                verb: "provide a procedure for",
-                options: [
-                    "step-by-step guide", "procedure write-up", "workflow explanation"
+                "verbs": ["provide a procedure for", "outline a procedure", "detail a process"],
+                "options": [
+                    "step-by-step guide", "procedure write-up", "workflow explanation", "experiment protocol"
                 ]
             },
             "report": {
-                verb: "report on",
-                options: [
+                "verbs": ["report on", "summarize"],
+                "options": [
                     "lab report", "research summary", "progress report", "case study"
                 ]
             }

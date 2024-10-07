@@ -14,16 +14,17 @@ import TextareaAutosize from "react-textarea-autosize";
 import ReactMarkdown from "react-markdown";
 import { extractGrade } from "@/utils/responseParser";
 import { toast } from "react-hot-toast";
-import { Field, Label, Button, Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@headlessui/react";
+import { Field, Label, Button } from "@headlessui/react";
+import CustomListbox from "@/components/ui/CustomListbox";
 import { debounce } from "lodash";
 import { Paperclip } from "lucide-react"
 import { FormData } from "@/types/formdata";
-import { userInputs, getVerbByValue } from "@/constants/userInputs";
+import { userInputs, getVerbsByValue } from "@/constants/userInputs";
 import { getRubricsByCriteria, Rubric } from "@/constants/rubrics_new";
 
 // Define types for the saveHistory function
 async function saveHistory(
-    uid: string | null,    
+    uid: string | null,
     userInput: FormData,
     response: string,
     grade: string,
@@ -33,7 +34,7 @@ async function saveHistory(
 
     const docRef = doc(collection(db, "users", uid, "summaries"));
     await setDoc(docRef, {
-        id: docRef.id,        
+        id: docRef.id,
         userInput,
         response,
         grade,
@@ -78,18 +79,22 @@ export default function Tools() {
     // Handle form input changes
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
+        console.log("Input Change:", name, value);
         setFormData({ ...formData, [name]: value });
     };
 
     // Fetch rubrics based on form criteria
     useEffect(() => {
         const debouncedFetchRubrics = debounce(() => {
+            // console.log(formData)
             if (formData.identity && formData.identityLevel && formData.textType && formData.prose) {
                 const rubrics = getRubricsByCriteria(formData.identity, formData.identityLevel, formData.textType, formData.prose);
+                console.log("Rubrics:", rubrics);
                 if (rubrics.length > 0) {
-                    // get full rubric details from the selected rubric, use watchedRubris to get the selected rubric
+                    // get full rubric details from the selected rubric
                     setRubricOptions(rubrics);
                     setRubricNames(rubrics.map((rubric) => rubric.name)); // Set only the names for the Select
+                    setFormData((prevFormData) => ({ ...prevFormData, rubric: rubrics[0].name })); // Set the first rubric as default
                 }
             }
         }, 300); // 300 ms debounce
@@ -99,13 +104,27 @@ export default function Tools() {
         };
     }, [formData.identity, formData.identityLevel, formData.textType, formData.prose]);
 
+    // useEffect to update prose based on text type change
+    useEffect(() => {
+        // Check if a new text type is selected and there are options for the prose
+        if (formData.textType && userInputs.prose.details[formData.textType]) {
+            const proseOptions = userInputs.prose.details[formData.textType]?.options || [];
+            if (proseOptions.length > 0) {
+                // Set the formData.prose to the first option in the list
+                setFormData(prevFormData => ({
+                    ...prevFormData,
+                    prose: proseOptions[0] // Set the first option as the default value
+                }));
+            }
+        }
+    }, [formData.textType]);
+
     // Handle file upload
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = e.target.files ? e.target.files[0] : null;
         if (selectedFile && uid) {
             setUploading(true);
             toast.loading("Uploading file...");
-
 
             // Log file information for debugging
             // console.log('Uploading file:', selectedFile.name, 'of type:', selectedFile.type, 'and size:', selectedFile.size);
@@ -238,36 +257,22 @@ export default function Tools() {
                         <div className="flex flex-row gap-x-2">
                             {/* Identity Level */}
                             {formData.identity && (
-                                <>
-                                    <Listbox
-                                        value={formData.identityLevel}
-                                        onChange={(value) => setFormData((prevFormData) => ({ ...prevFormData, identityLevel: value }))}
-                                    >
-                                        <ListboxButton>{formData.identityLevel}</ListboxButton>
-                                        <ListboxOptions>
-                                            {userInputs.identity.identityLevels[formData.identity].map((level) => (
-                                                <ListboxOption key={level} value={level}>
-                                                    {level}
-                                                </ListboxOption>
-                                            ))}
-                                        </ListboxOptions>
-                                    </Listbox>
-                                </>
+                                <CustomListbox
+                                    value={formData.identityLevel}
+                                    options={userInputs.identity.identityLevels[formData.identity].map(level => ({ label: level, value: level }))}
+                                    onChange={(value) => setFormData((prevFormData) => ({ ...prevFormData, identityLevel: value }))}
+                                    buttonClassName="w-fit"
+                                    placeholder="Select Identity Level"
+                                />
                             )}
                             {/* Identity Selection */}
-                            <Listbox
+                            <CustomListbox
                                 value={formData.identity}
+                                options={userInputs.identity.options.map(identity => ({ label: identity, value: identity }))}
                                 onChange={(value) => setFormData((prevFormData) => ({ ...prevFormData, identity: value }))}
-                            >
-                                <ListboxButton>{formData.identity}</ListboxButton>
-                                <ListboxOptions>
-                                    {userInputs.identity.options.map((identity) => (
-                                        <ListboxOption key={identity} value={identity}>
-                                            {identity}
-                                        </ListboxOption>
-                                    ))}
-                                </ListboxOptions>
-                            </Listbox>
+                                buttonClassName="w-fit"
+                                placeholder="Select Identity"
+                            />
                         </div>
                         <span className="w-fit mr-2">.</span>
                     </div>
@@ -278,46 +283,36 @@ export default function Tools() {
 
                         {/* Assigner */}
                         <div className="w-fit mr-2">
-                            <Listbox
+                            <CustomListbox
                                 value={formData.assigner}
+                                options={(userInputs.assigner.options[formData.identity] || []).map(assigner => ({ label: assigner, value: assigner }))}
                                 onChange={(value) => setFormData((prevFormData) => ({ ...prevFormData, assigner: value }))}
-                            >
-                                <ListboxButton className="border rounded px-2 py-1">
-                                    {formData.assigner || "Select Assigner"}
-                                </ListboxButton>
-                                <ListboxOptions>
-                                    {userInputs.assigner.options[formData.identity]?.map((assigner) => (
-                                        <ListboxOption key={assigner} value={assigner}>
-                                            {assigner}
-                                        </ListboxOption>
-                                    ))}
-                                </ListboxOptions>
-                            </Listbox>
+                                buttonClassName="w-[80px]"
+                                placeholder="Select Assigner"
+                            />
                         </div>
 
                         <span className="w-fit mr-2">has asked me to</span>
 
                         {/* Text Type */}
                         <div className="w-fit mr-2">
-                            <Listbox
-                                value={formData.textType}
-                                onChange={(value) => setFormData((prevFormData) => ({ ...prevFormData, textType: value }))}
-                            >
-                                <ListboxButton className="border rounded px-2 py-1">
-                                    {getVerbByValue(formData.textType) || "Select Text Type"}
-                                </ListboxButton>
-                                <ListboxOptions>
-                                    {userInputs.textType.map((textType) => (
-                                        <ListboxOption key={textType.value} value={textType.value}>
-                                            {textType.verb}
-                                        </ListboxOption>
-                                    ))}
-                                </ListboxOptions>
-                            </Listbox>
+                            <CustomListbox
+                                // Assuming `formData.textType` is a single string that corresponds to one of the `textType` values
+                                value={(getVerbsByValue(formData.textType as string) || []).join(", ")} // Join verbs as a comma-separated string for display
+                                options={userInputs.textType.map(textType => ({
+                                    // Display each verb array as a comma-separated string
+                                    label: textType.verbs.join(", "),
+                                    value: textType.value || ""
+                                }))}
+                                onChange={(value) =>
+                                    setFormData((prevFormData) => ({ ...prevFormData, textType: value }))
+                                }
+                                buttonClassName="w-fit"
+                                placeholder="Select Text Type"
+                            />
                         </div>
-
                         {/* Topic */}
-                        <Field className="flex items-center">
+                        <Field className="flex items-center w-full">
                             <TextareaAutosize
                                 id="topic"
                                 name="topic"
@@ -329,26 +324,18 @@ export default function Tools() {
                             />
                         </Field>
 
-                        <span className="w-fit mr-2">in a(n)</span>
+                        <span className="w-fit mx-2">in a(n)</span>
 
                         {/* Prose */}
                         {formData.textType && userInputs.prose.details[formData.textType] && (
                             <div className="w-fit mr-2">
-                                <Listbox
+                                <CustomListbox
                                     value={formData.prose}
+                                    options={(userInputs.prose.details[formData.textType]?.options || []).map(prose => ({ label: prose, value: prose }))}
                                     onChange={(value) => setFormData((prevFormData) => ({ ...prevFormData, prose: value }))}
-                                >
-                                    <ListboxButton className="border rounded px-2 py-1">
-                                        {formData.prose || "Select Prose"}
-                                    </ListboxButton>
-                                    <ListboxOptions>
-                                        {userInputs.prose.details[formData.textType]?.options.map((prose) => (
-                                            <ListboxOption key={prose} value={prose}>
-                                                {prose}
-                                            </ListboxOption>
-                                        ))}
-                                    </ListboxOptions>
-                                </Listbox>
+                                    buttonClassName="w-fit"
+                                    placeholder="Select Prose"
+                                />
                             </div>
                         )}
 
@@ -357,21 +344,13 @@ export default function Tools() {
                         {/* Audience */}
                         {formData.identity && userInputs.audience.contextBasedAudiences[formData.identity] && (
                             <div className="w-fit mr-2">
-                                <Listbox
+                                <CustomListbox
                                     value={formData.audience}
+                                    options={userInputs.audience.contextBasedAudiences[formData.identity].map(audience => ({ label: audience, value: audience }))}
                                     onChange={(value) => setFormData((prevFormData) => ({ ...prevFormData, audience: value }))}
-                                >
-                                    <ListboxButton className="border rounded px-2 py-1">
-                                        {formData.audience || "Select Audience"}
-                                    </ListboxButton>
-                                    <ListboxOptions>
-                                        {userInputs.audience.contextBasedAudiences[formData.identity].map((audience) => (
-                                            <ListboxOption key={audience} value={audience}>
-                                                {audience}
-                                            </ListboxOption>
-                                        ))}
-                                    </ListboxOptions>
-                                </Listbox>
+                                    buttonClassName="w-fit"
+                                    placeholder="Select Audience"
+                                />
                             </div>
                         )}
 
@@ -379,19 +358,17 @@ export default function Tools() {
 
                         {/* Word Limit Type */}
                         <div className="w-fit mr-2">
-                            <Listbox
+                            <CustomListbox
                                 value={formData.wordLimitType}
+                                options={[
+                                    { label: 'less than', value: 'less than' },
+                                    { label: 'more than', value: 'more than' },
+                                    { label: 'between', value: 'between' }
+                                ]}
                                 onChange={(value) => setFormData((prevFormData) => ({ ...prevFormData, wordLimitType: value }))}
-                            >
-                                <ListboxButton className="border rounded px-2 py-1">
-                                    {formData.wordLimitType || "Select Word Limit Type"}
-                                </ListboxButton>
-                                <ListboxOptions>
-                                    <ListboxOption value="less">less than</ListboxOption>
-                                    <ListboxOption value="more">more than</ListboxOption>
-                                    <ListboxOption value="between">between</ListboxOption>
-                                </ListboxOptions>
-                            </Listbox>
+                                buttonClassName="w-fit"
+                                placeholder="Select Word Limit Type"
+                            />
                         </div>
 
                         {/* Word Limit */}
@@ -415,31 +392,14 @@ export default function Tools() {
                         {/* rubric */}
                         <div className="w-fit mr-2">
                             <Field>
-                                <Label className="block text-sm font-medium text-gray-700">Rubric</Label>
-                                <Listbox
+                                <Label className="block text-sm font-medium text-gray-700" htmlFor="rubric">Rubric</Label>
+                                <CustomListbox
                                     value={formData.rubric}
+                                    options={rubricNames.map((rubric) => ({ label: rubric, value: rubric }))}
                                     onChange={(value) => setFormData((prevFormData) => ({ ...prevFormData, rubric: value }))}
-                                >
-                                    <div className="relative">
-                                        <ListboxButton className="relative w-full border rounded px-2 py-1 text-left">
-                                            {formData.rubric || "Select a Rubric"}
-                                        </ListboxButton>
-                                        <ListboxOptions className="absolute w-full mt-1 max-h-60 overflow-auto bg-white border rounded shadow-lg">
-                                            {rubricNames.map((rubric) => (
-                                                <ListboxOption key={rubric} value={rubric}>
-                                                    {({ selected, focus }) => (
-                                                        <li
-                                                            className={`cursor-pointer select-none relative py-2 pl-3 pr-9 ${focus ? "text-white bg-blue-600" : "text-gray-900"
-                                                                } ${selected ? "font-medium" : "font-normal"}`}
-                                                        >
-                                                            {rubric}
-                                                        </li>
-                                                    )}
-                                                </ListboxOption>
-                                            ))}
-                                        </ListboxOptions>
-                                    </div>
-                                </Listbox>
+                                    buttonClassName="w-fit"
+                                    placeholder="Select a Rubric"
+                                />
                             </Field>
                         </div>
                     </div>
@@ -447,10 +407,11 @@ export default function Tools() {
 
                 {/* Title */}
                 <Field>
-                    <Label className="block text-sm font-medium text-gray-700">Title</Label>
+                    <Label className="block text-sm font-medium text-gray-700" htmlFor="title">Title</Label>
                     <input
                         type="text"
                         name="title"
+                        id="title"
                         value={formData.title}
                         onChange={(e) => setFormData((prevFormData) => ({ ...prevFormData, title: e.target.value }))}
                         placeholder="Enter the title here"
@@ -481,8 +442,9 @@ export default function Tools() {
 
                     {/* Text Area */}
                     <Field refName="text">
-                        <Label className="block text-sm font-medium text-gray-700">Text</Label>
+                        <Label className="block text-sm font-medium text-gray-700" htmlFor="text">Text</Label>
                         <TextareaAutosize
+                            id="text"
                             name="text"
                             value={formData.text}
                             onChange={(e) => setFormData((prevFormData) => ({ ...prevFormData, text: e.target.value }))}
