@@ -14,10 +14,10 @@ export default function RubricDisplay({ rubric }: { rubric: RubricState }) {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
-        <div className="w-full mb-4">
+        <div className="w-full">
             <div
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex flex-row gap-x-3 items-center text-left text-xs font-medium text-gray-100 p-2 rounded bg-orange-600 hover:bg-orange-400"
+                className="flex flex-row gap-x-3 items-center text-left text-xs font-medium text-gray-100 p-2 rounded-md bg-orange-500 hover:bg-orange-400"
             >
                 <ChevronDownIcon size={16} className={`transform ${isOpen ? 'rotate-180' : ''}`} />
                 <p>Rubric Criteria</p>

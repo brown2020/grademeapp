@@ -17,7 +17,7 @@ import { toast } from "react-hot-toast";
 import { Field, Label, Button } from "@headlessui/react";
 import CustomListbox from "@/components/ui/CustomListbox";
 import RubricDisplay from "@/components/ui/RubricDisplay";
-import CustomRubricBuilder from "@/components/CustomRubric";
+import CustomRubricBuilder from "@/components/RubricCustom";
 import { debounce } from "lodash";
 import { Paperclip } from "lucide-react"
 import { FormData } from "@/types/formdata";
@@ -65,7 +65,6 @@ export default function Tools() {
     const [showCustomRubricBuilder, setShowCustomRubricBuilder] = useState<boolean>(false);
     const [rubricNames, setRubricNames] = useState<string[]>([]);
     const [rubricOptions, setRubricOptions] = useState<RubricState[]>([]);
-    const [helperOpen, setHelperOpen] = useState<boolean>(false);
     const [formData, setFormData] = useState<FormData>({
         title: "", // Title of the text
         text: "", // The text of the essay
@@ -262,19 +261,13 @@ export default function Tools() {
                         <div className="w-full">
                             <Field>
                                 <Label className="block text-sm font-medium text-gray-700 w-full" htmlFor="rubric">Select Rubric</Label>
-                                <div onClick={() => setHelperOpen(!helperOpen)} className="bg-orange-500 mb-2 text-center w-full px-2 py-1 rounded shadow-md hover:bg-orange-400 text-gray-100 font-medium">
-                                    Use Rubric Helper
-                                </div>
-                                {helperOpen &&
-                                    <RubricHelper
-                                        formData={formData}
-                                        setFormData={setFormData}
-                                        setRubricOptions={setRubricOptions}
-                                        setRubricNames={setRubricNames}
-                                        rubricOptions={rubricOptions}
-                                        setHelperOpen={setHelperOpen}
-                                    />
-                                }
+                                <RubricHelper
+                                    formData={formData}
+                                    setFormData={setFormData}
+                                    setRubricOptions={setRubricOptions}
+                                    setRubricNames={setRubricNames}
+                                    rubricOptions={rubricOptions}
+                                />
                                 {rubricOptions && rubricOptions.length > 0 && (
                                     <CustomListbox
                                         value={formData.rubric.name}
@@ -289,21 +282,22 @@ export default function Tools() {
                         </div>
                         {/* Rubric Details */}
                         {formData.rubric && (
-                            <div className="w-full p-4 border rounded bg-orange-100">
-                                <h2 className="text-md font-semibold ">{formData.rubric.name}</h2>
+                            <div className="flex flex-col w-full gap-y-2 p-2 border rounded bg-orange-100">
+                                <h2 className="text-sm font-bold text-center">{formData.rubric.name}</h2>
                                 <p className="text-sm text-gray-700">{formData.rubric.description}</p>
 
                                 {/* Expandable Criteria Sections */}
-                                <div className="mt-4">
+                                <div className="">
                                     {formData.rubric && (
                                         <RubricDisplay rubric={formData.rubric} key={formData.rubric.name} />
                                     )}
                                 </div>
                             </div>
                         )}
-
-                        {/* Audience */}
-                        {formData.identity === "default" && (
+                        {/* Misc details - audience, word limit */}
+                        <div className="flex flex-col w-full p-2 gap-y-2 bg-orange-100 border rounded ">
+                            <label>Misc.</label>
+                            {/* Audience */}
                             <div className="w-full flex flex-row gap-x-2 items-center">
                                 <label className="block text-sm font-medium text-gray-700">Audience: </label>
                                 <input
@@ -313,31 +307,30 @@ export default function Tools() {
                                     value={formData.audience}
                                     onChange={(e) => setFormData((prevFormData) => ({ ...prevFormData, audience: e.target.value }))}
                                     placeholder="My fans..."
-                                    className="flex h-8 w-36 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                    className="flex h-8 w-36 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs sm:text-lg"
                                 />
                             </div>
-                        )}
-
-                        <div className="flex flex-row w-full">
                             {/* Word Limit */}
-                            <div className="flex flex-row gap-x-2 items-center">
-                                <label className="block text-sm font-medium text-gray-700" htmlFor="wordLimit">Word Limit: </label>
-                                <CustomListbox
-                                    value={formData.wordLimitType}
-                                    options={userInputs.wordCount.comparisonType.map(option => ({ label: option, value: option }))}
-                                    onChange={(value) => setFormData((prevFormData) => ({ ...prevFormData, wordLimitType: value }))}
-                                    buttonClassName="w-fit flex"
-                                    placeholder="Select..."
-                                />
-                                <input
-                                    type="number"
-                                    name="wordLimit"
-                                    id="wordLimit"
-                                    value={formData.wordLimit}
-                                    onChange={(e) => setFormData((prevFormData) => ({ ...prevFormData, wordLimit: e.target.value }))}
-                                    placeholder="Enter word limit"
-                                    className="flex h-8 w-36 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                                />
+                            <div className="flex flex-row w-full">
+                                <div className="flex flex-row gap-x-2 items-center">
+                                    <label className="block text-sm font-medium text-gray-700" htmlFor="wordLimit">Word Limit: </label>
+                                    <CustomListbox
+                                        value={formData.wordLimitType}
+                                        options={userInputs.wordCount.comparisonType.map(option => ({ label: option, value: option }))}
+                                        onChange={(value) => setFormData((prevFormData) => ({ ...prevFormData, wordLimitType: value }))}
+                                        buttonClassName="w-fit flex"
+                                        placeholder="Select..."
+                                    />
+                                    <input
+                                        type="number"
+                                        name="wordLimit"
+                                        id="wordLimit"
+                                        value={formData.wordLimit}
+                                        onChange={(e) => setFormData((prevFormData) => ({ ...prevFormData, wordLimit: e.target.value }))}
+                                        placeholder="Enter word limit"
+                                        className="flex h-8 w-28 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs sm:text-lg"
+                                    />
+                                </div>
                             </div>
                         </div>
 
@@ -345,7 +338,7 @@ export default function Tools() {
                         <Button
                             type="button"
                             onClick={() => setShowCustomRubricBuilder(true)}
-                            className="mt-4 inline-flex justify-center rounded-md border border-transparent bg-green-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                            className="w-full"
                         >
                             Create Custom Rubric
                         </Button>
@@ -422,8 +415,8 @@ export default function Tools() {
             )}
 
             {showCustomRubricBuilder && (
-                <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-                    <div className="bg-white rounded-lg shadow-lg p-4 w-96 h-96 overflow-scroll resize cursor-se-resize">
+                <div className="fixed top-8 left-0 right-0 bottom-16 flex items-center justify-center z-50 bg-black bg-opacity-50">
+                    <div className="bg-white shadow-lg p-4 w-96 sm:w-[1000px] h-full overflow-y-scroll">
                         <CustomRubricBuilder
                             onSave={async (customRubric) => {
                                 // Save the custom rubric to the database

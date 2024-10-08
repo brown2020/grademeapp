@@ -32,7 +32,7 @@ const CustomListbox = <T extends string | number | string[] | null>({
         <Listbox value={value} onChange={onChange}>
             <ListboxButton
                 className={clsx(
-                    "flex justify-center items-center px-2 py-1 bg-orange-400 rounded-md",
+                    "flex justify-center items-center px-2 py-1 bg-orange-400 rounded-md text-sm",
                     buttonClassName
                 )}
             >
@@ -45,8 +45,8 @@ const CustomListbox = <T extends string | number | string[] | null>({
                         value={value}
                         // Apply alternating background color based on even/odd index
                         className={clsx(
-                            "group flex gap-2 px-2 py-1 data-[focus]:bg-orange-100 text-sm",
-                            index % 2 === 0 ? "bg-orange-300" : "bg-orange-200", // Alternating background colors
+                            "group flex gap-2 px-2 py-1 data-[focus]:bg-orange-200 text-sm",
+                            index % 2 === 0 ? "bg-gray-200" : "bg-gray-100", // Alternating background colors
                             optionClassName
                         )}
                     >
