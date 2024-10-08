@@ -13,7 +13,7 @@ export const defaultRubrics: DefaultRubrics = {
         }
     },
     "analytical": {
-        "name": "Comprehensive Analytical Writing Rubric",
+        "name": "General Comprehensive Analytical Writing Rubric",
         "description": "Evaluates key elements of writing in separate components to provide specific feedback.",
         "type": RubricType.Analytical,
         "criteria": {
@@ -44,7 +44,7 @@ export const defaultRubrics: DefaultRubrics = {
         }
     },
     "developmental": {
-        "name": "Progressive Writing Skills Rubric",
+        "name": "General Progressive Writing Skills Rubric",
         "description": "Assesses a student's growth in writing skills over time.",
         "type": RubricType.Developmental,
         "criteria": {
@@ -55,7 +55,7 @@ export const defaultRubrics: DefaultRubrics = {
         }
     },
     "primary_trait": {
-        "name": "Argument Focused Primary Trait Rubric",
+        "name": "General Argument Focused Primary Trait Rubric",
         "description": "Evaluates a writing piece based on its ability to make and support an argument.",
         "type": RubricType.PrimaryTrait,
         "criteria": {
@@ -66,7 +66,7 @@ export const defaultRubrics: DefaultRubrics = {
         }
     },
     "multitrait": {
-        "name": "Genre-Specific Writing Traits Rubric",
+        "name": "General Genre-Specific Writing Traits Rubric",
         "description": "Evaluates multiple traits specific to a writing genre (e.g., narrative, expository).",
         "type": RubricType.MultiTrait,
         "criteria": {
@@ -91,7 +91,7 @@ export const defaultRubrics: DefaultRubrics = {
         }
     },
     "task_specific": {
-        "name": "Task-Focused Writing Rubric",
+        "name": "General Task-Focused Writing Rubric",
         "description": "Evaluates a piece of writing based on how well it meets the requirements of a specific task.",
         "type": RubricType.TaskSpecific,
         "criteria": {
@@ -110,7 +110,7 @@ export const defaultRubrics: DefaultRubrics = {
         }
     },
     "standards_based": {
-        "name": "Standards-Aligned Writing Rubric",
+        "name": "General Standards-Aligned Writing Rubric",
         "description": "Assesses writing based on educational standards (e.g., CCSS for language arts).",
         "type": RubricType.StandardsBased,
         "criteria": {
@@ -129,7 +129,7 @@ export const defaultRubrics: DefaultRubrics = {
         }
     },
     "single_point": {
-        "name": "Focused Single-Point Writing Rubric",
+        "name": "General Focused Single-Point Writing Rubric",
         "description": "Provides a single performance expectation with space for individualized feedback on strengths and weaknesses.",
         "type": RubricType.SinglePoint,
         "criteria": {
@@ -141,7 +141,7 @@ export const defaultRubrics: DefaultRubrics = {
         }
     },
     "checklist": {
-        "name": "Basic Writing Checklist",
+        "name": "General Basic Writing Checklist",
         "description": "Ensures all required elements of the writing are present.",
         "type": RubricType.Checklist,
         "criteria": {
@@ -2946,39 +2946,6 @@ export const rubrics: NestedRubrics = {
                 }
             },
             "expository": {
-                "research paper": {
-                    "analytical": {
-                        "name": "9th Grade Analytical Research Paper Rubric",
-                        "description": "Evaluates development of thesis, thorough research, logical argumentation, and adherence to citation style.",
-                        type: RubricType.Analytical,
-                        "criteria": {
-                            "Thesis & Focus": {
-                                "Excellent": "Develops a clear, compelling thesis that thoroughly guides the paper’s research and analysis.",
-                                "Proficient": "Thesis is clear and appropriately focused, guiding the paper effectively.",
-                                "Developing": "Thesis is present but lacks clarity or fails to effectively guide the paper.",
-                                "Beginning": "Thesis is absent, unclear, or does not guide the paper effectively."
-                            },
-                            "Organization & Argumentation": {
-                                "Excellent": "Paper is well-organized, presenting arguments logically with strong transitions and clear paragraph structure.",
-                                "Proficient": "Organization is mostly logical, with appropriate transitions, but some areas may lack coherence.",
-                                "Developing": "Structure is present but lacks clear logic or flow, affecting argumentation.",
-                                "Beginning": "Poor organization, making it difficult to follow the arguments presented."
-                            },
-                            "Research & Depth of Evidence": {
-                                "Excellent": "Provides in-depth research with relevant, credible sources and well-developed analysis to support the thesis.",
-                                "Proficient": "Provides appropriate evidence, but some sources may lack depth or analysis may be less developed.",
-                                "Developing": "Evidence is present but may lack relevance, depth, or thorough analysis.",
-                                "Beginning": "Little to no relevant evidence is provided to support the thesis."
-                            },
-                            "Citation & Style Adherence": {
-                                "Excellent": "Adheres consistently to the chosen citation style, with accurate source attribution.",
-                                "Proficient": "Follows the chosen citation style, with minor errors or inconsistencies.",
-                                "Developing": "Attempts to follow citation style, but includes multiple errors or omissions.",
-                                "Beginning": "Little to no adherence to citation style or source attribution."
-                            }
-                        }
-                    }
-                },
                 "informational article": {
                     "analytical": {
                         "name": "9th Grade Analytical Informational Article Rubric",
@@ -4372,4 +4339,26 @@ export function getRubricNamesByCriteria(
 export function getDefaultRubrics(): RubricState[] {
     const defaultRubricsArray = Object.values(defaultRubrics);
     return defaultRubricsArray;
+}
+
+// Recursive function to flatten the rubrics structure
+export function flattenRubrics(rubrics: any): RubricState[] {
+    const result: RubricState[] = [];
+
+    function recursiveHelper(obj: any) {
+        Object.keys(obj).forEach((key) => {
+            const value = obj[key];
+
+            // Check if the value contains rubric properties
+            if (value?.name && value?.description && value?.type && value?.criteria) {
+                result.push(value as RubricState); // Push rubric object to the result array
+            } else if (typeof value === "object") {
+                // Recurse deeper if it's an object but not a rubric
+                recursiveHelper(value);
+            }
+        });
+    }
+
+    recursiveHelper(rubrics);
+    return result;
 }

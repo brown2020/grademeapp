@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState, useEffect, FormEvent } from "react";
-import { Timestamp, collection, doc, setDoc } from "firebase/firestore";
+import { Timestamp, collection, doc, setDoc, getDocs } from "firebase/firestore";
 import { db, storage } from "@/firebase/firebaseClient";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useAuthStore } from "@/zustand/useAuthStore";
@@ -12,19 +12,24 @@ import { parseDocumentFromUrl } from "@/actions/parseDocumentFromUrl";
 import { readStreamableValue } from "ai/rsc";
 import TextareaAutosize from "react-textarea-autosize";
 import ReactMarkdown from "react-markdown";
-import { extractGrade } from "@/utils/responseParser";
 import { toast } from "react-hot-toast";
-import { Field, Label, Button } from "@headlessui/react";
-import CustomListbox from "@/components/ui/CustomListbox";
-import RubricDisplay from "@/components/ui/RubricDisplay";
-import CustomRubricBuilder from "@/components/RubricCustom";
+
 import { debounce } from "lodash";
 import { Paperclip } from "lucide-react"
-import { FormData } from "@/types/formdata";
+import { Field, Label, Button, Switch } from "@headlessui/react";
+
+import CustomListbox from "@/components/ui/CustomListbox";
+import RubricDisplay from "@/components/rubrics/RubricDisplay";
+import CustomRubricBuilder from "@/components/rubrics/RubricCustom";
+import RubricHelper from "@/components/rubrics/RubricHelper";
+import RubricSearch from "@/components/rubrics/RubricSearch";
+
+import { extractGrade } from "@/utils/responseParser";
 import { userInputs } from "@/constants/userInputs";
 import { getRubricsByCriteria, getDefaultRubrics } from "@/constants/rubrics_new";
 import { RubricState } from "@/types/rubrics-types"
-import RubricHelper from "@/components/RubricHelper";
+import { FormData } from "@/types/formdata";
+
 
 
 // Define types for the saveHistory function
@@ -62,6 +67,7 @@ export default function Tools() {
     const [hasSaved, setHasSaved] = useState<boolean>(false);
     const [uploading, setUploading] = useState<boolean>(false);
     const [fileUrl, setFileUrl] = useState<string>("");
+    const [useCustomRubrics, setUseCustomRubrics] = useState<boolean>(false);
     const [showCustomRubricBuilder, setShowCustomRubricBuilder] = useState<boolean>(false);
     const [rubricNames, setRubricNames] = useState<string[]>([]);
     const [rubricOptions, setRubricOptions] = useState<RubricState[]>([]);
@@ -80,6 +86,32 @@ export default function Tools() {
         customRubric: "", // Optional custom rubric (empty if not used)
         rubric: rubricOptions[0] || null, // Specific rubric chosen from list
     });
+
+    // Fetch default rubrics or custom rubrics based on toggle
+    useEffect(() => {
+        if (useCustomRubrics && uid) {
+            const fetchCustomRubrics = async () => {
+                const customRubricCollection = collection(db, 'users', uid, 'custom_rubrics');
+                const customRubricSnapshot = await getDocs(customRubricCollection);
+                const fetchedRubrics = customRubricSnapshot.docs.map(doc => doc.data() as RubricState);
+                setRubricOptions(fetchedRubrics);
+                setRubricNames(fetchedRubrics.map(rubric => rubric.name));
+                if (fetchedRubrics.length > 0) {
+                    setFormData(prevFormData => ({
+                        ...prevFormData,
+                        rubric: fetchedRubrics[0],
+                    }));
+                }
+            };
+            fetchCustomRubrics();
+        } else {
+            // Use default rubrics logic
+            const defaultRubrics = getDefaultRubrics();
+            setRubricOptions(defaultRubrics);
+            setRubricNames(defaultRubrics.map(rubric => rubric.name));
+            setFormData(prevFormData => ({ ...prevFormData, rubric: defaultRubrics[0] }));
+        }
+    }, [useCustomRubrics, uid]);
 
     // Fetch rubrics based on form criteria
     useEffect(() => {
@@ -105,7 +137,13 @@ export default function Tools() {
         };
     }, [formData.identity, formData.identityLevel, formData.textType, formData.prose, setFormData, setRubricNames, setRubricOptions]);
 
-    console.log("form data: ", formData);
+    // Function to handle when a rubric is selected from the search results
+    const handleRubricSelect = (rubric: RubricState) => {
+        setFormData((prevFormData) => ({
+            ...prevFormData,
+            rubric,
+        }));
+    };
 
     // useEffect to update prose based on text type change
     useEffect(() => {
@@ -161,8 +199,8 @@ export default function Tools() {
 
     // Enable submit button if conditions are met
     useEffect(() => {
-        setActive(formData.topic.length > 1 && localCount > 0 && !uploading);
-    }, [localCount, formData.topic, uploading]);
+        setActive(formData.text.length > 1 && localCount > 0 && !uploading);
+    }, [localCount, formData.text, uploading]);
 
 
     // Handle form submission
@@ -241,44 +279,39 @@ export default function Tools() {
         if (summary) {
             document.getElementById("response")?.scrollIntoView({ behavior: "smooth" });
         }
-        // else if (prompt) {
-        //     document.getElementById("prompt")?.scrollIntoView({ behavior: "smooth" });
-        // } 
         else if (flagged) {
             document.getElementById("flagged")?.scrollIntoView({ behavior: "smooth" });
         }
     }, [summary, flagged]);
 
     return (
-        <div className="form-wrapper space-y-8 font-medium">
+        <div className=" space-y-8 font-medium">
             <form onSubmit={handleSubmit}>
-
-                {/* Rubric Display */}
+                {/* Rubric Selection and Display */}
                 <div className="flex flex-col min-w-full w-full items-left text-md border rounded-lg px-2 py-1">
-                    {/* Rubric: [rubric] */}
+
+                    {/* Rubric Selection List */}
                     <div className="flex flex-col flex-wrap items-center gap-y-4">
-                        {/* rubric */}
                         <div className="w-full">
                             <Field>
                                 <Label className="block text-sm font-medium text-gray-700 w-full" htmlFor="rubric">Select Rubric</Label>
-                                <RubricHelper
-                                    formData={formData}
-                                    setFormData={setFormData}
-                                    setRubricOptions={setRubricOptions}
-                                    setRubricNames={setRubricNames}
-                                    rubricOptions={rubricOptions}
-                                />
-                                {rubricOptions && rubricOptions.length > 0 && (
-                                    <CustomListbox
-                                        value={formData.rubric.name}
-                                        options={rubricNames.map((rubric) => ({ label: rubric, value: rubric }))}
-                                        onChange={(rubricName) => setFormData((prevFormData) => ({ ...prevFormData, rubric: rubricOptions.find((rubric) => rubric.name === rubricName) || prevFormData.rubric }))}
-                                        buttonClassName="bg-orange-500 text-center w-full px-2 py-1 rounded shadow-md hover:bg-orange-400 text-gray-100 font-medium mt-4"
-                                        optionsWrapperClassName="w-fit"
-                                        placeholder="Select a Rubric"
-                                    />
-                                )}
+                                <RubricSearch onRubricSelect={handleRubricSelect} />
                             </Field>
+                        </div>
+                        {/* Use Custom Rubrics */}
+                        <div className="flex items-center space-x-2">
+                            <Switch
+                                checked={useCustomRubrics}
+                                onChange={setUseCustomRubrics}
+                                className={`${useCustomRubrics ? 'bg-blue-600' : 'bg-gray-200'} relative inline-flex items-center h-6 rounded-full w-11`}
+                            >
+                                <span className="sr-only">Use Custom Rubrics</span>
+                                <span
+                                    className={`${useCustomRubrics ? 'translate-x-6' : 'translate-x-1'
+                                        } inline-block w-4 h-4 transform bg-white rounded-full`}
+                                />
+                            </Switch>
+                            <label className="text-sm">{useCustomRubrics ? "Use Grade.me Rubrics" : "Use Custom Rubrics"}</label>
                         </div>
                         {/* Rubric Details */}
                         {formData.rubric && (
@@ -334,6 +367,14 @@ export default function Tools() {
                             </div>
                         </div>
 
+                        {/* Rubric Helper */}
+                        <RubricHelper
+                            formData={formData}
+                            setFormData={setFormData}
+                            setRubricOptions={setRubricOptions}
+                            setRubricNames={setRubricNames}
+                            rubricOptions={rubricOptions}
+                        />
                         {/* Custom Rubric Button */}
                         <Button
                             type="button"
@@ -414,9 +455,10 @@ export default function Tools() {
                 </div>
             )}
 
+            {/* Custom Rubric Builder Modal */}
             {showCustomRubricBuilder && (
                 <div className="fixed top-8 left-0 right-0 bottom-16 flex items-center justify-center z-50 bg-black bg-opacity-50">
-                    <div className="bg-white shadow-lg p-4 w-96 sm:w-[1000px] h-full overflow-y-scroll">
+                    <div className="bg-white shadow-lg p-2 w-96 sm:w-[1000px] h-full overflow-y-scroll">
                         <CustomRubricBuilder
                             onSave={async (customRubric) => {
                                 // Save the custom rubric to the database

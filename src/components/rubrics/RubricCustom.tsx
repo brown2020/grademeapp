@@ -295,9 +295,9 @@ export default function CustomRubricBuilder({ onSave, onCancel }: { onSave: (rub
     return (
         <div className="p-2 bg-white rounded shadow relative">
             <div onClick={onCancel} className="absolute top-2 right-2 cursor-pointer">
-                <XCircleIcon className="h-6 w-6 text-red-600" />
+                <XCircleIcon className="h-6 w-6 text-red-800" />
             </div>
-            <h2 className="text-xl font-bold mb-4">Create Your Custom Rubric</h2>
+            <h2 className="text-xl font-bold mb-4 text-orange-600 text-center">Create Your Custom Rubric</h2>
 
             {/* Rubric Type Selection */}
             <div className="mb-4">
