@@ -16,14 +16,15 @@ import { extractGrade } from "@/utils/responseParser";
 import { toast } from "react-hot-toast";
 import { Field, Label, Button } from "@headlessui/react";
 import CustomListbox from "@/components/ui/CustomListbox";
-import CollapsiblePanel from "@/components/ui/CollapsiblePanel";
+import RubricDisplay from "@/components/ui/RubricDisplay";
 import CustomRubricBuilder from "@/components/CustomRubric";
 import { debounce } from "lodash";
 import { Paperclip } from "lucide-react"
 import { FormData } from "@/types/formdata";
-import { userInputs, getVerbsByValue } from "@/constants/userInputs";
-import { getRubricsByCriteria } from "@/constants/rubrics_new";
-import { RubricState } from "@/types/rubrics"
+import { userInputs } from "@/constants/userInputs";
+import { getRubricsByCriteria, getDefaultRubrics } from "@/constants/rubrics_new";
+import { RubricState } from "@/types/rubrics-types"
+import RubricHelper from "@/components/RubricHelper";
 
 
 // Define types for the saveHistory function
@@ -54,7 +55,6 @@ export default function Tools() {
     const [summary, setSummary] = useState<string>("");
     const [flagged, setFlagged] = useState<string>("");
     const [active, setActive] = useState<boolean>(false);
-    // const [prompt, setPrompt] = useState<string>("");
     const [grade, setGrade] = useState<string>("");
     const [thinking, setThinking] = useState<boolean>(false);
     const [localCount, setLocalCount] = useState<number>(profile.credits);
@@ -65,13 +65,14 @@ export default function Tools() {
     const [showCustomRubricBuilder, setShowCustomRubricBuilder] = useState<boolean>(false);
     const [rubricNames, setRubricNames] = useState<string[]>([]);
     const [rubricOptions, setRubricOptions] = useState<RubricState[]>([]);
+    const [helperOpen, setHelperOpen] = useState<boolean>(false);
     const [formData, setFormData] = useState<FormData>({
         title: "", // Title of the text
         text: "", // The text of the essay
-        identity: "student", // Identity of the user
-        identityLevel: "3rd grade", // Level of the identity (student, researcher, etc.)
-        assigner: "teacher", // Instructor or person assigning the task
-        textType: "narrative", // Type of text (narrative, descriptive, argumentative, etc.)
+        identity: "default", // Identity of the user
+        identityLevel: "", // Level of the identity (student, researcher, etc.)
+        assigner: "", // Instructor or person assigning the task
+        textType: "", // Type of text (narrative, descriptive, argumentative, etc.)
         topic: "", // Topic of the assignment
         prose: "", // Type of prose (essay, short story, etc.)
         audience: "", // Intended audience
@@ -81,36 +82,31 @@ export default function Tools() {
         rubric: rubricOptions[0] || null, // Specific rubric chosen from list
     });
 
-    // Handle form input changes
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        console.log("Input Change:", name, value);
-        setFormData({ ...formData, [name]: value });
-    };
-
     // Fetch rubrics based on form criteria
     useEffect(() => {
         const debouncedFetchRubrics = debounce(() => {
-            // console.log(formData)
+            if (formData.identity === "default") {
+                const rubrics = getDefaultRubrics();
+                setRubricOptions(rubrics);
+                setRubricNames(rubrics.map((rubric) => rubric.name));
+                setFormData((prevFormData) => ({ ...prevFormData, rubric: rubrics[0] }));
+            }
             if (formData.identity && formData.identityLevel && formData.textType && formData.prose) {
                 const rubrics = getRubricsByCriteria(formData.identity, formData.identityLevel, formData.textType, formData.prose);
-                console.log("Rubrics:", rubrics);
                 if (rubrics.length > 0) {
-                    // get full rubric details from the selected rubric
                     setRubricOptions(rubrics);
-                    setRubricNames(rubrics.map((rubric) => rubric.name)); // Set only the names for the Select
-                    setFormData((prevFormData) => ({ ...prevFormData, rubric: rubrics[0] })); // Set the first rubric as default
+                    setRubricNames(rubrics.map((rubric) => rubric.name));
+                    setFormData((prevFormData) => ({ ...prevFormData, rubric: rubrics[0] }));
                 }
             }
-        }, 300); // 300 ms debounce
+        }, 300);
         debouncedFetchRubrics();
         return () => {
-            debouncedFetchRubrics.cancel(); // Cleanup on unmount or value change
+            debouncedFetchRubrics.cancel();
         };
-    }, [formData.identity, formData.identityLevel, formData.textType, formData.prose]);
+    }, [formData.identity, formData.identityLevel, formData.textType, formData.prose, setFormData, setRubricNames, setRubricOptions]);
 
-    console.log("Rubric Options:", rubricOptions);
-    console.log(formData.rubric)
+    console.log("form data: ", formData);
 
     // useEffect to update prose based on text type change
     useEffect(() => {
@@ -230,7 +226,7 @@ export default function Tools() {
                 "No suggestions found. Servers might be overloaded right now."
             );
         }
-    }, [formData, profile.credits, minusCredits, rubricOptions]);
+    }, [formData, profile.credits, minusCredits]);
 
     // Effect to handle saving to history
     useEffect(() => {
@@ -257,156 +253,35 @@ export default function Tools() {
     return (
         <div className="form-wrapper space-y-8 font-medium">
             <form onSubmit={handleSubmit}>
-                {/* User Inputs */}
-                <div className="flex flex-col flex-wrap items-left text-md space-y-2 border rounded-lg px-2 py-1">
-                    {/* I am a [identity_level] [identity].  */}
-                    <div className="flex flex-wrap items-center mr-2">
-                        <span className="mr-2">I am a</span>
-                        <div className="flex flex-row gap-x-2">
-                            {/* Identity Level */}
-                            {formData.identity && (
-                                <CustomListbox
-                                    value={formData.identityLevel}
-                                    options={userInputs.identity.identityLevels[formData.identity].map(level => ({ label: level, value: level }))}
-                                    onChange={(value) => setFormData((prevFormData) => ({ ...prevFormData, identityLevel: value }))}
-                                    buttonClassName="w-fit"
-                                    placeholder="Select Identity Level"
-                                />
-                            )}
-                            {/* Identity Selection */}
-                            <CustomListbox
-                                value={formData.identity}
-                                options={userInputs.identity.options.map(identity => ({ label: identity, value: identity }))}
-                                onChange={(value) => setFormData((prevFormData) => ({ ...prevFormData, identity: value }))}
-                                buttonClassName="w-fit"
-                                placeholder="Select Identity"
-                            />
-                        </div>
-                        <span className="w-fit mr-2">.</span>
-                    </div>
-                    <hr className="w-full border-t-2 border-gray-300" />
-                    {/* My [assigner] has asked me to [text_type][verb] [topic] in a(n) [prose] for [audience]. */}
-                    <div className="flex flex-wrap items-center gap-y-2">
-                        <span className="w-fit mr-2">My</span>
 
-                        {/* Assigner */}
-                        <div className="w-fit mr-2">
-                            <CustomListbox
-                                value={formData.assigner}
-                                options={(userInputs.assigner.options[formData.identity] || []).map(assigner => ({ label: assigner, value: assigner }))}
-                                onChange={(value) => setFormData((prevFormData) => ({ ...prevFormData, assigner: value }))}
-                                buttonClassName="w-[80px]"
-                                placeholder="Select Assigner"
-                            />
-                        </div>
-
-                        <span className="w-fit mr-2">has asked me to</span>
-
-                        {/* Text Type */}
-                        <div className="w-fit mr-2">
-                            <CustomListbox
-                                // Assuming `formData.textType` is a single string that corresponds to one of the `textType` values
-                                value={(getVerbsByValue(formData.textType as string) || []).join(", ")} // Join verbs as a comma-separated string for display
-                                options={userInputs.textType.map(textType => ({
-                                    // Display each verb array as a comma-separated string
-                                    label: textType.verbs.join(", "),
-                                    value: textType.value || ""
-                                }))}
-                                onChange={(value) =>
-                                    setFormData((prevFormData) => ({ ...prevFormData, textType: value }))
-                                }
-                                buttonClassName="w-fit"
-                                placeholder="Select Text Type"
-                            />
-                        </div>
-                        {/* Topic */}
-                        <Field className="flex items-center w-full">
-                            <TextareaAutosize
-                                id="topic"
-                                name="topic"
-                                value={formData.topic}
-                                onChange={handleInputChange}
-                                minRows={1}
-                                placeholder="Explain the topic"
-                                className="border rounded w-full px-2 py-1"
-                            />
-                        </Field>
-
-                        <span className="w-fit mx-2">in a(n)</span>
-
-                        {/* Prose */}
-                        {formData.textType && userInputs.prose.details[formData.textType] && (
-                            <div className="w-fit mr-2">
-                                <CustomListbox
-                                    value={formData.prose}
-                                    options={(userInputs.prose.details[formData.textType]?.options || []).map(prose => ({ label: prose, value: prose }))}
-                                    onChange={(value) => setFormData((prevFormData) => ({ ...prevFormData, prose: value }))}
-                                    buttonClassName="w-fit"
-                                    placeholder="Select Prose"
-                                />
-                            </div>
-                        )}
-
-                        <span className="w-fit mr-2">for</span>
-
-                        {/* Audience */}
-                        {formData.identity && userInputs.audience.contextBasedAudiences[formData.identity] && (
-                            <div className="w-fit mr-2">
-                                <CustomListbox
-                                    value={formData.audience}
-                                    options={userInputs.audience.contextBasedAudiences[formData.identity].map(audience => ({ label: audience, value: audience }))}
-                                    onChange={(value) => setFormData((prevFormData) => ({ ...prevFormData, audience: value }))}
-                                    buttonClassName="w-fit"
-                                    placeholder="Select Audience"
-                                />
-                            </div>
-                        )}
-
-                        <span className="w-fit mr-2">in</span>
-
-                        {/* Word Limit Type */}
-                        <div className="w-fit mr-2">
-                            <CustomListbox
-                                value={formData.wordLimitType}
-                                options={[
-                                    { label: 'less than', value: 'less than' },
-                                    { label: 'more than', value: 'more than' },
-                                    { label: 'between', value: 'between' }
-                                ]}
-                                onChange={(value) => setFormData((prevFormData) => ({ ...prevFormData, wordLimitType: value }))}
-                                buttonClassName="w-fit"
-                                placeholder="Select Word Limit Type"
-                            />
-                        </div>
-
-                        {/* Word Limit */}
-                        <div className="w-20 mr-2">
-                            <input
-                                type="number"
-                                id="wordLimit"
-                                name="wordLimit"
-                                value={formData.wordLimit}
-                                onChange={handleInputChange}
-                                className="border rounded px-2 py-1 w-full"
-                            />
-                        </div>
-
-                        <span className="w-fit mr-2">words.</span>
-                    </div>
-
-                    <hr className="w-full border-t-2 border-gray-300" />
+                {/* Rubric Display */}
+                <div className="flex flex-col min-w-full w-full items-left text-md border rounded-lg px-2 py-1">
                     {/* Rubric: [rubric] */}
-                    <div className="flex flex-wrap items-center">
+                    <div className="flex flex-col flex-wrap items-center gap-y-4">
                         {/* rubric */}
-                        <div className="w-fit mr-2">
+                        <div className="w-full">
                             <Field>
-                                <Label className="block text-sm font-medium text-gray-700" htmlFor="rubric">Rubric</Label>
+                                <Label className="block text-sm font-medium text-gray-700 w-full" htmlFor="rubric">Select Rubric</Label>
+                                <div onClick={() => setHelperOpen(!helperOpen)} className="bg-orange-500 mb-2 text-center w-full px-2 py-1 rounded shadow-md hover:bg-orange-400 text-gray-100 font-medium">
+                                    Use Rubric Helper
+                                </div>
+                                {helperOpen &&
+                                    <RubricHelper
+                                        formData={formData}
+                                        setFormData={setFormData}
+                                        setRubricOptions={setRubricOptions}
+                                        setRubricNames={setRubricNames}
+                                        rubricOptions={rubricOptions}
+                                        setHelperOpen={setHelperOpen}
+                                    />
+                                }
                                 {rubricOptions && rubricOptions.length > 0 && (
                                     <CustomListbox
                                         value={formData.rubric.name}
                                         options={rubricNames.map((rubric) => ({ label: rubric, value: rubric }))}
                                         onChange={(rubricName) => setFormData((prevFormData) => ({ ...prevFormData, rubric: rubricOptions.find((rubric) => rubric.name === rubricName) || prevFormData.rubric }))}
-                                        buttonClassName="w-fit"
+                                        buttonClassName="bg-orange-500 text-center w-full px-2 py-1 rounded shadow-md hover:bg-orange-400 text-gray-100 font-medium mt-4"
+                                        optionsWrapperClassName="w-fit"
                                         placeholder="Select a Rubric"
                                     />
                                 )}
@@ -414,19 +289,59 @@ export default function Tools() {
                         </div>
                         {/* Rubric Details */}
                         {formData.rubric && (
-                            <div className="w-full mt-4 p-4 border rounded bg-orange-100">
-                                <h2 className="text-lg font-semibold">{formData.rubric.name}</h2>
+                            <div className="w-full p-4 border rounded bg-orange-100">
+                                <h2 className="text-md font-semibold ">{formData.rubric.name}</h2>
                                 <p className="text-sm text-gray-700">{formData.rubric.description}</p>
 
                                 {/* Expandable Criteria Sections */}
                                 <div className="mt-4">
                                     {formData.rubric && (
-                                        <CollapsiblePanel rubric={formData.rubric} key={formData.rubric.name} />
+                                        <RubricDisplay rubric={formData.rubric} key={formData.rubric.name} />
                                     )}
                                 </div>
                             </div>
                         )}
 
+                        {/* Audience */}
+                        {formData.identity === "default" && (
+                            <div className="w-full flex flex-row gap-x-2 items-center">
+                                <label className="block text-sm font-medium text-gray-700">Audience: </label>
+                                <input
+                                    type="text"
+                                    name="audience"
+                                    id="audience"
+                                    value={formData.audience}
+                                    onChange={(e) => setFormData((prevFormData) => ({ ...prevFormData, audience: e.target.value }))}
+                                    placeholder="My fans..."
+                                    className="flex h-8 w-36 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                />
+                            </div>
+                        )}
+
+                        <div className="flex flex-row w-full">
+                            {/* Word Limit */}
+                            <div className="flex flex-row gap-x-2 items-center">
+                                <label className="block text-sm font-medium text-gray-700" htmlFor="wordLimit">Word Limit: </label>
+                                <CustomListbox
+                                    value={formData.wordLimitType}
+                                    options={userInputs.wordCount.comparisonType.map(option => ({ label: option, value: option }))}
+                                    onChange={(value) => setFormData((prevFormData) => ({ ...prevFormData, wordLimitType: value }))}
+                                    buttonClassName="w-fit flex"
+                                    placeholder="Select..."
+                                />
+                                <input
+                                    type="number"
+                                    name="wordLimit"
+                                    id="wordLimit"
+                                    value={formData.wordLimit}
+                                    onChange={(e) => setFormData((prevFormData) => ({ ...prevFormData, wordLimit: e.target.value }))}
+                                    placeholder="Enter word limit"
+                                    className="flex h-8 w-36 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Custom Rubric Button */}
                         <Button
                             type="button"
                             onClick={() => setShowCustomRubricBuilder(true)}

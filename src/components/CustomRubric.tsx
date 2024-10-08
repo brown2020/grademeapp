@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { RubricType, AnalyticalRubric, HolisticRubric, RubricState, AnalyticalRubricCriteria, HolisticRubricCriteria } from '@/types/rubrics';
+import { RubricType, AnalyticalRubric, HolisticRubric, RubricState, AnalyticalRubricCriteria, HolisticRubricCriteria } from '@/types/rubrics-types';
 import { toast } from "react-hot-toast";
 
 // Define the state for the analytical rubric's criteria

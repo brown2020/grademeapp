@@ -1,6 +1,161 @@
-import { RubricState, RubricType, Rubrics } from "@/types/rubrics"
+import { RubricState, RubricType, DefaultRubrics, NestedRubrics } from "@/types/rubrics-types"
 
-export const rubrics: Rubrics = {
+export const defaultRubrics: DefaultRubrics = {
+    "holistic": {
+        "name": "General Holistic Writing Rubric",
+        "description": "Assesses the overall quality and effectiveness of a written text.",
+        "type": RubricType.Holistic,
+        "criteria": {
+            "Excellent": "The writing is highly engaging, with well-organized content, a clear focus, and minimal errors. It effectively communicates ideas with clarity and depth.",
+            "Proficient": "The writing is generally clear, with a logical structure and minor errors that do not hinder understanding. Ideas are adequately developed and expressed.",
+            "Developing": "The writing has some focus but may lack organization or clarity. There may be notable errors, and ideas might not be fully developed or effectively communicated.",
+            "Beginning": "The writing lacks clear focus or organization, with many errors that impede understanding. Ideas are poorly developed or not expressed clearly."
+        }
+    },
+    "analytical": {
+        "name": "Comprehensive Analytical Writing Rubric",
+        "description": "Evaluates key elements of writing in separate components to provide specific feedback.",
+        "type": RubricType.Analytical,
+        "criteria": {
+            "Focus & Organization": {
+                "Excellent": "Clear, focused thesis with a well-organized structure that enhances the content.",
+                "Proficient": "Mostly clear focus with a logical structure, though some sections may lack coherence.",
+                "Developing": "Some focus but lacks clear organization or has an inconsistent flow.",
+                "Beginning": "Lacks focus and has poor organization or logical flow."
+            },
+            "Content & Development": {
+                "Excellent": "Ideas are well-developed and supported with relevant details or examples.",
+                "Proficient": "Ideas are mostly developed, with some details or examples.",
+                "Developing": "Ideas are present but underdeveloped or poorly supported.",
+                "Beginning": "Ideas are unclear, with little to no supporting detail."
+            },
+            "Language Use & Style": {
+                "Excellent": "Uses varied sentence structures and vocabulary effectively, with strong voice.",
+                "Proficient": "Language is appropriate but may lack variety or strong style.",
+                "Developing": "Basic language use, with limited variety in sentence structure and vocabulary.",
+                "Beginning": "Limited vocabulary and sentence structure, with unclear or ineffective style."
+            },
+            "Conventions": {
+                "Excellent": "Few or no errors; writing is polished and easy to read.",
+                "Proficient": "Some errors present but do not hinder understanding.",
+                "Developing": "Noticeable errors that may affect clarity.",
+                "Beginning": "Frequent errors that impede understanding."
+            }
+        }
+    },
+    "developmental": {
+        "name": "Progressive Writing Skills Rubric",
+        "description": "Assesses a student's growth in writing skills over time.",
+        "type": RubricType.Developmental,
+        "criteria": {
+            "Advanced": "Shows consistent improvement and effectively applies new writing strategies. Demonstrates clear progress toward writing proficiency.",
+            "Proficient": "Displays noticeable growth and applies new skills, though with some inconsistencies.",
+            "Emerging": "Demonstrates basic growth and effort in developing writing skills but struggles with consistency.",
+            "Initial": "Shows little to no development in writing skills; needs significant guidance to progress."
+        }
+    },
+    "primary_trait": {
+        "name": "Argument Focused Primary Trait Rubric",
+        "description": "Evaluates a writing piece based on its ability to make and support an argument.",
+        "type": RubricType.PrimaryTrait,
+        "criteria": {
+            "Excellent": "The argument is clear, focused, and well-supported with logical reasoning and evidence.",
+            "Proficient": "The argument is mostly clear, with adequate support but some lapses in logic or evidence.",
+            "Developing": "The argument is present but lacks clarity, focus, or sufficient evidence.",
+            "Beginning": "The argument is unclear, unfocused, or unsupported."
+        }
+    },
+    "multitrait": {
+        "name": "Genre-Specific Writing Traits Rubric",
+        "description": "Evaluates multiple traits specific to a writing genre (e.g., narrative, expository).",
+        "type": RubricType.MultiTrait,
+        "criteria": {
+            "Idea Development": {
+                "Excellent": "Ideas are fully developed, with strong details and elaboration.",
+                "Proficient": "Ideas are clear, with adequate details and development.",
+                "Developing": "Ideas are present but underdeveloped or unclear.",
+                "Beginning": "Ideas are vague or lack sufficient development."
+            },
+            "Genre Conventions": {
+                "Excellent": "Follows genre conventions effectively, enhancing the writing.",
+                "Proficient": "Mostly follows genre conventions, though some elements may be weak.",
+                "Developing": "Attempts to use genre conventions but is inconsistent or unclear.",
+                "Beginning": "Does not follow genre conventions, or they are misapplied."
+            },
+            "Organization & Coherence": {
+                "Excellent": "Structure enhances clarity and flow; strong transitions.",
+                "Proficient": "Clear structure with some minor issues in flow.",
+                "Developing": "Basic organization, though flow may be inconsistent.",
+                "Beginning": "Lacks clear organization; difficult to follow."
+            }
+        }
+    },
+    "task_specific": {
+        "name": "Task-Focused Writing Rubric",
+        "description": "Evaluates a piece of writing based on how well it meets the requirements of a specific task.",
+        "type": RubricType.TaskSpecific,
+        "criteria": {
+            "Task Fulfillment": {
+                "Excellent": "Meets all task requirements thoroughly and creatively.",
+                "Proficient": "Meets most task requirements adequately.",
+                "Developing": "Meets some task requirements but lacks detail or clarity.",
+                "Beginning": "Does not adequately meet task requirements."
+            },
+            "Content Relevance": {
+                "Excellent": "Content is highly relevant to the task and purpose.",
+                "Proficient": "Content is mostly relevant but may include some irrelevant details.",
+                "Developing": "Some content is relevant, but much is off-topic or unclear.",
+                "Beginning": "Content is mostly irrelevant or unclear."
+            }
+        }
+    },
+    "standards_based": {
+        "name": "Standards-Aligned Writing Rubric",
+        "description": "Assesses writing based on educational standards (e.g., CCSS for language arts).",
+        "type": RubricType.StandardsBased,
+        "criteria": {
+            "Content & Ideas": {
+                "Exceeds Standards": "Thoroughly develops ideas with strong supporting details.",
+                "Meets Standards": "Adequately develops ideas with relevant details.",
+                "Approaching Standards": "Develops some ideas but lacks detail or clarity.",
+                "Below Standards": "Ideas are underdeveloped or lack clarity."
+            },
+            "Language & Conventions": {
+                "Exceeds Standards": "Uses a variety of sentence structures and appropriate vocabulary with minimal errors.",
+                "Meets Standards": "Uses appropriate language with some errors that do not hinder understanding.",
+                "Approaching Standards": "Contains multiple errors that may affect clarity.",
+                "Below Standards": "Frequent errors that significantly hinder understanding."
+            }
+        }
+    },
+    "single_point": {
+        "name": "Focused Single-Point Writing Rubric",
+        "description": "Provides a single performance expectation with space for individualized feedback on strengths and weaknesses.",
+        "type": RubricType.SinglePoint,
+        "criteria": {
+            "Proficient": "The writing demonstrates clear, organized content, relevant ideas, and proper language use."
+        },
+        "feedback": {
+            "Strengths": "Space for feedback on strong elements",
+            "Areas for Improvement": "Space for feedback on areas to work on"
+        }
+    },
+    "checklist": {
+        "name": "Basic Writing Checklist",
+        "description": "Ensures all required elements of the writing are present.",
+        "type": RubricType.Checklist,
+        "criteria": {
+            "Has a clear introduction": "Yes/No",
+            "Main idea is developed with supporting details": "Yes/No",
+            "Organized logically": "Yes/No",
+            "Sentences are complete and grammatically correct": "Yes/No",
+            "Writing concludes effectively": "Yes/No"
+        }
+    }
+}
+
+
+export const rubrics: NestedRubrics = {
     "student": {
         "3rd grade": {
             "narrative": {
@@ -4115,7 +4270,8 @@ export const rubrics: Rubrics = {
                 }
             }
         }
-    }
+    },
+    "default": defaultRubrics
 };
 
 /**
@@ -4132,16 +4288,19 @@ export function getRubricsByCriteria(
     textType: string,
     prose: string
 ): RubricState[] {
-    console.log('identity', identity);
-    console.log('identityLevel', identityLevel);
-    console.log('textType', textType);
-    console.log('prose', prose);
+    // Helper function to check if the target is of type NestedRubrics
+    const isNestedRubrics = (target: unknown): target is NestedRubrics =>
+        typeof target === 'object' && target !== null && !('type' in target);
 
+    // Ensure all criteria are valid before accessing the structure.
     // Ensure all criteria are valid before accessing the structure.
     if (
         rubrics[identity] &&
+        isNestedRubrics(rubrics[identity]) &&
         rubrics[identity][identityLevel] &&
+        isNestedRubrics(rubrics[identity][identityLevel]) &&
         rubrics[identity][identityLevel][textType] &&
+        isNestedRubrics(rubrics[identity][identityLevel][textType]) &&
         rubrics[identity][identityLevel][textType][prose]
     ) {
         const proseRubrics = rubrics[identity][identityLevel][textType][prose];
@@ -4208,4 +4367,9 @@ export function getRubricNamesByCriteria(
 ): string[] {
     const rubricArray = getRubricsByCriteria(identity, identityLevel, textType, prose);
     return rubricArray.map((rubric) => rubric.name); // Extract only the names
+}
+
+export function getDefaultRubrics(): RubricState[] {
+    const defaultRubricsArray = Object.values(defaultRubrics);
+    return defaultRubricsArray;
 }
