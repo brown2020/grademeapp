@@ -1,52 +1,57 @@
+import { RubricState, RubricType, Rubrics } from "@/types/rubrics"
+
 export const rubrics: Rubrics = {
     "student": {
         "3rd grade": {
             "narrative": {
                 "personal narrative": {
                     "holistic": {
-                        "name": "3rd Grade Holistic Personal Narrative Rubric",
-                        "description": "Evaluates the overall impact, engagement, and reflection of personal narratives.",
-                        "criteria": {
-                            "Excellent": "The narrative is highly engaging, with clear expression of personal thoughts and feelings. It flows naturally, and details vividly support the personal experience.",
-                            "Proficient": "The narrative clearly expresses thoughts and feelings. The structure is logical, with some descriptive details.",
-                            "Developing": "The narrative expresses some thoughts and feelings, but the flow may be unclear. Limited details support the experience.",
-                            "Beginning": "The narrative lacks clear thoughts or feelings and may be difficult to follow, with minimal or unclear details."
+                        name: "3rd Grade Holistic Personal Narrative Rubric",
+                        description: "Evaluates the overall impact, engagement, and reflection of personal narratives.",
+                        type: RubricType.Holistic,
+                        criteria: {
+                            Excellent: "The narrative is highly engaging, with clear expression of personal thoughts and feelings. It flows naturally, and details vividly support the personal experience.",
+                            Proficient: "The narrative clearly expresses thoughts and feelings. The structure is logical, with some descriptive details.",
+                            Developing: "The narrative expresses some thoughts and feelings, but the flow may be unclear. Limited details support the experience.",
+                            Beginning: "The narrative lacks clear thoughts or feelings and may be difficult to follow, with minimal or unclear details."
                         }
                     },
                     "analytical": {
-                        "name": "3rd Grade Analytical Personal Narrative Rubric",
-                        "description": "Evaluates structure, sequence, and detail in personal narratives.",
-                        "criteria": {
+                        name: "3rd Grade Analytical Personal Narrative Rubric",
+                        description: "Evaluates structure, sequence, and detail in personal narratives.",
+                        type: RubricType.Analytical,
+                        criteria: {
                             "Focus & Organization": {
-                                "Excellent": "The narrative has a clear focus and structure with a logical sequence of events that enhances the experience.",
-                                "Proficient": "The narrative is mostly structured with a logical sequence.",
-                                "Developing": "The narrative has some structure but may be unclear or lack logical sequence.",
-                                "Beginning": "The narrative lacks clear structure or logical flow."
+                                Excellent: "The narrative has a clear focus and structure with a logical sequence of events that enhances the experience.",
+                                Proficient: "The narrative is mostly structured with a logical sequence.",
+                                Developing: "The narrative has some structure but may be unclear or lack logical sequence.",
+                                Beginning: "The narrative lacks clear structure or logical flow."
                             },
                             "Details & Description": {
-                                "Excellent": "Provides vivid, descriptive details that enhance the experience and connect to the theme.",
-                                "Proficient": "Includes relevant details but may lack vividness.",
-                                "Developing": "Includes some details but lacks clarity and vividness.",
-                                "Beginning": "Provides few or unclear details."
+                                Excellent: "Provides vivid, descriptive details that enhance the experience and connect to the theme.",
+                                Proficient: "Includes relevant details but may lack vividness.",
+                                Developing: "Includes some details but lacks clarity and vividness.",
+                                Beginning: "Provides few or unclear details."
                             },
                             "Conventions": {
-                                "Excellent": "Few or no errors in spelling, punctuation, or grammar.",
-                                "Proficient": "Some errors present but do not interfere with understanding.",
-                                "Developing": "Several errors may affect clarity.",
-                                "Beginning": "Many errors make the narrative difficult to understand."
+                                Excellent: "Few or no errors in spelling, punctuation, or grammar.",
+                                Proficient: "Some errors present but do not interfere with understanding.",
+                                Developing: "Several errors may affect clarity.",
+                                Beginning: "Many errors make the narrative difficult to understand."
                             }
                         }
-                    }
+                    },
                 },
                 "short story": {
                     "holistic": {
-                        "name": "3rd Grade Holistic Short Story Rubric",
-                        "description": "Assesses creativity, structure, and readability of short stories.",
-                        "criteria": {
-                            "Excellent": "The short story is highly creative, captivating, and effectively tells a complete story. Characters, setting, and plot are clear and well-developed.",
-                            "Proficient": "The story has a clear plot and structure, with creative elements and developed characters and setting.",
-                            "Developing": "The story includes some creative elements and basic story structure, but it lacks clarity or full development of characters and plot.",
-                            "Beginning": "The story lacks creativity, structure, or development. It may be difficult to follow or appear incomplete."
+                        name: "3rd Grade Holistic Short Story Rubric",
+                        description: "Assesses creativity, structure, and readability of short stories.",
+                        type: RubricType.Holistic,
+                        criteria: {
+                            Excellent: "The short story is highly creative, captivating, and effectively tells a complete story. Characters, setting, and plot are clear and well-developed.",
+                            Proficient: "The story has a clear plot and structure, with creative elements and developed characters and setting.",
+                            Developing: "The story includes some creative elements and basic story structure, but it lacks clarity or full development of characters and plot.",
+                            Beginning: "The story lacks creativity, structure, or development. It may be difficult to follow or appear incomplete."
                         }
                     }
                 }
@@ -56,6 +61,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "3rd Grade Analytical Descriptive Essay Rubric",
                         "description": "Evaluates the use of sensory details and organization in descriptive essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Focus & Organization": {
                                 "Excellent": "The essay is clearly focused around a central theme with a logical introduction, body, and conclusion.",
@@ -88,6 +94,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "3rd Grade Analytical Character Sketch Rubric",
                         "description": "Evaluates the detail and organization of character sketches.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Character Detail": {
                                 "Excellent": "Provides a detailed, vivid description of the character’s appearance, personality, and actions.",
@@ -114,6 +121,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "3rd Grade Analytical Place Description Rubric",
                         "description": "Evaluates the use of imagery and organization in place descriptions.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Use of Imagery": {
                                 "Excellent": "Uses vivid imagery to create a clear, engaging picture of the place.",
@@ -142,6 +150,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "3rd Grade Analytical Opinion Paragraph Rubric",
                         "description": "Evaluates students' ability to state and support an opinion in a single paragraph.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Opinion Statement": {
                                 "Excellent": "Clearly states an opinion with a strong point of view.",
@@ -174,6 +183,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "3rd Grade Analytical Persuasive Essay Rubric",
                         "description": "Evaluates argument structure, support, and audience awareness in persuasive essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Argument & Support": {
                                 "Excellent": "Clearly states an opinion with strong, relevant reasons and examples tailored to the audience.",
@@ -202,6 +212,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "3rd Grade Analytical Book Report Rubric",
                         "description": "Evaluates students' ability to summarize and reflect on the main events of a book.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Summary of Events": {
                                 "Excellent": "Provides a clear and concise summary of the main events, capturing key details.",
@@ -234,6 +245,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "3rd Grade Analytical Research Project Rubric",
                         "description": "Assesses students' ability to conduct basic research and present information clearly.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Topic Introduction": {
                                 "Excellent": "Clearly introduces the research topic and explains its relevance.",
@@ -266,6 +278,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "3rd Grade Analytical Informational Article Rubric",
                         "description": "Evaluates clarity, factual content, and structure in informational articles.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Focus & Clarity": {
                                 "Excellent": "Clearly introduces the topic and maintains focus with clear explanations.",
@@ -292,6 +305,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "3rd Grade Analytical Report Rubric",
                         "description": "Evaluates purpose, content, and structure in reports.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Purpose & Organization": {
                                 "Excellent": "Clearly states the purpose and maintains focus with a well-organized structure.",
@@ -319,26 +333,13 @@ export const rubrics: Rubrics = {
                 "journal entry": {
                     "holistic": {
                         "name": "3rd Grade Holistic Journal Entry Rubric",
-                        "description": "Evaluates expression, reflection, and clarity of thoughts in journal entries.",
+                        "description": "Assesses the overall quality of personal expression, reflection, and clarity in journal entries.",
+                        type: RubricType.Holistic,
                         "criteria": {
-                            "Expression & Reflection": {
-                                "Excellent": "Thoughtfully reflects on personal experiences or feelings with depth.",
-                                "Proficient": "Reflects on experiences or feelings but may lack some depth.",
-                                "Developing": "Attempts to reflect, but thoughts may be unclear.",
-                                "Beginning": "Provides minimal or unclear reflection."
-                            },
-                            "Organization & Flow": {
-                                "Excellent": "Ideas are clearly organized and easy to follow.",
-                                "Proficient": "Ideas are mostly organized, with some clarity issues.",
-                                "Developing": "Some organization is present, but flow may be confusing.",
-                                "Beginning": "Lacks clear organization and structure."
-                            },
-                            "Conventions": {
-                                "Excellent": "Few or no errors in spelling, punctuation, or grammar.",
-                                "Proficient": "Some errors are present but do not interfere with understanding.",
-                                "Developing": "Several errors are present and may hinder understanding.",
-                                "Beginning": "Many errors make the writing difficult to understand."
-                            }
+                            "Excellent": "The journal entry provides a deeply thoughtful and personal reflection, with clear and vivid expression of ideas and emotions. The writing flows naturally, is engaging, and uses language effectively to convey meaning. Conventions are used correctly throughout, enhancing readability.",
+                            "Proficient": "The journal entry provides a personal reflection with clear ideas and emotions. It is well-organized and mostly easy to follow, demonstrating effective language use. While there may be minor errors in conventions, they do not interfere with the overall understanding.",
+                            "Developing": "The journal entry includes some reflection, but ideas and emotions may not be fully developed or clearly expressed. The organization may be inconsistent, and language may lack vividness or precision. There are noticeable errors in conventions that may affect readability.",
+                            "Beginning": "The journal entry provides minimal reflection or lacks a clear expression of ideas and emotions. The writing is difficult to follow due to disorganized structure and unclear language. Frequent errors in conventions make the entry hard to understand."
                         }
                     }
                 }
@@ -348,6 +349,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "3rd Grade Analytical How-To Guide Rubric",
                         "description": "Evaluates the clarity, steps, and details of instructional writing.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Clarity of Instructions": {
                                 "Excellent": "Provides clear, step-by-step instructions that are easy to follow.",
@@ -378,6 +380,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "4th Grade Holistic Personal Narrative Rubric",
                         "description": "Evaluates the overall development, organization, and expression of the personal narrative.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The personal narrative is highly engaging, with a strong structure and vivid, detailed descriptions that clearly depict the setting, characters, and plot. The narrative flows smoothly from beginning to end, and conventions are almost flawless.",
                             "Proficient": "The narrative is engaging and structured logically, with relevant details that describe the setting, characters, and plot. The story is easy to follow and demonstrates mostly correct use of conventions.",
@@ -388,6 +391,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "4th Grade Analytical Personal Narrative Rubric",
                         "description": "Evaluates the clarity, development, and structure of personal narratives with a focus on deeper engagement and reflection.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Focus & Organization": {
                                 "Excellent": "Clearly structured narrative with a logical flow of events and strong, consistent focus.",
@@ -414,6 +418,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "4th Grade Holistic Short Story Rubric",
                         "description": "Assesses the overall creativity, structure, and readability of short stories.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The short story is highly creative, captivating, and effectively communicates a complete storyline. Characters, setting, and plot are vivid and well-developed, with a clear structure that enhances readability.",
                             "Proficient": "The short story has a clear plot and structure, with creative elements. The characters and setting are developed but may lack depth. The story is easy to read and mostly follows conventions.",
@@ -426,6 +431,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "4th Grade Holistic Fictional Narrative Rubric",
                         "description": "Evaluates creativity, character development, and plot structure in fictional narratives.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The fictional narrative is highly creative, with a well-developed plot, vivid characters, and clear structure. The story flows smoothly, demonstrating a strong command of conventions.",
                             "Proficient": "The narrative is creative and has a clear plot with developed characters. Some areas may lack depth, but the overall structure and conventions are mostly correct.",
@@ -440,6 +446,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "4th Grade Analytical Descriptive Essay Rubric",
                         "description": "Evaluates the use of sensory details, organization, and clarity in descriptive essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Focus & Organization": {
                                 "Excellent": "Has a clear, central theme with well-organized ideas, logical transitions, and a strong introduction and conclusion.",
@@ -472,6 +479,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "4th Grade Analytical Character Sketch Rubric",
                         "description": "Evaluates the depth of character portrayal and use of descriptive language.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Character Detail": {
                                 "Excellent": "Provides in-depth character traits, personality, and background, showcasing an understanding of the character's motivations.",
@@ -504,6 +512,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "4th Grade Analytical Place Description Rubric",
                         "description": "Evaluates the use of vivid imagery, detail, and structure in descriptions of places.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Use of Imagery": {
                                 "Excellent": "Creates a clear and engaging picture of the place using vivid sensory details.",
@@ -532,6 +541,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "4th Grade Analytical Opinion Letter Rubric",
                         "description": "Evaluates the structure, clarity, and persuasiveness of an opinion letter.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Opinion Statement": {
                                 "Excellent": "Clearly and persuasively states an opinion appropriate for a letter format, with a strong point of view.",
@@ -566,6 +576,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "4th Grade Analytical Persuasive Essay Rubric",
                         "description": "Evaluates the clarity of argument, use of evidence, and organizational structure in persuasive essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Argument & Focus": {
                                 "Excellent": "Clearly states an opinion and provides well-developed, relevant reasons and evidence to support it throughout the essay.",
@@ -598,6 +609,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "4th Grade Analytical Opinion Paragraph Rubric",
                         "description": "Evaluates the ability to clearly state and support an opinion within a single paragraph.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Opinion Statement": {
                                 "Excellent": "Clearly states an opinion with a strong point of view.",
@@ -632,6 +644,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "4th Grade Analytical Informational Article Rubric",
                         "description": "Evaluates the use of structure, content, and vocabulary in informational articles.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Focus & Organization": {
                                 "Excellent": "Introduces a clear topic and organizes information logically, using effective transitions and a strong conclusion.",
@@ -664,6 +677,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "4th Grade Analytical Report Rubric",
                         "description": "Evaluates the clarity of purpose, content, and structure in reports.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Focus & Clarity": {
                                 "Excellent": "Clearly states the purpose of the report and maintains focus throughout, with consistent clarity.",
@@ -696,6 +710,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "4th Grade Analytical Book Report Rubric",
                         "description": "Evaluates the ability to summarize and reflect on the main events of a book with depth and clarity.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Summary of Events": {
                                 "Excellent": "Provides a clear and concise summary of the main events, capturing key details.",
@@ -728,6 +743,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "4th Grade Analytical Research Project Rubric",
                         "description": "Assesses the ability to conduct research and present information clearly and accurately.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Topic Introduction": {
                                 "Excellent": "Clearly introduces the research topic and explains its relevance.",
@@ -760,6 +776,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "4th Grade Analytical Compare and Contrast Essay Rubric",
                         "description": "Evaluates the ability to compare and contrast two subjects clearly and effectively.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Comparison & Contrast": {
                                 "Excellent": "Effectively compares and contrasts the subjects, with clear, relevant, and detailed examples.",
@@ -792,6 +809,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "4th Grade Analytical Cause and Effect Essay Rubric",
                         "description": "Evaluates the ability to clearly explain the cause and effect relationship of a situation or event.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Cause & Effect Explanation": {
                                 "Excellent": "Clearly explains the cause and effect relationship with strong, relevant details and examples.",
@@ -826,6 +844,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "4th Grade Holistic Journal Entry Rubric",
                         "description": "Evaluates overall reflection, personal expression, and organization in journal entries.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The journal entry thoughtfully reflects on personal experiences or feelings, providing deep insights and vivid details. The writing is well-organized and flows smoothly, with few or no errors in conventions.",
                             "Proficient": "The journal entry reflects on personal experiences or feelings with some depth. Descriptions are clear, though they may lack some vividness. The organization is mostly logical, and errors in conventions do not interfere with understanding.",
@@ -838,6 +857,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "4th Grade Holistic Reflective Essay Rubric",
                         "description": "Evaluates the depth of reflection, organization, and clarity in reflective essays.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The reflective essay demonstrates deep reflection on experiences or ideas, with clear and vivid language. The structure is coherent and well-organized, allowing for a smooth flow of ideas. Conventions are used correctly with minimal errors.",
                             "Proficient": "The essay reflects on experiences or ideas with adequate detail. The structure is clear, and transitions are mostly smooth, though some elements may lack depth or vividness. Conventions are mostly correct.",
@@ -850,6 +870,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "4th Grade Holistic Diary Entry Rubric",
                         "description": "Evaluates the overall personal reflection, expression of thoughts, and structure of diary entries.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The diary entry deeply reflects on personal experiences or thoughts with vivid language and emotional depth. The entry is well-organized and flows smoothly, with minimal errors in conventions.",
                             "Proficient": "The diary entry reflects on experiences or thoughts with some depth and detail. The writing is mostly well-organized, with few errors in conventions.",
@@ -864,6 +885,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "4th Grade Analytical How-To Guide Rubric",
                         "description": "Evaluates the clarity, organization, and vocabulary in how-to guides.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Clarity & Steps": {
                                 "Excellent": "Clearly explains each step in a logical sequence, considering audience needs and potential difficulties.",
@@ -900,6 +922,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "5th Grade Holistic Personal Narrative Rubric",
                         "description": "Evaluates the overall impact, emotional engagement, and expression of personal narratives.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The narrative is deeply engaging, with a strong emotional impact and vivid, well-chosen details. The story is coherent, and conventions are mostly flawless, creating a smooth reading experience.",
                             "Proficient": "The narrative is engaging and clearly conveys emotions. The plot is well-developed, with relevant details and mostly correct conventions, though some areas may lack depth.",
@@ -912,6 +935,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "5th Grade Holistic Short Story Rubric",
                         "description": "Assesses creativity, structure, and overall development of short stories.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The short story is highly imaginative, with a well-developed plot, vivid characters, and creative twists. The writing flows naturally, with few errors in conventions.",
                             "Proficient": "The short story is engaging, with a clear plot and character development. Creativity is evident, though the story may lack some depth or detailed descriptions.",
@@ -924,6 +948,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "5th Grade Holistic Fictional Narrative Rubric",
                         "description": "Evaluates creativity, character development, plot structure, and engagement in fictional narratives.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The fictional narrative is highly creative, with a compelling plot, well-developed characters, and a captivating storyline. The writing flows smoothly, with few errors in conventions.",
                             "Proficient": "The narrative is creative, with a clear plot and developed characters. Some areas may lack depth, but overall, the story is engaging, and conventions are mostly correct.",
@@ -938,6 +963,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "5th Grade Analytical Descriptive Essay Rubric",
                         "description": "Evaluates the clarity, sensory detail, and structure of descriptive essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Focus & Structure": {
                                 "Excellent": "The essay has a clear central idea with well-structured paragraphs, including a strong introduction, body, and conclusion.",
@@ -970,6 +996,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "5th Grade Analytical Character Sketch Rubric",
                         "description": "Evaluates the depiction and development of character traits.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Character Development": {
                                 "Excellent": "Character traits are detailed and well-developed, with depth and personality.",
@@ -1002,6 +1029,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "5th Grade Analytical Place Description Rubric",
                         "description": "Evaluates the use of vivid imagery, detail, and structure in descriptions of places with advanced depth.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Use of Imagery": {
                                 "Excellent": "Creates a highly engaging picture of the place with vivid and immersive sensory details.",
@@ -1030,6 +1058,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "5th Grade Analytical Opinion Paragraph Rubric",
                         "description": "Evaluates the ability to state a clear and compelling opinion within a single, well-developed paragraph.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Opinion Statement": {
                                 "Excellent": "Clearly states a strong and compelling opinion with a focused point of view.",
@@ -1064,6 +1093,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "5th Grade Analytical Persuasive Essay Rubric",
                         "description": "Evaluates the clarity, structure, and use of persuasive techniques in essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Argument & Support": {
                                 "Excellent": "Presents a clear and compelling argument supported by strong, relevant reasons and evidence.",
@@ -1096,6 +1126,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "5th Grade Analytical Persuasive Letter Rubric",
                         "description": "Evaluates the structure, clarity, and persuasiveness of a persuasive letter.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Opinion & Purpose": {
                                 "Excellent": "Clearly states a strong opinion with a compelling purpose appropriate for a letter format, demonstrating a strong point of view.",
@@ -1130,6 +1161,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "5th Grade Analytical Informational Article Rubric",
                         "description": "Evaluates the clarity, organization, and detail of informational articles.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Clarity & Topic Focus": {
                                 "Excellent": "Clearly introduces and maintains focus on a specific topic.",
@@ -1162,6 +1194,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "5th Grade Analytical Book Report Rubric",
                         "description": "Evaluates the ability to critically analyze and reflect on the main events of a book.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Summary of Events": {
                                 "Excellent": "Provides a thorough and insightful summary of the main events, capturing essential details.",
@@ -1194,6 +1227,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "5th Grade Analytical Research Project Rubric",
                         "description": "Assesses advanced ability to conduct research and present information accurately.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Topic Introduction": {
                                 "Excellent": "Clearly introduces the topic with a compelling explanation of its significance.",
@@ -1226,6 +1260,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "5th Grade Analytical Compare and Contrast Essay Rubric",
                         "description": "Evaluates the ability to compare and contrast two or more subjects in a clear and detailed manner.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Comparison & Contrast": {
                                 "Excellent": "Effectively compares and contrasts the subjects with thorough and relevant examples and details.",
@@ -1258,6 +1293,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "5th Grade Analytical Cause and Effect Essay Rubric",
                         "description": "Evaluates the ability to clearly explain the cause and effect relationship of events, actions, or ideas.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Cause & Effect Explanation": {
                                 "Excellent": "Clearly explains the cause and effect relationship with strong, relevant examples and in-depth details.",
@@ -1292,6 +1328,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "5th Grade Holistic Journal Entry Rubric",
                         "description": "Evaluates depth of reflection and clarity in journal entries.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The journal entry deeply reflects on experiences and emotions with clear and vivid language. The ideas flow logically, making the entry easy to understand.",
                             "Proficient": "The journal entry reflects on experiences and emotions, with mostly clear and coherent language. The organization is mostly logical, though some sections may lack depth.",
@@ -1304,6 +1341,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "5th Grade Holistic Diary Entry Rubric",
                         "description": "Evaluates the depth of personal reflection, clarity of thoughts, and organization in diary entries.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The diary entry deeply reflects on personal experiences or thoughts with clear and vivid language, demonstrating strong emotional depth and insight.",
                             "Proficient": "The diary entry reflects on experiences or thoughts with adequate detail and organization, showing some emotional depth.",
@@ -1318,6 +1356,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "5th Grade Analytical How-To Guide Rubric",
                         "description": "Evaluates the clarity, sequence, and detail of instructions provided.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Clarity & Logical Sequence": {
                                 "Excellent": "Presents steps in a logical and easy-to-follow sequence with clear instructions.",
@@ -1355,6 +1394,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "6th Grade Holistic Personal Narrative Rubric",
                         "description": "Evaluates depth of reflection, emotional engagement, and structure in personal narratives.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The narrative is deeply reflective and engaging, with a strong emotional impact. Events unfold naturally with vivid descriptions, and the writing flows seamlessly, demonstrating mastery of conventions.",
                             "Proficient": "The narrative clearly reflects personal experiences, with emotional details and logical sequencing. The writing maintains a mostly smooth flow, with conventions that are generally correct.",
@@ -1365,6 +1405,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "6th Grade Analytical Personal Narrative Rubric",
                         "description": "Evaluates the organization, development, and reflection in personal narratives with attention to voice and insight.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Focus & Organization": {
                                 "Excellent": "Narrative is well-organized with clear structure, using strong transitions and maintaining a consistent focus.",
@@ -1397,6 +1438,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "6th Grade Holistic Short Story Rubric",
                         "description": "Assesses creativity, character development, and structure in short stories.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The short story is highly imaginative, with a well-developed plot, vivid characters, and a compelling structure that enhances readability. Events flow logically and the conclusion is satisfying. Few or no errors in conventions.",
                             "Proficient": "The short story has a clear plot and developed characters. The structure is mostly clear, with some creative elements, though depth may be lacking in some areas. Conventions are mostly correct.",
@@ -1411,6 +1453,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "6th Grade Analytical Descriptive Essay Rubric",
                         "description": "Evaluates the use of sensory details, structure, and language to create vivid descriptions.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Focus & Structure": {
                                 "Excellent": "The essay has a clear focus with a well-organized structure, including an engaging introduction, body, and conclusion.",
@@ -1443,6 +1486,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "6th Grade Analytical Character Sketch Rubric",
                         "description": "Evaluates depth of character portrayal, organization, and descriptive language.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Character Development": {
                                 "Excellent": "Character is thoroughly developed with vivid traits, emotions, and motivations.",
@@ -1477,6 +1521,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "6th Grade Analytical Opinion Essay Rubric",
                         "description": "Evaluates clarity of opinion, supporting evidence, and structure in opinion essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Opinion Statement": {
                                 "Excellent": "Clearly states a strong, well-defined opinion at the beginning of the essay.",
@@ -1511,6 +1556,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "6th Grade Analytical Persuasive Essay Rubric",
                         "description": "Evaluates clarity of argument, use of persuasive techniques, and evidence in persuasive essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Argument & Focus": {
                                 "Excellent": "Presents a clear and compelling argument, maintaining focus throughout the essay.",
@@ -1543,6 +1589,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "6th Grade Analytical Persuasive Letter Rubric",
                         "description": "Evaluates the structure, argument, and persuasiveness of a formal persuasive letter.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Argument & Audience Awareness": {
                                 "Excellent": "Clearly states a strong argument tailored to the audience, using formal tone and persuasive techniques effectively.",
@@ -1577,6 +1624,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "6th Grade Analytical Argumentative Essay Rubric",
                         "description": "Evaluates clarity of argument, logical reasoning, and use of evidence in argumentative essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Claim & Focus": {
                                 "Excellent": "Presents a clear, well-defined claim and maintains focus on the argument throughout the essay.",
@@ -1611,6 +1659,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "6th Grade Analytical Informational Essay Rubric",
                         "description": "Evaluates the clarity, organization, and depth of informational writing.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Clarity & Topic Focus": {
                                 "Excellent": "Introduces a specific topic clearly and maintains focus throughout with a logical flow of ideas.",
@@ -1643,6 +1692,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "6th Grade Analytical Compare and Contrast Essay Rubric",
                         "description": "Evaluates the ability to compare and contrast two or more subjects with clarity and depth.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Comparison & Contrast": {
                                 "Excellent": "Effectively compares and contrasts subjects with clear examples and relevant details.",
@@ -1675,6 +1725,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "6th Grade Analytical Cause and Effect Essay Rubric",
                         "description": "Evaluates the ability to clearly explain the cause and effect relationship with appropriate evidence and logical structure.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Cause & Effect Explanation": {
                                 "Excellent": "Clearly explains the cause and effect relationship with strong, relevant examples, and detailed reasoning.",
@@ -1709,6 +1760,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "6th Grade Holistic Reflective Essay Rubric",
                         "description": "Evaluates depth of personal reflection, clarity of expression, and overall structure in reflective essays.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The essay shows deep reflection on experiences or ideas, effectively expressing personal thoughts and feelings with a clear and logical structure. Conventions are followed accurately, and the writing is engaging.",
                             "Proficient": "The essay reflects on experiences or ideas with clear expression and adequate structure. Thoughts and feelings are conveyed thoughtfully, and conventions are mostly correct, with minor errors.",
@@ -1721,6 +1773,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "6th Grade Holistic Journal Entry Rubric",
                         "description": "Evaluates personal expression, organization, and insight in journal entries.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The journal entry provides deep reflection on experiences or ideas, demonstrating strong emotional insight and coherence.",
                             "Proficient": "The entry reflects on experiences with some insight and a mostly logical structure.",
@@ -1735,6 +1788,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "6th Grade Analytical How-To Guide Rubric",
                         "description": "Evaluates clarity, sequencing of steps, and completeness in how-to guides.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Clarity & Sequencing": {
                                 "Excellent": "Steps are clearly written in a logical and easy-to-follow sequence, considering the audience’s needs.",
@@ -1769,6 +1823,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "6th Grade Analytical Research Paper Rubric",
                         "description": "Evaluates research skills, content organization, and citation accuracy in research papers.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Research Question & Focus": {
                                 "Excellent": "Clearly defines a focused research question or topic with strong alignment to the paper's content.",
@@ -1817,6 +1872,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "7th Grade Holistic Personal Narrative Rubric",
                         "description": "Evaluates depth of personal reflection, emotional engagement, and structure in personal narratives with a more complex narrative arc.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The narrative is deeply reflective, with complex emotions and a well-developed narrative arc. Events are well-organized and unfold naturally, and vivid details enhance emotional engagement. Conventions are virtually flawless.",
                             "Proficient": "The narrative reflects on personal experiences with a clear structure and appropriate use of emotional details. Some complexity is present in the narrative arc, though not fully developed. Conventions are mostly correct.",
@@ -1829,6 +1885,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "7th Grade Holistic Short Story Rubric",
                         "description": "Assesses creativity, complexity of plot and characters, and advanced structure in short stories.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The short story demonstrates high creativity with a complex and engaging plot. Characters are multidimensional, and the structure enhances readability. Vivid details add depth to the setting, and conventions are used correctly.",
                             "Proficient": "The story has a clear and somewhat complex plot, with developed characters and creative elements. Structure and details support the story, though some areas may lack full development. Conventions are mostly correct.",
@@ -1841,6 +1898,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "7th Grade Holistic Fictional Narrative Rubric",
                         "description": "Evaluates creativity, plot development, and use of dialogue in fictional narratives.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The fictional narrative is highly creative, with a compelling and well-structured plot, rich character development, and natural dialogue. Events and conflicts are skillfully woven together.",
                             "Proficient": "The narrative is creative with a clear plot and developed characters. Dialogue is appropriately used, though it may lack depth or natural flow.",
@@ -1855,6 +1913,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "7th Grade Analytical Descriptive Essay Rubric",
                         "description": "Evaluates the use of advanced sensory details, figurative language, and structured organization in descriptive essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Focus & Structure": {
                                 "Excellent": "The essay has a clear focus, with well-organized paragraphs and an effective use of an engaging introduction, body, and conclusion.",
@@ -1889,6 +1948,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "7th Grade Analytical Opinion Essay Rubric",
                         "description": "Evaluates the depth of opinion, use of evidence, and structure in opinion essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Opinion & Focus": {
                                 "Excellent": "Clearly states a compelling, focused opinion. Maintains focus throughout the essay.",
@@ -1923,6 +1983,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "7th Grade Analytical Argumentative Essay Rubric",
                         "description": "Assesses clarity of argument, logical structure, and support for claims in argumentative essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Claim & Focus": {
                                 "Excellent": "Presents a strong, clearly defined claim and maintains focused argument throughout.",
@@ -1957,6 +2018,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "7th Grade Analytical Persuasive Essay Rubric",
                         "description": "Assesses the strength of argument, use of persuasive language, and structure in persuasive essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Argument & Position": {
                                 "Excellent": "Presents a well-defined argument and consistently supports a strong position throughout the essay.",
@@ -1991,6 +2053,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "7th Grade Analytical Informational Article Rubric",
                         "description": "Evaluates depth of content, logical structure, and clarity of language in informational articles.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Topic & Clarity": {
                                 "Excellent": "Clearly introduces a specific and focused topic, maintaining clarity throughout the article.",
@@ -2023,6 +2086,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "7th Grade Analytical Compare and Contrast Essay Rubric",
                         "description": "Evaluates the analysis of similarities and differences, structure, and clarity in compare and contrast essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Comparison & Contrast": {
                                 "Excellent": "Thoroughly analyzes both similarities and differences with relevant, well-chosen examples and insightful analysis.",
@@ -2055,6 +2119,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "7th Grade Analytical Cause and Effect Essay Rubric",
                         "description": "Evaluates clarity of cause-effect relationships, depth of reasoning, and structure in cause and effect essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Cause & Effect Explanation": {
                                 "Excellent": "Clearly and thoroughly explains the cause and effect relationship with well-developed reasoning and examples.",
@@ -2089,6 +2154,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "7th Grade Holistic Reflective Essay Rubric",
                         "description": "Evaluates depth of personal insight, clarity of ideas, and organizational structure in reflective essays.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The essay demonstrates insightful reflection on experiences or ideas, with clear, engaging expression and logical structure. Thoughts are well-developed and supported by vivid details. Conventions are correct and enhance readability.",
                             "Proficient": "Reflects on experiences or ideas thoughtfully, with clear expression and adequate organization. Details support the reflection, and conventions are mostly correct, with minor errors that do not impede understanding.",
@@ -2103,6 +2169,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "7th Grade Analytical How-To Guide Rubric",
                         "description": "Evaluates clarity, logical order, and completeness of instructions in how-to guides.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Clarity & Logical Order": {
                                 "Excellent": "Steps are presented in a clear and logical order with thorough explanations, considering potential challenges for the audience.",
@@ -2137,6 +2204,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "7th Grade Analytical Research Paper Rubric",
                         "description": "Evaluates focus, depth of research, organization, and citation accuracy in research papers.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Research Question & Thesis": {
                                 "Excellent": "Clearly defines a focused research question and thesis that aligns well with the paper's purpose.",
@@ -2185,6 +2253,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "8th Grade Holistic Personal Narrative Rubric",
                         "description": "Evaluates complexity of reflection, depth of emotional engagement, and narrative structure in personal narratives.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The narrative shows a sophisticated reflection on experiences with a well-developed and compelling storyline. Use of vivid imagery and complex emotions enhances engagement, and conventions are used accurately.",
                             "Proficient": "The narrative is reflective and mostly cohesive, with an emerging complexity in the storyline. Details enhance emotional depth, and conventions are mostly correct, though minor errors may occur.",
@@ -2197,6 +2266,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "8th Grade Holistic Short Story Rubric",
                         "description": "Evaluates creative use of literary devices, character development, and plot complexity in short stories.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The short story displays high creativity with complex characters and a well-developed plot. Use of literary devices (e.g., foreshadowing, irony) enhances the narrative, and vivid details build atmosphere. Conventions are flawless.",
                             "Proficient": "The story is creative with a clear plot and character development. Literary devices and vivid details are used effectively, though some areas may lack depth. Conventions are mostly correct.",
@@ -2211,6 +2281,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "8th Grade Analytical Descriptive Essay Rubric",
                         "description": "Evaluates the use of advanced descriptive techniques, such as figurative language, to enhance vividness and reader engagement.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Focus & Structure": {
                                 "Excellent": "Essay has a strong focus, with clearly organized ideas and smooth transitions that enhance readability and engagement.",
@@ -2245,6 +2316,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "8th Grade Analytical Argumentative Essay Rubric",
                         "description": "Evaluates argument development, thoroughness of evidence, and logical organization in essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Claim & Argument": {
                                 "Excellent": "Presents a compelling claim with a well-developed argument, maintaining clarity and focus throughout.",
@@ -2279,6 +2351,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "8th Grade Analytical Opinion Essay Rubric",
                         "description": "Evaluates the strength of opinion, quality of evidence, and clarity of structure in opinion essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Opinion & Argument": {
                                 "Excellent": "Clearly presents a well-defined opinion with a sophisticated argument that engages the reader.",
@@ -2313,6 +2386,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "8th Grade Analytical Persuasive Essay Rubric",
                         "description": "Evaluates strength of argument, depth of persuasive techniques, and logical organization in essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Argument & Persuasiveness": {
                                 "Excellent": "Presents a compelling and sophisticated argument, effectively persuading the reader.",
@@ -2347,6 +2421,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "8th Grade Analytical Informational Article Rubric",
                         "description": "Evaluates depth of content, logical structure, and sophisticated language in informational articles.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Clear Topic & Purpose": {
                                 "Excellent": "Clearly introduces a topic and maintains a focused purpose throughout the article.",
@@ -2379,6 +2454,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "8th Grade Analytical Compare and Contrast Essay Rubric",
                         "description": "Evaluates depth of comparison and contrast, logical structure, and use of evidence.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Focused Introduction & Thesis": {
                                 "Excellent": "Presents a clear thesis that establishes the significance of the comparison and contrast.",
@@ -2411,6 +2487,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "8th Grade Analytical Cause and Effect Essay Rubric",
                         "description": "Evaluates depth of analysis of cause-effect relationships, use of logical evidence, and structure.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Thesis & Focus": {
                                 "Excellent": "Presents a clear thesis that effectively establishes the cause and effect relationship.",
@@ -2445,6 +2522,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "8th Grade Holistic Reflective Essay Rubric",
                         "description": "Evaluates thoughtful reflection, clarity of expression, and coherence in reflective essays.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The essay provides thoughtful and insightful reflection, with well-developed ideas and coherent structure. The expression of thoughts is clear, and vivid details add depth. Conventions are correct, enhancing clarity.",
                             "Proficient": "Reflects thoughtfully on experiences or ideas, with mostly clear expression and appropriate organization. Conventions are followed accurately, though minor errors may be present.",
@@ -2459,6 +2537,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "8th Grade Analytical How-To Guide Rubric",
                         "description": "Assesses logical sequencing, clarity, and completeness in providing step-by-step instructions.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Logical Sequencing": {
                                 "Excellent": "Instructions are organized logically and presented in a manner that anticipates the audience's needs, providing clear guidance.",
@@ -2493,6 +2572,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "8th Grade Analytical Research Paper Rubric",
                         "description": "Assesses development of a research question, depth of content, organization, and adherence to a citation style.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Research Question & Argument": {
                                 "Excellent": "Clearly defines a focused research question and presents a well-supported argument.",
@@ -2541,6 +2621,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "9th Grade Holistic Personal Narrative Rubric",
                         "description": "Assesses depth of introspection, emotional impact, and complexity of narrative structure in personal narratives.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The narrative is compelling, deeply reflective, and employs a sophisticated storyline. Characters and events are developed with vivid details and complex emotions, maintaining clear focus and fluency. Conventions are used correctly, enhancing readability.",
                             "Proficient": "The narrative includes thoughtful reflection and complex character or event development. Structure is logical, and details effectively enhance engagement. Few errors in conventions are present, not hindering understanding.",
@@ -2553,6 +2634,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "9th Grade Holistic Short Story Rubric",
                         "description": "Evaluates creativity, theme development, and narrative complexity in short stories.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The short story is highly creative, with complex themes, well-developed characters, and a sophisticated plot. Narrative techniques (e.g., dialogue, pacing) enhance the story, and conventions are used effectively to support style and tone.",
                             "Proficient": "The story contains a developed theme, with clear character development and plot. Some narrative techniques are effectively used, though depth and complexity may be inconsistent. Conventions are mostly accurate.",
@@ -2567,6 +2649,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "9th Grade Analytical Descriptive Essay Rubric",
                         "description": "Evaluates the use of advanced descriptive techniques, organization, and sophisticated vocabulary to create a vivid and immersive description.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Focus & Structure": {
                                 "Excellent": "Essay maintains a strong and clear focus throughout, with seamless organization and transitions that enhance the descriptive elements.",
@@ -2601,6 +2684,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "9th Grade Analytical Argumentative Essay Rubric",
                         "description": "Assesses the depth of argumentation, use of evidence, and logical structure in essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Thesis & Argument": {
                                 "Excellent": "Presents a clear and persuasive thesis with a well-developed argument that addresses multiple perspectives.",
@@ -2641,6 +2725,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "9th Grade Analytical Opinion Essay Rubric",
                         "description": "Evaluates clarity of opinion, logical argument, and use of detailed evidence in opinion essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Opinion & Thesis": {
                                 "Excellent": "Clearly articulates a strong opinion and thesis statement that guides the argument.",
@@ -2675,6 +2760,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "9th Grade Analytical Persuasive Essay Rubric",
                         "description": "Assesses complexity of argument, effectiveness of persuasive strategies, and logical organization.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Thesis & Argument": {
                                 "Excellent": "Presents a clear and nuanced thesis, with a well-developed argument throughout.",
@@ -2709,6 +2795,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "9th Grade Analytical Research Paper Rubric",
                         "description": "Evaluates development of thesis, thorough research, logical argumentation, and adherence to citation style.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Thesis & Focus": {
                                 "Excellent": "Develops a clear, compelling thesis that thoroughly guides the paper’s research and analysis.",
@@ -2741,6 +2828,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "9th Grade Analytical Informational Article Rubric",
                         "description": "Evaluates clarity of topic, depth of information, and organization in informational articles.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Focused Topic & Thesis": {
                                 "Excellent": "Clearly states a focused topic and thesis that provides direction for the article.",
@@ -2773,6 +2861,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "9th Grade Analytical Compare and Contrast Essay Rubric",
                         "description": "Evaluates depth of comparison, thorough evidence, and sophisticated organization.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Clear & Analytical Thesis": {
                                 "Excellent": "Presents a clear, analytical thesis that explores meaningful similarities and differences.",
@@ -2805,6 +2894,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "9th Grade Analytical Cause and Effect Essay Rubric",
                         "description": "Evaluates depth of cause-effect analysis, evidence use, and logical organization.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Analytical Thesis & Focus": {
                                 "Excellent": "Presents a clear, analytical thesis that explores a meaningful cause and effect relationship.",
@@ -2839,6 +2929,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "9th Grade Holistic Reflective Essay Rubric",
                         "description": "Assesses depth of reflection, insight into experiences, and fluid expression of ideas.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The essay provides deep and meaningful reflection with well-developed insights and a coherent structure. Ideas are clearly and vividly expressed, enhancing engagement and understanding. Conventions are followed flawlessly.",
                             "Proficient": "Reflects thoughtfully with emerging depth and logical structure. Ideas are clearly expressed, and conventions are mostly accurate, though minor lapses may occur.",
@@ -2853,6 +2944,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "9th Grade Analytical How-To Guide Rubric",
                         "description": "Evaluates clarity, thoroughness, and audience awareness in how-to guides.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Clarity & Logical Flow": {
                                 "Excellent": "The guide provides clear, logically sequenced steps that are easy to follow, anticipating potential audience questions.",
@@ -2887,6 +2979,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "9th Grade Analytical Research Paper Rubric",
                         "description": "Evaluates research depth, argumentative clarity, structure, and proper citation in research papers.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Research Question & Thesis Development": {
                                 "Excellent": "Defines a well-focused research question and develops a clear, insightful thesis.",
@@ -2935,6 +3028,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "10th Grade Holistic Personal Narrative Rubric",
                         "description": "Evaluates depth of personal insight, emotional depth, and narrative complexity.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The narrative shows a mature reflection on experiences with insightful connections and a strong personal voice. A well-crafted plot and vivid descriptions enhance the reader's experience, with flawless use of conventions.",
                             "Proficient": "The narrative effectively reflects on experiences with developed characters and events. Use of voice and detailed descriptions create a mostly smooth narrative, with conventions that are generally correct.",
@@ -2947,6 +3041,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "10th Grade Holistic Short Story Rubric",
                         "description": "Evaluates theme complexity, character arc, and advanced use of literary techniques in short stories.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The short story explores complex themes with a sophisticated character arc and plot structure. Advanced literary techniques (e.g., symbolism, metaphor) enhance the story's meaning, and conventions are flawless, supporting the narrative voice.",
                             "Proficient": "The story demonstrates thoughtful theme development and character progression. Use of literary techniques is present, but may not consistently enhance the story. Conventions are mostly correct, supporting readability.",
@@ -2961,6 +3056,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "10th Grade Analytical Descriptive Essay Rubric",
                         "description": "Evaluates the advanced use of description, word choice, and organization to create vivid, detailed, and engaging essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Focus & Coherence": {
                                 "Excellent": "The essay maintains clear focus and coherence, with sophisticated transitions and logical flow of ideas.",
@@ -2995,6 +3091,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "10th Grade Analytical Argumentative Essay Rubric",
                         "description": "Evaluates the depth of argumentation, thoroughness of evidence, and logical coherence in essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Thesis & Complexity": {
                                 "Excellent": "Presents a sophisticated thesis and explores complex aspects of the argument thoroughly.",
@@ -3035,6 +3132,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "10th Grade Analytical Opinion Essay Rubric",
                         "description": "Evaluates sophistication of opinion, depth of reasoning, and structured organization in opinion essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Sophisticated Opinion & Argument": {
                                 "Excellent": "States a nuanced opinion with a sophisticated argument that is well-developed and insightful.",
@@ -3069,6 +3167,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "10th Grade Analytical Persuasive Essay Rubric",
                         "description": "Evaluates depth of argument, sophistication of persuasive techniques, and evidence in essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Thesis & Argument Development": {
                                 "Excellent": "Presents a sophisticated thesis with a fully developed argument that demonstrates clear and compelling persuasion.",
@@ -3103,6 +3202,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "10th Grade Analytical Informational Article Rubric",
                         "description": "Evaluates depth of analysis, clarity of thesis, and cohesive structure in informational articles.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Thesis & Topic Focus": {
                                 "Excellent": "Presents a clear, specific thesis and maintains focused analysis throughout.",
@@ -3135,6 +3235,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "10th Grade Analytical Compare and Contrast Essay Rubric",
                         "description": "Evaluates complex comparison, depth of analysis, and logical organization in essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Sophisticated Thesis & Focus": {
                                 "Excellent": "Presents a clear, sophisticated thesis with nuanced analysis of both similarities and differences.",
@@ -3167,6 +3268,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "10th Grade Analytical Cause and Effect Essay Rubric",
                         "description": "Evaluates complex analysis, depth of reasoning, and cohesive structure in essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Sophisticated Thesis & Analysis": {
                                 "Excellent": "Presents a sophisticated thesis with in-depth analysis of the cause and effect relationship.",
@@ -3201,6 +3303,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "10th Grade Holistic Reflective Essay Rubric",
                         "description": "Evaluates the depth of reflective insight, complexity of thought, and coherent structure in essays.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The essay demonstrates deep reflection and insight, with complex thoughts presented in a coherent, fluid structure. Personal voice is strong and engaging, with correct use of conventions.",
                             "Proficient": "Reflects on experiences or ideas with clarity and emerging complexity. Organization supports the reflection, and conventions are mostly correct, enhancing readability.",
@@ -3215,6 +3318,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "10th Grade Analytical Research Paper Rubric",
                         "description": "Assesses focus, research depth, argument development, and correct application of citation styles.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Research Question & Thesis Clarity": {
                                 "Excellent": "Presents a clear, focused research question and a compelling thesis that guides the paper.",
@@ -3261,6 +3365,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "10th Grade Analytical How-To Guide Rubric",
                         "description": "Assesses thoroughness, clarity, and logical presentation of steps in how-to guides.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Thoroughness & Clarity": {
                                 "Excellent": "Steps are thoroughly detailed, clearly presented, and anticipate possible misunderstandings, providing a comprehensive guide.",
@@ -3297,6 +3402,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "11th Grade Holistic Personal Narrative Rubric",
                         "description": "Evaluates depth of self-reflection, emotional complexity, and sophisticated narrative structure.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The narrative is insightful, with complex themes and reflections that connect personal experiences to broader ideas. The storyline is skillfully crafted with rich, vivid details, emotional depth, and a distinctive voice. Conventions enhance readability and style.",
                             "Proficient": "The narrative includes thoughtful reflection and connects personal experiences to more complex themes. Characters and events are well-developed, and conventions are mostly accurate, enhancing readability.",
@@ -3309,6 +3415,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "11th Grade Holistic Short Story Rubric",
                         "description": "Evaluates sophisticated themes, character development, and narrative voice in short stories.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The short story explores sophisticated themes, with a well-developed narrative voice and multidimensional characters. Complex plot structures and literary devices (e.g., symbolism, allusion) are used effectively. Conventions are skillfully applied.",
                             "Proficient": "The story addresses complex themes with an emerging narrative voice. Characters and plot are developed, with use of literary devices that enhance the story. Conventions are mostly accurate, supporting the narrative.",
@@ -3323,6 +3430,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "11th Grade Analytical Descriptive Essay Rubric",
                         "description": "Evaluates depth of descriptive content, stylistic language, and cohesive organization in detailed essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Focus & Cohesion": {
                                 "Excellent": "Essay maintains a clear focus and cohesion, with sophisticated structure and seamless transitions.",
@@ -3357,6 +3465,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "11th Grade Analytical Argumentative Essay Rubric",
                         "description": "Assesses the development of complex arguments, nuanced reasoning, and thorough evidence in essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Thesis & Nuance": {
                                 "Excellent": "Presents a nuanced and sophisticated thesis, exploring multiple layers and complexities of the argument.",
@@ -3397,6 +3506,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "11th Grade Analytical Opinion Essay Rubric",
                         "description": "Evaluates the complexity of opinion, depth of argumentation, and cohesiveness in opinion essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Opinion & Insight": {
                                 "Excellent": "Presents a nuanced, insightful opinion that is thoroughly developed throughout the essay.",
@@ -3431,6 +3541,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "11th Grade Analytical Persuasive Essay Rubric",
                         "description": "Assesses depth of argument, skillful use of rhetoric, and evidence in essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Thesis & Argumentation": {
                                 "Excellent": "Presents a nuanced thesis with a sophisticated and fully developed argument that convincingly persuades the reader.",
@@ -3465,6 +3576,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "11th Grade Analytical Research Paper Rubric",
                         "description": "Evaluates the depth of research, sophistication of argument, and mastery of citation in research papers.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Research Question & Sophistication": {
                                 "Excellent": "Defines a complex research question and develops a nuanced thesis, guiding a sophisticated exploration of the topic.",
@@ -3509,6 +3621,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "11th Grade Analytical Compare and Contrast Essay Rubric",
                         "description": "Evaluates depth of comparison, critical analysis, and cohesive organization in complex essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Nuanced Thesis & Analytical Depth": {
                                 "Excellent": "Presents a nuanced thesis with in-depth analysis of complex similarities and differences.",
@@ -3541,6 +3654,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "11th Grade Analytical Cause and Effect Essay Rubric",
                         "description": "Assesses nuanced cause-effect analysis, critical thinking, and polished organization.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Nuanced Thesis & Depth of Analysis": {
                                 "Excellent": "Presents a nuanced thesis with in-depth analysis of complex cause and effect relationships.",
@@ -3575,6 +3689,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "11th Grade Holistic Reflective Essay Rubric",
                         "description": "Assesses depth of introspection, coherence of thought, and sophisticated expression in reflective essays.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The essay reflects profound introspection, connecting personal experiences to broader ideas. The structure is coherent and fluid, with clear, sophisticated expression. Conventions are flawless, supporting the writing's impact.",
                             "Proficient": "Reflects on experiences thoughtfully, with emerging connections to broader themes. The structure supports reflection, and conventions are mostly accurate, with minor lapses that do not impede understanding.",
@@ -3589,6 +3704,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "11th Grade Analytical How-To Guide Rubric",
                         "description": "Evaluates clarity, thorough explanation, and audience engagement in complex how-to guides.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Clarity & Detailed Explanations": {
                                 "Excellent": "Provides clear, comprehensive steps with detailed explanations that anticipate audience needs and potential difficulties.",
@@ -3625,6 +3741,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "12th Grade Holistic Personal Narrative Rubric",
                         "description": "Assesses complex self-reflection, emotional depth, and advanced narrative techniques.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The narrative is highly engaging, with profound and thoughtful reflection on experiences, deep insight, and sophisticated thematic connections. Complex characters and events are woven together skillfully, enhancing emotional depth and engagement. Flawless use of conventions supports a strong and unique narrative voice.",
                             "Proficient": "The narrative is well-crafted, with insightful reflections and connections to broader themes. Characters and events are clearly developed, and a unique voice is evident. Conventions are mostly accurate, supporting the narrative’s effectiveness.",
@@ -3637,6 +3754,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "12th Grade Holistic Short Story Rubric",
                         "description": "Evaluates complex themes, mature character development, and unique narrative voice in short stories.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The short story masterfully explores complex themes and character development, demonstrating a unique and mature narrative voice. Plot is complex and engaging, with effective use of advanced literary devices. Conventions enhance the story’s style and meaning.",
                             "Proficient": "The story explores complex themes and shows clear character development. A strong narrative voice is present, with effective use of plot and literary devices. Conventions are mostly correct, supporting readability and style.",
@@ -3651,6 +3769,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "12th Grade Analytical Descriptive Essay Rubric",
                         "description": "Evaluates depth of content, advanced vocabulary, and stylistic choices in descriptive essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Focus & Organization": {
                                 "Excellent": "Essay has a sophisticated focus and a highly effective organization that enhances the vividness and engagement of the description.",
@@ -3685,6 +3804,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "12th Grade Analytical Argumentative Essay Rubric",
                         "description": "Evaluates depth of argumentation, sophisticated use of evidence, and logical organization in essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Thesis & Insight": {
                                 "Excellent": "Presents a sophisticated and insightful thesis that thoroughly explores complex arguments and perspectives.",
@@ -3725,6 +3845,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "12th Grade Analytical Opinion Essay Rubric",
                         "description": "Evaluates depth of thought, sophistication of argument, and use of evidence in opinion essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Insightful Opinion & Thesis": {
                                 "Excellent": "Presents a nuanced, compelling opinion with a clear thesis that guides a sophisticated argument.",
@@ -3759,6 +3880,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "12th Grade Analytical Persuasive Essay Rubric",
                         "description": "Evaluates advanced argumentation, depth of rhetoric, and evidence in sophisticated persuasive essays.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Thesis & Complex Argument": {
                                 "Excellent": "Presents a sophisticated and nuanced thesis, developing a compelling and fully realized argument that demonstrates advanced persuasion.",
@@ -3793,6 +3915,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "12th Grade Analytical Essay Rubric",
                         "description": "Evaluates depth of analysis, clarity of argument, logical structure, use of evidence, and academic writing conventions.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Thesis & Argument": {
                                 "Excellent": "Presents a sophisticated, insightful thesis that guides the essay effectively. Argument is clearly articulated, focused, and maintained throughout.",
@@ -3831,6 +3954,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "12th Grade Analytical Compare and Contrast Essay Rubric",
                         "description": "Assesses depth of analysis, advanced comparison techniques, and polished organization.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Advanced Thesis & Analytical Depth": {
                                 "Excellent": "Presents an advanced thesis with sophisticated analysis of complex similarities and differences.",
@@ -3863,6 +3987,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "12th Grade Analytical Cause and Effect Essay Rubric",
                         "description": "Assesses depth of analysis, advanced reasoning, and polished organization.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Advanced Thesis & Depth of Analysis": {
                                 "Excellent": "Presents an advanced thesis with sophisticated analysis of complex cause and effect relationships.",
@@ -3897,6 +4022,7 @@ export const rubrics: Rubrics = {
                     "holistic": {
                         "name": "12th Grade Holistic Reflective Essay Rubric",
                         "description": "Assesses depth of personal insight, mature reflection, and sophisticated language in reflective essays.",
+                        type: RubricType.Holistic,
                         "criteria": {
                             "Excellent": "The essay shows mature reflection and deep personal insight, exploring experiences with clarity and complexity. Ideas are presented with sophisticated expression, and conventions are used accurately to enhance the essay's meaning and style.",
                             "Proficient": "Reflects thoughtfully on experiences, with developing complexity and clear organization. Language is sophisticated, and conventions are mostly correct, contributing to clarity.",
@@ -3911,6 +4037,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "12th Grade Analytical Research Paper Rubric",
                         "description": "Assesses advanced research, argumentation, source synthesis, and command of a citation style.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Research Question & Thesis Maturity": {
                                 "Excellent": "Presents a well-crafted, mature research question and thesis that explore complex, nuanced ideas.",
@@ -3957,6 +4084,7 @@ export const rubrics: Rubrics = {
                     "analytical": {
                         "name": "12th Grade Analytical How-To Guide Rubric",
                         "description": "Evaluates thoroughness, sophistication, and audience-centered presentation in complex how-to guides.",
+                        type: RubricType.Analytical,
                         "criteria": {
                             "Comprehensive Clarity": {
                                 "Excellent": "Instructions are thorough and sophisticated, providing clear, step-by-step guidance that considers all potential audience needs and challenges.",
@@ -3990,50 +4118,6 @@ export const rubrics: Rubrics = {
     }
 };
 
-interface RubricCriteria {
-    [criterion: string]: {
-        Excellent: string;
-        Proficient: string;
-        Developing: string;
-        Beginning: string;
-    };
-}
-
-export interface Rubric {
-    name: string;
-    description?: string;
-    criteria: RubricCriteria | RubricOverallCriteria; // Criteria can either be specific categories or holistic ratings.
-}
-
-interface RubricOverallCriteria {
-    Excellent: string;
-    Proficient: string;
-    Developing: string;
-    Beginning: string;
-}
-
-export type RubricType = 'analytical' | 'holistic' | string; // Extend this to cover other rubric types.
-
-interface RubricProseType {
-    [rubricType: string]: Rubric; // Maps rubric types (e.g., "analytical", "holistic") to Rubric details.
-}
-
-interface RubricTextType {
-    [proseType: string]: RubricProseType; // Maps prose types (e.g., "personal_narrative") to their corresponding RubricProseType.
-}
-
-interface GradeRubrics {
-    [textType: string]: RubricTextType; // Maps text types (e.g., "narrative") to their corresponding RubricTextType.
-}
-
-interface StudentGradeRubrics {
-    [grade: string]: GradeRubrics; // Maps grade levels (e.g., "3rd_grade") to their corresponding GradeRubrics.
-}
-
-interface Rubrics {
-    [studentType: string]: StudentGradeRubrics; // Maps identity types (e.g., "student") to their corresponding StudentGradeRubrics.
-}
-
 /**
  * Get an array of rubrics based on the provided criteria.
  * @param identity - The type of identity (e.g., "student").
@@ -4047,8 +4131,7 @@ export function getRubricsByCriteria(
     identityLevel: string,
     textType: string,
     prose: string
-): Rubric[] {
-
+): RubricState[] {
     console.log('identity', identity);
     console.log('identityLevel', identityLevel);
     console.log('textType', textType);
@@ -4064,30 +4147,58 @@ export function getRubricsByCriteria(
         const proseRubrics = rubrics[identity][identityLevel][textType][prose];
         console.log('proseRubrics', proseRubrics);
 
-        // Convert the rubric object into an array, with a specific order for the default rubric.
-        const rubricArray: Rubric[] = Object.entries(proseRubrics)
-            .map(([rubricType, rubricDetail]) => ({
-                ...rubricDetail,
-                type: rubricType as RubricType, // Add the rubric type for reference.
-            }))
+        // Convert the rubric object into an array and ensure each rubric is cast to `RubricState`.
+        const rubricArray: RubricState[] = Object.entries(proseRubrics)
+            .map(([rubricTypeKey, rubricDetail]) => {
+                // Ensure proper casting based on rubric type.
+                let rubricType: RubricType;
+
+                switch (rubricTypeKey) {
+                    case "holistic":
+                        rubricType = RubricType.Holistic;
+                        break;
+                    case "analytical":
+                        rubricType = RubricType.Analytical;
+                        break;
+                    case "contentSpecific":
+                        rubricType = RubricType.ContentSpecific;
+                        break;
+                    case "skillFocused":
+                        rubricType = RubricType.SkillFocused;
+                        break;
+                    case "developmental":
+                        rubricType = RubricType.Developmental;
+                        break;
+                    default:
+                        throw new Error(`Unknown rubric type: ${rubricTypeKey}`);
+                }
+
+                return {
+                    ...rubricDetail,
+                    type: rubricType, // Use the correct `RubricType`.
+                } as RubricState; // Explicitly cast to `RubricState`.
+            })
             .sort((a, b) => {
                 // Custom logic for sorting based on text type tendencies.
                 if (['narrative', 'reflective'].includes(textType)) {
                     // Prefer holistic rubrics for "narrative" and "reflective" text types.
-                    if (a.type === 'holistic') return -1;
-                    if (b.type === 'holistic') return 1;
+                    if (a.type === RubricType.Holistic) return -1;
+                    if (b.type === RubricType.Holistic) return 1;
                 } else {
                     // Prefer analytical rubrics for other text types.
-                    if (a.type === 'analytical') return -1;
-                    if (b.type === 'analytical') return 1;
+                    if (a.type === RubricType.Analytical) return -1;
+                    if (b.type === RubricType.Analytical) return 1;
                 }
-                return 0; // No preference between the remaining rubrics.
+                return 0; // No preference between remaining rubrics.
             });
+
         return rubricArray;
     }
+
     // If criteria do not match, return an empty array.
     return [];
 }
+
 
 export function getRubricNamesByCriteria(
     identity: string,

@@ -1,3 +1,5 @@
+import { Rubric } from "@/constants/rubrics_new";
+
 export type FormData = {
     title: string;
     text: string; // The text to be analyzed
@@ -11,5 +13,5 @@ export type FormData = {
     wordLimitType: "less than" | "more than" | "between"; // Word limit condition (less or more)
     wordLimit: string; // Word limit value
     customRubric: string; // Optional custom rubric
-    rubric: string; // Specific rubric
+    rubric: Rubric; // Specific rubric
 };

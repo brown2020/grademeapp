@@ -16,11 +16,15 @@ import { extractGrade } from "@/utils/responseParser";
 import { toast } from "react-hot-toast";
 import { Field, Label, Button } from "@headlessui/react";
 import CustomListbox from "@/components/ui/CustomListbox";
+import CollapsiblePanel from "@/components/ui/CollapsiblePanel";
+import CustomRubricBuilder from "@/components/CustomRubric";
 import { debounce } from "lodash";
 import { Paperclip } from "lucide-react"
 import { FormData } from "@/types/formdata";
 import { userInputs, getVerbsByValue } from "@/constants/userInputs";
-import { getRubricsByCriteria, Rubric } from "@/constants/rubrics_new";
+import { getRubricsByCriteria } from "@/constants/rubrics_new";
+import { RubricState } from "@/types/rubrics"
+
 
 // Define types for the saveHistory function
 async function saveHistory(
@@ -58,8 +62,9 @@ export default function Tools() {
     const [hasSaved, setHasSaved] = useState<boolean>(false);
     const [uploading, setUploading] = useState<boolean>(false);
     const [fileUrl, setFileUrl] = useState<string>("");
+    const [showCustomRubricBuilder, setShowCustomRubricBuilder] = useState<boolean>(false);
     const [rubricNames, setRubricNames] = useState<string[]>([]);
-    const [rubricOptions, setRubricOptions] = useState<Rubric[]>([]);
+    const [rubricOptions, setRubricOptions] = useState<RubricState[]>([]);
     const [formData, setFormData] = useState<FormData>({
         title: "", // Title of the text
         text: "", // The text of the essay
@@ -73,7 +78,7 @@ export default function Tools() {
         wordLimitType: "less than", // Defaults to "less than"; user can change to "more than" or "between"
         wordLimit: "", // Word limit value as a number or string
         customRubric: "", // Optional custom rubric (empty if not used)
-        rubric: "", // Specific rubric chosen from list
+        rubric: rubricOptions[0] || null, // Specific rubric chosen from list
     });
 
     // Handle form input changes
@@ -94,7 +99,7 @@ export default function Tools() {
                     // get full rubric details from the selected rubric
                     setRubricOptions(rubrics);
                     setRubricNames(rubrics.map((rubric) => rubric.name)); // Set only the names for the Select
-                    setFormData((prevFormData) => ({ ...prevFormData, rubric: rubrics[0].name })); // Set the first rubric as default
+                    setFormData((prevFormData) => ({ ...prevFormData, rubric: rubrics[0] })); // Set the first rubric as default
                 }
             }
         }, 300); // 300 ms debounce
@@ -103,6 +108,9 @@ export default function Tools() {
             debouncedFetchRubrics.cancel(); // Cleanup on unmount or value change
         };
     }, [formData.identity, formData.identityLevel, formData.textType, formData.prose]);
+
+    console.log("Rubric Options:", rubricOptions);
+    console.log(formData.rubric)
 
     // useEffect to update prose based on text type change
     useEffect(() => {
@@ -173,9 +181,9 @@ export default function Tools() {
         setHasSaved(false);
 
         console.log("Form Data:", formData);
-        const rubric = rubricOptions.find((rubric) => rubric.name === formData.rubric);
+
         // convert rubric to string
-        const rubricString = rubric ? JSON.stringify(rubric) : "";
+        const rubricString = JSON.stringify(formData.rubric);
         console.log("Selected Rubric:", rubricString);
 
         try {
@@ -247,7 +255,7 @@ export default function Tools() {
     }, [summary, flagged]);
 
     return (
-        <div className="form-wrapper space-y-8">
+        <div className="form-wrapper space-y-8 font-medium">
             <form onSubmit={handleSubmit}>
                 {/* User Inputs */}
                 <div className="flex flex-col flex-wrap items-left text-md space-y-2 border rounded-lg px-2 py-1">
@@ -393,15 +401,39 @@ export default function Tools() {
                         <div className="w-fit mr-2">
                             <Field>
                                 <Label className="block text-sm font-medium text-gray-700" htmlFor="rubric">Rubric</Label>
-                                <CustomListbox
-                                    value={formData.rubric}
-                                    options={rubricNames.map((rubric) => ({ label: rubric, value: rubric }))}
-                                    onChange={(value) => setFormData((prevFormData) => ({ ...prevFormData, rubric: value }))}
-                                    buttonClassName="w-fit"
-                                    placeholder="Select a Rubric"
-                                />
+                                {rubricOptions && rubricOptions.length > 0 && (
+                                    <CustomListbox
+                                        value={formData.rubric.name}
+                                        options={rubricNames.map((rubric) => ({ label: rubric, value: rubric }))}
+                                        onChange={(rubricName) => setFormData((prevFormData) => ({ ...prevFormData, rubric: rubricOptions.find((rubric) => rubric.name === rubricName) || prevFormData.rubric }))}
+                                        buttonClassName="w-fit"
+                                        placeholder="Select a Rubric"
+                                    />
+                                )}
                             </Field>
                         </div>
+                        {/* Rubric Details */}
+                        {formData.rubric && (
+                            <div className="w-full mt-4 p-4 border rounded bg-orange-100">
+                                <h2 className="text-lg font-semibold">{formData.rubric.name}</h2>
+                                <p className="text-sm text-gray-700">{formData.rubric.description}</p>
+
+                                {/* Expandable Criteria Sections */}
+                                <div className="mt-4">
+                                    {formData.rubric && (
+                                        <CollapsiblePanel rubric={formData.rubric} key={formData.rubric.name} />
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        <Button
+                            type="button"
+                            onClick={() => setShowCustomRubricBuilder(true)}
+                            className="mt-4 inline-flex justify-center rounded-md border border-transparent bg-green-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                        >
+                            Create Custom Rubric
+                        </Button>
                     </div>
                 </div>
 
@@ -473,6 +505,39 @@ export default function Tools() {
                     <ReactMarkdown>{summary}</ReactMarkdown>
                 </div>
             )}
+
+            {showCustomRubricBuilder && (
+                <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+                    <div className="bg-white rounded-lg shadow-lg p-4 w-96 h-96 overflow-scroll resize cursor-se-resize">
+                        <CustomRubricBuilder
+                            onSave={async (customRubric) => {
+                                // Save the custom rubric to the database
+                                if (uid) {
+                                    const customRubricRef = doc(collection(db, "users", uid, "custom_rubrics"));
+                                    await setDoc(customRubricRef, {
+                                        ...customRubric,
+                                        id: customRubricRef.id,
+                                        timestamp: Timestamp.now(),
+                                    });
+
+                                    // Optionally, you can add the custom rubric to the rubric options in local state
+                                    setRubricOptions((prev) => [...prev, customRubric]);
+                                    setFormData((prev) => ({ ...prev, rubric: customRubric }));
+
+                                    toast.success('Custom rubric saved successfully!');
+                                } else {
+                                    toast.error('Please log in to save a custom rubric.');
+                                }
+
+                                // Close the rubric builder
+                                setShowCustomRubricBuilder(false);
+                            }}
+                            onCancel={() => setShowCustomRubricBuilder(false)}
+                        />
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 }

@@ -32,7 +32,7 @@ const CustomListbox = <T extends string | number | string[] | null>({
         <Listbox value={value} onChange={onChange}>
             <ListboxButton
                 className={clsx(
-                    "flex w-32 justify-center items-center px-2 py-1 bg-orange-500 text-gray-900 font-semibold rounded-md",
+                    "flex w-32 justify-center items-center px-2 py-1 bg-orange-400 rounded-md",
                     buttonClassName
                 )}
             >

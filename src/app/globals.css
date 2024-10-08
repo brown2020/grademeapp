@@ -209,7 +209,7 @@
     @apply px-3 py-2 outline-none border rounded-md;
   }
   .form-wrapper button {
-    @apply mr-auto py-2 px-3 bg-orange-500 text-black rounded-md cursor-pointer disabled:opacity-50 hover:opacity-50;
+    @apply mr-auto py-1 px-3 bg-orange-400 text-gray-900 font-medium rounded-md cursor-pointer disabled:opacity-50 hover:brightness-125;
   }
   .response {
     @apply p-3 bg-orange-500 bg-opacity-20 my-3 rounded-md whitespace-pre-wrap;
