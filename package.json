@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@ai-sdk/openai": "^0.0.63",
+    "@ai-sdk/openai": "^0.0.66",
     "@headlessui/react": "^2.1.8",
     "@stripe/react-stripe-js": "^2.8.0",
     "ai": "^3.4.7",
@@ -24,7 +24,7 @@
     "fs": "^0.0.1-security",
     "html2canvas": "^1.4.1",
     "lodash": "^4.17.21",
-    "lucide-react": "^0.446.0",
+    "lucide-react": "^0.451.0",
     "mammoth": "^1.8.0",
     "next": "^14.2.13",
     "pdf2json": "^3.1.4",
@@ -40,7 +40,7 @@
     "react-spinners": "^0.14.1",
     "react-textarea-autosize": "^8.5.3",
     "sharp": "^0.33.5",
-    "stripe": "^16.12.0",
+    "stripe": "^17.1.0",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.23.8",
