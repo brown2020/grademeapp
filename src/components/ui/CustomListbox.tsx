@@ -1,4 +1,6 @@
-import React from 'react';
+"use client"
+
+import { forwardRef } from 'react';
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/react';
 import clsx from 'clsx';
 
@@ -28,9 +30,21 @@ const CustomListbox = <T extends string | number | string[] | null>({
     optionsWrapperClassName,
     placeholder = "Select an option",
 }: CustomListboxProps<T>) => {
+
+    const MyCustomButton = forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement>>((props, ref) => {
+        return <button className="..." ref={ref} {...props} />;
+    });
+    MyCustomButton.displayName = "MyCustomButton";
+
+    const MyCustomDiv = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>((props, ref) => {
+        return <div className="..." ref={ref} {...props} />;
+    });
+    MyCustomDiv.displayName = "MyCustomDiv";
+
     return (
         <Listbox value={value} onChange={onChange}>
             <ListboxButton
+                as={MyCustomButton}
                 className={clsx(
                     "flex justify-center items-center px-2 py-1 bg-orange-400 rounded-md text-sm",
                     buttonClassName
@@ -41,8 +55,9 @@ const CustomListbox = <T extends string | number | string[] | null>({
             <ListboxOptions anchor="bottom" className={clsx("rounded-md cursor-pointer", optionsWrapperClassName)}>
                 {options.map(({ label, value }, index) => (
                     <ListboxOption
-                        key={value}
+                        key={index}
                         value={value}
+                        as={MyCustomDiv}
                         // Apply alternating background color based on even/odd index
                         className={clsx(
                             "group flex gap-2 px-2 py-1 data-[focus]:bg-orange-200 text-sm",

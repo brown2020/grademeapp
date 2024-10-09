@@ -20,13 +20,13 @@ import ReactMarkdown from "react-markdown";
 import { PulseLoader } from "react-spinners";
 import { correctGrammarAndSpelling } from "@/actions/correctGrammarSpelling";
 import { extractGrade } from "@/utils/responseParser";
-import { FormData } from "@/types/formdata";
+import { GradingData } from "@/types/grading-data";
 import { UserHistoryType } from "@/types/user-history";
 
 // Define types for the saveHistory function
 async function saveHistory(
     uid: string | null,
-    userInput: FormData,
+    userInput: GradingData,
     response: string,
     grade: string,
     fileUrl: string | null
@@ -92,7 +92,7 @@ const Document = () => {
 
     console.log(userDoc);
 
-    const [formData, setFormData] = useState<FormData>({
+    const [gradingData, setGradingData] = useState<GradingData>({
         title: "",
         text: "",
         identity: "",
@@ -110,7 +110,7 @@ const Document = () => {
 
     useEffect(() => {
         if (userDoc) {
-            setFormData({
+            setGradingData({
                 title: userDoc.userInput.title,
                 text: userDoc.userInput.text,
                 identity: userDoc.userInput.identity,
@@ -135,8 +135,8 @@ const Document = () => {
 
     // Effect to update the active state
     useEffect(() => {
-        setActive(formData.text.length > 1 && localCount > 0);
-    }, [localCount, formData.text]);
+        setActive(gradingData.text.length > 1 && localCount > 0);
+    }, [localCount, gradingData.text]);
 
     useEffect(() => {
         setLocalCount(profile.credits);
@@ -154,7 +154,7 @@ const Document = () => {
             setHasSaved(false);
 
             try {
-                const { identity, identityLevel, assigner, topic, prose, audience, wordLimitType, wordLimit, title, rubric, text } = formData;
+                const { identity, identityLevel, assigner, topic, prose, audience, wordLimitType, wordLimit, title, rubric, text } = gradingData;
 
             const { result, creditsUsed } = await generateGrade(
                 identity,
@@ -197,23 +197,23 @@ const Document = () => {
                 );
             }
         },
-        [formData, minusCredits, profile.credits]
+        [gradingData, minusCredits, profile.credits]
     );
 
     // Effect to handle saving to history
     useEffect(() => {
         if (isStreamingComplete && !hasSaved && summary) {
-            saveHistory(uid, formData,summary, grade, fileUrl || null).then(() => {
+            saveHistory(uid, gradingData,summary, grade, fileUrl || null).then(() => {
                 setHasSaved(true);
             });
             toast.success("Document saved successfully");
         }
-    }, [isStreamingComplete, hasSaved, summary, uid, formData, grade, fileUrl]);
+    }, [isStreamingComplete, hasSaved, summary, uid, gradingData, grade, fileUrl]);
 
     // Handle saving the document
     const handleSave = async () => {
         toast.loading("Saving document...");
-        await saveHistory(uid, formData, summary, grade, fileUrl || null);
+        await saveHistory(uid, gradingData, summary, grade, fileUrl || null);
         toast.dismiss();
         toast.success("Document saved successfully");
     }
@@ -228,7 +228,7 @@ const Document = () => {
         setHasSaved(false);
 
         try {
-            const { correctedTextArray, totalCreditsUsed } = await correctGrammarAndSpelling(formData.text, profile.credits);
+            const { correctedTextArray, totalCreditsUsed } = await correctGrammarAndSpelling(gradingData.text, profile.credits);
             const finalText = correctedTextArray.join("");
             console.log(finalText)
 
@@ -241,10 +241,10 @@ const Document = () => {
             }
 
             setSummary(finalText);
-            setFormData((prev) => ({ ...prev, text: finalText }));
+            setGradingData((prev) => ({ ...prev, text: finalText }));
 
             setLocalCount((prev) => prev - totalCreditsUsed);
-            setPrompt(`Here is the corrected text: \n${formData.text}`);
+            setPrompt(`Here is the corrected text: \n${gradingData.text}`);
             setThinking(false);
             setIsStreamingComplete(true);
         } catch (error) {
@@ -278,7 +278,7 @@ const Document = () => {
     return (
         <div className="form-wrapper">
             <form onSubmit={handleSubmit}>
-                <h1 className="font-bold text-3xl">{formData.title}</h1>
+                <h1 className="font-bold text-3xl">{gradingData.title}</h1>
                 <h2 className="font-medium text-2xl">( Grade: {grade} )</h2>
                 <label htmlFor="title-field">
                     Title
@@ -286,8 +286,8 @@ const Document = () => {
                         type="text"
                         id="title-field"
                         placeholder="Enter the title here."
-                        onChange={(e) => setFormData((prevFormData) => ({...prevFormData, title: e.target.value}))}
-                        value={formData.title}
+                        onChange={(e) => setGradingData((prevFormData) => ({...prevFormData, title: e.target.value}))}
+                        value={gradingData.title}
                     />
                 </label>
 
@@ -298,8 +298,8 @@ const Document = () => {
                         minRows={4}
                         maxRows={20}
                         placeholder="Upload your essay or paste it here."
-                        onChange={(e) => setFormData((prevFormData) => ({...prevFormData, text: e.target.value}))}
-                        value={formData.text}
+                        onChange={(e) => setGradingData((prevFormData) => ({...prevFormData, text: e.target.value}))}
+                        value={gradingData.text}
                     />
                 </label>
 

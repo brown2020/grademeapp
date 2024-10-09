@@ -62,7 +62,7 @@ export const userInputs: UserInputs = {
     // Identity selection
     identity: {
         options: [
-            "default",
+            "person",
             "student",
             "professional",
             "researcher",
@@ -73,7 +73,7 @@ export const userInputs: UserInputs = {
         ],
         identityLevels: {
             // Nested levels based on identity
-            default: ["normal"],
+            person: ["normal"],
             student: [
                 "3rd grade", "4th grade", "5th grade", "6th grade",
                 "7th grade", "8th grade", "9th grade", "10th grade",
@@ -108,7 +108,7 @@ export const userInputs: UserInputs = {
     // Assigner selection based on identity
     assigner: {
         options: {
-            default: [ "self" ],
+            person: [ "self" ],
             student: [
                 "teacher", "professor", "tutor", "coach", "advisor"
             ],
@@ -232,6 +232,7 @@ export const userInputs: UserInputs = {
         ],
         // Different audiences based on identity
         contextBasedAudiences: {
+            person: ["general public"],
             student: [
                 "my teacher", "my professor", "my classmates", "my school"
             ],

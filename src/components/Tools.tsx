@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useCallback, useState, useEffect, FormEvent } from "react";
-import { Timestamp, collection, doc, setDoc, getDocs } from "firebase/firestore";
+import { Timestamp, collection, doc, setDoc } from "firebase/firestore";
 import { db, storage } from "@/firebase/firebaseClient";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useAuthStore } from "@/zustand/useAuthStore";
@@ -13,29 +14,19 @@ import { readStreamableValue } from "ai/rsc";
 import TextareaAutosize from "react-textarea-autosize";
 import ReactMarkdown from "react-markdown";
 import { toast } from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
-import { debounce } from "lodash";
 import { Paperclip } from "lucide-react"
-import { Field, Label, Button, Switch } from "@headlessui/react";
-
-import CustomListbox from "@/components/ui/CustomListbox";
-import RubricDisplay from "@/components/rubrics/RubricDisplay";
-import CustomRubricBuilder from "@/components/rubrics/RubricCustom";
-import RubricHelper from "@/components/rubrics/RubricHelper";
-import RubricSearch from "@/components/rubrics/RubricSearch";
-
 import { extractGrade } from "@/utils/responseParser";
-import { userInputs } from "@/constants/userInputs";
-import { getRubricsByCriteria, getDefaultRubrics } from "@/constants/rubrics_new";
-import { RubricState } from "@/types/rubrics-types"
-import { FormData } from "@/types/formdata";
+import { GradingData } from "@/types/grading-data";
+import { useRubricStore } from "@/zustand/useRubricStore";
 
 
 
 // Define types for the saveHistory function
 async function saveHistory(
     uid: string | null,
-    userInput: FormData,
+    userInput: GradingData,
     response: string,
     grade: string,
     fileUrl: string | null
@@ -56,6 +47,7 @@ async function saveHistory(
 
 export default function Tools() {
     const { uid } = useAuthStore();
+    const { selectedRubric, gradingData, setGradingData } = useRubricStore();
     const { profile, minusCredits } = useProfileStore();
     const [summary, setSummary] = useState<string>("");
     const [flagged, setFlagged] = useState<string>("");
@@ -67,98 +59,7 @@ export default function Tools() {
     const [hasSaved, setHasSaved] = useState<boolean>(false);
     const [uploading, setUploading] = useState<boolean>(false);
     const [fileUrl, setFileUrl] = useState<string>("");
-    const [useCustomRubrics, setUseCustomRubrics] = useState<boolean>(false);
-    const [showCustomRubricBuilder, setShowCustomRubricBuilder] = useState<boolean>(false);
-    const [rubricNames, setRubricNames] = useState<string[]>([]);
-    const [rubricOptions, setRubricOptions] = useState<RubricState[]>([]);
-    const [formData, setFormData] = useState<FormData>({
-        title: "", // Title of the text
-        text: "", // The text of the essay
-        identity: "default", // Identity of the user
-        identityLevel: "", // Level of the identity (student, researcher, etc.)
-        assigner: "", // Instructor or person assigning the task
-        textType: "", // Type of text (narrative, descriptive, argumentative, etc.)
-        topic: "", // Topic of the assignment
-        prose: "", // Type of prose (essay, short story, etc.)
-        audience: "", // Intended audience
-        wordLimitType: "less than", // Defaults to "less than"; user can change to "more than" or "between"
-        wordLimit: "", // Word limit value as a number or string
-        customRubric: "", // Optional custom rubric (empty if not used)
-        rubric: rubricOptions[0] || null, // Specific rubric chosen from list
-    });
-
-    // Fetch default rubrics or custom rubrics based on toggle
-    useEffect(() => {
-        if (useCustomRubrics && uid) {
-            const fetchCustomRubrics = async () => {
-                const customRubricCollection = collection(db, 'users', uid, 'custom_rubrics');
-                const customRubricSnapshot = await getDocs(customRubricCollection);
-                const fetchedRubrics = customRubricSnapshot.docs.map(doc => doc.data() as RubricState);
-                setRubricOptions(fetchedRubrics);
-                setRubricNames(fetchedRubrics.map(rubric => rubric.name));
-                if (fetchedRubrics.length > 0) {
-                    setFormData(prevFormData => ({
-                        ...prevFormData,
-                        rubric: fetchedRubrics[0],
-                    }));
-                }
-            };
-            fetchCustomRubrics();
-        } else {
-            // Use default rubrics logic
-            const defaultRubrics = getDefaultRubrics();
-            setRubricOptions(defaultRubrics);
-            setRubricNames(defaultRubrics.map(rubric => rubric.name));
-            setFormData(prevFormData => ({ ...prevFormData, rubric: defaultRubrics[0] }));
-        }
-    }, [useCustomRubrics, uid]);
-
-    // Fetch rubrics based on form criteria
-    useEffect(() => {
-        const debouncedFetchRubrics = debounce(() => {
-            if (formData.identity === "default") {
-                const rubrics = getDefaultRubrics();
-                setRubricOptions(rubrics);
-                setRubricNames(rubrics.map((rubric) => rubric.name));
-                setFormData((prevFormData) => ({ ...prevFormData, rubric: rubrics[0] }));
-            }
-            if (formData.identity && formData.identityLevel && formData.textType && formData.prose) {
-                const rubrics = getRubricsByCriteria(formData.identity, formData.identityLevel, formData.textType, formData.prose);
-                if (rubrics.length > 0) {
-                    setRubricOptions(rubrics);
-                    setRubricNames(rubrics.map((rubric) => rubric.name));
-                    setFormData((prevFormData) => ({ ...prevFormData, rubric: rubrics[0] }));
-                }
-            }
-        }, 300);
-        debouncedFetchRubrics();
-        return () => {
-            debouncedFetchRubrics.cancel();
-        };
-    }, [formData.identity, formData.identityLevel, formData.textType, formData.prose, setFormData, setRubricNames, setRubricOptions]);
-
-    // Function to handle when a rubric is selected from the search results
-    const handleRubricSelect = (rubric: RubricState) => {
-        setFormData((prevFormData) => ({
-            ...prevFormData,
-            rubric,
-        }));
-    };
-
-    // useEffect to update prose based on text type change
-    useEffect(() => {
-        // Check if a new text type is selected and there are options for the prose
-        if (formData.textType && userInputs.prose.details[formData.textType]) {
-            const proseOptions = userInputs.prose.details[formData.textType]?.options || [];
-            if (proseOptions.length > 0) {
-                // Set the formData.prose to the first option in the list
-                setFormData(prevFormData => ({
-                    ...prevFormData,
-                    prose: proseOptions[0] // Set the first option as the default value
-                }));
-            }
-        }
-    }, [formData.textType]);
+    const router = useRouter();
 
     // Handle file upload
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -171,8 +72,10 @@ export default function Tools() {
             // console.log('Uploading file:', selectedFile.name, 'of type:', selectedFile.type, 'and size:', selectedFile.size);
 
             try {
+                const { setGradingData } = useRubricStore.getState();
+
                 const fileNameWithoutExtension = ((selectedFile.name).split('.')[0]);
-                setFormData((prevFormData) => ({ ...prevFormData, title: fileNameWithoutExtension }));
+                setGradingData({ title: fileNameWithoutExtension });
 
                 const fileRef = ref(storage, `uploads/${uid}/${selectedFile.name}`);
                 await uploadBytes(fileRef, selectedFile);
@@ -181,7 +84,7 @@ export default function Tools() {
                 setFileUrl(downloadURL);
 
                 const parsedText = await parseDocumentFromUrl(downloadURL);
-                setFormData((prevFormData) => ({ ...prevFormData, text: parsedText }));
+                setGradingData({ text: parsedText });
             } catch (error) {
                 console.error('Failed to upload file:', error);
                 toast.dismiss();
@@ -199,8 +102,8 @@ export default function Tools() {
 
     // Enable submit button if conditions are met
     useEffect(() => {
-        setActive(formData.text.length > 1 && localCount > 0 && !uploading);
-    }, [localCount, formData.text, uploading]);
+        setActive(gradingData.text.length > 1 && localCount > 0 && !uploading);
+    }, [localCount, gradingData.text, uploading]);
 
 
     // Handle form submission
@@ -213,27 +116,25 @@ export default function Tools() {
         setIsStreamingComplete(false);
         setHasSaved(false);
 
-        console.log("Form Data:", formData);
+        console.log("Form Data:", gradingData);
 
         // convert rubric to string
-        const rubricString = JSON.stringify(formData.rubric);
+        const rubricString = JSON.stringify(gradingData.rubric);
         console.log("Selected Rubric:", rubricString);
 
         try {
-            const { identity, identityLevel, assigner, topic, prose, audience, wordLimitType, wordLimit, title, text } = formData;
-
             const { result, creditsUsed } = await generateGrade(
-                identity,
-                identityLevel,
-                assigner,
-                topic,
-                prose,
-                audience,
-                wordLimitType,
-                wordLimit,
+                gradingData.identity,
+                gradingData.identityLevel,
+                gradingData.assigner,
+                gradingData.topic,
+                gradingData.prose,
+                gradingData.audience,
+                gradingData.wordLimitType,
+                gradingData.wordLimit,                
+                gradingData.title,
+                gradingData.text,
                 rubricString,
-                title,
-                text,
                 profile.credits
             );
 
@@ -253,7 +154,6 @@ export default function Tools() {
             }
 
             setLocalCount((prev) => prev - creditsUsed);
-            // setPrompt(userPrompt);
             setThinking(false);
             setIsStreamingComplete(true);
         } catch (error) {
@@ -263,16 +163,16 @@ export default function Tools() {
                 "No suggestions found. Servers might be overloaded right now."
             );
         }
-    }, [formData, profile.credits, minusCredits]);
+    }, [gradingData, profile.credits, minusCredits]);
 
     // Effect to handle saving to history
     useEffect(() => {
         if (isStreamingComplete && !hasSaved && summary) {
-            saveHistory(uid, formData, summary, grade, fileUrl || null).then(() => {
+            saveHistory(uid, gradingData, summary, grade, fileUrl || null).then(() => {
                 setHasSaved(true);
             });
         }
-    }, [isStreamingComplete, hasSaved, summary, uid, formData, grade, fileUrl]);
+    }, [isStreamingComplete, hasSaved, summary, uid, gradingData, grade, fileUrl]);
 
     // Scroll into view when content changes
     useEffect(() => {
@@ -285,121 +185,25 @@ export default function Tools() {
     }, [summary, flagged]);
 
     return (
-        <div className=" space-y-8 font-medium">
-            <form onSubmit={handleSubmit}>
-                {/* Rubric Selection and Display */}
-                <div className="flex flex-col min-w-full w-full items-left text-md border rounded-lg px-2 py-1">
-
-                    {/* Rubric Selection List */}
-                    <div className="flex flex-col flex-wrap items-center gap-y-4">
-                        <div className="w-full">
-                            <Field>
-                                <Label className="block text-sm font-medium text-gray-700 w-full" htmlFor="rubric">Select Rubric</Label>
-                                <RubricSearch onRubricSelect={handleRubricSelect} />
-                            </Field>
-                        </div>
-                        {/* Use Custom Rubrics */}
-                        <div className="flex items-center space-x-2">
-                            <Switch
-                                checked={useCustomRubrics}
-                                onChange={setUseCustomRubrics}
-                                className={`${useCustomRubrics ? 'bg-blue-600' : 'bg-gray-200'} relative inline-flex items-center h-6 rounded-full w-11`}
-                            >
-                                <span className="sr-only">Use Custom Rubrics</span>
-                                <span
-                                    className={`${useCustomRubrics ? 'translate-x-6' : 'translate-x-1'
-                                        } inline-block w-4 h-4 transform bg-white rounded-full`}
-                                />
-                            </Switch>
-                            <label className="text-sm">{useCustomRubrics ? "Use Grade.me Rubrics" : "Use Custom Rubrics"}</label>
-                        </div>
-                        {/* Rubric Details */}
-                        {formData.rubric && (
-                            <div className="flex flex-col w-full gap-y-2 p-2 border rounded bg-orange-100">
-                                <h2 className="text-sm font-bold text-center">{formData.rubric.name}</h2>
-                                <p className="text-sm text-gray-700">{formData.rubric.description}</p>
-
-                                {/* Expandable Criteria Sections */}
-                                <div className="">
-                                    {formData.rubric && (
-                                        <RubricDisplay rubric={formData.rubric} key={formData.rubric.name} />
-                                    )}
-                                </div>
-                            </div>
-                        )}
-                        {/* Misc details - audience, word limit */}
-                        <div className="flex flex-col w-full p-2 gap-y-2 bg-orange-100 border rounded ">
-                            <label>Misc.</label>
-                            {/* Audience */}
-                            <div className="w-full flex flex-row gap-x-2 items-center">
-                                <label className="block text-sm font-medium text-gray-700">Audience: </label>
-                                <input
-                                    type="text"
-                                    name="audience"
-                                    id="audience"
-                                    value={formData.audience}
-                                    onChange={(e) => setFormData((prevFormData) => ({ ...prevFormData, audience: e.target.value }))}
-                                    placeholder="My fans..."
-                                    className="flex h-8 w-36 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs sm:text-lg"
-                                />
-                            </div>
-                            {/* Word Limit */}
-                            <div className="flex flex-row w-full">
-                                <div className="flex flex-row gap-x-2 items-center">
-                                    <label className="block text-sm font-medium text-gray-700" htmlFor="wordLimit">Word Limit: </label>
-                                    <CustomListbox
-                                        value={formData.wordLimitType}
-                                        options={userInputs.wordCount.comparisonType.map(option => ({ label: option, value: option }))}
-                                        onChange={(value) => setFormData((prevFormData) => ({ ...prevFormData, wordLimitType: value }))}
-                                        buttonClassName="w-fit flex"
-                                        placeholder="Select..."
-                                    />
-                                    <input
-                                        type="number"
-                                        name="wordLimit"
-                                        id="wordLimit"
-                                        value={formData.wordLimit}
-                                        onChange={(e) => setFormData((prevFormData) => ({ ...prevFormData, wordLimit: e.target.value }))}
-                                        placeholder="Enter word limit"
-                                        className="flex h-8 w-28 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs sm:text-lg"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Rubric Helper */}
-                        <RubricHelper
-                            formData={formData}
-                            setFormData={setFormData}
-                            setRubricOptions={setRubricOptions}
-                            setRubricNames={setRubricNames}
-                            rubricOptions={rubricOptions}
-                        />
-                        {/* Custom Rubric Button */}
-                        <Button
-                            type="button"
-                            onClick={() => setShowCustomRubricBuilder(true)}
-                            className="w-full"
-                        >
-                            Create Custom Rubric
-                        </Button>
-                    </div>
+        <div className="form-wrapper space-y-8 font-medium">
+            <div
+            onClick={() => router.push("/rubrics")}
+            className="text-sm text-gray-900 px-2 py-1 bg-orange-100 hover:bg-orange-200 border shadow rounded-lg cursor-pointer"
+            >
+                Selected Rubric: {selectedRubric?.name ? selectedRubric.name : "Select a rubric"}
                 </div>
-
+            <form onSubmit={handleSubmit}>
                 {/* Title */}
-                <Field>
-                    <Label className="block text-sm font-medium text-gray-700" htmlFor="title">Title</Label>
-                    <input
-                        type="text"
-                        name="title"
-                        id="title"
-                        value={formData.title}
-                        onChange={(e) => setFormData((prevFormData) => ({ ...prevFormData, title: e.target.value }))}
-                        placeholder="Enter the title here"
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                    />
-                </Field>
-
+                <label className="block text-sm font-medium text-gray-700" htmlFor="title">Title</label>
+                <input
+                    type="text"
+                    name="title"
+                    id="title"
+                    value={gradingData.title}
+                    onChange={(e) => setGradingData({ title: e.target.value })}
+                    placeholder="Enter the title here"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                />
                 {/* Text Area and File Upload */}
                 <div className="relative">
                     {/* File Upload */}
@@ -422,29 +226,27 @@ export default function Tools() {
                     </div>
 
                     {/* Text Area */}
-                    <Field refName="text">
-                        <Label className="block text-sm font-medium text-gray-700" htmlFor="text">Text</Label>
-                        <TextareaAutosize
-                            id="text"
-                            name="text"
-                            value={formData.text}
-                            onChange={(e) => setFormData((prevFormData) => ({ ...prevFormData, text: e.target.value }))}
-                            minRows={4}
-                            placeholder="Upload your text or paste it here."
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                        />
-                    </Field>
+                    <label className="block text-sm font-medium text-gray-700" htmlFor="text">Text</label>
+                    <TextareaAutosize
+                        id="text"
+                        name="text"
+                        value={gradingData.text}
+                        onChange={(e) => setGradingData({ text: e.target.value })}
+                        minRows={4}
+                        placeholder="Upload your text or paste it here."
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                    />
                 </div>
 
                 {/* Submit Button */}
-                <Button
+                <button
                     type="submit"
                     onClick={handleSubmit}
                     disabled={!active || uploading}
                     className="mt-4 inline-flex justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 >
                     {uploading ? 'Uploading...' : 'Grade'}
-                </Button>
+                </button>
 
             </form>
             {thinking && <PulseLoader color="red" size={20} />}
@@ -454,40 +256,6 @@ export default function Tools() {
                     <ReactMarkdown>{summary}</ReactMarkdown>
                 </div>
             )}
-
-            {/* Custom Rubric Builder Modal */}
-            {showCustomRubricBuilder && (
-                <div className="fixed top-8 left-0 right-0 bottom-16 flex items-center justify-center z-50 bg-black bg-opacity-50">
-                    <div className="bg-white shadow-lg p-2 w-96 sm:w-[1000px] h-full overflow-y-scroll">
-                        <CustomRubricBuilder
-                            onSave={async (customRubric) => {
-                                // Save the custom rubric to the database
-                                if (uid) {
-                                    const customRubricRef = doc(collection(db, "users", uid, "custom_rubrics"));
-                                    await setDoc(customRubricRef, {
-                                        ...customRubric,
-                                        id: customRubricRef.id,
-                                        timestamp: Timestamp.now(),
-                                    });
-
-                                    // Optionally, you can add the custom rubric to the rubric options in local state
-                                    setRubricOptions((prev) => [...prev, customRubric]);
-                                    setFormData((prev) => ({ ...prev, rubric: customRubric }));
-
-                                    toast.success('Custom rubric saved successfully!');
-                                } else {
-                                    toast.error('Please log in to save a custom rubric.');
-                                }
-
-                                // Close the rubric builder
-                                setShowCustomRubricBuilder(false);
-                            }}
-                            onCancel={() => setShowCustomRubricBuilder(false)}
-                        />
-                    </div>
-                </div>
-            )}
-
         </div>
     );
 }

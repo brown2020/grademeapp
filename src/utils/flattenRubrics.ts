@@ -1,11 +1,11 @@
 import { rubrics } from "@/constants/rubrics_new";
-import { RubricState } from "@/types/rubrics-types";
+import { RubricState, NestedRubrics } from "@/types/rubrics-types";
 
 // Recursive function to flatten the rubrics structure
-export function flattenRubrics(rubrics: any): RubricState[] {
+export function flattenRubrics(): RubricState[] {
     const result: RubricState[] = [];
 
-    function recursiveHelper(obj: any) {
+    function recursiveHelper(obj: NestedRubrics) {
         Object.keys(obj).forEach((key) => {
             const value = obj[key];
 
@@ -14,7 +14,9 @@ export function flattenRubrics(rubrics: any): RubricState[] {
                 result.push(value as RubricState); // Push rubric object to the result array
             } else if (typeof value === "object") {
                 // Recurse deeper if it's an object but not a rubric
-                recursiveHelper(value);
+                if (typeof value === "object" && value !== null && !("name" in value)) {
+                    recursiveHelper(value as NestedRubrics);
+                }
             }
         });
     }

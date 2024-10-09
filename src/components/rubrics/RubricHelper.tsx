@@ -1,121 +1,122 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import CustomListbox from "@/components/ui/CustomListbox";
 import { Field } from "@headlessui/react";
 import TextareaAutosize from "react-textarea-autosize";
-import { debounce } from "lodash";
-import { userInputs, getVerbsByValue } from "@/constants/userInputs";
-import { getRubricsByCriteria, getDefaultRubrics } from "@/constants/rubrics_new";
-import { FormData } from "@/types/formdata";
-import { RubricState } from "@/types/rubrics-types";
+import { getVerbsByValue, userInputs } from "@/constants/userInputs";
+import { useRubricStore } from "@/zustand/useRubricStore";
 
-interface RubricHelperProps {
-    formData: FormData;
-    setFormData: React.Dispatch<React.SetStateAction<FormData>>;
-    setRubricOptions: React.Dispatch<React.SetStateAction<RubricState[]>>;
-    setRubricNames: React.Dispatch<React.SetStateAction<string[]>>;
-    rubricOptions: RubricState[];
-}
-
-export default function RubricHelper({
-    formData,
-    setFormData,
-    setRubricOptions,
-    setRubricNames,
-}: RubricHelperProps) {
+export default function RubricHelper() {
+    const { gradingData, setGradingData } = useRubricStore();
     const [isOpen, setIsOpen] = useState<boolean>(false);
+
+    console.log(gradingData)
 
     // Handle form input changes
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+        setGradingData({ ...gradingData, [name]: value });
     };
 
-    // Fetch rubrics based on form criteria
-    useEffect(() => {
-        const debouncedFetchRubrics = debounce(() => {
-            if (formData.identity === "default") {
-                const rubrics = getDefaultRubrics();
-                setRubricOptions(rubrics);
-                setRubricNames(rubrics.map((rubric) => rubric.name));
-                setFormData((prevFormData) => ({ ...prevFormData, rubric: rubrics[0] }));
-            }
-            if (formData.identity && formData.identityLevel && formData.textType && formData.prose) {
-                const rubrics = getRubricsByCriteria(formData.identity, formData.identityLevel, formData.textType, formData.prose);
-                if (rubrics.length > 0) {
-                    setRubricOptions(rubrics);
-                    setRubricNames(rubrics.map((rubric) => rubric.name));
-                    setFormData((prevFormData) => ({ ...prevFormData, rubric: rubrics[0] }));
-                }
-            }
-        }, 300);
-        debouncedFetchRubrics();
-        return () => {
-            debouncedFetchRubrics.cancel();
-        };
-    }, [formData.identity, formData.identityLevel, formData.textType, formData.prose, setFormData, setRubricNames, setRubricOptions]);
+    const handleReset = () => {
+        // Clear gradingData
+        setGradingData({
+            identity: "",
+            identityLevel: "",
+            assigner: "",
+            topic: "",
+            prose: "",
+            audience: "",
+            wordLimitType: "less than",
+            wordLimit: "",
+            textType: "",
+            title: "",
+            text: "",
+        });
+    };
 
     // Update prose based on text type change
     useEffect(() => {
-        if (formData.textType && userInputs.prose.details[formData.textType]) {
-            const proseOptions = userInputs.prose.details[formData.textType]?.options || [];
-            if (proseOptions.length > 0) {
-                setFormData(prevFormData => ({
-                    ...prevFormData,
-                    prose: proseOptions[0]
-                }));
+        if (gradingData.textType && userInputs.prose.details[gradingData.textType]) {
+            const proseOptions = userInputs.prose.details[gradingData.textType]?.options || [];
+            if (proseOptions.length > 0 && gradingData.prose !== proseOptions[0]) {
+                setGradingData({ ...gradingData, prose: proseOptions[0] });
             }
         }
-    }, [formData.textType, setFormData]);
+    }, [gradingData, gradingData.textType, gradingData.prose, setGradingData]);
 
     return (
-        <>
-            <div onClick={() => setIsOpen(!isOpen)} className="bg-orange-500 mb-2 text-center w-full px-2 py-1 rounded-md shadow-md hover:bg-orange-400 text-gray-100 font-medium">
+        <div>
+            <div onClick={() => setIsOpen(!isOpen)} className="bg-orange-500 text-center w-full px-2 py-1 mb-1 rounded-md shadow-md hover:bg-orange-400 text-gray-100 font-medium cursor-pointer">
                 Use Rubric Helper
             </div>
 
-
-
-            {isOpen &&
+            {isOpen && (
                 <>
-                    <div className="flex flex-col flex-wrap items-left text-md space-y-2 border rounded-lg px-2 py-1 bg-orange-100">
+                    <div className="flex flex-col flex-wrap items-left text-md space-y-2 border rounded-lg px-2 py-2 bg-orange-100">
+                        <div className="flex flex-row items-center relative">
+                            <div onClick={handleReset} className="bg-red-600 px-2 py-1 rounded-md shadow cursor-pointer text-sm text-gray-200 absolute right-2 top-2">
+                                Reset
+                            </div>
+                        </div>
                         <div className="flex flex-wrap items-center mr-2">
                             <span className="mr-2">I am a</span>
                             <div className="flex flex-row gap-x-2">
                                 {/* Identity Level */}
-                                {formData.identity && formData.identity !== "default" && (
+                                {gradingData.identity && (
                                     <CustomListbox
-                                        value={formData.identityLevel}
-                                        options={userInputs.identity.identityLevels[formData.identity].map(level => ({ label: level, value: level }))}
-                                        onChange={(value) => setFormData((prevFormData) => ({ ...prevFormData, identityLevel: value }))}
+                                        value={gradingData.identityLevel}
+                                        options={userInputs.identity.identityLevels[gradingData.identity].map((level) => ({
+                                            label: level,
+                                            value: level,
+                                        }))}
+                                        onChange={(value) => {
+                                            if (gradingData.identityLevel !== value) {
+                                                setGradingData({ ...gradingData, identityLevel: value });
+                                            }
+                                        }}
                                         buttonClassName="w-fit"
                                         placeholder="Select..."
                                     />
                                 )}
                                 {/* Identity Selection */}
                                 <CustomListbox
-                                    value={formData.identity === "default" ? "Select" : formData.identity}
-                                    options={userInputs.identity.options.map(identity => ({ label: identity, value: identity }))}
-                                    onChange={(value) => setFormData((prevFormData) => ({ ...prevFormData, identity: value }))}
+                                    value={gradingData.identity}
+                                    options={userInputs.identity.options.map((identity) => ({
+                                        label: identity,
+                                        value: identity,
+                                    }))}
+                                    onChange={(value) => {
+                                        if (gradingData.identity !== value) {
+                                            setGradingData({ ...gradingData, identity: value });
+                                        }
+                                    }}
                                     buttonClassName="w-fit"
                                     placeholder="Select..."
                                 />
                             </div>
                             <span className="w-fit ml-0.5">.</span>
-
                         </div>
 
                         {/* My [assigner] has asked me to [text_type][verb] [topic] in a(n) [prose] for [audience]. */}
-                        {formData.identity && formData.identity !== "default" && (
-
+                        {gradingData.identity && (
                             <div className="flex flex-wrap items-center gap-y-2">
                                 <hr className="w-full border-t-2 border-gray-300" />
                                 <div className="flex flex-row flex-wrap items-center">
                                     <span className="w-fit mr-2">My</span>
                                     <div className="w-fit mr-2">
                                         <CustomListbox
-                                            value={formData.assigner}
-                                            options={userInputs.assigner.options[formData.identity]?.map(assigner => ({ label: assigner, value: assigner }))}
-                                            onChange={(value) => setFormData((prevFormData) => ({ ...prevFormData, assigner: value }))}
+                                            value={gradingData.assigner}
+                                            options={userInputs.assigner.options[gradingData.identity || "person"]?.map((assigner) => ({
+                                                label: assigner,
+                                                value: assigner,
+                                            }))}
+                                            onChange={(value) => {
+                                                if (gradingData.assigner !== value) {
+                                                    setGradingData({ ...gradingData, assigner: value });
+                                                }
+                                            }}
                                             buttonClassName="w-[80px]"
                                             placeholder="Select..."
                                         />
@@ -123,18 +124,20 @@ export default function RubricHelper({
                                     <span className="w-fit mr-2">has asked </span>
                                 </div>
 
-
-
                                 <div className="flex flex-row flex-wrap items-center">
                                     <span className="w-fit mr-2">me to</span>
                                     <div className="w-fit mr-2">
                                         <CustomListbox
-                                            value={(getVerbsByValue(formData.textType) || []).join(", ")}
-                                            options={userInputs.textType.map(textType => ({
+                                            value={getVerbsByValue(gradingData.textType).join(", ")}
+                                            options={userInputs.textType.map((textType) => ({
                                                 label: textType.verbs.join(", "),
-                                                value: textType.value || ""
+                                                value: textType.value || "",
                                             }))}
-                                            onChange={(value) => setFormData((prevFormData) => ({ ...prevFormData, textType: value }))}
+                                            onChange={(value) => {
+                                                if (gradingData.textType !== value) {
+                                                    setGradingData({ ...gradingData, textType: value });
+                                                }
+                                            }}
                                             buttonClassName="w-fit"
                                             placeholder="Select..."
                                         />
@@ -145,7 +148,7 @@ export default function RubricHelper({
                                     <TextareaAutosize
                                         id="topic"
                                         name="topic"
-                                        value={formData.topic}
+                                        value={gradingData.topic}
                                         onChange={handleInputChange}
                                         minRows={1}
                                         placeholder="Explain the topic"
@@ -155,12 +158,19 @@ export default function RubricHelper({
 
                                 <span className="w-fit mx-2">in a(n)</span>
 
-                                {formData.textType && userInputs.prose.details[formData.textType] && (
+                                {gradingData.textType && userInputs.prose.details[gradingData.textType] && (
                                     <div className="w-fit mr-2">
                                         <CustomListbox
-                                            value={formData.prose}
-                                            options={userInputs.prose.details[formData.textType]?.options?.map(prose => ({ label: prose, value: prose }))}
-                                            onChange={(value) => setFormData((prevFormData) => ({ ...prevFormData, prose: value }))}
+                                            value={gradingData.prose}
+                                            options={userInputs.prose.details[gradingData.textType]?.options?.map((prose) => ({
+                                                label: prose,
+                                                value: prose,
+                                            }))}
+                                            onChange={(value) => {
+                                                if (gradingData.prose !== value) {
+                                                    setGradingData({ ...gradingData, prose: value });
+                                                }
+                                            }}
                                             buttonClassName="w-fit"
                                             placeholder="Select..."
                                         />
@@ -168,12 +178,19 @@ export default function RubricHelper({
                                 )}
 
                                 <span className="w-fit mr-2">for </span>
-                                {formData.identity && userInputs.audience.contextBasedAudiences[formData.identity] && (
+                                {gradingData.identity && userInputs.audience.contextBasedAudiences[gradingData.identity] && (
                                     <div className="w-fit mr-2 flex">
                                         <CustomListbox
-                                            value={formData.audience}
-                                            options={userInputs.audience.contextBasedAudiences[formData.identity]?.map(audience => ({ label: audience, value: audience }))}
-                                            onChange={(value) => setFormData((prevFormData) => ({ ...prevFormData, audience: value }))}
+                                            value={gradingData.audience}
+                                            options={userInputs.audience.contextBasedAudiences[gradingData.identity]?.map((audience) => ({
+                                                label: audience,
+                                                value: audience,
+                                            }))}
+                                            onChange={(value) => {
+                                                if (gradingData.audience !== value) {
+                                                    setGradingData({ ...gradingData, audience: value });
+                                                }
+                                            }}
                                             buttonClassName="w-fit"
                                             placeholder="Select..."
                                         />
@@ -185,11 +202,17 @@ export default function RubricHelper({
                                 {/* Word Limit */}
                                 <div className="flex flex-row w-full">
                                     <div className="flex flex-row gap-x-2 items-center">
-                                        {/* <label className="block text-sm font-medium text-gray-700" htmlFor="wordLimit">Word Limit: </label> */}
                                         <CustomListbox
-                                            value={formData.wordLimitType}
-                                            options={userInputs.wordCount.comparisonType.map(option => ({ label: option, value: option }))}
-                                            onChange={(value) => setFormData((prevFormData) => ({ ...prevFormData, wordLimitType: value }))}
+                                            value={gradingData.wordLimitType}
+                                            options={userInputs.wordCount.comparisonType.map((option) => ({
+                                                label: option,
+                                                value: option,
+                                            }))}
+                                            onChange={(value) => {
+                                                if (gradingData.wordLimitType !== value) {
+                                                    setGradingData({ ...gradingData, wordLimitType: value });
+                                                }
+                                            }}
                                             buttonClassName="w-fit flex"
                                             placeholder="Select..."
                                         />
@@ -197,20 +220,22 @@ export default function RubricHelper({
                                             type="number"
                                             name="wordLimit"
                                             id="wordLimit"
-                                            value={formData.wordLimit}
-                                            onChange={(e) => setFormData((prevFormData) => ({ ...prevFormData, wordLimit: e.target.value }))}
+                                            value={gradingData.wordLimit}
+                                            onChange={(e) => {
+                                                if (gradingData.wordLimit !== e.target.value) {
+                                                    setGradingData({ ...gradingData, wordLimit: e.target.value });
+                                                }
+                                            }}
                                             placeholder="Enter word limit"
                                             className="flex h-8 w-28 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs sm:text-lg"
                                         />
                                     </div>
                                 </div>
-
                             </div>
                         )}
                     </div>
                 </>
-            }
-
-        </>
+            )}
+        </div>
     );
 }

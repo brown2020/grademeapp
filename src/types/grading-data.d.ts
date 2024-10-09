@@ -1,6 +1,6 @@
 import { Rubric } from "@/constants/rubrics_new";
 
-export type FormData = {
+export type GradingData = {
     title: string;
     text: string; // The text to be analyzed
     identity: string; // Who the user is (student, researcher, etc.)
