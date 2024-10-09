@@ -18,16 +18,7 @@ import { useAuthStore } from "@/zustand/useAuthStore";
 import Link from "next/link";
 import { FileX } from "lucide-react";
 import { getExcerpt } from "@/utils/responseParser";
-
-type UserHistoryType = {
-    timestamp: Timestamp;
-    prompt: string;
-    response: string;
-    topic: string;
-    title: string;
-    grade: string;
-    id: string;
-};
+import { UserHistoryType } from "@/types/user-history";
 
 interface DebounceFunction {
     (func: (value: string) => void, delay: number): (value: string) => void;
@@ -98,12 +89,11 @@ export default function History() {
                     const d = doc.data();
                     return {
                         id: doc.id,
-                        prompt: d.prompt,
+                        fileUrl: d.fileUrl,
+                        grade: d.grade,
                         response: d.response,
-                        timestamp: d.timestamp,
-                        topic: d.topic,
-                        title: d.title,
-                        grade: d.grade
+                        userInput: d.userInput,
+                        timestamp: d.timestamp,                       
                     };
                 });
 
@@ -132,7 +122,7 @@ export default function History() {
 
     return (
         <div className="flex flex-col space-y-5">
-            <h1 className="text-center text-4xl">History</h1>
+            <h1 className="text-center text-4xl hidden md:flex">History</h1>
 
             <input
                 className="px-3 py-2 border rounded-md outline-none"
@@ -143,7 +133,7 @@ export default function History() {
             <div className="flex flex-col space-y-5">
                 {orderedSummaries
                     .filter((summary) =>
-                        (summary.response + " " + summary.prompt)
+                        (summary.response + " " + summary.userInput.title + " " + summary.userInput.topic)
                             .toUpperCase()
                             .includes(search ? search.toUpperCase() : "")
                     )
@@ -151,22 +141,21 @@ export default function History() {
 
                         <div key={`${summary.id}-${summary.timestamp.seconds}-${index}`} className="flex flex-row gap-4 p-3 rounded-md shadow-md cursor-pointer hover:bg-gray-100 justify-between">
                             <Link
-                                
                                 href={`/history/${summary.id}`}
                             >
-                                <div className="flex flex-row flex-wrap gap-4">
+                                <div className="flex md:flex-row flex-col gap-x-2 gap-y-2 md:gap-4">
+                                    <div>
+                                        <strong>Title:</strong> {summary.userInput.title}
+                                    </div>
+                                    <div><strong>Excerpt:</strong> {getExcerpt(summary.userInput.topic)}</div>
                                     <div>
                                         <strong>Grade:</strong> {summary.grade}
                                     </div>
-                                    <div>
-                                        <strong>Title:</strong> {summary.title}
-                                    </div>
-                                    <div><strong>Excerpt:</strong> {getExcerpt(summary.topic)}</div>
                                     <div>{new Date(summary.timestamp.seconds * 1000).toLocaleString()}</div>
+
                                 </div>
                             </Link>
-                            <FileX size={24} onClick={handleDelete} data-summary-id={summary.id} />
-
+                            <FileX size={24} onClick={handleDelete} data-summary-id={summary.id} className="block w-24" />
                         </div>
 
                     ))}
