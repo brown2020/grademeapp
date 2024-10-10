@@ -6,12 +6,9 @@ import {
     AnalyticalRubric,
     HolisticRubric,
     RubricState,
-    AnalyticalRubricCriteria,
-    HolisticRubricCriteria,
     SinglePointRubric,
-    SinglePointRubricCriteria,
     ChecklistRubric,
-    ChecklistRubricCriteria
+    GenericRubricCriteria
 } from '@/types/rubrics-types';
 import { toast } from "react-hot-toast";
 import { MinusCircleIcon, XCircleIcon } from 'lucide-react';
@@ -27,6 +24,7 @@ interface AnalyticalCriterionState {
 
 // Initial state for an Analytical Rubric
 const initialAnalyticalRubric: AnalyticalRubric = {
+    id: '',
     name: '',
     description: '',
     type: RubricType.Analytical,
@@ -35,6 +33,7 @@ const initialAnalyticalRubric: AnalyticalRubric = {
 
 // Initial state for a Holistic Rubric
 const initialHolisticRubric: HolisticRubric = {
+    id: '',
     name: '',
     description: '',
     type: RubricType.Holistic,
@@ -48,6 +47,7 @@ const initialHolisticRubric: HolisticRubric = {
 
 // Initial state for a Single Point Rubric
 const initialSinglePointRubric: SinglePointRubric = {
+    id: '',
     name: '',
     description: '',
     type: RubricType.SinglePoint,
@@ -62,6 +62,7 @@ const initialSinglePointRubric: SinglePointRubric = {
 
 // Initial state for a Checklist Rubric
 const initialChecklistRubric: ChecklistRubric = {
+    id: '',
     name: '',
     description: '',
     type: RubricType.Checklist,
@@ -104,7 +105,7 @@ export default function RubricBuilder({ onSave, onCancel }: { onSave: (rubric: R
             toast.error('Please add at least one criterion to the rubric.');
             return;
         }
-        if (rubricType === RubricType.Holistic && Object.values(rubric.criteria).some((level) => !level.trim())) {
+        if (rubricType === RubricType.Holistic && Object.values(rubric.criteria).some((level) => typeof level === 'string' && !level.trim())) {
             toast.error('Please provide a description for all levels of the rubric.');
             return;
         }
@@ -163,7 +164,7 @@ export default function RubricBuilder({ onSave, onCancel }: { onSave: (rubric: R
                             Developing: currentCriterion.Developing,
                             Beginning: currentCriterion.Beginning,
                         },
-                    } as AnalyticalRubricCriteria,
+                    } as GenericRubricCriteria,
                 };
             }
             return prev;
@@ -176,7 +177,7 @@ export default function RubricBuilder({ onSave, onCancel }: { onSave: (rubric: R
     // Single Point Rubric: Update criterion and feedback
     const handleSinglePointChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-        name: keyof SinglePointRubricCriteria | 'Strengths' | 'Areas for Improvement'
+        name: keyof GenericRubricCriteria | 'Strengths' | 'Areas for Improvement'
     ) => {
         const { value } = e.target;
 
@@ -192,7 +193,7 @@ export default function RubricBuilder({ onSave, onCancel }: { onSave: (rubric: R
                         criteria: {
                             ...singlePointRubric.criteria,
                             [name]: value,
-                        } as SinglePointRubricCriteria,
+                        } as GenericRubricCriteria,
                     };
                 }
 
@@ -225,9 +226,9 @@ export default function RubricBuilder({ onSave, onCancel }: { onSave: (rubric: R
 
         setRubric((prev) => {
             if (prev.type === RubricType.Checklist) {
-                const updatedCriteria = { ...prev.criteria as ChecklistRubricCriteria };
+                const updatedCriteria = { ...prev.criteria as GenericRubricCriteria };
                 delete updatedCriteria[editedCriterion]; // Remove the old criterion key
-                updatedCriteria[tempValue] = (prev.criteria as ChecklistRubricCriteria)[editedCriterion]; // Assign the updated criterion key
+                updatedCriteria[tempValue] = (prev.criteria as GenericRubricCriteria)[editedCriterion]; // Assign the updated criterion key
                 return {
                     ...prev,
                     criteria: updatedCriteria,
@@ -254,7 +255,7 @@ export default function RubricBuilder({ onSave, onCancel }: { onSave: (rubric: R
                     criteria: {
                         ...prev.criteria,
                         [newCriterion]: 'Yes/No', // Default Yes/No value
-                    } as ChecklistRubricCriteria,
+                    } as GenericRubricCriteria,
                 };
             }
             return prev;
@@ -266,7 +267,7 @@ export default function RubricBuilder({ onSave, onCancel }: { onSave: (rubric: R
     const removeChecklistCriterion = (criterion: string) => {
         setRubric((prev) => {
             if (prev.type === RubricType.Checklist) {
-                const updatedCriteria = { ...prev.criteria as ChecklistRubricCriteria };
+                const updatedCriteria = { ...prev.criteria as GenericRubricCriteria };
                 delete updatedCriteria[criterion];
                 return {
                     ...prev,
@@ -278,14 +279,14 @@ export default function RubricBuilder({ onSave, onCancel }: { onSave: (rubric: R
     };
 
     // Holistic Rubric: Update levels
-    const handleHolisticLevelChange = (e: React.ChangeEvent<HTMLTextAreaElement>, level: keyof HolisticRubricCriteria) => {
+    const handleHolisticLevelChange = (e: React.ChangeEvent<HTMLTextAreaElement>, level: keyof GenericRubricCriteria) => {
         const { value } = e.target;
         setRubric((prev) => {
             if (prev.type === RubricType.Holistic) {
                 return {
                     ...prev,
                     criteria: {
-                        ...(prev.criteria as HolisticRubricCriteria),
+                        ...(prev.criteria as GenericRubricCriteria),
                         [level]: value,
                     },
                 };
@@ -385,7 +386,7 @@ export default function RubricBuilder({ onSave, onCancel }: { onSave: (rubric: R
                         <div key={level} className="mb-2">
                             <label className="block font-semibold">{level}</label>
                             <textarea
-                                value={(rubric.criteria as HolisticRubricCriteria)[level]}
+                                value={typeof (rubric.criteria as GenericRubricCriteria)[level] === 'string' ? (rubric.criteria as GenericRubricCriteria)[level] as string : ''}
                                 onChange={(e) => handleHolisticLevelChange(e, level)}
                                 className="border px-2 py-1 w-full rounded"
                                 rows={2}
@@ -404,7 +405,7 @@ export default function RubricBuilder({ onSave, onCancel }: { onSave: (rubric: R
                     <div className="mb-2">
                         <label className="block font-semibold">Proficient</label>
                         <textarea
-                            value={(rubric.criteria as SinglePointRubricCriteria).Proficient}
+                            value={typeof (rubric.criteria as GenericRubricCriteria).Proficient === 'string' ? (rubric.criteria as GenericRubricCriteria).Proficient as string : ''}
                             onChange={(e) => handleSinglePointChange(e, 'Proficient')}
                             className="border px-2 py-1 w-full rounded"
                             rows={2}
@@ -446,7 +447,7 @@ export default function RubricBuilder({ onSave, onCancel }: { onSave: (rubric: R
                     <h3 className="text-lg font-semibold mb-2">Checklist</h3>
 
                     {/* Render existing checklist criteria */}
-                    {Object.entries(rubric.criteria as ChecklistRubricCriteria).map(([criterion, yesNoValue]) => (
+                    {Object.entries(rubric.criteria as GenericRubricCriteria).map(([criterion, yesNoValue]) => (
                         <div key={criterion} className="mb-2 flex flex-row items-center gap-x-2">
                             {/* Editable input for the criterion name */}
                             <input
@@ -457,7 +458,7 @@ export default function RubricBuilder({ onSave, onCancel }: { onSave: (rubric: R
                                 className="border px-2 py-1 w-full rounded"
                             />
                             {/* Static Yes/No value */}
-                            <label className="block font-semibold mt-1">{yesNoValue}</label>
+                            <label className="block font-semibold mt-1">{typeof yesNoValue === 'string' ? yesNoValue : ''}</label>
                             {/* Delete button */}
                             <button onClick={() => removeChecklistCriterion(criterion)} className="ml-2 text-red-600">
                                 <MinusCircleIcon className="h-5 w-5" />

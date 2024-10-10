@@ -45,7 +45,7 @@ function renderRubricCriteria(rubric: RubricState) {
         case RubricType.Checklist:
             return renderChecklistCriteria(rubric as ChecklistRubric);
         default:
-            return renderGenericCriteria(rubric);
+            return renderGenericCriteria(rubric as OtherRubricType);
     }
 }
 
@@ -61,7 +61,7 @@ function renderGenericCriteria(rubric: OtherRubricType) {
                         Object.entries(levels as Record<string, string>).map(([level, description]) => (
                             <div key={level} className="ml-4">
                                 <p className="text-sm font-semibold">{level}</p>
-                                <p className="text-sm text-gray-600">{description}</p>
+                                <p className="text-sm text-gray-600">{typeof description === 'string' ? description : ''}</p>
                             </div>
                         ))
                     ) : (
@@ -80,31 +80,67 @@ function renderOverallCriteria(rubric: HolisticRubric) {
             {Object.entries(rubric.criteria).map(([level, description]) => (
                 <div key={level} className="mb-2">
                     <p className="text-sm font-semibold">{level}</p>
-                    <p className="text-sm text-gray-600">{description}</p>
+                    <p className="text-sm text-gray-600">{typeof description === 'string' ? description : ''}</p>
                 </div>
             ))}
         </div>
     );
 }
 
-// Renderer for Analytical rubrics
+// Updated Renderer for Analytical rubrics to handle nested criteria
 function renderDetailedCriteria(rubric: AnalyticalRubric) {
     return (
         <div>
-            {Object.entries(rubric.criteria).map(([criterion, levels]) => (
+            {Object.entries(rubric.criteria).map(([criterion, details]) => (
                 <div key={criterion} className="mb-4">
-                    <p className="text-sm font-semibold">{criterion}</p>
-                    {Object.entries(levels).map(([level, description]) => (
-                        <div key={level} className="ml-4">
-                            <p className="text-sm font-semibold">{level}</p>
-                            <p className="text-sm text-gray-600">{description}</p>
-                        </div>
-                    ))}
+                    <p className="text-sm font-semibold mb-2">{criterion}</p>
+                    {typeof details === 'object' && 'points' in details ? (
+                        <>
+                            <p className="ml-3 text-sm font-medium mb-2">Points: {details.points as string | number}</p>
+                            {Object.entries(details).map(([level, content]) =>
+                                level !== 'points' ? (
+                                    <div  key={level} className="flex flex-row flex-wrap gap-x-2 ml-3 mb-2">
+                                        <p className="text-sm font-semibold">{level}: </p>
+                                        <p>{renderContent(content)}</p> {/* Recursively handle nested content */}
+                                    </div>
+                                ) : null
+                            )}
+                        </>
+                    ) : (
+                        renderContent(details)
+                    )}
                 </div>
             ))}
         </div>
     );
 }
+
+// Recursive function to render content
+function renderContent(content: unknown): React.ReactNode {
+    if (typeof content === 'string' || typeof content === 'number') {
+        return <p className="text-sm text-gray-600">{content}</p>;
+    } else if (Array.isArray(content)) {
+        return content.map((item, index) => (
+            <p key={index} className="text-sm text-gray-600 ml-3">
+                {item}
+            </p>
+        ));
+    } else if (typeof content === 'object') {
+        return (
+            <div className="ml-3">
+                {content && Object.entries(content).map(([key, value]) => (
+                    <div className="flex flex-row flex-wrap gap-2" key={key}>
+                        <p className="text-sm font-semibold">{key}: </p>
+                        <p>{renderContent(value)}</p>                      
+                    </div>
+                ))}
+            </div>
+        );
+    } else {
+        return null; // Handle unknown types safely
+    }
+}
+
 
 // Renderer for Single-Point rubrics
 function renderSinglePointCriteria(rubric: SinglePointRubric) {
@@ -112,7 +148,7 @@ function renderSinglePointCriteria(rubric: SinglePointRubric) {
         <div>
             <div className="mb-4">
                 <p className="text-sm font-semibold">Proficient</p>
-                <p className="text-sm text-gray-600">{rubric.criteria.Proficient}</p>
+                <p className="text-sm text-gray-600">{typeof rubric.criteria.Proficient === 'string' ? rubric.criteria.Proficient : ''}</p>
             </div>
             <div className="ml-4">
                 <p className="text-sm font-semibold">Strengths</p>

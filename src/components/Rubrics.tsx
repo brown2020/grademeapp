@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { RubricState } from "@/types/rubrics-types"; // Adjust the import path as necessary
 import { collection, getDocs, doc, setDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/firebase/firebaseClient";
@@ -13,35 +13,58 @@ import RubricDisplay from "@/components/rubrics/RubricDisplay";
 import RubricBuilder from "@/components/rubrics/RubricBuilder";
 import RubricSearch from "@/components/rubrics/RubricSearch";
 import RubricHelper from "@/components/rubrics/RubricHelper";
-import { flattenRubrics } from "@/utils/flattenRubrics";
 
 export default function Rubrics() {
     const { uid } = useAuthStore();
-    const { rubricOptions, setRubricOptions, selectedRubric, setSelectedRubric, useCustomRubrics, setUseCustomRubrics } = useRubricStore();
+    const {
+        rubricOptions,
+        setRubricOptions,
+        selectedRubric,
+        setSelectedRubric,
+        useCustomRubrics,
+        setUseCustomRubrics,
+        resetToDefaultRubrics,
+    } = useRubricStore();
     const [showRubricBuilder, setShowRubricBuilder] = useState<boolean>(false);
 
     const openRubricBuilder = () => {
         setShowRubricBuilder(true);
     };
 
+
+
     // Fetch default rubrics or custom rubrics based on toggle
-    useEffect(() => {
-        if (useCustomRubrics && uid) {
+    const handleCustomRubrics = async () => {
+        const newUseCustomRubrics = !useCustomRubrics;
+        setUseCustomRubrics(newUseCustomRubrics);
+
+        if (newUseCustomRubrics && uid) {
+            // If switching to custom rubrics and user is logged in, fetch custom rubrics
             const fetchCustomRubrics = async () => {
-                const customRubricCollection = collection(db, "users", uid, "custom_rubrics");
-                const customRubricSnapshot = await getDocs(customRubricCollection);
-                const fetchedRubrics = customRubricSnapshot.docs.map((doc) => doc.data() as RubricState);
-                setRubricOptions(fetchedRubrics);
-                if (fetchedRubrics.length > 0) {
-                    setSelectedRubric(fetchedRubrics[0]);
+                try {
+                    const customRubricCollection = collection(db, "users", uid, "custom_rubrics");
+                    const customRubricSnapshot = await getDocs(customRubricCollection);
+                    const fetchedRubrics = customRubricSnapshot.docs.map((doc) => doc.data() as RubricState);
+                    setRubricOptions(fetchedRubrics);
+
+                    // Set the first custom rubric as the selected one, if available
+                    if (fetchedRubrics.length > 0) {
+                        setSelectedRubric(fetchedRubrics[0]);
+                    } else {
+                        setSelectedRubric(null);
+                    }
+                } catch (error) {
+                    toast.error("Failed to fetch custom rubrics.");
+                    console.error("Error fetching custom rubrics:", error);
                 }
             };
-            fetchCustomRubrics();
+            await fetchCustomRubrics();
         } else {
-            setRubricOptions(flattenRubrics());
-            setSelectedRubric(flattenRubrics()[0]);
+            // Reset to default rubrics when toggling off custom rubrics
+            resetToDefaultRubrics();
         }
-    }, [useCustomRubrics, uid, setRubricOptions, setSelectedRubric]);
+    };
+
 
     return (
         <div className="space-y-4">
@@ -62,7 +85,7 @@ export default function Rubrics() {
             <div className="flex items-center space-x-2">
                 <Switch
                     checked={useCustomRubrics}
-                    onChange={setUseCustomRubrics}
+                    onChange={() => handleCustomRubrics()}
                     className={`${useCustomRubrics ? "bg-orange-600" : "bg-gray-200"} relative inline-flex items-center h-6 rounded-full w-11`}
                 >
                     <span className="sr-only">Use Custom Rubrics</span>

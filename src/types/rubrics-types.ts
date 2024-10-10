@@ -1,73 +1,66 @@
-// Criteria for analytical rubrics (specific categories)
-export interface AnalyticalRubricCriteria {
-    [criterion: string]: {
-        Excellent: string;
-        Proficient: string;
-        Developing: string;
-        Beginning: string;
-    };
+// Base interface for all rubric types
+export interface BaseRubric {
+    id: string;
+    name: string;
+    description?: string;
+    type: RubricType; // Specifies the type of rubric
+    tags?: string[];
+    identity?: string;
+    identityLevel?: string;
+    textType?: string;
+    proseType?: string;
+    criteria: GenericRubricCriteria; // Use a more flexible type for criteria
 }
 
-// Overall criteria for holistic rubrics (holistic evaluation)
-export interface HolisticRubricCriteria {
-    Excellent: string;
-    Proficient: string;
-    Developing: string;
-    Beginning: string;
+// A more flexible approach to represent nested criteria for rubrics with varying depth.
+export interface GenericRubricCriteria {
+    [criterion: string]: string | number | NestedRubricCriteria | (string | number)[] | Record<string, string | number | object>;
 }
 
-// Criteria for skill-focused rubrics
-export interface SkillFocusedRubricCriteria {
-    [level: string]: string; // E.g., 'Exceeds Standards', 'Meets Standards', etc.
+export interface AnalyticalRubric extends BaseRubric {
+    type: RubricType.Analytical;
 }
 
-// Criteria for content-specific rubrics like primary trait, multitrait, task-specific
-export interface ContentSpecificRubricCriteria {
-    [trait: string]: {
-        [level: string]: string; // E.g., 'Excellent', 'Proficient', etc.
-    };
+export interface HolisticRubric extends BaseRubric {
+    type: RubricType.Holistic;
 }
 
-// Criteria for a single-point rubric
-export interface SinglePointRubricCriteria {
-    Proficient: string;
+export interface HolisticAnalyticalRubric extends BaseRubric {
+    type: RubricType.HolisticAnalytical;
+    criteria: GenericRubricCriteria;
+}
+
+// Nested structure to support varying levels of depth in criteria
+export interface NestedRubricCriteria {
+    [sublevel: string]: string | NestedRubricCriteria;
+}
+
+// Analytical rubric: includes multiple specific categories for evaluation
+export interface AnalyticalRubric extends BaseRubric {
+    type: RubricType.Analytical;
+    criteria: GenericRubricCriteria;
+}
+
+// Holistic rubric: provides a general overall evaluation
+export interface HolisticRubric extends BaseRubric {
+    type: RubricType.Holistic;
+    criteria: GenericRubricCriteria;
 }
 
 export interface SinglePointRubric extends BaseRubric {
     type: RubricType.SinglePoint;
-    criteria: SinglePointRubricCriteria;
+    criteria: GenericRubricCriteria;
     feedback?: {
         Strengths: string;
         "Areas for Improvement": string;
     };
 }
 
-export interface ChecklistRubricCriteria {
-    [requirement: string]: "Yes/No" | string;
-}
-
 export interface ChecklistRubric extends BaseRubric {
     type: RubricType.Checklist;
-    criteria: ChecklistRubricCriteria;
-}
-
-// Base interface for all rubric types
-export interface BaseRubric {
-    name: string;
-    description?: string;
-    type: RubricType; // Specifies the type of rubric
-}
-
-// Analytical rubric: includes multiple specific categories for evaluation
-export interface AnalyticalRubric extends BaseRubric {
-    type: RubricType.Analytical;
-    criteria: AnalyticalRubricCriteria;
-}
-
-// Holistic rubric: provides a general overall evaluation
-export interface HolisticRubric extends BaseRubric {
-    type: RubricType.Holistic;
-    criteria: HolisticRubricCriteria;
+    criteria: {
+        [requirement: string]: string | "Yes/No";
+    };
 }
 
 // General interface for other types of rubrics if needed in the future
@@ -82,19 +75,14 @@ export interface OtherRubricType extends BaseRubric {
     | RubricType.StandardsBased
     | RubricType.SinglePoint
     | RubricType.Checklist;
-    criteria:
-    | AnalyticalRubricCriteria
-    | HolisticRubricCriteria
-    | SkillFocusedRubricCriteria
-    | ContentSpecificRubricCriteria
-    | SinglePointRubricCriteria
-    | ChecklistRubricCriteria;
+    criteria: GenericRubricCriteria;
 }
 
 // Enum for type safety across rubric types
 export enum RubricType {
     Analytical = 'analytical',
     Holistic = 'holistic',
+    HolisticAnalytical = 'holistic_analytical',
     ContentSpecific = 'content-specific',
     SkillFocused = 'skill-focused',
     Developmental = 'developmental',
@@ -110,9 +98,11 @@ export enum RubricType {
 export type RubricState =
     | AnalyticalRubric
     | HolisticRubric
+    | HolisticAnalyticalRubric
     | SinglePointRubric
     | ChecklistRubric
     | OtherRubricType;
+
 
 /**
  * Default Rubric Structure:
@@ -123,22 +113,12 @@ export type DefaultRubrics = {
 };
 
 /**
- * Flexible Nested Rubrics:
- * - This structure allows for any level of nesting, starting with identity.
- * - It is more flexible and allows deeper layers like identity -> grade -> text type -> rubric type.
- */
-export interface NestedRubrics {
-    [key: string]: NestedRubrics | RubricState; // Key is identity, grade, etc., or a direct rubric state.
-}
-
-/**
  * Unified Rubrics:
  * - Combines both default rubrics and nested rubrics under a single type.
  * - Enables handling of both scenarios in a unified way.
  */
 export interface Rubrics {
     default: DefaultRubrics;
-    nested?: NestedRubrics;
 }
 
 /**
@@ -147,6 +127,7 @@ export interface Rubrics {
 export type DefaultRubricKeys =
     | "holistic"
     | "analytical"
+    | "holistic_analytical"
     | "developmental"
     | "primary_trait"
     | "multitrait"

@@ -11,8 +11,6 @@ export default function RubricHelper() {
     const { gradingData, setGradingData } = useRubricStore();
     const [isOpen, setIsOpen] = useState<boolean>(false);
 
-    console.log(gradingData)
-
     // Handle form input changes
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
