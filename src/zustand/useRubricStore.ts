@@ -7,21 +7,24 @@ import { getDefaultRubrics } from "@/constants/rubrics_new";
 
 interface RubricStoreState {
     rubricOptions: RubricState[];
+    filteredRubrics: RubricState[];
     selectedRubric: RubricState | null;
     gradingData: GradingData;
     useCustomRubrics: boolean;
     setUseCustomRubrics: (useCustomRubrics: boolean) => void;
     setRubricOptions: (options: RubricState[]) => void;
+    setFilteredRubrics: (filtered: RubricState[]) => void;
     setSelectedRubric: (rubric: RubricState) => void;
     setGradingData: (data: Partial<GradingData>) => void;
 }
 
 export const useRubricStore = create<RubricStoreState>((set) => ({
     rubricOptions: flattenRubrics(),
+    filteredRubrics: flattenRubrics(),
     selectedRubric: getDefaultRubrics()[0],
     gradingData: {
-        identity: 'person',
-        identityLevel: 'normal',
+        identity: '',
+        identityLevel: '',
         assigner: '',
         topic: '',
         prose: '',
@@ -30,13 +33,14 @@ export const useRubricStore = create<RubricStoreState>((set) => ({
         wordLimit: '',
         rubric: null,
         customRubric: '',
-        textType: 'narrative',
+        textType: '',
         title: '',
         text: '',
     },
     useCustomRubrics: false,
     setUseCustomRubrics: (useCustomRubrics) => set({ useCustomRubrics }),
     setRubricOptions: (options) => set({ rubricOptions: options }),
+    setFilteredRubrics: (filtered) => set({ filteredRubrics: filtered }),
     setSelectedRubric: (rubric) => set((state) => ({ selectedRubric: rubric, gradingData: { ...state.gradingData, rubric } })),
     setGradingData: (data) => set((state) => ({ gradingData: { ...state.gradingData, ...data } })),
 }));

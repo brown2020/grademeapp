@@ -46,6 +46,16 @@ export default function RubricHelper() {
         }
     }, [gradingData, gradingData.textType, gradingData.prose, setGradingData]);
 
+    useEffect(() => {
+        if (gradingData.identity) {
+            const identityLevels = userInputs.identity.identityLevels[gradingData.identity];
+            if (identityLevels.length > 0 && gradingData.identityLevel !== identityLevels[0]) {
+                setGradingData({ ...gradingData, identityLevel: identityLevels[0] });
+            }
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [gradingData.identity]);
+
     return (
         <div>
             <div onClick={() => setIsOpen(!isOpen)} className="bg-orange-500 text-center w-full px-2 py-1 mb-1 rounded-md shadow-md hover:bg-orange-400 text-gray-100 font-medium cursor-pointer">
@@ -151,8 +161,8 @@ export default function RubricHelper() {
                                         value={gradingData.topic}
                                         onChange={handleInputChange}
                                         minRows={1}
-                                        placeholder="Explain the topic"
-                                        className="border rounded w-full px-2 py-1"
+                                        placeholder="Explain the assignment"
+                                        className="border rounded-md w-full text-sm px-2 py-1"
                                     />
                                 </Field>
 

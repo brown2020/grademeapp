@@ -1,4 +1,4 @@
-import { CircleUserIcon, CogIcon, FileTextIcon } from "lucide-react";
+import { CircleUserIcon, CogIcon, FileTextIcon, ClipboardList  } from "lucide-react";
 
 export const MENU_ITEMS: MenuItem[] = [
   {
@@ -36,6 +36,11 @@ export const navItems: navItemType[] = [
     label: "Tools",
     icon: CogIcon,
     path: "/tools",
+  },
+  {
+    label: "Rubrics",
+    icon: ClipboardList,
+    path: "/rubrics",
   },
   {
     label: "History",

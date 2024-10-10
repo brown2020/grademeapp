@@ -10,14 +10,19 @@ import { Switch, Button } from "@headlessui/react";
 import { toast } from "react-hot-toast";
 
 import RubricDisplay from "@/components/rubrics/RubricDisplay";
-import CustomRubricBuilder from "@/components/rubrics/RubricCustom";
+import RubricBuilder from "@/components/rubrics/RubricBuilder";
 import RubricSearch from "@/components/rubrics/RubricSearch";
 import RubricHelper from "@/components/rubrics/RubricHelper";
+import { flattenRubrics } from "@/utils/flattenRubrics";
 
 export default function Rubrics() {
     const { uid } = useAuthStore();
     const { rubricOptions, setRubricOptions, selectedRubric, setSelectedRubric, useCustomRubrics, setUseCustomRubrics } = useRubricStore();
-    const [showCustomRubricBuilder, setShowCustomRubricBuilder] = useState<boolean>(false);
+    const [showRubricBuilder, setShowRubricBuilder] = useState<boolean>(false);
+
+    const openRubricBuilder = () => {
+        setShowRubricBuilder(true);
+    };
 
     // Fetch default rubrics or custom rubrics based on toggle
     useEffect(() => {
@@ -32,15 +37,26 @@ export default function Rubrics() {
                 }
             };
             fetchCustomRubrics();
+        } else {
+            setRubricOptions(flattenRubrics());
+            setSelectedRubric(flattenRubrics()[0]);
         }
     }, [useCustomRubrics, uid, setRubricOptions, setSelectedRubric]);
 
     return (
         <div className="space-y-4">
+            {/* Rubric Display */}
+            {selectedRubric && (
+                <div className="flex flex-col w-full gap-y-2 p-2 border rounded bg-orange-100">
+                    <h2 className="text-sm font-bold text-center">{selectedRubric.name}</h2>
+                    <p className="text-sm text-gray-700">{selectedRubric.description}</p>
+                    <RubricDisplay rubric={selectedRubric} />
+                </div>
+            )}
             {/* Rubric Helper */}
             <RubricHelper />
             {/* Rubric Search */}
-            <RubricSearch />
+            <RubricSearch openRubricBuilder={openRubricBuilder} />
 
             {/* Use Custom Rubrics Toggle */}
             <div className="flex items-center space-x-2">
@@ -57,29 +73,20 @@ export default function Rubrics() {
                 <label className="text-sm">{useCustomRubrics ? "Using Custom Rubrics" : "Using Default Rubrics"}</label>
             </div>
 
-            {/* Rubric Display */}
-            {selectedRubric && (
-                <div className="flex flex-col w-full gap-y-2 p-2 border rounded bg-orange-100">
-                    <h2 className="text-sm font-bold text-center">{selectedRubric.name}</h2>
-                    <p className="text-sm text-gray-700">{selectedRubric.description}</p>
-                    <RubricDisplay rubric={selectedRubric} />
-                </div>
-            )}            
-
             {/* Custom Rubric Button */}
             <Button
                 type="button"
-                onClick={() => setShowCustomRubricBuilder(true)}
+                onClick={() => setShowRubricBuilder(true)}
                 className="w-full font-medium py-1 rounded-md bg-orange-500 hover:bg-orange-400 text-gray-200 shadow"
             >
                 Create Custom Rubric
             </Button>
 
             {/* Custom Rubric Builder Modal */}
-            {showCustomRubricBuilder && (
+            {showRubricBuilder && (
                 <div className="fixed top-8 left-0 right-0 bottom-16 flex items-center justify-center z-50 bg-black bg-opacity-50">
-                    <div className="bg-transparent scroll shadow-lg p-2 w-96 sm:w-[1000px] h-full overflow-y-scroll">
-                        <CustomRubricBuilder
+                    <div className="bg-gray-100 scroll shadow-lg p-2 w-96 sm:w-[1000px] h-full overflow-y-scroll">
+                        <RubricBuilder
                             onSave={async (customRubric) => {
                                 if (uid) {
                                     const customRubricRef = doc(collection(db, "users", uid, "custom_rubrics"));
@@ -95,9 +102,9 @@ export default function Rubrics() {
                                 } else {
                                     toast.error("Please log in to save a custom rubric.");
                                 }
-                                setShowCustomRubricBuilder(false);
+                                setShowRubricBuilder(false);
                             }}
-                            onCancel={() => setShowCustomRubricBuilder(false)}
+                            onCancel={() => setShowRubricBuilder(false)}
                         />
                     </div>
                 </div>

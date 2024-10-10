@@ -72,7 +72,7 @@ const initialChecklistRubric: ChecklistRubric = {
     }
 };
 
-export default function CustomRubricBuilder({ onSave, onCancel }: { onSave: (rubric: RubricState) => void; onCancel: () => void }) {
+export default function RubricBuilder({ onSave, onCancel }: { onSave: (rubric: RubricState) => void; onCancel: () => void }) {
     const [newCriterion, setNewCriterion] = useState<string>('');
     const [editedCriterion, setEditedCriterion] = useState<string | null>(null);
     const [tempValue, setTempValue] = useState<string>('');
@@ -295,7 +295,7 @@ export default function CustomRubricBuilder({ onSave, onCancel }: { onSave: (rub
     };
 
     return (
-        <div className="p-2 bg-white rounded shadow relative">
+        <div className="p-2 bg-orange-100 rounded shadow relative">
             <div onClick={onCancel} className="absolute top-2 right-2 cursor-pointer">
                 <XCircleIcon className="h-6 w-6 text-red-800" />
             </div>

@@ -1,17 +1,24 @@
 "use client"
 
-import { useState, useEffect } from 'react';
-import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption } from '@headlessui/react';
+import { useState, useEffect, useRef } from 'react';
 import { RubricState } from '@/types/rubrics-types';
 import { useRubricStore } from '@/zustand/useRubricStore';
+import CustomDropdown from '@/components/ui/CustomDropdown';
 
-export default function RubricSearch() {
-    const { gradingData, rubricOptions, selectedRubric, setSelectedRubric } = useRubricStore();
-    const [searchQuery, setSearchQuery] = useState<string>(''); // State for the search query
-    const [filteredRubrics, setFilteredRubrics] = useState<RubricState[]>([]); // Filtered rubrics based on search
+export default function RubricSearch({
+    openRubricBuilder,
+}: {
+    openRubricBuilder?: () => void;
+}) {
+    const { gradingData, rubricOptions, selectedRubric, setSelectedRubric, filteredRubrics, setFilteredRubrics } = useRubricStore();
+    const [searchQuery, setSearchQuery] = useState<string>('');
+    const [isOpen, setIsOpen] = useState<boolean>(false);
+    const wrapperRef = useRef<HTMLDivElement>(null);
+    const previousSelectedRubric = useRef<RubricState | null>(null); // Track previous selectedRubric
 
     // Dynamically filter rubrics based on "gradingData" and "searchQuery"
     useEffect(() => {
+
         let filtered = rubricOptions;
 
         if (gradingData.identityLevel !== '') {
@@ -34,51 +41,59 @@ export default function RubricSearch() {
         }
 
         setFilteredRubrics(filtered);
-    }, [gradingData, rubricOptions, searchQuery]);
+
+    }, [gradingData, rubricOptions, searchQuery, setFilteredRubrics]);
+
+    useEffect(() => {
+        // Open dropdown when filtered rubrics change and selectedRubric has NOT changed
+        setIsOpen(true);
+    }, [gradingData.identityLevel, gradingData.textType]);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+            if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+                setIsOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        document.addEventListener('touchstart', handleClickOutside);
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('touchstart', handleClickOutside);
+        };
+    }, []);
 
     // Handle selecting a rubric
     const handleRubricSelect = (rubric: RubricState) => {
+        previousSelectedRubric.current = selectedRubric;
         setSelectedRubric(rubric);
+        setIsOpen(false);
     };
 
     return (
-        <div className="relative w-full">
-            <Combobox immediate defaultValue={selectedRubric} onChange={handleRubricSelect} onClose={() => setSearchQuery('')}>
-                {/* Input Field */}
-                <div className="relative">
-                    <div>
-                        <ComboboxInput
-                            as="input"
-                            className="w-full border px-2 py-1 rounded shadow-sm bg-orange-100 focus:border-blue-500 focus:ring-blue-500 truncate"
-                            onChange={(event) => setSearchQuery(event.target.value)}
-                            value={searchQuery}
-                            placeholder="Search for a rubric..."
-                        />
-                    </div>
+        <div ref={wrapperRef} className="relative w-full">
+            {/* Input Field */}
+            <div className="relative">
+                <input
+                    className="w-full border px-2 py-1 rounded shadow-sm bg-orange-100 focus:border-blue-500 focus:ring-blue-500 truncate"
+                    onChange={(event) => setSearchQuery(event.target.value)}
+                    value={searchQuery}
+                    placeholder="Search for a rubric..."
+                    onFocus={() => setIsOpen(true)}
+                />
+            </div>
 
-                    {/* Dropdown List */}
-                    <ComboboxOptions className="absolute z-10 w-full bg-white border rounded mt-1 shadow-lg max-h-60 overflow-y-auto empty:invisible">
-                        {filteredRubrics.map((rubric) => (
-                            <ComboboxOption
-                                key={rubric.name}
-                                value={rubric}
-                                className={({ focus }) =>
-                                    `cursor-pointer select-none px-4 py-2 ${focus ? 'bg-orange-400 text-white' : 'text-gray-900'}`
-                                }
-                            >
-                                {({ selected }) => (
-                                    <>
-                                        <span className={`block font-semibold ${selected ? 'font-bold' : 'font-normal'}`}>
-                                            {rubric.name}
-                                        </span>
-                                        <span className="block text-sm text-gray-600">{rubric.description}</span>
-                                    </>
-                                )}
-                            </ComboboxOption>
-                        ))}
-                    </ComboboxOptions>
-                </div>
-            </Combobox>
+            {/* Custom Dropdown Component */}
+            {isOpen && (
+                <CustomDropdown
+                    filteredRubrics={filteredRubrics}
+                    handleRubricSelect={handleRubricSelect}
+                    openRubricBuilder={openRubricBuilder}
+                    handleClose={() => setIsOpen(false)}
+                />
+            )}
         </div>
     );
 }
