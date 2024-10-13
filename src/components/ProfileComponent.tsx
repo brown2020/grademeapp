@@ -4,9 +4,16 @@ import useProfileStore from "@/zustand/useProfileStore";
 import { useCallback, useEffect, useState } from "react";
 import { isIOSReactNativeWebView } from "@/utils/platform"; // Import the platform detection
 import { usePaymentsStore } from "@/zustand/usePaymentsStore";
+import DeleteConfirmModal from "./DeleteConfirmModal";
+import { useAuthStore } from "@/zustand/useAuthStore";
+import { signOut } from "firebase/auth";
+import { auth } from "@/firebase/firebaseClient";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default function ProfileComponent() {
   const profile = useProfileStore((state) => state.profile);
+  const router = useRouter();
   const updateProfile = useProfileStore((state) => state.updateProfile);
   const [fireworksApiKey, setFireworksApiKey] = useState(
     profile.fireworks_api_key
@@ -16,6 +23,9 @@ export default function ProfileComponent() {
   const [showCreditsSection, setShowCreditsSection] = useState(true); // State to control visibility
   const addCredits = useProfileStore((state) => state.addCredits);
   const addPayment = usePaymentsStore((state) => state.addPayment);
+  const deleteAccount = useProfileStore((state) => state.deleteAccount);
+  const clearAuthDetails = useAuthStore((s) => s.clearAuthDetails);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     const handleMessageFromRN = async (event: MessageEvent) => {
@@ -26,10 +36,10 @@ export default function ProfileComponent() {
           id: message.message,
           amount: message.amount,
           status: "succeeded",
-          mode: 'iap',
+          mode: "iap",
           platform: message.platform,
           productId: message.productId,
-          currency: message.currency
+          currency: message.currency,
         });
         await addCredits(10000);
       }
@@ -84,6 +94,23 @@ export default function ProfileComponent() {
       window.ReactNativeWebView?.postMessage("INIT_IAP");
     }
   }, [showCreditsSection]);
+
+  const handleDeleteClick = () => {
+    setShowDeleteModal(true);
+  };
+
+  const onDeleteConfirm = useCallback(async () => {
+    setShowDeleteModal(false);
+    try {
+      await deleteAccount();
+      await signOut(auth);
+      clearAuthDetails();
+      toast.success("Account deleted successfully.");
+      router.replace("/");
+    } catch (error) {
+      console.error("Error on deletion of account:", error);
+    }
+  }, [deleteAccount, clearAuthDetails, router]);
 
   const areApiKeysAvailable = fireworksApiKey && openaiApiKey;
 
@@ -143,6 +170,18 @@ export default function ProfileComponent() {
         </button>
       </div>
 
+      <div className="flex flex-col px-5 py-3 gap-3 border border-gray-500 rounded-md">
+        <label htmlFor="setting-lable-key" className="text-sm font-medium">
+          Settings:
+        </label>
+        <button
+          className="btn-primary bg-[#e32012] self-start rounded-md hover:bg-[#e32012]/30"
+          onClick={handleDeleteClick}
+        >
+          Delete Account
+        </button>
+      </div>
+
       <div className="flex items-center px-5 py-3 gap-3 border border-gray-500 rounded-md">
         <label htmlFor="toggle-use-credits" className="text-sm font-medium">
           Use:
@@ -158,6 +197,12 @@ export default function ProfileComponent() {
           {areApiKeysAvailable && <option value="apikeys">API Keys</option>}
         </select>
       </div>
+
+      <DeleteConfirmModal
+        showDeleteModal={showDeleteModal}
+        onHideModal={() => setShowDeleteModal(false)}
+        onDeleteConfirm={onDeleteConfirm}
+      />
     </div>
   );
 }
