@@ -2,8 +2,8 @@ import { CircleUserIcon, CogIcon, FileTextIcon } from "lucide-react";
 
 export const MENU_ITEMS: MenuItem[] = [
   {
-    label: "About",
-    href: "/",
+    label: "Support",
+    href: "/support",
     show: "everyone",
     header: false,
     footer: true,
