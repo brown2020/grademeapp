@@ -94,134 +94,16 @@ export default function AuthComponent() {
 
     return (
         <>
-            <div className="flex flex-col">
-                {uid && (
-                    <button
-                        onClick={showModal}
-                        className="btn-secondary max-w-md mx-auto text-white"
-                    >
-                        You are signed in
-                    </button>
-                )}
-                {!uid && (
-                    <button onClick={showModal} className="btn-white max-w-md mx-auto">
-                        Sign In to Enable Your Account
-                    </button>
-                )}
-                {uid ? (
-                    <button onClick={showModal} className="btn-primary max-w-md mx-auto">
-                        You are signed in
-                    </button>
-                ) : authPending ? (
-                    <div className="flex flex-col gap-2">
-                        <div className="text-2xl text-center">Signing you in</div>
-                        <div className="flex flex-col gap-3 border rounded-md px-3 py-2">
-                            <div>
-                                {`Check your email at ${email} for a message from Generate.me`}
-                            </div>
-                            <div>{`If you don't see the message, check your spam folder. Mark it "not spam" or move it to your inbox.`}</div>
-                            <div>
-                                Click the sign-in link in the message to complete the
-                                sign-in process.
-                            </div>
-                            <div>
-                                Waiting for you to click the sign-in link.{" "}
-                                <span>
-                                    {" "}
-                                    <PulseLoader color="#000000" size={6} />
-                                </span>
-                            </div>
-                        </div>
-                        <button onClick={handleSignOut} className="btn-danger">
-                            Start Over
-                        </button>
-                    </div>
-                ) : (
-                    <form
-                        onSubmit={handleSubmit}
-                        ref={formRef}
-                        className="flex flex-col gap-2"
-                    >
-                        <div className="text-3xl text-center pb-3">Sign In</div>
-                        {/* Conditionally render the Google Sign-In button */}
-                        {showGoogleLogin && (
-                            <>
-                                <button
-                                    type="button"
-                                    className="w-full overflow-hidden"
-                                    onClick={signInWithGoogle}
-                                >
-                                    <Image
-                                        src={google_ctn.src}
-                                        alt="Google Logo"
-                                        className="object-cover w-full"
-                                        width={100}
-                                        height={20}
-                                    />
-                                </button>
-                                <div className="flex items-center justify-center w-full h-12">
-                                    <hr className="flex-grow h-px bg-gray-400 border-0" />
-                                    <span className="px-3">or</span>
-                                    <hr className="flex-grow h-px bg-gray-400 border-0" />
-                                </div>
-                            </>
-                        )}
-                        <input
-                            id="name"
-                            type="text"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            placeholder="Enter your name"
-                            className="input-primary"
-                        />
-                        <input
-                            id="email"
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="Enter your email"
-                            className="input-primary"
-                        />
-                        <button
-                            type="submit"
-                            className="btn-primary"
-                            disabled={!email || !name}
-                        >
-                            <div className="flex items-center gap-2 h-10">
-                                <MailIcon size={30} />
-                                <div className="text-xl">Continue with Email</div>
-                            </div>
-                        </button>
-                        <label className="flex items-center space-x-2 pl-1">
-                            <input
-                                type="checkbox"
-                                checked={acceptTerms}
-                                onChange={(e) => setAcceptTerms(e.target.checked)}
-                                className="h-full"
-                                required
-                            />
-                            <span>
-                                I accept the{" "}
-                                <Link href={"/terms"} className="underline">
-                                    terms
-                                </Link>{" "}
-                                and{" "}
-                                <Link href="/privacy" className="underline">
-                                    privacy
-                                </Link>{" "}
-                                policy.
-                            </span>
-                        </label>
-                    </form>
-                )}
-                {/* {!uid && (
-                    <div>
-                        <button onClick={showModal} className="btn-primary max-w-md mx-auto">
-                            Sign In to Enable Your Account
-                        </button>
-                    </div>
-                )} */}
-            </div>
+            {uid && (
+                <button onClick={showModal} className="btn-secondary max-w-md mx-auto">
+                    You are signed in
+                </button>
+            )}
+            {!uid && (
+                <button onClick={showModal} className="btn-white max-w-md mx-auto">
+                    Sign In to Enable Your Account
+                </button>
+            )}
 
             {isVisible && (
                 <div className="fixed inset-0 bg-black/60 flex justify-center items-center">
@@ -250,7 +132,7 @@ export default function AuthComponent() {
                                 <div className="text-2xl text-center">Signing you in</div>
                                 <div className="flex flex-col gap-3 border rounded-md px-3 py-2">
                                     <div>
-                                        {`Check your email at ${email} for a message from Grade.me`}
+                                        {`Check your email at ${email} for a message from MoonshotPlanner/PurposeFinder`}
                                     </div>
                                     <div>{`If you don't see the message, check your spam folder. Mark it "not spam" or move it to your inbox.`}</div>
                                     <div>
@@ -278,24 +160,29 @@ export default function AuthComponent() {
                             >
                                 <div className="text-3xl text-center pb-3">Sign In</div>
 
-                                <button
-                                    type="button"
-                                    className="w-full overflow-hidden"
-                                    onClick={signInWithGoogle}
-                                >
-                                    <Image
-                                        src={google_ctn.src}
-                                        alt="Google Logo"
-                                        className="object-cover w-full"
-                                        width={100}
-                                        height={20}
-                                    />
-                                </button>
-                                <div className="flex items-center justify-center w-full h-12">
-                                    <hr className="flex-grow h-px bg-gray-400 border-0" />
-                                    <span className="px-3">or</span>
-                                    <hr className="flex-grow h-px bg-gray-400 border-0" />
-                                </div>
+                                {/* Conditionally render the Google Sign-In button and the divider */}
+                                {showGoogleLogin && (
+                                    <>
+                                        <button
+                                            type="button"
+                                            className="w-full overflow-hidden"
+                                            onClick={signInWithGoogle}
+                                        >
+                                            <Image
+                                                src={google_ctn}
+                                                alt="Google Logo"
+                                                className="object-cover w-full"
+                                                width={100}
+                                                height={20}
+                                            />
+                                        </button>
+                                        <div className="flex items-center justify-center w-full h-12">
+                                            <hr className="flex-grow h-px bg-gray-400 border-0" />
+                                            <span className="px-3">or</span>
+                                            <hr className="flex-grow h-px bg-gray-400 border-0" />
+                                        </div>
+                                    </>
+                                )}
 
                                 <input
                                     id="name"
