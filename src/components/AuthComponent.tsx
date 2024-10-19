@@ -8,6 +8,7 @@ import {
   signOut,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 import google_ctn from "@/app/assets/google_ctn.svg";
 
@@ -35,8 +36,8 @@ export default function AuthComponent() {
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [isEmailLinkLogin, setIsEmailLinkLogin] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
-
   const [showGoogleLogin, setShowGoogleLogin] = useState(true);
+  const [forgotPasswordMode, setForgotPasswordMode] = useState(false); // New state
 
   const showModal = () => setIsVisible(true);
   const hideModal = () => setIsVisible(false);
@@ -132,6 +133,16 @@ export default function AuthComponent() {
     }
   };
 
+  const handleForgotPassword = async () => {
+    try {
+      await sendPasswordResetEmail(auth, email);
+      toast.success("Password reset email sent!");
+      setForgotPasswordMode(false);
+    } catch (error: unknown) {
+      handleAuthError(error);
+    }
+  };
+
   return (
     <>
       <div className="flex flex-col">
@@ -186,6 +197,35 @@ export default function AuthComponent() {
                 <button onClick={handleSignOut} className="btn-danger">
                   Start Over
                 </button>
+              </div>
+            ) : forgotPasswordMode ? ( // Forgot Password form
+              <div className="flex flex-col gap-2">
+                <div className="text-3xl text-center pb-3">Forgot Password</div>
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  className="input-primary"
+                />
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  className="btn-primary"
+                  disabled={!email}
+                >
+                  Send Password Reset Email
+                </button>
+                <div className="text-center">
+                  <button
+                    type="button"
+                    onClick={() => setForgotPasswordMode(false)}
+                    className="underline"
+                  >
+                    Go Back to Sign In
+                  </button>
+                </div>
               </div>
             ) : (
               <form
@@ -270,6 +310,15 @@ export default function AuthComponent() {
                     className="underline"
                   >
                     {isEmailLinkLogin ? "Use Email/Password" : "Use Email Link"}
+                  </button>
+                </div>
+                <div className="text-center mt-2">
+                  <button
+                    type="button"
+                    onClick={() => setForgotPasswordMode(true)}
+                    className="underline"
+                  >
+                    Forgot Password?
                   </button>
                 </div>
                 <label className="flex items-center space-x-2 pl-1">
