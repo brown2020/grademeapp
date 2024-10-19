@@ -124,8 +124,8 @@ export default function Tools() {
 
         try {
             const { result, creditsUsed } = await generateGrade(
-                gradingData.identity,
-                gradingData.identityLevel,
+                profile.identity || "",
+                profile.identityLevel || "",
                 gradingData.assigner,
                 gradingData.topic,
                 gradingData.prose,
@@ -188,7 +188,7 @@ export default function Tools() {
         <div className="form-wrapper space-y-8 font-medium">
             <div
             onClick={() => router.push("/rubrics")}
-            className="text-sm text-gray-900 px-2 py-1 bg-orange-100 hover:bg-orange-200 border shadow rounded-lg cursor-pointer"
+            className="text-sm text-gray-900 px-2 py-1 bg-primary hover:bg-orange-200 border shadow rounded-lg cursor-pointer"
             >
                 Selected Rubric: {selectedRubric?.name ? selectedRubric.name : "Select a rubric"}
                 </div>

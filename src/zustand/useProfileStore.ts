@@ -8,6 +8,8 @@ export interface ProfileType {
     contactEmail: string;
     displayName: string;
     photoUrl: string;
+    identityLevel?: string;
+    identity?: string;
     emailVerified: boolean;
     credits: number;
     fireworks_api_key: string;
@@ -22,6 +24,8 @@ const defaultProfile: ProfileType = {
     contactEmail: "",
     displayName: "",
     photoUrl: "",
+    identityLevel: "",
+    identity: "",
     emailVerified: false,
     credits: 0,
     fireworks_api_key: "",
@@ -157,6 +161,8 @@ function createNewProfile(
         contactEmail: "",
         displayName: authDisplayName || "",
         photoUrl: authPhotoUrl || "",
+        identityLevel: "",
+        identity: "",
         emailVerified: authEmailVerified || false,
         credits: 1000,
         fireworks_api_key: "",

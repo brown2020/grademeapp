@@ -3,29 +3,31 @@
 import { useState, useEffect, useRef } from 'react';
 import { RubricState } from '@/types/rubrics-types';
 import { useRubricStore } from '@/zustand/useRubricStore';
-import CustomDropdown from '@/components/ui/CustomDropdown';
+import useProfileStore from '@/zustand/useProfileStore';
 
 export default function RubricSearch({
     openRubricBuilder,
+    useCustomRubrics,
 }: {
     openRubricBuilder?: () => void;
+    useCustomRubrics: boolean;
 }) {
     const { gradingData, rubricOptions, selectedRubric, setSelectedRubric, filteredRubrics, setFilteredRubrics } = useRubricStore();
     const [searchQuery, setSearchQuery] = useState<string>('');
-    const [isOpen, setIsOpen] = useState<boolean>(false);
     const wrapperRef = useRef<HTMLDivElement>(null);
     const previousSelectedRubric = useRef<RubricState | null>(null); // Track previous selectedRubric
+    const profile = useProfileStore((state) => state.profile);
 
     // Dynamically filter rubrics based on "gradingData" and "searchQuery"
     useEffect(() => {
 
         let filtered = rubricOptions;
 
-        if (gradingData.identityLevel !== '') {
-            filtered = filtered.filter((rubric) => rubric.name.toLowerCase().includes(gradingData.identityLevel.toLowerCase()));
+        if (profile.identityLevel !== '' && !useCustomRubrics) {
+            filtered = filtered.filter((rubric) => rubric.name.toLowerCase().includes((profile.identityLevel ?? '').toLowerCase()));
         }
 
-        if (gradingData.textType !== '') {
+        if (gradingData.textType !== '' && !useCustomRubrics) {
             filtered = filtered.filter((rubric) => rubric.name.toLowerCase().includes(gradingData.prose.toLowerCase()));
         }
 
@@ -42,34 +44,12 @@ export default function RubricSearch({
 
         setFilteredRubrics(filtered);
 
-    }, [gradingData, rubricOptions, searchQuery, setFilteredRubrics]);
-
-    useEffect(() => {
-        // Open dropdown when filtered rubrics change and selectedRubric has NOT changed
-        setIsOpen(true);
-    }, [gradingData.identityLevel, gradingData.textType]);
-
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent | TouchEvent) => {
-            if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
-                setIsOpen(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        document.addEventListener('touchstart', handleClickOutside);
-
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-            document.removeEventListener('touchstart', handleClickOutside);
-        };
-    }, []);
+    }, [gradingData, rubricOptions, searchQuery, setFilteredRubrics, useCustomRubrics]);
 
     // Handle selecting a rubric
     const handleRubricSelect = (rubric: RubricState) => {
         previousSelectedRubric.current = selectedRubric;
         setSelectedRubric(rubric);
-        setIsOpen(false);
     };
 
     return (
@@ -77,23 +57,37 @@ export default function RubricSearch({
             {/* Input Field */}
             <div className="relative">
                 <input
-                    className="w-full border px-2 py-1 rounded shadow-sm bg-orange-100 focus:border-blue-500 focus:ring-blue-500 truncate"
+                    className="w-full border-b px-2 py-1 rounded-t-lg bg-secondary truncate"
                     onChange={(event) => setSearchQuery(event.target.value)}
                     value={searchQuery}
                     placeholder="Search for a rubric..."
-                    onFocus={() => setIsOpen(true)}
                 />
             </div>
-
-            {/* Custom Dropdown Component */}
-            {isOpen && (
-                <CustomDropdown
-                    filteredRubrics={filteredRubrics}
-                    handleRubricSelect={handleRubricSelect}
-                    openRubricBuilder={openRubricBuilder}
-                    handleClose={() => setIsOpen(false)}
-                />
-            )}
+            {/* Seach Results Display */}
+            <div ref={wrapperRef} className="w-full bg-secondary rounded-b-lg h-60 overflow-y-auto">
+                <div
+                    className="cursor-pointer font-medium select-none px-4 pt-1 text-blue-600 hover:underline"
+                    onClick={openRubricBuilder} // Open the custom rubric builder
+                >
+                    Create Custom Rubric
+                </div>
+                {filteredRubrics.length > 0 ? (
+                    filteredRubrics.map((rubric) => (
+                        <div
+                            key={rubric.name}
+                            onClick={() => handleRubricSelect(rubric)}
+                            className="cursor-pointer select-none px-4 pb-2 hover:ring-2 focus:ring-2 ring-accent ring-inset "
+                        >
+                            <span className="block text-sm font-semibold">{rubric.name}</span>
+                            <span className="block text-xs text-gray-800">{rubric.description}</span>
+                        </div>
+                    ))
+                ) : (
+                    <div className="cursor-default select-none px-4 text-gray-700">
+                        No matching rubrics
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

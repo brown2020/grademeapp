@@ -33,6 +33,7 @@
     "react-dom": "^18",
     "react-firebase-hooks": "^5.1.1",
     "react-hot-toast": "^2.4.1",
+    "react-loading-skeleton": "^3.5.0",
     "react-markdown": "^9.0.1",
     "react-select": "^5.8.1",
     "react-share": "^5.1.0",

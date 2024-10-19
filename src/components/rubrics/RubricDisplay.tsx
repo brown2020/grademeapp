@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from 'react';
 import {
     RubricState,
     RubricType,
@@ -10,25 +9,20 @@ import {
     ChecklistRubric,
     OtherRubricType,
 } from '@/types/rubrics-types';
-import { ChevronDownIcon } from 'lucide-react';
+ 
 
 export default function RubricDisplay({ rubric }: { rubric: RubricState }) {
-    const [isOpen, setIsOpen] = useState(false);
 
     return (
-        <div className="w-full">
-            <div
-                onClick={() => setIsOpen(!isOpen)}
-                className="flex flex-row gap-x-3 items-center text-left text-xs font-medium text-gray-100 p-2 rounded-md bg-orange-500 hover:bg-orange-400"
-            >
-                <ChevronDownIcon size={16} className={`transform ${isOpen ? 'rotate-180' : ''}`} />
-                <p>Rubric Criteria</p>
-            </div>
-            {isOpen && (
-                <div className="mt-2 p-2 border-l-2 border-gray-300 max-h-60 overflow-auto">
-                    {renderRubricCriteria(rubric)}
+        <div className="w-full h-52">
+            <div className="flex flex-col p-1 rounded-md bg-primary">
+                <p className=" text-left font-medium text-background pl-2 pb-1">Rubric Criteria</p>
+                <div className="bg-background p-1 rounded-sm">
+                    <div className="mt-2 p-1 text-xs border-l-2 border-accent h-40 max-h-40 overflow-auto">
+                        {renderRubricCriteria(rubric)}
+                    </div>
                 </div>
-            )}
+            </div>
         </div>
     );
 }
@@ -55,17 +49,17 @@ function renderGenericCriteria(rubric: OtherRubricType) {
         <div>
             {Object.entries(rubric.criteria).map(([criterion, levels]) => (
                 <div key={criterion} className="mb-4">
-                    <p className="text-sm font-semibold">{criterion}</p>
+                    <p className=" font-semibold">{criterion}</p>
                     {/* Check if levels are an object (i.e., for Analytical/MultiTrait), otherwise treat it as a simple string */}
                     {typeof levels === 'object' ? (
                         Object.entries(levels as Record<string, string>).map(([level, description]) => (
                             <div key={level} className="ml-4">
-                                <p className="text-sm font-semibold">{level}</p>
-                                <p className="text-sm text-gray-600">{typeof description === 'string' ? description : ''}</p>
+                                <p className=" font-semibold">{level}</p>
+                                <p className=" text-text">{typeof description === 'string' ? description : ''}</p>
                             </div>
                         ))
                     ) : (
-                        <p className="text-sm text-gray-600 ml-4">{levels as string}</p>
+                        <p className=" text-gray-600 ml-4">{levels as string}</p>
                     )}
                 </div>
             ))}
@@ -79,8 +73,8 @@ function renderOverallCriteria(rubric: HolisticRubric) {
         <div>
             {Object.entries(rubric.criteria).map(([level, description]) => (
                 <div key={level} className="mb-2">
-                    <p className="text-sm font-semibold">{level}</p>
-                    <p className="text-sm text-gray-600">{typeof description === 'string' ? description : ''}</p>
+                    <p className=" font-semibold">{level}</p>
+                    <p className=" text-gray-600">{typeof description === 'string' ? description : ''}</p>
                 </div>
             ))}
         </div>
@@ -93,19 +87,19 @@ function renderDetailedCriteria(rubric: AnalyticalRubric) {
         <div>
             {Object.entries(rubric.criteria).map(([criterion, details]) => (
                 <div key={criterion} className="mb-4">
-                    <p className="text-sm font-semibold mb-2">{criterion}</p>
+                    <p className=" font-semibold mb-2">{criterion}</p>
                     {typeof details === 'object' && 'points' in details ? (
-                        <>
-                            <p className="ml-3 text-sm font-medium mb-2">Points: {details.points as string | number}</p>
+                        <div>
+                            <p className="ml-3  font-medium mb-2">Points: {details.points as string | number}</p>
                             {Object.entries(details).map(([level, content]) =>
                                 level !== 'points' ? (
-                                    <div  key={level} className="flex flex-row flex-wrap gap-x-2 ml-3 mb-2">
-                                        <p className="text-sm font-semibold">{level}: </p>
+                                    <div key={level} className="flex flex-row flex-wrap gap-x-2 ml-3 mb-2">
+                                        <p className=" font-semibold">{level}: </p>
                                         <p>{renderContent(content)}</p> {/* Recursively handle nested content */}
                                     </div>
                                 ) : null
                             )}
-                        </>
+                        </div>
                     ) : (
                         renderContent(details)
                     )}
@@ -118,10 +112,10 @@ function renderDetailedCriteria(rubric: AnalyticalRubric) {
 // Recursive function to render content
 function renderContent(content: unknown): React.ReactNode {
     if (typeof content === 'string' || typeof content === 'number') {
-        return <p className="text-sm text-gray-600">{content}</p>;
+        return <p className=" text-gray-600">{content}</p>;
     } else if (Array.isArray(content)) {
         return content.map((item, index) => (
-            <p key={index} className="text-sm text-gray-600 ml-3">
+            <p key={index} className=" text-gray-600 ml-3">
                 {item}
             </p>
         ));
@@ -130,8 +124,8 @@ function renderContent(content: unknown): React.ReactNode {
             <div className="ml-3">
                 {content && Object.entries(content).map(([key, value]) => (
                     <div className="flex flex-row flex-wrap gap-2" key={key}>
-                        <p className="text-sm font-semibold">{key}: </p>
-                        <p>{renderContent(value)}</p>                      
+                        <p className=" font-semibold">{key}: </p>
+                        <p>{renderContent(value)}</p>
                     </div>
                 ))}
             </div>
@@ -147,16 +141,16 @@ function renderSinglePointCriteria(rubric: SinglePointRubric) {
     return (
         <div>
             <div className="mb-4">
-                <p className="text-sm font-semibold">Proficient</p>
-                <p className="text-sm text-gray-600">{typeof rubric.criteria.Proficient === 'string' ? rubric.criteria.Proficient : ''}</p>
+                <p className=" font-semibold">Proficient</p>
+                <p className=" text-gray-600">{typeof rubric.criteria.Proficient === 'string' ? rubric.criteria.Proficient : ''}</p>
             </div>
             <div className="ml-4">
-                <p className="text-sm font-semibold">Strengths</p>
-                <p className="text-sm text-gray-600">{rubric.feedback?.Strengths || "No feedback provided"}</p>
+                <p className=" font-semibold">Strengths</p>
+                <p className=" text-gray-600">{rubric.feedback?.Strengths || "No feedback provided"}</p>
             </div>
             <div className="ml-4">
-                <p className="text-sm font-semibold">Areas for Improvement</p>
-                <p className="text-sm text-gray-600">{rubric.feedback?.["Areas for Improvement"] || "No feedback provided"}</p>
+                <p className=" font-semibold">Areas for Improvement</p>
+                <p className=" text-gray-600">{rubric.feedback?.["Areas for Improvement"] || "No feedback provided"}</p>
             </div>
         </div>
     );
@@ -168,8 +162,8 @@ function renderChecklistCriteria(rubric: ChecklistRubric) {
         <div>
             {Object.entries(rubric.criteria).map(([requirement, response]) => (
                 <div key={requirement} className="mb-2">
-                    <p className="text-sm font-semibold">{requirement}</p>
-                    <p className="text-sm text-gray-600">{response}</p>
+                    <p className=" font-semibold">{requirement}</p>
+                    <p className=" text-gray-600">{response}</p>
                 </div>
             ))}
         </div>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 import type { Config } from "tailwindcss";
 
 const config: Config = {
@@ -55,12 +56,66 @@ const config: Config = {
                 lg: 'var(--radius)',
                 md: 'calc(var(--radius) - 2px)',
                 sm: 'calc(var(--radius) - 4px)'
-            }
+            },
+            keyframes: {
+                'fade-in': {
+                    '0%': { opacity: '0' },
+                    '100%': { opacity: '1' },
+                },
+                'fade-out': {
+                    '0%': { opacity: '1' },
+                    '100%': { opacity: '0', visibility: 'hidden' },
+                },
+                'slide-left': {
+                    '0%': { transform: 'translateX(100%)' },
+                    '100%': { transform: 'translateX(0)' },
+                },
+                'slide-right': {
+                    '0%': { transform: 'translateX(0)' },
+                    '100%': { transform: 'translateX(100%)', visibility: 'hidden' }, // Hide on exit
+                },
+                'enter': {
+                    '0%': {
+                        opacity: '0',
+                        transform: 'scale(0.8) translateX(100%)',
+                        visibility: 'hidden',
+                    },
+                    '1%': {
+                        visibility: 'visible',
+                    },
+                    '100%': {
+                        opacity: '1',
+                        transform: 'scale(1) translateX(0)',
+                    },
+                },
+                'exit': {
+                    '0%': {
+                        opacity: '1',
+                        transform: 'scale(1) translateX(0)',
+                        visibility: 'visible',
+                    },
+                    '100%': {
+                        opacity: '0',
+                        transform: 'scale(0.8) translateX(100%)'
+                    },
+                },
+            },
+            animation: {
+                'fade-in': 'fade-in 0.5s ease-in-out',
+                'fade-out': 'fade-out 0.5s ease-in-out',
+                'slide-left': 'slide-left 0.5s ease-in-out',
+                'slide-right': 'slide-right 0.5s ease-in-out',
+                'enter': 'enter 0.3s ease-out forwards',
+                'exit': 'exit 0.3s ease-out forwards',
+            },
+            maxWidth: {
+                '18': '4.5rem',
+            },
         }
     },
     plugins: [
-        require("tailwindcss-animate"),
-        "prettier-plugin-tailwindcss"
+        'prettier-plugin-tailwindcss',
+        require('tailwindcss-animate'),
     ],
 };
 export default config;

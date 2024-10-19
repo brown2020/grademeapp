@@ -11,7 +11,7 @@ import {
     GenericRubricCriteria
 } from '@/types/rubrics-types';
 import { toast } from "react-hot-toast";
-import { MinusCircleIcon, XCircleIcon } from 'lucide-react';
+import { BadgePlus, Ban, Blocks, MinusCircleIcon, Save, XCircleIcon } from 'lucide-react';
 
 // Define the state for the analytical rubric's criteria
 interface AnalyticalCriterionState {
@@ -296,85 +296,88 @@ export default function RubricBuilder({ onSave, onCancel }: { onSave: (rubric: R
     };
 
     return (
-        <div className="p-2 bg-orange-100 rounded shadow relative">
-            <div onClick={onCancel} className="absolute top-2 right-2 cursor-pointer">
-                <XCircleIcon className="h-6 w-6 text-red-800" />
+        <div className="bg-background relative">
+            <div onClick={onCancel} className="absolute top-0 right-0 cursor-pointer">
+                <XCircleIcon className="h-6 w-6 text-accent" />
             </div>
-            <h2 className="text-xl font-bold mb-4 text-orange-600 text-center">Create Your Custom Rubric</h2>
+
+            <div className='flex flex-row gap-x-2 justify-center'>
+                <Blocks className="text-primary" />
+                <h2 className="text-xl font-medium mb-1 text-primary text-center">Rubric Builder</h2>
+            </div>
 
             {/* Rubric Type Selection */}
-            <div className="mb-4">
-                <label className="block font-semibold mb-1">Rubric Type</label>
+            <div className="mb-2">
+                <label className="block text-sm text-accent font-semibold">Rubric Type</label>
                 <select
                     value={rubricType}
                     onChange={(e) => handleRubricTypeChange(e.target.value as RubricType)}
-                    className="border px-2 py-1 w-full rounded"
+                    className="px-2 bg-secondary w-full rounded shadow-md"
                 >
-                    <option value={RubricType.Analytical}>Analytical</option>
-                    <option value={RubricType.Holistic}>Holistic</option>
-                    <option value={RubricType.SinglePoint}>Single Point</option>
-                    <option value={RubricType.Checklist}>Checklist</option>
+                    <option className='text-sm ' value={RubricType.Analytical}>Analytical</option>
+                    <option className='text-sm ' value={RubricType.Holistic}>Holistic</option>
+                    <option className='text-sm ' value={RubricType.SinglePoint}>Single Point</option>
+                    <option className='text-sm ' value={RubricType.Checklist}>Checklist</option>
                 </select>
             </div>
 
             {/* Rubric Name */}
-            <div className="mb-4">
-                <label className="block font-semibold mb-1">Rubric Name</label>
+            <div className="mb-1">
+                <label className="block text-sm text-accent font-semibold">Rubric Name</label>
                 <input
                     type="text"
                     name="name"
                     value={rubric.name}
                     onChange={handleRubricDetailChange}
-                    className="border px-2 py-1 w-full rounded"
+                    className="px-2 w-full py-0.5 rounded bg-secondary shadow-md text-sm"
                 />
             </div>
 
             {/* Rubric Description */}
-            <div className="mb-4">
-                <label className="block font-semibold mb-1">Rubric Description</label>
+            <div className="mb-1">
+                <label className="block text-sm text-accent font-semibold">Rubric Description</label>
                 <textarea
                     name="description"
                     value={rubric.description}
                     onChange={handleRubricDetailChange}
-                    className="border px-2 py-1 w-full rounded"
-                    rows={3}
+                    className="px-2 py-0.5 w-full rounded bg-secondary shadow-md text-sm"
+                    rows={2}
                 />
             </div>
 
             {/* Analytical Rubric Creation */}
             {rubricType === RubricType.Analytical && (
-                <div className="mb-4">
-                    <h3 className="text-lg font-semibold mb-2">Add Criterion</h3>
-                    <div className="mb-2">
-                        <label className="block font-semibold">Criterion Name</label>
+                <div className="mb-2">
+                    <h3 className="text-center font-semibold">Create Criterion</h3>
+                    <hr className="border border-accent mb-1" />
+                    <div className="mb-1">
+                        <label className="block text-sm font-semibold">Criterion Name</label>
                         <input
                             type="text"
                             name="name"
                             value={currentCriterion.name}
                             onChange={(e) => setCurrentCriterion({ ...currentCriterion, name: e.target.value })}
-                            className="border px-2 py-1 w-full rounded"
+                            className="px-2 py-0.5 w-full rounded bg-secondary shadow-md text-sm"
                         />
                     </div>
 
                     {(['Excellent', 'Proficient', 'Developing', 'Beginning'] as Array<keyof AnalyticalCriterionState>).map((level) => (
-                        <div key={level} className="mb-2">
-                            <label className="block font-semibold">{level}</label>
+                        <div key={level} className="">
+                            <label className="block text-sm font-semibold">{level}</label>
                             <textarea
                                 name={level}
                                 value={currentCriterion[level]}
                                 onChange={(e) => setCurrentCriterion({ ...currentCriterion, [level]: e.target.value })}
-                                className="border px-2 py-1 w-full rounded"
-                                rows={2}
+                                className="px-2 py-0.5 w-full rounded bg-secondary shadow-md text-sm"
+                                rows={1}
                             />
                         </div>
                     ))}
 
-                    <button
-                        onClick={addAnalyticalCriterion}
-                        className="mt-2 px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-500"
-                    >
-                        Add Criterion
-                    </button>
+                    <div onClick={addAnalyticalCriterion} className="flex flex-row items-center gap-x-2 px-4 py-1 w-fit bg-primary text-primary-foreground rounded-md shadow-md cursor-pointer">
+                        <BadgePlus size={18} />
+                        <p>Add Criterion</p>
+                    </div>
                 </div>
             )}
 
@@ -384,11 +387,11 @@ export default function RubricBuilder({ onSave, onCancel }: { onSave: (rubric: R
                     <h3 className="text-lg font-semibold mb-2">Add Level Descriptions</h3>
                     {(['Excellent', 'Proficient', 'Developing', 'Beginning'] as Array<keyof HolisticRubric['criteria']>).map((level) => (
                         <div key={level} className="mb-2">
-                            <label className="block font-semibold">{level}</label>
+                            <label className="block text-sm font-semibold">{level}</label>
                             <textarea
                                 value={typeof (rubric.criteria as GenericRubricCriteria)[level] === 'string' ? (rubric.criteria as GenericRubricCriteria)[level] as string : ''}
                                 onChange={(e) => handleHolisticLevelChange(e, level)}
-                                className="border px-2 py-1 w-full rounded"
+                                className="px-2 py-0.5 w-full rounded bg-secondary shadow-md text-sm"
                                 rows={2}
                             />
                         </div>
@@ -398,16 +401,16 @@ export default function RubricBuilder({ onSave, onCancel }: { onSave: (rubric: R
 
             {/* Single Point Rubric Creation */}
             {rubricType === RubricType.SinglePoint && (
-                <div className="mb-4">
-                    <h3 className="text-lg font-semibold mb-2">Single Point Criterion</h3>
-
+                <div className="mb-2">
+                    <h3 className="text-center font-semibold">Single Point Criterion</h3>
+                    <hr className="border border-accent mb-1" />
                     {/* Proficient Field */}
-                    <div className="mb-2">
+                    <div className="mb-1">
                         <label className="block font-semibold">Proficient</label>
                         <textarea
                             value={typeof (rubric.criteria as GenericRubricCriteria).Proficient === 'string' ? (rubric.criteria as GenericRubricCriteria).Proficient as string : ''}
                             onChange={(e) => handleSinglePointChange(e, 'Proficient')}
-                            className="border px-2 py-1 w-full rounded"
+                            className="px-2 py-0.5 w-full rounded bg-secondary shadow-md text-sm"
                             rows={2}
                         />
                     </div>
@@ -415,12 +418,12 @@ export default function RubricBuilder({ onSave, onCancel }: { onSave: (rubric: R
                     {/* Strengths Field */}
                     {/* Narrow the rubric type before accessing feedback */}
                     {rubric.type === RubricType.SinglePoint && (
-                        <div className="mb-2">
+                        <div className="mb-1">
                             <label className="block font-semibold">Strengths</label>
                             <textarea
                                 value={(rubric as SinglePointRubric).feedback?.Strengths || ''}
                                 onChange={(e) => handleSinglePointChange(e, 'Strengths')}
-                                className="border px-2 py-1 w-full rounded"
+                                className="px-2 py-0.5 w-full rounded bg-secondary shadow-md text-sm"
                                 rows={2}
                             />
                         </div>
@@ -428,12 +431,12 @@ export default function RubricBuilder({ onSave, onCancel }: { onSave: (rubric: R
 
                     {/* Areas for Improvement Field */}
                     {rubric.type === RubricType.SinglePoint && (
-                        <div className="mb-2">
+                        <div className="mb-1">
                             <label className="block font-semibold">Areas for Improvement</label>
                             <textarea
                                 value={(rubric as SinglePointRubric).feedback?.["Areas for Improvement"] || ''}
                                 onChange={(e) => handleSinglePointChange(e, 'Areas for Improvement')}
-                                className="border px-2 py-1 w-full rounded"
+                                className="px-2 py-0.5 w-full rounded bg-secondary shadow-md text-sm"
                                 rows={2}
                             />
                         </div>
@@ -443,19 +446,19 @@ export default function RubricBuilder({ onSave, onCancel }: { onSave: (rubric: R
 
             {/* Checklist Rubric Creation */}
             {rubricType === RubricType.Checklist && (
-                <div className="mb-4">
-                    <h3 className="text-lg font-semibold mb-2">Checklist</h3>
-
+                <div className="mb-2">
+                    <h3 className="text-center font-semibold">Checklist</h3>
+                    <hr className="border border-accent mb-1" />
                     {/* Render existing checklist criteria */}
                     {Object.entries(rubric.criteria as GenericRubricCriteria).map(([criterion, yesNoValue]) => (
-                        <div key={criterion} className="mb-2 flex flex-row items-center gap-x-2">
+                        <div key={criterion} className="mb-3 flex flex-row items-center gap-x-2">
                             {/* Editable input for the criterion name */}
                             <input
                                 type="text"
                                 value={editedCriterion === criterion ? tempValue : criterion} // If editing, use the tempValue
                                 onChange={(e) => handleChecklistChange(e, criterion)}
                                 onBlur={applyChecklistChange} // Apply the change on blur
-                                className="border px-2 py-1 w-full rounded"
+                                className="shadow-md bg-secondary px-2 py-0.5 w-full rounded"
                             />
                             {/* Static Yes/No value */}
                             <label className="block font-semibold mt-1">{typeof yesNoValue === 'string' ? yesNoValue : ''}</label>
@@ -473,31 +476,25 @@ export default function RubricBuilder({ onSave, onCancel }: { onSave: (rubric: R
                             value={newCriterion}
                             onChange={(e) => setNewCriterion(e.target.value)}
                             placeholder="Enter new criterion"
-                            className="border px-2 py-1 w-full rounded"
+                            className="shadow-md bg-secondary px-2 py-0.5 w-full rounded"
                         />
-                        <button
-                            onClick={addNewChecklistCriterion}
-                            className="px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-500"
-                        >
-                            Add
-                        </button>
+                        <div onClick={addNewChecklistCriterion} className="flex flex-row items-center gap-x-2 px-3 py-1 bg-accent text-primary-foreground rounded-md shadow-md cursor-pointer">                            
+                            <p>Add</p>
+                            <BadgePlus size={18} />
+                        </div>
                     </div>
                 </div>
             )}
 
             {/* Save and Cancel Buttons */}
             <div className="flex flex-row justify-start gap-4 mt-4">
-                <div
-                    onClick={handleSave}
-                    className="px-4 py-2 bg-orange-600 text-white rounded shadow hover:bg-orange-500 cursor-pointer"
-                >
-                    Save Rubric
+                <div onClick={handleSave} className="flex flex-row items-center gap-x-2 px-4 py-1 bg-accent text-primary-foreground rounded-lg shadow-md cursor-pointer">
+                    <Save size={18} />
+                    <p>Save Rubric</p>
                 </div>
-                <div
-                    onClick={onCancel}
-                    className="px-4 py-2 bg-red-600 text-white rounded shadow hover:bg-red-500 cursor-pointer"
-                >
-                    Cancel
+                <div onClick={onCancel} className="flex flex-row items-center py-1 gap-x-2 px-4 bg-red-600 text-white rounded-lg shadow-md cursor-pointer">
+                    <Ban size={18} />
+                    <p>Cancel</p>
                 </div>
             </div>
         </div>

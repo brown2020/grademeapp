@@ -47,8 +47,6 @@ export const useRubricStore = create<RubricStoreState>((set, get) => ({
     filteredRubrics: defaultRubrics,
     selectedRubric: defaultRubrics.length > 0 ? defaultRubrics[0] : null,
     gradingData: {
-        identity: '',
-        identityLevel: '',
         assigner: '',
         topic: '',
         prose: '',
