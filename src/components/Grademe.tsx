@@ -164,7 +164,7 @@ export default function Grademe() {
                 "No suggestions found. Servers might be overloaded right now."
             );
         }
-    }, [gradingData, profile.credits, minusCredits]);
+    }, [gradingData, profile.credits, minusCredits, profile.identity, profile.identityLevel]);
 
     // Effect to handle saving to history
     useEffect(() => {

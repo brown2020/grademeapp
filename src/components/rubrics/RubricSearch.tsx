@@ -44,7 +44,7 @@ export default function RubricSearch({
 
         setFilteredRubrics(filtered);
 
-    }, [gradingData, rubricOptions, searchQuery, setFilteredRubrics, useCustomRubrics]);
+    }, [gradingData, rubricOptions, searchQuery, setFilteredRubrics, useCustomRubrics, profile.identityLevel]);
 
     // Handle selecting a rubric
     const handleRubricSelect = (rubric: RubricState) => {

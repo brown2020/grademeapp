@@ -205,7 +205,7 @@ const Document = () => {
                 );
             }
         },
-        [gradingData, minusCredits, profile.credits]
+        [gradingData, minusCredits, profile.credits, profile.identity, profile.identityLevel]
     );
 
     // Effect to handle saving to history
