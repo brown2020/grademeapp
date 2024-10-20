@@ -1,4 +1,4 @@
-import { User2Icon, FileTextIcon, School, Bot, FileCheck2, Handshake, GlobeLock } from "lucide-react";
+import { User2Icon, FileTextIcon, School, Bot, FileCheck2, Handshake, GlobeLock, LifeBuoy } from "lucide-react";
 
 export const MENU_ITEMS: MenuItem[] = [
     {
@@ -9,7 +9,14 @@ export const MENU_ITEMS: MenuItem[] = [
         header: false,
         footer: true,
     },
-
+    {
+        label: "Support",
+        href: "/support",
+        show: "everyone",
+        icon: LifeBuoy,
+        header: false,
+        footer: true,
+    },
     {
         label: "Terms",
         href: "/terms",

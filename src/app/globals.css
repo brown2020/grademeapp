@@ -116,7 +116,9 @@
     transform: scale(0);
     opacity: 0;
     visibility: hidden;
-    transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out,
+    transition:
+      transform 0.5s ease-in-out,
+      opacity 0.5s ease-in-out,
       visibility 0s 0.5s;
   }
 
@@ -125,7 +127,9 @@
     transform: scale(1);
     opacity: 1;
     visibility: visible;
-    transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+    transition:
+      transform 0.5s ease-in-out,
+      opacity 0.5s ease-in-out;
   }
 
   .menu-closed {
@@ -133,7 +137,9 @@
     transform: scale(0);
     opacity: 0;
     visibility: hidden;
-    transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out,
+    transition:
+      transform 0.5s ease-in-out,
+      opacity 0.5s ease-in-out,
       visibility 0s 0.5s;
   }
 
@@ -142,12 +148,16 @@
     transform: scale(1);
     opacity: 1;
     visibility: visible;
-    transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+    transition:
+      transform 0.5s ease-in-out,
+      opacity 0.5s ease-in-out;
   }
 
   .overlay-closed {
     opacity: 0;
-    transition: opacity 0.3s ease-in-out, visibility 0s 0.3s;
+    transition:
+      opacity 0.3s ease-in-out,
+      visibility 0s 0.3s;
     visibility: hidden;
   }
 
@@ -177,6 +187,10 @@
   }
   .btn-primary {
     @apply cursor-pointer flex w-full outline-none text-center justify-center items-center gap-2 mt-2 px-6 py-2 bg-[#2563EB] text-white font-semibold hover:bg-[#2563EB]/30 rounded-full disabled:bg-[#2563EB]/30 disabled:hover:bg-[#2563EB]/30 disabled:cursor-not-allowed;
+  }
+
+  .btn-danger {
+    @apply cursor-pointer flex w-full outline-none text-center justify-center items-center gap-2 mt-2 px-6 py-2 bg-[#DC2626] text-white font-semibold hover:bg-[#DC2626]/30 rounded-full disabled:bg-[#DC2626]/30 disabled:hover:bg-[#DC2626]/30 disabled:cursor-not-allowed;
   }
 
   .btn-blue {

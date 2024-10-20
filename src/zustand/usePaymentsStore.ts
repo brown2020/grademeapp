@@ -181,12 +181,12 @@ function handleError(
     partial:
       | Partial<PaymentsStoreState>
       | ((state: PaymentsStoreState) => Partial<PaymentsStoreState>),
-    replace?: boolean
+    replace?: false | undefined // Ensuring replace can only be false or undefined
   ) => void,
   error: unknown,
   defaultMessage: string
 ): void {
   const errorMessage = error instanceof Error ? error.message : defaultMessage;
   console.error(defaultMessage, errorMessage);
-  set({ paymentsError: errorMessage, paymentsLoading: false });
+  set({ paymentsError: errorMessage, paymentsLoading: false }, false); // Explicitly passing false for replace
 }
