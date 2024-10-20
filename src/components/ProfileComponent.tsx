@@ -12,38 +12,38 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
 export default function ProfileComponent() {
-  const profile = useProfileStore((state) => state.profile);
-  const router = useRouter();
-  const updateProfile = useProfileStore((state) => state.updateProfile);
-  const [fireworksApiKey, setFireworksApiKey] = useState(
-    profile.fireworks_api_key
-  );
-  const [openaiApiKey, setOpenaiApiKey] = useState(profile.openai_api_key);
-  const [useCredits, setUseCredits] = useState(profile.useCredits);
-  const [showCreditsSection, setShowCreditsSection] = useState(true); // State to control visibility
-  const addCredits = useProfileStore((state) => state.addCredits);
-  const addPayment = usePaymentsStore((state) => state.addPayment);
-  const deleteAccount = useProfileStore((state) => state.deleteAccount);
-  const clearAuthDetails = useAuthStore((s) => s.clearAuthDetails);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const profile = useProfileStore((state) => state.profile);
+    const router = useRouter();
+    const updateProfile = useProfileStore((state) => state.updateProfile);
+    const [fireworksApiKey, setFireworksApiKey] = useState(
+        profile.fireworks_api_key
+    );
+    const [openaiApiKey, setOpenaiApiKey] = useState(profile.openai_api_key);
+    const [useCredits, setUseCredits] = useState(profile.useCredits);
+    const [showCreditsSection, setShowCreditsSection] = useState(true); // State to control visibility
+    const addCredits = useProfileStore((state) => state.addCredits);
+    const addPayment = usePaymentsStore((state) => state.addPayment);
+    const deleteAccount = useProfileStore((state) => state.deleteAccount);
+    const clearAuthDetails = useAuthStore((s) => s.clearAuthDetails);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  useEffect(() => {
-    const handleMessageFromRN = async (event: MessageEvent) => {
-      // Process the message sent from React Native
-      const message = event.data;
-      if (message?.type === "IAP_SUCCESS") {
-        await addPayment({
-          id: message.message,
-          amount: message.amount,
-          status: "succeeded",
-          mode: "iap",
-          platform: message.platform,
-          productId: message.productId,
-          currency: message.currency,
-        });
-        await addCredits(10000);
-      }
-    };
+    useEffect(() => {
+        const handleMessageFromRN = async (event: MessageEvent) => {
+            // Process the message sent from React Native
+            const message = event.data;
+            if (message?.type === "IAP_SUCCESS") {
+                await addPayment({
+                    id: message.message,
+                    amount: message.amount,
+                    status: "succeeded",
+                    mode: "iap",
+                    platform: message.platform,
+                    productId: message.productId,
+                    currency: message.currency,
+                });
+                await addCredits(10000);
+            }
+        };
 
         // Listen for messages from the RN WebView
         window.addEventListener("message", handleMessageFromRN);
@@ -87,30 +87,30 @@ export default function ProfileComponent() {
         await updateProfile({ useCredits: e.target.value == "credits" });
     };
 
-  const handleBuyClick = useCallback(() => {
-    if (showCreditsSection) {
-      window.location.href = "/payment-attempt";
-    } else {
-      window.ReactNativeWebView?.postMessage("INIT_IAP");
-    }
-  }, [showCreditsSection]);
+    const handleBuyClick = useCallback(() => {
+        if (showCreditsSection) {
+            window.location.href = "/payment-attempt";
+        } else {
+            window.ReactNativeWebView?.postMessage("INIT_IAP");
+        }
+    }, [showCreditsSection]);
 
-  const handleDeleteClick = () => {
-    setShowDeleteModal(true);
-  };
+    const handleDeleteClick = () => {
+        setShowDeleteModal(true);
+    };
 
-  const onDeleteConfirm = useCallback(async () => {
-    setShowDeleteModal(false);
-    try {
-      await deleteAccount();
-      await signOut(auth);
-      clearAuthDetails();
-      toast.success("Account deleted successfully.");
-      router.replace("/");
-    } catch (error) {
-      console.error("Error on deletion of account:", error);
-    }
-  }, [deleteAccount, clearAuthDetails, router]);
+    const onDeleteConfirm = useCallback(async () => {
+        setShowDeleteModal(false);
+        try {
+            await deleteAccount();
+            await signOut(auth);
+            clearAuthDetails();
+            toast.success("Account deleted successfully.");
+            router.replace("/");
+        } catch (error) {
+            console.error("Error on deletion of account:", error);
+        }
+    }, [deleteAccount, clearAuthDetails, router]);
 
     const areApiKeysAvailable = fireworksApiKey && openaiApiKey;
 
@@ -157,74 +157,64 @@ export default function ProfileComponent() {
                 </div>
             </div>
 
-      <div className="flex flex-col px-5 py-3 gap-3 border border-gray-500 rounded-md">
-        <label htmlFor="fireworks-api-key" className="text-sm font-medium">
-          Fireworks API Key:
-        </label>
-        <input
-          type="text"
-          id="fireworks-api-key"
-          value={fireworksApiKey}
-          onChange={(e) => setFireworksApiKey(e.target.value)}
-          className="border border-gray-300 rounded-md px-3 py-2 h-10"
-          placeholder="Enter your Fireworks API Key"
-        />
-        <label htmlFor="openai-api-key" className="text-sm font-medium">
-          OpenAI API Key:
-        </label>
-        <input
-          type="text"
-          id="openai-api-key"
-          value={openaiApiKey}
-          onChange={(e) => setOpenaiApiKey(e.target.value)}
-          className="border border-gray-300 rounded-md px-3 py-2 h-10"
-          placeholder="Enter your OpenAI API Key"
-        />
-        <button
-          onClick={handleApiKeyChange}
-          disabled={
-            fireworksApiKey === profile.fireworks_api_key &&
-            openaiApiKey === profile.openai_api_key
-          }
-          className="bg-blue-500 text-white px-3 py-2 rounded-md hover:opacity-50 disabled:opacity-50"
-        >
-          Update API Keys
-        </button>
-      </div>
+            <div className="flex flex-col gap-y-3">
+                <h2 className="text-accent text-center font-medium text-lg">API Keys</h2>
+                <hr className="border-0.5 border-primary mb-2" />
+                <div className="flex flex-col">
+                    <label htmlFor="fireworks-api-key" className="text-sm font-medium text-accent">
+                        Fireworks API Key:
+                    </label>
+                    <input
+                        type="text"
+                        id="fireworks-api-key"
+                        value={fireworksApiKey}
+                        onChange={(e) => setFireworksApiKey(e.target.value)}
+                        className="bg-secondary rounded-md px-3 py-2 h-8 truncate"
+                        placeholder="Enter your Fireworks API Key"
+                    />
+                </div>
+                <div className="flex flex-col">
+                    <label htmlFor="openai-api-key" className="text-sm font-medium text-accent">
+                        OpenAI API Key:
+                    </label>
+                    <input
+                        type="text"
+                        id="openai-api-key"
+                        value={openaiApiKey}
+                        onChange={(e) => setOpenaiApiKey(e.target.value)}
+                        className="bg-secondary rounded-md px-3 py-2 h-8 truncate"
+                        placeholder="Enter your OpenAI API Key"
+                    />
+                </div>
+                <button
+                    onClick={handleApiKeyChange}
+                    disabled={
+                        fireworksApiKey === profile.fireworks_api_key &&
+                        openaiApiKey === profile.openai_api_key
+                    }
+                    className="w-fit bg-primary text-white px-5 py-2 rounded-md hover:opacity-50 disabled:opacity-50"
+                >
+                    Update API Keys
+                </button>
+            </div>
 
-      <div className="flex flex-col px-5 py-3 gap-3 border border-gray-500 rounded-md">
-        <label htmlFor="setting-lable-key" className="text-sm font-medium">
-          Settings:
-        </label>
-        <button
-          className="btn-primary bg-[#e32012] self-start rounded-md hover:bg-[#e32012]/30"
-          onClick={handleDeleteClick}
-        >
-          Delete Account
-        </button>
-      </div>
+            <div className="flex flex-col">
+                <label htmlFor="setting-label-key" className="text-sm font-medium text-accent">
+                    Settings:
+                </label>
+                <button
+                    className="btn-primary bg-[#e32012] self-start rounded-md hover:bg-[#e32012]/30 w-fit"
+                    onClick={handleDeleteClick}
+                >
+                    Delete Account
+                </button>
+            </div>
 
-      <div className="flex items-center px-5 py-3 gap-3 border border-gray-500 rounded-md">
-        <label htmlFor="toggle-use-credits" className="text-sm font-medium">
-          Use:
-        </label>
-        <select
-          id="toggle-use-credits"
-          value={useCredits ? "credits" : "apikeys"}
-          onChange={handleCreditsChange}
-          className="border border-gray-300 rounded-md px-3 py-2 h-10"
-          disabled={!areApiKeysAvailable}
-        >
-          <option value="credits">Credits</option>
-          {areApiKeysAvailable && <option value="apikeys">API Keys</option>}
-        </select>
-      </div>
-
-      <DeleteConfirmModal
-        showDeleteModal={showDeleteModal}
-        onHideModal={() => setShowDeleteModal(false)}
-        onDeleteConfirm={onDeleteConfirm}
-      />
-    </div>
-  );
+            <DeleteConfirmModal
+                showDeleteModal={showDeleteModal}
+                onHideModal={() => setShowDeleteModal(false)}
+                onDeleteConfirm={onDeleteConfirm}
+            />
+        </div>
+    );
 }

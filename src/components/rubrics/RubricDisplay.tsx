@@ -14,7 +14,7 @@ import {
 export default function RubricDisplay({ rubric }: { rubric: RubricState }) {
 
     return (
-        <div className="w-full h-52">
+        <div className="w-full h-52 max-h-52">
             <div className="flex flex-col p-1 rounded-md bg-primary">
                 <p className=" text-left font-medium text-background pl-2 pb-1">Rubric Criteria</p>
                 <div className="bg-background p-1 rounded-sm">

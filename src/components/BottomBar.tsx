@@ -22,8 +22,9 @@ export default function BottomBar() {
                 item.label !== "grade.me" ? (
                     <div
                         key={index}
-                        className={`flex flex-col items-center px-1 py-2 flex-grow cursor-pointer hover:text-accent hover:opacity-100 transition-colors duration-300 ${pathname.slice(0, 5) === item.path.slice(0, 5) && pathname !== "/"
-                            ? "text-accent"
+                        className={`flex flex-col items-center px-1 py-2 flex-grow cursor-pointer hover:text-accent hover:opacity-100 transition-colors duration-300 
+                            ${pathname.slice(0, 5) === item.path.slice(0, 5) && pathname !== "/"
+                            ? "text-accent bg-secondary h-16"
                             : "text-secondary"
                             }`}
                         onClick={() => {
@@ -38,8 +39,9 @@ export default function BottomBar() {
                 ) : (
                     <div
                         key={index}
-                        className={`relative size-18 max-w-18 -top-4 rounded-full bg-primary shadow z-20 flex flex-col items-center px-2 py-2.5 flex-grow cursor-pointer hover:text-accent hover:opacity-100 transition-colors duration-300 ${pathname.slice(0, 5) === item.path.slice(0, 5) && pathname !== "/"
-                            ? "text-accent"
+                        className={`relative size-18 max-w-18 -top-2 rounded-full bg-primary shadow z-20 flex flex-col items-center px-2 py-2 flex-grow cursor-pointer hover:text-accent hover:opacity-100 transition-colors duration-300 
+                            ${pathname.slice(0, 5) === item.path.slice(0, 5) && pathname !== "/"
+                            ? "text-accent bg-secondary border-primary border-2 shadow-none"
                             : "text-secondary"
                             }`}
                         onClick={() => {
@@ -49,7 +51,7 @@ export default function BottomBar() {
                         <div className="h-9 aspect-square">
                             <item.icon size={30} className="h-full w-full object-cover" />
                         </div>
-                        <div className="text-xs">{item.label}</div>
+                        <div className="text-xs mb-1">{item.label}</div>
                     </div>
                 )
             ))}

@@ -15,8 +15,9 @@ import TextareaAutosize from "react-textarea-autosize";
 import ReactMarkdown from "react-markdown";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
-import { Paperclip } from "lucide-react"
+import { FileSearch, Paperclip, Bot } from "lucide-react"
 import { extractGrade } from "@/utils/responseParser";
 import { GradingData } from "@/types/grading-data";
 import { useRubricStore } from "@/zustand/useRubricStore";
@@ -45,7 +46,7 @@ async function saveHistory(
     console.log("History saved successfully.");
 }
 
-export default function Tools() {
+export default function Grademe() {
     const { uid } = useAuthStore();
     const { selectedRubric, gradingData, setGradingData } = useRubricStore();
     const { profile, minusCredits } = useProfileStore();
@@ -131,7 +132,7 @@ export default function Tools() {
                 gradingData.prose,
                 gradingData.audience,
                 gradingData.wordLimitType,
-                gradingData.wordLimit,                
+                gradingData.wordLimit,
                 gradingData.title,
                 gradingData.text,
                 rubricString,
@@ -185,77 +186,96 @@ export default function Tools() {
     }, [summary, flagged]);
 
     return (
-        <div className="form-wrapper space-y-8 font-medium">
-            <div
-            onClick={() => router.push("/rubrics")}
-            className="text-sm text-gray-900 px-2 py-1 bg-primary hover:bg-orange-200 border shadow rounded-lg cursor-pointer"
-            >
-                Selected Rubric: {selectedRubric?.name ? selectedRubric.name : "Select a rubric"}
-                </div>
-            <form onSubmit={handleSubmit}>
-                {/* Title */}
-                <label className="block text-sm font-medium text-gray-700" htmlFor="title">Title</label>
-                <input
-                    type="text"
-                    name="title"
-                    id="title"
-                    value={gradingData.title}
-                    onChange={(e) => setGradingData({ title: e.target.value })}
-                    placeholder="Enter the title here"
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                />
-                {/* Text Area and File Upload */}
-                <div className="relative">
-                    {/* File Upload */}
-                    <div className="absolute flex flex-row items-center gap-x-2 left-8 group">
-                        <label htmlFor="file-upload" className="cursor-pointer">
-                            <Paperclip className="size-4" />
-                            {/* Hidden file input */}
-                            <input
-                                id="file-upload"
-                                type="file"
-                                accept=".docx,.pdf,.odt,.txt"
-                                className="hidden"
-                                onChange={handleFileChange}
-                            />
-                        </label>
-                        {/* Tooltip */}
-                        <div className="absolute bottom-full mb-2 w-32 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                            Upload a file (docx, pdf, odt, txt)
-                        </div>
-                    </div>
-
-                    {/* Text Area */}
-                    <label className="block text-sm font-medium text-gray-700" htmlFor="text">Text</label>
-                    <TextareaAutosize
-                        id="text"
-                        name="text"
-                        value={gradingData.text}
-                        onChange={(e) => setGradingData({ text: e.target.value })}
-                        minRows={4}
-                        placeholder="Upload your text or paste it here."
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                    />
-                </div>
-
-                {/* Submit Button */}
-                <button
-                    type="submit"
-                    onClick={handleSubmit}
-                    disabled={!active || uploading}
-                    className="mt-4 inline-flex justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        <>
+            <h1 className="text-xl font-bold text-left text-accent">Selected Rubric</h1>
+            <hr className="border border-accent mb-2" />
+            <div className="flex flex-col gap-y-4">
+                <div
+                    onClick={() => router.push("/rubrics")}
+                    className="text-sm text-gray-900 px-2 py-1 bg-secondary text-accent shadow rounded-lg cursor-pointer"
                 >
-                    {uploading ? 'Uploading...' : 'Grade'}
-                </button>
-
-            </form>
-            {thinking && <PulseLoader color="red" size={20} />}
-
-            {summary && (
-                <div className="px-5 py-2 shadow-lg bg-orange-200 rounded-md">
-                    <ReactMarkdown>{summary}</ReactMarkdown>
+                    {selectedRubric?.name ? selectedRubric.name : "Select a rubric"}
                 </div>
-            )}
-        </div>
+                <Link href={'/rubrics'} className="flex flex-row gap-2 bg-accent text-accent-foreground w-fit items-center justify-center px-2 py-1 rounded-lg">
+                    <FileSearch size={18} className="" />
+                    <p>Explore Rubrics</p>
+                </Link>
+                <form className="flex flex-col gap-y-2" onSubmit={handleSubmit}>
+                    {/* Title */}
+                    <section>
+                        <label className="block text-accent font-medium" htmlFor="title">Title</label>
+                        <hr className="border border-accent mb-2" />
+                        <input
+                            type="text"
+                            name="title"
+                            id="title"
+                            value={gradingData.title}
+                            onChange={(e) => setGradingData({ title: e.target.value })}
+                            placeholder="Enter the title here"
+                            className="mt-1 block w-full rounded-md bg-secondary px-2 py-1 shadow-sm focus:border-accent focus:ring-accent sm:text-sm"
+                        />
+                    </section>
+                    {/* Text Area and File Upload */}
+                    <section>
+                        <div className="relative">
+
+                            {/* Text Area */}
+                            <label className="block font-medium text-accent" htmlFor="text">Text</label>
+                            <hr className="border border-accent mb-2" />
+                            <TextareaAutosize
+                                id="text"
+                                name="text"
+                                value={gradingData.text}
+                                onChange={(e) => setGradingData({ text: e.target.value })}
+                                minRows={15}
+                                placeholder="Upload your text or paste it here."
+                                className="mt-1 block w-full rounded-md bg-secondary px-2 py-1 shadow-sm focus:border-accent focus:ring-accent sm:text-sm"
+                            />
+                        </div>
+                    </section>
+
+                    <section className="flex flex-row items-center gap-x-4">
+                        {/* Submit Button */}
+                        <div className={`flex flex-row gap-2 bg-primary  rounded-full items-center ${active ? 'opacity-100' : 'opacity-50'}`}>
+                            <Bot className=" text-accent flex place-self-center place-items-center rounded-full border-2 border-primary bg-secondary p-1.5 size-10" />
+                            <button
+                                type="submit"
+                                onClick={handleSubmit}
+                                disabled={!active || uploading}
+                                className={`inline-flex justify-center rounded-md border-transparent text-primary-foreground mr-2`}
+                            >
+                                {uploading ? 'Uploading...' : 'grade.me'}
+                            </button>
+                        </div>
+                        {/* File Upload */}
+                        <div className="flex gap-x-2 group relative bg-secondary border-2 border-primary rounded-full p-1.5">
+                            <label htmlFor="file-upload" className="cursor-pointer flex flex-row items-center justify-center">
+                                <Paperclip size={25} className="flex place-self-center place-items-center text-accent" />
+                                {/* Hidden file input */}
+                                <input
+                                    id="file-upload"
+                                    type="file"
+                                    accept=".docx,.pdf,.odt,.txt"
+                                    className="hidden"
+                                    onChange={handleFileChange}
+                                />
+                            </label>
+                            {/* Tooltip */}
+                            <div className="absolute bottom-full mb-2 w-32 px-2 py-1 bg-accent text-accent-foreground text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                                Upload a file (docx, pdf, odt, txt)
+                            </div>
+                        </div>
+                    </section>
+
+                </form>
+                {thinking && <PulseLoader color="red" size={20} />}
+
+                {summary && (
+                    <div className="px-5 py-2 shadow-lg bg-orange-200 rounded-md">
+                        <ReactMarkdown>{summary}</ReactMarkdown>
+                    </div>
+                )}
+            </div>
+        </>
     );
 }

@@ -1,5 +1,5 @@
-import Tools from "@/components/Tools";
+import Grademe from "@/components/Grademe";
 
 export default function GeneratePage() {
-  return <Tools />;
+  return <Grademe />;
 }

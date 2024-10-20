@@ -8,6 +8,7 @@ import { useAuthStore } from "@/zustand/useAuthStore";
 import { useRubricStore } from "@/zustand/useRubricStore";
 import { Switch } from "@headlessui/react";
 import { toast } from "react-hot-toast";
+import { Info } from "lucide-react";
 
 import RubricDisplay from "@/components/rubrics/RubricDisplay";
 import RubricBuilder from "@/components/rubrics/RubricBuilder";
@@ -27,12 +28,11 @@ export default function Rubrics() {
     } = useRubricStore();
     const [showRubricBuilder, setShowRubricBuilder] = useState<boolean>(false);
     const [isExiting, setIsExiting] = useState<boolean>(false);
+    const [showTooltip, setShowTooltip] = useState<boolean>(false);
 
     const openRubricBuilder = () => {
         setShowRubricBuilder(true);
     };
-
-
 
     // Fetch default rubrics or custom rubrics based on toggle
     const handleCustomRubrics = async () => {
@@ -97,9 +97,15 @@ export default function Rubrics() {
                 <hr className="border border-accent" />
             </div>
             {/* Rubric Display */}
-            <div className="flex flex-col w-full p-2 text-sm border border-dashed rounded-lg bg-secondary">
+            <div className="flex flex-col w-fit p-2 text-sm border border-dashed rounded-lg bg-secondary">
                 <h2 className=" font-bold text-center">{selectedRubric ? selectedRubric.name : "Select a rubric..."}</h2>
-                <p className=" text-gray-700">{selectedRubric ? selectedRubric.description : "..."}</p>
+                <div className="flex flex-row gap-2 mb-2 relative">
+                    <Info onClick={() => setShowTooltip(!showTooltip)} size={18} className="cursor-pointer" />
+                    <span className={`absolute bottom-full z-50 text-wrap px-2 py-1 bg-accent text-accent-foreground text-xs rounded transition-opacity ${showTooltip ? 'opacity-100' : 'opacity-0'}`}>
+                        {selectedRubric?.description}
+                    </span>
+                    <p className="relative text-sm max-w-xs text-gray-700 truncate mb-1">{selectedRubric ? selectedRubric.description : "..."}</p>
+                </div>
                 {selectedRubric ? (
                     <RubricDisplay rubric={selectedRubric} />
                 ) : (
@@ -123,8 +129,6 @@ export default function Rubrics() {
             <RubricSearch useCustomRubrics={useCustomRubrics} openRubricBuilder={openRubricBuilder} />
 
             {/* Custom Rubric Builder Modal */}
-
-            {/* <div className={`bg-black/30 absolute inset-0 w-full h-full z-10 ${showRubricBuilder ? 'animate-enter' : isExiting ? 'animate-exit' : 'hidden'}`} aria-hidden="true" /> */}
             <div className={`absolute top-[60px] rounded-l-lg border-2 border-r-0 border-primary left-2 right-0 bottom-[100px] scroll shadow-lg p-2 bg-background overflow-y-auto 
                         ${showRubricBuilder ? 'animate-enter' : isExiting ? 'animate-exit' : 'hidden'}`}>
                 <RubricBuilder

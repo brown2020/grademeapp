@@ -44,7 +44,7 @@ export default function Profile() {
                 </div>
                 <AuthDataDisplay />
             </div>
-
+            {/* Identity Settings */}
             <div>
                 <h2 className="text-accent text-center font-medium text-lg">Identity</h2>
                 <hr className="border-0.5 border-primary" />
@@ -89,7 +89,7 @@ export default function Profile() {
                     <span className="w-fit ml-0.5">.</span>
                 </div>
             </div>
-          
+
             <ProfileComponent />
             <PaymentsPage />
         </div>

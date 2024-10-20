@@ -64,7 +64,7 @@ export default function RubricSearch({
                 />
             </div>
             {/* Seach Results Display */}
-            <div ref={wrapperRef} className="w-full bg-secondary rounded-b-lg h-60 overflow-y-auto">
+            <div ref={wrapperRef} className="w-full bg-secondary rounded-b-lg h-[30svh] overflow-y-auto">
                 <div
                     className="cursor-pointer font-medium select-none px-4 pt-1 text-blue-600 hover:underline"
                     onClick={openRubricBuilder} // Open the custom rubric builder
