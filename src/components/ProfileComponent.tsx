@@ -130,45 +130,48 @@ export default function ProfileComponent() {
           </button>
         </div>
         <div className="text-sm text-gray-600 mt-2">
-          You can either buy credits or add your own API keys for Fireworks and
-          OpenAI.
+          {showCreditsSection
+            ? "You can either buy credits or add your own API keys for Fireworks and OpenAI."
+            : "You can buy credits"}
         </div>
       </div>
 
-      <div className="flex flex-col px-5 py-3 gap-3 border border-gray-500 rounded-md">
-        <label htmlFor="fireworks-api-key" className="text-sm font-medium">
-          Fireworks API Key:
-        </label>
-        <input
-          type="text"
-          id="fireworks-api-key"
-          value={fireworksApiKey}
-          onChange={(e) => setFireworksApiKey(e.target.value)}
-          className="border border-gray-300 rounded-md px-3 py-2 h-10"
-          placeholder="Enter your Fireworks API Key"
-        />
-        <label htmlFor="openai-api-key" className="text-sm font-medium">
-          OpenAI API Key:
-        </label>
-        <input
-          type="text"
-          id="openai-api-key"
-          value={openaiApiKey}
-          onChange={(e) => setOpenaiApiKey(e.target.value)}
-          className="border border-gray-300 rounded-md px-3 py-2 h-10"
-          placeholder="Enter your OpenAI API Key"
-        />
-        <button
-          onClick={handleApiKeyChange}
-          disabled={
-            fireworksApiKey === profile.fireworks_api_key &&
-            openaiApiKey === profile.openai_api_key
-          }
-          className="bg-blue-500 text-white px-3 py-2 rounded-md hover:opacity-50 disabled:opacity-50"
-        >
-          Update API Keys
-        </button>
-      </div>
+      {showCreditsSection && (
+        <div className="flex flex-col px-5 py-3 gap-3 border border-gray-500 rounded-md">
+          <label htmlFor="fireworks-api-key" className="text-sm font-medium">
+            Fireworks API Key:
+          </label>
+          <input
+            type="text"
+            id="fireworks-api-key"
+            value={fireworksApiKey}
+            onChange={(e) => setFireworksApiKey(e.target.value)}
+            className="border border-gray-300 rounded-md px-3 py-2 h-10"
+            placeholder="Enter your Fireworks API Key"
+          />
+          <label htmlFor="openai-api-key" className="text-sm font-medium">
+            OpenAI API Key:
+          </label>
+          <input
+            type="text"
+            id="openai-api-key"
+            value={openaiApiKey}
+            onChange={(e) => setOpenaiApiKey(e.target.value)}
+            className="border border-gray-300 rounded-md px-3 py-2 h-10"
+            placeholder="Enter your OpenAI API Key"
+          />
+          <button
+            onClick={handleApiKeyChange}
+            disabled={
+              fireworksApiKey === profile.fireworks_api_key &&
+              openaiApiKey === profile.openai_api_key
+            }
+            className="bg-blue-500 text-white px-3 py-2 rounded-md hover:opacity-50 disabled:opacity-50"
+          >
+            Update API Keys
+          </button>
+        </div>
+      )}
 
       <div className="flex flex-col px-5 py-3 gap-3 border border-gray-500 rounded-md">
         <label htmlFor="setting-lable-key" className="text-sm font-medium">
