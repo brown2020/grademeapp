@@ -8,7 +8,7 @@ import { useAuthStore } from "@/zustand/useAuthStore";
 import { useRubricStore } from "@/zustand/useRubricStore";
 import { Switch } from "@headlessui/react";
 import { toast } from "react-hot-toast";
-import { Info } from "lucide-react";
+import { Info, Blocks } from "lucide-react";
 
 import RubricDisplay from "@/components/rubrics/RubricDisplay";
 import RubricBuilder from "@/components/rubrics/RubricBuilder";
@@ -78,7 +78,7 @@ export default function Rubrics() {
         <div className="space-y-3">
             <div>
                 <div className="flex flex-row justify-between">
-                    <h1 className="text-xl font-bold text-left text-accent">Selected Rubric</h1>
+                    <h1 className="text-xl font-bold text-left text-primary">Selected Rubric</h1>
                     {/* Use Custom Rubrics Toggle */}
                     <div className="flex items-center space-x-2">
                         <Switch
@@ -97,15 +97,16 @@ export default function Rubrics() {
                 <hr className="border border-accent" />
             </div>
             {/* Rubric Display */}
-            <div className="flex flex-col w-fit p-2 text-sm border border-dashed rounded-lg bg-secondary">
-                <h2 className=" font-bold text-center">{selectedRubric ? selectedRubric.name : "Select a rubric..."}</h2>
-                <div className="flex flex-row gap-2 mb-2 relative">
+            <div className="flex flex-col w-full p-2 text-sm border border-dashed rounded-lg bg-secondary">
+                <div className="flex flex-row gap-2 mb-2 relative items-center">
                     <Info onClick={() => setShowTooltip(!showTooltip)} size={18} className="cursor-pointer" />
-                    <span className={`absolute bottom-full z-50 text-wrap px-2 py-1 bg-accent text-accent-foreground text-xs rounded transition-opacity ${showTooltip ? 'opacity-100' : 'opacity-0'}`}>
+                    <span className={`absolute bottom-full z-50 text-wrap px-2 py-1 bg-accent text-primary-foreground text-xs rounded transition-opacity ${showTooltip ? 'opacity-100' : 'opacity-0'}`}>
                         {selectedRubric?.description}
                     </span>
-                    <p className="relative text-sm max-w-xs text-gray-700 truncate mb-1">{selectedRubric ? selectedRubric.description : "..."}</p>
+                    <h2 className=" font-bold text-center">{selectedRubric ? selectedRubric.name : "Select a rubric..."}</h2>
                 </div>
+                <p className="sm:relative text-sm max-w-xs text-gray-700 truncate mb-1 hidden">{selectedRubric ? selectedRubric.description : "..."}</p>
+
                 {selectedRubric ? (
                     <RubricDisplay rubric={selectedRubric} />
                 ) : (
@@ -113,15 +114,16 @@ export default function Rubrics() {
                 )}
             </div>
 
-            <div className="flex flex-row justify-between">
+            <div className="flex flex-row gap-x-4 justify-between sm:justify-start">
                 {/* Rubric Helper */}
                 <RubricHelper />
-                {/* Custom Rubric Button */}
+                {/* Rubric Builder Button */}
                 <div
                     onClick={() => setShowRubricBuilder(true)}
-                    className="bg-primary text-center w-40 px-2 py-1 mb-1 rounded-lg shadow-md hover:bg-accent text-background font-medium cursor-pointer"
+                    className="bg-primary w-40 flex flex-row gap-x-2 justify-center py-1 mb-1 rounded-lg shadow-md hover:bg-accent text-background font-medium cursor-pointer"
                 >
-                    Rubric Builder
+                    <Blocks />
+                    <h2>Rubric Builder</h2>
                 </div>
             </div>
 

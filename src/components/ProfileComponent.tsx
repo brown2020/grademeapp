@@ -118,8 +118,10 @@ export default function ProfileComponent() {
         <div className="flex flex-col gap-4">
             {/* Conditionally render the credits purchase section */}
             <div className="flex flex-col py-3 rounded-md">
-                <h2 className="text-accent text-center font-medium text-lg">Credits</h2>
-                <hr className="border-0.5 border-primary mb-2" />
+                <div>
+                    <h2 className="text-primary text-left font-medium text-lg">Credits</h2>
+                    <hr className="border-0.5 border-accent mb-2" />
+                </div>
                 <div className="flex flex-row">
                     <div className="flex gap-2 w-full items-center">
                         <div className="flex-1 text-sm font-medium">
@@ -143,7 +145,7 @@ export default function ProfileComponent() {
                             id="toggle-use-credits"
                             value={useCredits ? "credits" : "apikeys"}
                             onChange={handleCreditsChange}
-                            className="bg-accent text-accent-foreground rounded-lg px-3 py-1"
+                            className="bg-accent text-primary-foreground rounded-lg px-3 py-1"
                             disabled={!areApiKeysAvailable}
                         >
                             <option value="credits">Credits</option>
@@ -158,10 +160,12 @@ export default function ProfileComponent() {
             </div>
 
             <div className="flex flex-col gap-y-3">
-                <h2 className="text-accent text-center font-medium text-lg">API Keys</h2>
-                <hr className="border-0.5 border-primary mb-2" />
+                <div>
+                    <h2 className="text-primary text-left font-medium text-lg">API Keys</h2>
+                    <hr className="border-0.5 border-accent mb-2" />
+                </div>
                 <div className="flex flex-col">
-                    <label htmlFor="fireworks-api-key" className="text-sm font-medium text-accent">
+                    <label htmlFor="fireworks-api-key" className="text-sm font-medium text-primary">
                         Fireworks API Key:
                     </label>
                     <input
@@ -174,7 +178,7 @@ export default function ProfileComponent() {
                     />
                 </div>
                 <div className="flex flex-col">
-                    <label htmlFor="openai-api-key" className="text-sm font-medium text-accent">
+                    <label htmlFor="openai-api-key" className="text-sm font-medium text-primary">
                         OpenAI API Key:
                     </label>
                     <input
@@ -199,7 +203,7 @@ export default function ProfileComponent() {
             </div>
 
             <div className="flex flex-col">
-                <label htmlFor="setting-label-key" className="text-sm font-medium text-accent">
+                <label htmlFor="setting-label-key" className="text-sm font-medium text-primary">
                     Settings:
                 </label>
                 <button

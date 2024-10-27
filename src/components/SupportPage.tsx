@@ -1,5 +1,5 @@
 import React from "react";
-import Image, { StaticImageData } from "next/image";
+import { Bot } from "lucide-react";
 
 type Props = {
   companyName: string;
@@ -7,7 +7,6 @@ type Props = {
   companyAddress: string;
   companyLocation: string;
   updatedAt: string;
-  companyLogo: StaticImageData;
 };
 
 export default function Support({
@@ -16,16 +15,15 @@ export default function Support({
   companyAddress,
   companyLocation,
   updatedAt,
-  companyLogo,
 }: Props) {
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
       <div className="flex justify-center mb-6">
-        <Image
-          src={companyLogo}
-          alt={`${companyName} Logo`}
-          className="w-24 h-24 object-contain"
-        />
+        {/* Logo and Title Section */}
+      <div className="flex flex-col w-58 max-w-md size-56 items-center justify-center mx-auto shadow-2xl bg-secondary border-4 border-primary rounded-full">
+        <Bot size={128} className="mx-auto text-primary" />
+        <div className="text-3xl text-center text-primary leading-6">GRADE.ME</div>
+      </div>
       </div>
 
       <h2 className="text-xl font-bold mb-4 text-center">{companyName}</h2>

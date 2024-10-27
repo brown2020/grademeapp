@@ -45,11 +45,11 @@ export const navItems: navItemType[] = [
     {
         label: "assignments",
         icon: School,
-        path: "/assignments",
+        path: "/history",
     },
    
     {
-        label: "Rubrics",
+        label: "rubrics",
         icon: FileCheck2,
         path: "/rubrics",
     },
@@ -59,13 +59,13 @@ export const navItems: navItemType[] = [
         path: "/grademe",
     },
     {
-        label: "History",
+        label: "history",
         icon: FileTextIcon,
         path: "/history",
     },
 
     {
-        label: "Profile",
+        label: "profile",
         icon: User2Icon,
         path: "/profile",
     },

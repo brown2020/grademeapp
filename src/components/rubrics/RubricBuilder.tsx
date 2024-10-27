@@ -298,7 +298,7 @@ export default function RubricBuilder({ onSave, onCancel }: { onSave: (rubric: R
     return (
         <div className="bg-background relative">
             <div onClick={onCancel} className="absolute top-0 right-0 cursor-pointer">
-                <XCircleIcon className="h-6 w-6 text-accent" />
+                <XCircleIcon className="h-6 w-6 text-primary" />
             </div>
 
             <div className='flex flex-row gap-x-2 justify-center'>
@@ -308,7 +308,7 @@ export default function RubricBuilder({ onSave, onCancel }: { onSave: (rubric: R
 
             {/* Rubric Type Selection */}
             <div className="mb-2">
-                <label className="block text-sm text-accent font-semibold">Rubric Type</label>
+                <label className="block text-sm text-primary font-semibold">Rubric Type</label>
                 <select
                     value={rubricType}
                     onChange={(e) => handleRubricTypeChange(e.target.value as RubricType)}
@@ -323,7 +323,7 @@ export default function RubricBuilder({ onSave, onCancel }: { onSave: (rubric: R
 
             {/* Rubric Name */}
             <div className="mb-1">
-                <label className="block text-sm text-accent font-semibold">Rubric Name</label>
+                <label className="block text-sm text-primary font-semibold">Rubric Name</label>
                 <input
                     type="text"
                     name="name"
@@ -335,7 +335,7 @@ export default function RubricBuilder({ onSave, onCancel }: { onSave: (rubric: R
 
             {/* Rubric Description */}
             <div className="mb-1">
-                <label className="block text-sm text-accent font-semibold">Rubric Description</label>
+                <label className="block text-sm text-primary font-semibold">Rubric Description</label>
                 <textarea
                     name="description"
                     value={rubric.description}

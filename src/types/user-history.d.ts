@@ -1,5 +1,12 @@
 type Timestamp = Timestamp;
 
+interface Submission {
+    text: string;
+    response: string;
+    grade: string;
+    timestamp: Timestamp;
+}
+
 interface UserInput {
     assigner: string;
     audience: string;
@@ -8,7 +15,6 @@ interface UserInput {
     identityLevel: string;
     prose: string;
     rubric: string;
-    text: string;
     textType: string;
     title: string;
     topic: string;
@@ -18,9 +24,8 @@ interface UserInput {
 
 export interface UserHistoryType {
     id: string;
-    fileUrl: string;
-    grade: string;
-    response: string;
     userInput: UserInput;
+    submissions: Submission[];
+    fileUrl: string;
     timestamp: Timestamp;
 }

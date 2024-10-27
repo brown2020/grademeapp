@@ -70,8 +70,9 @@ export default function RubricHelper() {
 
     return (
         <div>
-            <div onClick={isOpen ? closeRubricHelper : () => setIsOpen(true)} className="bg-primary text-center w-40 px-2 py-1 mb-1 rounded-lg shadow-md hover:bg-accent text-background font-medium cursor-pointer">
-                Rubric Helper
+            <div onClick={isOpen ? closeRubricHelper : () => setIsOpen(true)} className="flex flex-row bg-primary text-center w-40 px-2 py-1 mb-1 gap-x-2 justify-center rounded-lg shadow-md hover:bg-accent text-background font-medium cursor-pointer">
+                <LifeBuoy />
+                <h2>Rubric Helper</h2>
             </div>
 
             <div className={`bg-black/30 absolute inset-0 w-full h-full z-10 ${isOpen ? 'overlay-open' : 'overlay-closed'}`} aria-hidden="true" />
@@ -79,8 +80,8 @@ export default function RubricHelper() {
                 ref={rubricHelperRef}
                 className={`flex  flex-col bg-background border-primary border-t-2 border-l-2 border-b-2 p-2 rounded-l-lg fixed right-0 top-[100px] h-[310px] max-w-xs w-full z-10 transition-all ${isOpen ? 'animate-enter' : isExiting ? 'animate-exit' : 'hidden'}`}
             >
-                <div className="flex flex-row gap-x-2 text-primary items-center justify-center mb-2">
-                    <LifeBuoy className="" />
+                <div className="flex flex-row gap-x-2 items-center justify-center mb-2">
+                    <LifeBuoy className="text-primary" />
                     <h2 className="text-xl font-medium">Rubric Helper</h2>
                 </div>
                 <div className="flex flex-wrap items-center mr-2">

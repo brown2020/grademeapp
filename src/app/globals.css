@@ -16,11 +16,11 @@
   :root {
     --background: 0, 0%, 99.61%; /* New background color */
     --foreground: 240 10% 3.9%; /* New text color */
-    --primary: 28.21, 67.11%, 44.12%; /* New primary color */
+    --primary: 216, 92%, 14%; /* New primary color */
     --primary-foreground: 0 0% 100%; /* Light foreground for contrast */
-    --secondary: 31.43, 100%, 83.53%; /* New secondary color */
+    --secondary: 330, 28%, 82%; /* New secondary color */
     --secondary-foreground: 0 22% 14%; /* Text color */
-    --accent: 74.29, 44%, 21%; /* New accent color */
+    --accent: 186, 42%, 54%; /* New accent color */
     --accent-foreground: 0 0% 100%; /* Light foreground */
     --border: 0 22% 14%; /* New border color */
     --input: 0 22% 14%; /* Input border color */
@@ -213,7 +213,7 @@
   }
 
   .input-primary {
-    @apply w-full text-black px-4 py-2 outline-none border border-[#111113]/20  bg-white rounded-lg;
+    @apply w-full text-black px-4 py-2 outline-none shadow-md  bg-secondary rounded-lg;
   }
 
   .text-wrapper {
@@ -230,23 +230,23 @@
   }
 
   .form-wrapper {
-    @apply flex flex-col space-y-3 w-full;
+    @apply flex flex-col space-y-2 w-full;
   }
   .form-wrapper form {
-    @apply flex flex-col space-y-3;
+    @apply flex flex-col space-y-2;
   }
   .form-wrapper label {
     @apply flex flex-col space-y-1;
   }
   .form-wrapper input,
   .form-wrapper textarea {
-    @apply px-3 py-2 outline-none border rounded-md;
+    @apply px-2 py-1 bg-secondary rounded-md;
   }
   .form-wrapper button {
-    @apply mr-auto py-1 px-3 bg-orange-500 text-gray-200 font-medium rounded-md cursor-pointer disabled:opacity-50 hover:bg-orange-400;
+    @apply mr-auto bg-primary text-background font-medium cursor-pointer disabled:opacity-50 hover:bg-accent;
   }
   .response {
-    @apply p-3 bg-orange-500 bg-opacity-20 my-3 rounded-md whitespace-pre-wrap;
+    @apply p-3 bg-accent bg-opacity-20 my-3 rounded-md whitespace-pre-wrap;
   }
 
   .form-input {

@@ -2,8 +2,8 @@
 "use client";
 
 import { useCallback, useState, useEffect, FormEvent } from "react";
-import { Timestamp, collection, doc, setDoc } from "firebase/firestore";
-import { db, storage } from "@/firebase/firebaseClient";
+import { Timestamp } from "firebase/firestore";
+import { storage } from "@/firebase/firebaseClient";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import useProfileStore from "@/zustand/useProfileStore";
@@ -19,32 +19,8 @@ import Link from "next/link";
 
 import { FileSearch, Paperclip, Bot } from "lucide-react"
 import { extractGrade } from "@/utils/responseParser";
-import { GradingData } from "@/types/grading-data";
+import { saveHistory } from "@/utils/saveHistory";
 import { useRubricStore } from "@/zustand/useRubricStore";
-
-
-
-// Define types for the saveHistory function
-async function saveHistory(
-    uid: string | null,
-    userInput: GradingData,
-    response: string,
-    grade: string,
-    fileUrl: string | null
-): Promise<void> {
-    if (!uid) return;
-
-    const docRef = doc(collection(db, "users", uid, "summaries"));
-    await setDoc(docRef, {
-        id: docRef.id,
-        userInput,
-        response,
-        grade,
-        fileUrl,
-        timestamp: Timestamp.now(),
-    });
-    console.log("History saved successfully.");
-}
 
 export default function Grademe() {
     const { uid } = useAuthStore();
@@ -70,7 +46,7 @@ export default function Grademe() {
             toast.loading("Uploading file...");
 
             // Log file information for debugging
-            // console.log('Uploading file:', selectedFile.name, 'of type:', selectedFile.type, 'and size:', selectedFile.size);
+            console.log('Uploading file:', selectedFile.name, 'of type:', selectedFile.type, 'and size:', selectedFile.size);
 
             try {
                 const { setGradingData } = useRubricStore.getState();
@@ -169,7 +145,7 @@ export default function Grademe() {
     // Effect to handle saving to history
     useEffect(() => {
         if (isStreamingComplete && !hasSaved && summary) {
-            saveHistory(uid, gradingData, summary, grade, fileUrl || null).then(() => {
+            saveHistory(uid, gradingData, [{ text: gradingData.text, response: summary, grade, timestamp: Timestamp.now() }], fileUrl || null).then(() => {
                 setHasSaved(true);
             });
         }
@@ -182,28 +158,30 @@ export default function Grademe() {
         }
         else if (flagged) {
             document.getElementById("flagged")?.scrollIntoView({ behavior: "smooth" });
+        } else if (thinking) {
+            document.getElementById("thinking")?.scrollIntoView({ behavior: "smooth" });
         }
-    }, [summary, flagged]);
+    }, [summary, flagged, thinking]);
 
     return (
         <>
-            <h1 className="text-xl font-bold text-left text-accent">Selected Rubric</h1>
+            <h1 className="text-xl font-bold text-left text-primary">Selected Rubric</h1>
             <hr className="border border-accent mb-2" />
             <div className="flex flex-col gap-y-4">
                 <div
                     onClick={() => router.push("/rubrics")}
-                    className="text-sm text-gray-900 px-2 py-1 bg-secondary text-accent shadow rounded-lg cursor-pointer"
+                    className="text-sm font-semibold px-2 py-1 bg-accent text-primary-foreground shadow rounded-lg cursor-pointer"
                 >
                     {selectedRubric?.name ? selectedRubric.name : "Select a rubric"}
                 </div>
-                <Link href={'/rubrics'} className="flex flex-row gap-2 bg-accent text-accent-foreground w-fit items-center justify-center px-2 py-1 rounded-lg">
+                <Link href={'/rubrics'} className="flex flex-row gap-2 bg-accent text-primary-foreground w-fit items-center justify-center px-2 py-1 rounded-lg">
                     <FileSearch size={18} className="" />
                     <p>Explore Rubrics</p>
                 </Link>
                 <form className="flex flex-col gap-y-2" onSubmit={handleSubmit}>
                     {/* Title */}
                     <section>
-                        <label className="block text-accent font-medium" htmlFor="title">Title</label>
+                        <label className="block text-primary font-medium" htmlFor="title">Title</label>
                         <hr className="border border-accent mb-2" />
                         <input
                             type="text"
@@ -212,7 +190,7 @@ export default function Grademe() {
                             value={gradingData.title}
                             onChange={(e) => setGradingData({ title: e.target.value })}
                             placeholder="Enter the title here"
-                            className="mt-1 block w-full rounded-md bg-secondary px-2 py-1 shadow-sm focus:border-accent focus:ring-accent sm:text-sm"
+                            className="mt-1 block w-full rounded-md bg-secondary px-2 py-1 shadow-sm focus:border-accent focus:ring-accent sm:text-sm placeholder:text-primary"
                         />
                     </section>
                     {/* Text Area and File Upload */}
@@ -220,7 +198,7 @@ export default function Grademe() {
                         <div className="relative">
 
                             {/* Text Area */}
-                            <label className="block font-medium text-accent" htmlFor="text">Text</label>
+                            <label className="block font-medium text-primary" htmlFor="text">Text</label>
                             <hr className="border border-accent mb-2" />
                             <TextareaAutosize
                                 id="text"
@@ -229,28 +207,29 @@ export default function Grademe() {
                                 onChange={(e) => setGradingData({ text: e.target.value })}
                                 minRows={15}
                                 placeholder="Upload your text or paste it here."
-                                className="mt-1 block w-full rounded-md bg-secondary px-2 py-1 shadow-sm focus:border-accent focus:ring-accent sm:text-sm"
+                                className="mt-1 block w-full rounded-md bg-secondary px-2 py-1 shadow-sm focus:border-accent focus:ring-accent sm:text-sm placeholder:text-primary"
                             />
                         </div>
                     </section>
 
                     <section className="flex flex-row items-center gap-x-4">
                         {/* Submit Button */}
-                        <div className={`flex flex-row gap-2 bg-primary  rounded-full items-center ${active ? 'opacity-100' : 'opacity-50'}`}>
-                            <Bot className=" text-accent flex place-self-center place-items-center rounded-full border-2 border-primary bg-secondary p-1.5 size-10" />
+                        <div className={`flex flex-row bg-primary  rounded-full items-center ${active ? 'opacity-100' : 'opacity-50'}`}>
+
                             <button
                                 type="submit"
                                 onClick={handleSubmit}
                                 disabled={!active || uploading}
-                                className={`inline-flex justify-center rounded-md border-transparent text-primary-foreground mr-2`}
+                                className={`inline-flex justify-center items-center gap-x-2 rounded-md border-transparent text-primary-foreground mr-2`}
                             >
+                                <Bot className=" text-primary flex place-self-center place-items-center rounded-full border-2 border-primary bg-secondary p-1.5 size-10" />
                                 {uploading ? 'Uploading...' : 'grade.me'}
                             </button>
                         </div>
                         {/* File Upload */}
                         <div className="flex gap-x-2 group relative bg-secondary border-2 border-primary rounded-full p-1.5">
                             <label htmlFor="file-upload" className="cursor-pointer flex flex-row items-center justify-center">
-                                <Paperclip size={25} className="flex place-self-center place-items-center text-accent" />
+                                <Paperclip size={25} className="flex place-self-center place-items-center text-primary" />
                                 {/* Hidden file input */}
                                 <input
                                     id="file-upload"
@@ -261,17 +240,17 @@ export default function Grademe() {
                                 />
                             </label>
                             {/* Tooltip */}
-                            <div className="absolute bottom-full mb-2 w-32 px-2 py-1 bg-accent text-accent-foreground text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="absolute bottom-full mb-2 w-32 px-2 py-1 bg-accent text-primary-foreground text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity">
                                 Upload a file (docx, pdf, odt, txt)
                             </div>
                         </div>
                     </section>
 
                 </form>
-                {thinking && <PulseLoader color="red" size={20} />}
+                {thinking && <PulseLoader id="thinking" color="orange" size={20} />}
 
                 {summary && (
-                    <div className="px-5 py-2 shadow-lg bg-orange-200 rounded-md">
+                    <div id="response" className="px-5 py-2 shadow-lg bg-blue-500/20 rounded-md">
                         <ReactMarkdown>{summary}</ReactMarkdown>
                     </div>
                 )}

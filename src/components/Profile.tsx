@@ -27,7 +27,7 @@ export default function Profile() {
 
             <div className="flex flex-col gap-y-2">
                 <div className="flex flex-row items-center gap-x-4">
-                    <p className="font-medium text-accent">Profile Image: </p>
+                    <p className="font-medium text-primary">Profile Image: </p>
                     {profile.photoUrl ?
                         <Image src={profile.photoUrl} alt="Profile Image" className="rounded-full" width={40} height={40} />
                         :
@@ -37,17 +37,19 @@ export default function Profile() {
                     }
                 </div>
                 <div className="flex flex-row gap-x-2">
-                    <p className="font-medium text-accent">Display Name: </p> <p>{profile.displayName}</p>
+                    <p className="font-medium text-primary">Display Name: </p> <p>{profile.displayName}</p>
                 </div>
                 <div className="flex flex-row gap-x-2">
-                    <p className="font-medium text-accent">Email: </p> <p>{profile.contactEmail}</p>
+                    <p className="font-medium text-primary">Email: </p> <p>{profile.contactEmail}</p>
                 </div>
                 <AuthDataDisplay />
             </div>
             {/* Identity Settings */}
             <div>
-                <h2 className="text-accent text-center font-medium text-lg">Identity</h2>
-                <hr className="border-0.5 border-primary" />
+                <div>
+                    <h2 className="text-primary text-left font-medium text-lg">Identity</h2>
+                    <hr className="border-0.5 border-accent mb-2" />
+                </div>
                 <div className="flex flex-wrap items-center justify-center">
                     <span className="mr-2">I am a</span>
                     <div className="flex flex-row gap-x-2">

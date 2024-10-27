@@ -57,14 +57,14 @@ export default function RubricSearch({
             {/* Input Field */}
             <div className="relative">
                 <input
-                    className="w-full border-b px-2 py-1 rounded-t-lg bg-secondary truncate"
+                    className="w-full border-b px-2 py-1 rounded-t-lg bg-secondary truncate placeholder:text-primary"
                     onChange={(event) => setSearchQuery(event.target.value)}
                     value={searchQuery}
                     placeholder="Search for a rubric..."
                 />
             </div>
             {/* Seach Results Display */}
-            <div ref={wrapperRef} className="w-full bg-secondary rounded-b-lg h-[30svh] overflow-y-auto">
+            <div ref={wrapperRef} className="w-full bg-secondary rounded-b-lg h-[33vh] overflow-y-auto">
                 <div
                     className="cursor-pointer font-medium select-none px-4 pt-1 text-blue-600 hover:underline"
                     onClick={openRubricBuilder} // Open the custom rubric builder

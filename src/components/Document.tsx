@@ -1,12 +1,9 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, FormEvent } from "react";
 import {
     collection,
     getDocs,
     Timestamp,
-    doc,
-    // setDoc,
-    updateDoc,
 } from "firebase/firestore";
 import { toast } from "react-hot-toast";
 import { db } from "@/firebase/firebaseClient";
@@ -20,30 +17,11 @@ import ReactMarkdown from "react-markdown";
 import { PulseLoader } from "react-spinners";
 import { correctGrammarAndSpelling } from "@/actions/correctGrammarSpelling";
 import { extractGrade } from "@/utils/responseParser";
+import { saveHistory } from "@/utils/saveHistory";
 import { GradingData } from "@/types/grading-data";
 import { UserHistoryType } from "@/types/user-history";
+import { Bot, Download, Wand2 } from "lucide-react";
 
-// Define types for the saveHistory function
-async function saveHistory(
-    uid: string | null,
-    userInput: GradingData,
-    response: string,
-    grade: string,
-    fileUrl: string | null
-): Promise<void> {
-    if (!uid) return;
-
-    const docRef = doc(collection(db, "users", uid, "summaries"));
-    await updateDoc(docRef, {
-        id: docRef.id,
-        userInput,
-        response,
-        grade,
-        fileUrl,
-        timestamp: Timestamp.now(),
-    });
-    console.log("History saved successfully.");
-}
 
 const fetchDocumentById = async (uid: string, id: string) => {
     const docRef = collection(db, "users", uid, "summaries");
@@ -55,26 +33,32 @@ const fetchDocumentById = async (uid: string, id: string) => {
 const Document = () => {
     const { uid } = useAuthStore();
     const { profile, minusCredits } = useProfileStore();
-    const { docID } = useParams();
+    const { summaryID, timestamp } = useParams();
+    const [submissionTimestamp, setSubmissionTimestamp] = useState<Timestamp>();
     const [userDoc, setUserDoc] = useState<UserHistoryType>();
     const [loading, setLoading] = useState<boolean>(true);
     const [grade, setGrade] = useState<string>("");
     const [thinking, setThinking] = useState<boolean>(false);
     const [localCount, setLocalCount] = useState<number>(profile.credits);
-    const [isStreamingComplete, setIsStreamingComplete] =
-        useState<boolean>(false);
+    const [isStreamingComplete, setIsStreamingComplete] = useState<boolean>(false);
     const [hasSaved, setHasSaved] = useState<boolean>(false);
     const [summary, setSummary] = useState<string>("");
     const [flagged, setFlagged] = useState<string>("");
     const [active, setActive] = useState<boolean>(false);
     const [prompt, setPrompt] = useState<string>("");
     const [fileUrl, setFileUrl] = useState<string>("");
+    // get timestamp from path /history/${summary.id}/${submission.timestamp}
+
+    useEffect(() => {
+        const submissionTimestamp = Timestamp.fromMillis(Number(timestamp));
+        setSubmissionTimestamp(submissionTimestamp);
+    }, [timestamp]);
+
 
     useEffect(() => {
         const getDocument = async () => {
             try {
-                toast.loading("Loading document...");
-                const doc = await fetchDocumentById(uid as string, docID as string);
+                const doc = await fetchDocumentById(uid as string, summaryID as string);
                 setUserDoc(doc[0] as UserHistoryType);
                 toast.dismiss();
                 toast.success("Document loaded successfully", { id: "loading" });
@@ -86,10 +70,11 @@ const Document = () => {
             }
         };
 
-        if (uid && docID) {
-            getDocument(); // Trigger document fetch only if both uid and docID exist
+        if (uid && summaryID && submissionTimestamp) {
+            toast.loading("Loading document...");
+            getDocument();
         }
-    }, [uid, docID]);
+    }, [uid, summaryID, submissionTimestamp]);
 
     console.log(userDoc);
 
@@ -108,28 +93,36 @@ const Document = () => {
     });
 
     useEffect(() => {
-        if (userDoc) {
-            setGradingData({
-                title: userDoc.userInput.title,
-                text: userDoc.userInput.text,
-                assigner: userDoc.userInput.assigner,
-                textType: userDoc.userInput.textType,
-                topic: userDoc.userInput.topic,
-                prose: userDoc.userInput.prose,
-                audience: userDoc.userInput.audience,
-                wordLimitType: userDoc.userInput.wordLimitType as
-                    | "less than"
-                    | "more than"
-                    | "between",
-                wordLimit: userDoc.userInput.wordLimit,
-                customRubric: userDoc.userInput.customRubric,
-                rubric: userDoc.userInput.rubric,
-            });
-            setSummary(userDoc.response);
-            setGrade(userDoc.grade);
-            setFileUrl(userDoc.fileUrl);
+        if (userDoc && submissionTimestamp) {
+            // Find the submission with the matching timestamp
+            const matchingSubmission = userDoc.submissions.find((sub) =>
+                sub.timestamp.seconds === submissionTimestamp.seconds &&
+                sub.timestamp.nanoseconds === submissionTimestamp.nanoseconds
+            );
+            if (matchingSubmission) {
+                setGradingData({
+                    title: userDoc.userInput.title,
+                    text: matchingSubmission.text,
+                    assigner: userDoc.userInput.assigner,
+                    textType: userDoc.userInput.textType,
+                    topic: userDoc.userInput.topic,
+                    prose: userDoc.userInput.prose,
+                    audience: userDoc.userInput.audience,
+                    wordLimitType: userDoc.userInput.wordLimitType as
+                        | "less than"
+                        | "more than"
+                        | "between",
+                    wordLimit: userDoc.userInput.wordLimit,
+                    customRubric: userDoc.userInput.customRubric,
+                    rubric: userDoc.userInput.rubric,
+                });
+                setSummary(matchingSubmission.response);
+                setGrade(matchingSubmission.grade);
+                setFileUrl(userDoc.fileUrl);
+            }
+
         }
-    }, [userDoc]);
+    }, [userDoc, submissionTimestamp]);
 
     // Effect to update the active state
     useEffect(() => {
@@ -141,8 +134,7 @@ const Document = () => {
     }, [profile]);
 
     // Handle form submission
-    const handleSubmit = useCallback(
-        async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+    const handleSubmit = useCallback(async (e: FormEvent) => {
             e.preventDefault();
             setActive(false);
             setSummary("");
@@ -211,30 +203,35 @@ const Document = () => {
     // Effect to handle saving to history
     useEffect(() => {
         if (isStreamingComplete && !hasSaved && summary) {
-            saveHistory(uid, gradingData, summary, grade, fileUrl || null).then(
+
+            const newSubmission = {
+                text: gradingData.text,
+                response: summary,
+                grade,
+                timestamp: Timestamp.now(),
+            }
+
+            const updatedSubmissions = userDoc?.submissions
+                ? [...userDoc.submissions, newSubmission]
+                : [newSubmission];
+
+            saveHistory(uid, gradingData, updatedSubmissions, fileUrl || null).then(
                 () => {
                     setHasSaved(true);
                 }
             );
-            toast.success("Document saved successfully");
+            toast.success("Document saved successfully", { position: "top-center" });
         }
     }, [
         isStreamingComplete,
         hasSaved,
-        summary,
         uid,
+        summary,
         gradingData,
         grade,
         fileUrl,
+        userDoc?.submissions
     ]);
-
-    // Handle saving the document
-    const handleSave = async () => {
-        toast.loading("Saving document...");
-        await saveHistory(uid, gradingData, summary, grade, fileUrl || null);
-        toast.dismiss();
-        toast.success("Document saved successfully");
-    };
 
     // Handle fixing grammar and spelling
     const handleFixGrammarSpelling = async () => {
@@ -281,14 +278,14 @@ const Document = () => {
             document
                 .getElementById("response")
                 ?.scrollIntoView({ behavior: "smooth" });
-        } else if (prompt) {
-            document.getElementById("prompt")?.scrollIntoView({ behavior: "smooth" });
+        } else if (thinking) {
+            document.getElementById("thinking")?.scrollIntoView({ behavior: "smooth" });
         } else if (flagged) {
             document
                 .getElementById("flagged")
                 ?.scrollIntoView({ behavior: "smooth" });
         }
-    }, [summary, prompt, flagged]);
+    }, [summary, thinking, flagged]);
 
     if (loading) {
         return <div>Loading...</div>;
@@ -299,102 +296,102 @@ const Document = () => {
     }
 
     return (
-        <div className="form-wrapper">
-            <form onSubmit={handleSubmit}>
-                <h1 className="font-bold text-3xl">{gradingData.title}</h1>
-                <h2 className="font-medium text-2xl">( Grade: {grade} )</h2>
-                <label htmlFor="title-field">
-                    Title
-                    <input
-                        type="text"
-                        id="title-field"
-                        placeholder="Enter the title here."
-                        onChange={(e) =>
-                            setGradingData((prevFormData) => ({
-                                ...prevFormData,
-                                title: e.target.value,
-                            }))
-                        }
-                        value={gradingData.title}
-                    />
-                </label>
-
-                <label htmlFor="text-field">
-                    Text
-                    <TextareaAutosize
-                        id="text-field"
-                        minRows={4}
-                        maxRows={20}
-                        placeholder="Upload your essay or paste it here."
-                        onChange={(e) =>
-                            setGradingData((prevFormData) => ({
-                                ...prevFormData,
-                                text: e.target.value,
-                            }))
-                        }
-                        value={gradingData.text}
-                    />
-                </label>
-
-                <div className="flex flex-row justify-between gap-10">
-                    <div className="flex flex-row gap-4">
-                        <button
-                            className={
-                                "flex text-white font-semibold bg-orange-500 rounded-lg px-4 py-1 items-center"
+        <div className="mb-5">
+            <h1 className="font-bold text-xl">{gradingData.title}</h1>
+            <h2 className="font-medium text-lg">( Grade: {grade} )</h2>
+            <div className="form-wrapper">
+                <form onSubmit={handleSubmit}>
+                    <label htmlFor="title-field">
+                        Title
+                        <input
+                            type="text"
+                            id="title-field"
+                            placeholder="Enter the title here."
+                            onChange={(e) =>
+                                setGradingData((prevFormData) => ({
+                                    ...prevFormData,
+                                    title: e.target.value,
+                                }))
                             }
-                            type="submit"
-                            disabled={!active}
-                        >
-                            Grade
-                        </button>
-                        <div
-                            className="flex text-white px-4 py-1 items-center bg-green-500 rounded-lg font-semibold cursor-pointer hover:bg-green-400"
-                            onClick={handleSave}
-                        >
-                            Save
-                        </div>
-                        {fileUrl && (
-                            <a href={fileUrl} target="_blank" rel="noreferrer">
-                                <div
-                                    className={
-                                        "flex text-white font-semibold bg-blue-500 rounded-lg px-4 py-2 items-center cursor-pointer hover:bg-blue-400"
-                                    }
+                            value={gradingData.title}
+                        />
+                    </label>
+
+                    <label htmlFor="text-field">
+                        Text
+                        <TextareaAutosize
+                            id="text-field"
+                            minRows={4}
+                            maxRows={19}
+                            placeholder="Upload your essay or paste it here."
+                            onChange={(e) =>
+                                setGradingData((prevFormData) => ({
+                                    ...prevFormData,
+                                    text: e.target.value,
+                                }))
+                            }
+                            value={gradingData.text}
+                        />
+                    </label>
+
+                    <div className="flex flex-row justify-between gap-10">
+                        <div className="flex flex-row gap-x-2">
+                            {/* Submit Button */}
+                                <button
+                                    type="submit"
+                                    onClick={handleSubmit}
+                                    disabled={!active}
+                                    className={`flex flex-row justify-between pr-2 gap-x-1 bg-primary rounded-full items-center ${active ? 'opacity-100' : 'opacity-50'}`}
                                 >
-                                    Download
-                                </div>
-                            </a>
-                        )}
-                        <div
-                            className="flex text-white font-semibold bg-purple-500 rounded-lg px-4 py-2 items-center cursor-pointer hover:bg-purple-400"
-                            onClick={handleFixGrammarSpelling}
-                        >
-                            Fix Grammar & Spelling
+                                    <Bot className=" text-primary flex place-self-center place-items-center rounded-full border-2 border-primary bg-secondary p-1.5 size-10" />
+                                    <p>grade.me</p>
+                                </button>
+
+                            {fileUrl && (
+                                <a href={fileUrl} target="_blank" rel="noreferrer">
+                                    <div
+                                        className={
+                                            "flex gap-x-2 text-white font-semibold bg-accent rounded-lg px-3 py-2 justify-center items-center cursor-pointer hover:brightness-110"
+                                        }
+                                    >
+                                        <Download size={25} />
+                                        <p className="hidden sm:flex">Download</p>
+                                    </div>
+                                </a>
+                            )}
+
+                            <div
+                                className="flex gap-x-2 text-white font-semibold bg-purple-500 rounded-lg px-3 py-1 items-center cursor-pointer hover:bg-purple-400"
+                                onClick={handleFixGrammarSpelling}
+                            >
+                                <Wand2 size={20} />
+                                <p className="hidden sm:flex">Fix Grammar & Spelling</p>
+                            </div>
+
                         </div>
+                        
                     </div>
-                    <div className="flex">
-                        <h3 className="text-gray-500 font-medium">{`Credits: ${localCount}`}</h3>
-                    </div>
-                </div>
 
-                {!thinking && !prompt && profile.credits < 10 && (
-                    <h3>{`You don't have enough credits to grade.`}</h3>
-                )}
+                    {!thinking && !prompt && profile.credits < 10 && (
+                        <h3>{`You don't have enough credits to grade.`}</h3>
+                    )}
 
-                {thinking && !summary && !flagged && (
-                    <div className="p-5">
-                        <PulseLoader color="red" size={20} loading={thinking} />
-                    </div>
-                )}
+                    {thinking && !summary && !flagged && (
+                        <div id="thinking" className="p-5">
+                            <PulseLoader color="orange" size={20} loading={thinking} />
+                        </div>
+                    )}
 
-                {flagged && <h3 id="flagged">{flagged}</h3>}
+                    {flagged && <h3 id="flagged">{flagged}</h3>}
 
-                {!flagged && summary && (
-                    <div className="px-5 py-2 shadow-lg bg-orange-200 rounded-md">
-                        {/* Render Markdown content with custom styling */}
-                        <ReactMarkdown className="markdown">{summary}</ReactMarkdown>
-                    </div>
-                )}
-            </form>
+                    {!flagged && summary && (
+                        <div id="response" className="px-5 py-2 shadow-lg bg-blue-500/20 rounded-md h-[33vh] overflow-y-scroll">
+                            {/* Render Markdown content with custom styling */}
+                            <ReactMarkdown className="markdown">{summary}</ReactMarkdown>
+                        </div>
+                    )}
+                </form>
+            </div>
         </div>
     );
 };

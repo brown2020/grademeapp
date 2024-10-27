@@ -7,9 +7,12 @@ import Image from "next/image";
 import { User2, Menu, XIcon } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import useProfileStore from "@/zustand/useProfileStore";
+import { useAuthStore } from "@/zustand/useAuthStore";
+
 
 export default function Header() {
     const profile = useProfileStore((state) => state.profile);
+    const { uid } = useAuthStore();
     const [isOpen, setIsOpen] = useState(false); // State for dialog open/close
     const [isExiting, setIsExiting] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -56,7 +59,7 @@ export default function Header() {
                         setTimeout(() => router.push("/"), 100);
                     }}
                 >
-                    {profile?.photoUrl ? (
+                    {uid && profile?.photoUrl ? (
                         <div className="h-9 aspect-square">
                             <Image
                                 src={profile.photoUrl}
@@ -66,13 +69,13 @@ export default function Header() {
                                 className="rounded-full"
                             />
                         </div>
-                    ) : (
+                    ) : uid ? (
                         <div className="h-8 aspect-square">
                             <User2 size={25} className="h-full w-full object-cover text-secondary" />
                         </div>
-                    )}
+                    ) : null}
                     <div className="text-lg whitespace-nowrap text-secondary">
-                        {profile?.identityLevel + " " + profile?.identity || "grade.me"}
+                        {uid && profile?.identity && profile.identityLevel ?  profile?.identityLevel + " " + profile?.identity : uid ? "grade.me" : ""}
                     </div>
                 </div>
                 <div className="hidden md:flex h-full gap-2 items-center">
@@ -80,7 +83,7 @@ export default function Header() {
                         <div
                             key={index}
                             className={`flex items-center gap-1 px-2 h-full transition duration-300 cursor-pointer hover:text-accent hover:opacity-100 
-                                ${pathname.slice(0, 5) === item.path.slice(0, 5) && pathname !== "/" ? "text-accent opacity-100" : "text-secondary opacity-60"
+                                ${pathname.slice(0, 5) === item.path.slice(0, 5) && pathname !== "/" ? "text-secondary opacity-100" : "text-secondary opacity-60"
                                 }`}
                             onClick={() => {
                                 setTimeout(() => router.push(item.path), 100);

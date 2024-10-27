@@ -7,13 +7,13 @@ export default function AuthDataDisplay() {
     return (
         <div className="flex flex-col space-y-2 rounded-md">
             <div className="flex flex-row items-center space-x-1">
-                <div className="text-accent font-medium">Login email:</div>
+                <div className="text-primary font-medium">Login email:</div>
                 <div className="px-3 py-1 items-center text-black bg-secondary rounded-md">
                     {authEmail}
                 </div>
             </div>
             <div className="flex flex-row items-center space-x-1">
-                <div className="text-accent font-medium">User ID:</div>
+                <div className="text-primary font-medium">User ID:</div>
                 <div className="px-3 py-1 items-center text-black bg-secondary rounded-md">
                     {uid}
                 </div>

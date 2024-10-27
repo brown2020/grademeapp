@@ -10,9 +10,9 @@ export default function Home() {
   return (
     <div className="flex flex-col space-y-5 my-7 px-2">
       {/* Logo and Title Section */}
-      <div className="flex flex-col w-58 max-w-md px-10 py-6 mx-auto space-y-1 shadow-lg bg-primary rounded-full">
-        <Bot size={128} className="mx-auto text-accent" />
-        <div className="text-3xl text-center text-accent">GRADE.ME</div>
+      <div className="flex flex-col w-58 max-w-md size-56 items-center justify-center mx-auto shadow-2xl bg-secondary border-4 border-primary rounded-full">
+        <Bot size={128} className="mx-auto text-primary" />
+        <div className="text-3xl text-center text-primary leading-6">GRADE.ME</div>
       </div>
 
       {/* Description Section */}
