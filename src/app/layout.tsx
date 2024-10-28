@@ -25,7 +25,7 @@ export default function RootLayout({
       </head>
       <body>
         <ClientProvider>
-          <div className="flex flex-col h-full">
+          <div className="flex flex-col h-full relative">
             <Header />
             <div className="flex flex-col h-container-small md:h-container-custom overflow-y-scroll">
               <div className="flex flex-col h-full flex-1">{children}</div>

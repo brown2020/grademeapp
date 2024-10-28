@@ -9,18 +9,19 @@ import { toast } from "react-hot-toast";
 import { db } from "@/firebase/firebaseClient";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import useProfileStore from "@/zustand/useProfileStore";
+import { useRubricStore } from "@/zustand/useRubricStore";
 import { useParams } from "next/navigation";
 import { generateGrade } from "@/actions/generateResponse";
 import { readStreamableValue } from "ai/rsc";
-import TextareaAutosize from "react-textarea-autosize";
 import ReactMarkdown from "react-markdown";
 import { PulseLoader } from "react-spinners";
 import { correctGrammarAndSpelling } from "@/actions/correctGrammarSpelling";
 import { extractGrade } from "@/utils/responseParser";
 import { saveHistory } from "@/utils/saveHistory";
-import { GradingData } from "@/types/grading-data";
 import { UserHistoryType } from "@/types/user-history";
 import { Bot, Download, Wand2 } from "lucide-react";
+import Tiptap from "@/components/ui/Tiptap";
+import { useRouter } from "next/navigation";
 
 
 const fetchDocumentById = async (uid: string, id: string) => {
@@ -33,6 +34,7 @@ const fetchDocumentById = async (uid: string, id: string) => {
 const Document = () => {
     const { uid } = useAuthStore();
     const { profile, minusCredits } = useProfileStore();
+    const { selectedRubric, gradingData, setGradingData } = useRubricStore();
     const { summaryID, timestamp } = useParams();
     const [submissionTimestamp, setSubmissionTimestamp] = useState<Timestamp>();
     const [userDoc, setUserDoc] = useState<UserHistoryType>();
@@ -47,6 +49,7 @@ const Document = () => {
     const [active, setActive] = useState<boolean>(false);
     const [prompt, setPrompt] = useState<string>("");
     const [fileUrl, setFileUrl] = useState<string>("");
+    const router = useRouter();
     // get timestamp from path /history/${summary.id}/${submission.timestamp}
 
     useEffect(() => {
@@ -78,20 +81,6 @@ const Document = () => {
 
     console.log(userDoc);
 
-    const [gradingData, setGradingData] = useState<GradingData>({
-        title: "",
-        text: "",
-        assigner: "",
-        textType: "",
-        topic: "",
-        prose: "",
-        audience: "",
-        wordLimitType: "less than",
-        wordLimit: "",
-        customRubric: "",
-        rubric: "",
-    });
-
     useEffect(() => {
         if (userDoc && submissionTimestamp) {
             // Find the submission with the matching timestamp
@@ -122,7 +111,7 @@ const Document = () => {
             }
 
         }
-    }, [userDoc, submissionTimestamp]);
+    }, [userDoc, submissionTimestamp, setGradingData]);
 
     // Effect to update the active state
     useEffect(() => {
@@ -135,68 +124,68 @@ const Document = () => {
 
     // Handle form submission
     const handleSubmit = useCallback(async (e: FormEvent) => {
-            e.preventDefault();
-            setActive(false);
-            setSummary("");
-            setFlagged("");
-            setThinking(true);
-            setIsStreamingComplete(false);
-            setHasSaved(false);
+        e.preventDefault();
+        setActive(false);
+        setSummary("");
+        setFlagged("");
+        setThinking(true);
+        setIsStreamingComplete(false);
+        setHasSaved(false);
 
-            try {
-                const {
-                    assigner,
-                    topic,
-                    prose,
-                    audience,
-                    wordLimitType,
-                    wordLimit,
-                    title,
-                    rubric,
-                    text,
-                } = gradingData;
+        try {
+            const {
+                assigner,
+                topic,
+                prose,
+                audience,
+                wordLimitType,
+                wordLimit,
+                title,
+                rubric,
+                text,
+            } = gradingData;
 
-                const { result, creditsUsed } = await generateGrade(
-                    profile.identity || "",
-                    profile.identityLevel || "",
-                    assigner,
-                    topic,
-                    prose,
-                    audience,
-                    wordLimitType,
-                    wordLimit,
-                    rubric,
-                    title,
-                    text,
-                    profile.credits
-                );
+            const { result, creditsUsed } = await generateGrade(
+                profile.identity || "",
+                profile.identityLevel || "",
+                assigner,
+                topic,
+                prose,
+                audience,
+                wordLimitType,
+                wordLimit,
+                rubric,
+                title,
+                text,
+                profile.credits
+            );
 
-                if (!result) throw new Error("No response");
+            if (!result) throw new Error("No response");
 
-                const creditsDeducted = await minusCredits(creditsUsed);
+            const creditsDeducted = await minusCredits(creditsUsed);
 
-                if (!creditsDeducted) {
-                    throw new Error("Failed to deduct credits.");
-                }
-
-                for await (const content of readStreamableValue(result)) {
-                    if (content) {
-                        setSummary(content.trim());
-                        setGrade(extractGrade(content.trim()));
-                    }
-                }
-
-                setLocalCount((prev) => prev - creditsUsed);
-                setThinking(false);
-                setIsStreamingComplete(true);
-            } catch (error) {
-                console.error(error);
-                setThinking(false);
-                setFlagged(
-                    "No suggestions found. Servers might be overloaded right now."
-                );
+            if (!creditsDeducted) {
+                throw new Error("Failed to deduct credits.");
             }
-        },
+
+            for await (const content of readStreamableValue(result)) {
+                if (content) {
+                    setSummary(content.trim());
+                    setGrade(extractGrade(content.trim()));
+                }
+            }
+
+            setLocalCount((prev) => prev - creditsUsed);
+            setThinking(false);
+            setIsStreamingComplete(true);
+        } catch (error) {
+            console.error(error);
+            setThinking(false);
+            setFlagged(
+                "No suggestions found. Servers might be overloaded right now."
+            );
+        }
+    },
         [gradingData, minusCredits, profile.credits, profile.identity, profile.identityLevel]
     );
 
@@ -257,7 +246,7 @@ const Document = () => {
             }
 
             setSummary(finalText);
-            setGradingData((prev) => ({ ...prev, text: finalText }));
+            setGradingData({ text: finalText });
 
             setLocalCount((prev) => prev - totalCreditsUsed);
             setPrompt(`Here is the corrected text: \n${gradingData.text}`);
@@ -298,54 +287,58 @@ const Document = () => {
     return (
         <div className="mb-5">
             <h1 className="font-bold text-xl">{gradingData.title}</h1>
-            <h2 className="font-medium text-lg">( Grade: {grade} )</h2>
-            <div className="form-wrapper">
-                <form onSubmit={handleSubmit}>
-                    <label htmlFor="title-field">
-                        Title
+            <h2 className="font-medium">( Grade: {grade} )</h2>
+            <div
+                onClick={() => router.push("/rubrics")}
+                className="text-sm font-semibold px-2 py-1 bg-accent text-primary-foreground shadow rounded-lg cursor-pointer"
+            >
+                {selectedRubric?.name ? selectedRubric.name : "Select a rubric"}
+            </div>
+            <div className="">
+                <form className="flex flex-col gap-y-2" onSubmit={handleSubmit}>
+                    {/* Title */}
+                    <section>
+                        <label className="block text-primary font-medium" htmlFor="title">Title</label>
+                        <hr className="border border-accent mb-2" />
                         <input
                             type="text"
-                            id="title-field"
-                            placeholder="Enter the title here."
-                            onChange={(e) =>
-                                setGradingData((prevFormData) => ({
-                                    ...prevFormData,
-                                    title: e.target.value,
-                                }))
-                            }
+                            name="title"
+                            id="title"
                             value={gradingData.title}
+                            onChange={(e) => setGradingData({ title: e.target.value })}
+                            placeholder="Enter the title here"
+                            className="mt-1 block w-full rounded-md bg-secondary px-2 py-1 shadow-sm focus:border-accent focus:ring-accent sm:text-sm placeholder:text-primary"
                         />
-                    </label>
-
-                    <label htmlFor="text-field">
-                        Text
-                        <TextareaAutosize
-                            id="text-field"
-                            minRows={4}
-                            maxRows={19}
-                            placeholder="Upload your essay or paste it here."
-                            onChange={(e) =>
-                                setGradingData((prevFormData) => ({
-                                    ...prevFormData,
-                                    text: e.target.value,
-                                }))
-                            }
-                            value={gradingData.text}
-                        />
-                    </label>
+                    </section>
+                    {/* Text Editor and File Upload */}
+                    <section>
+                        <div className="relative">
+                            <label className="block font-medium text-primary" htmlFor="text">Text</label>
+                            <hr className="border border-accent mb-2" />
+                            <Tiptap
+                                wordLimit={gradingData.wordLimit}
+                                wordLimitType={gradingData.wordLimitType}
+                                editorContent={gradingData.text}
+                                onChange={(text) => setGradingData({ text })}
+                            />
+                        </div>
+                    </section>
 
                     <div className="flex flex-row justify-between gap-10">
                         <div className="flex flex-row gap-x-2">
                             {/* Submit Button */}
-                                <button
-                                    type="submit"
-                                    onClick={handleSubmit}
-                                    disabled={!active}
-                                    className={`flex flex-row justify-between pr-2 gap-x-1 bg-primary rounded-full items-center ${active ? 'opacity-100' : 'opacity-50'}`}
-                                >
-                                    <Bot className=" text-primary flex place-self-center place-items-center rounded-full border-2 border-primary bg-secondary p-1.5 size-10" />
-                                    <p>grade.me</p>
-                                </button>
+                        <div className={`flex flex-row bg-primary  rounded-full items-center ${active ? 'opacity-100' : 'opacity-50'}`}>
+                            <button
+                                type="submit"
+                                id="grademe"
+                                onClick={handleSubmit}
+                                disabled={!active}
+                                className={`inline-flex justify-center items-center gap-x-2 rounded-md border-transparent text-primary-foreground mr-2`}
+                            >
+                                <Bot className=" text-primary flex place-self-center place-items-center rounded-full border-2 border-primary bg-secondary p-1.5 size-10" />
+                                <p>grade.me</p>
+                            </button>
+                        </div>
 
                             {fileUrl && (
                                 <a href={fileUrl} target="_blank" rel="noreferrer">
@@ -369,7 +362,7 @@ const Document = () => {
                             </div>
 
                         </div>
-                        
+
                     </div>
 
                     {!thinking && !prompt && profile.credits < 10 && (

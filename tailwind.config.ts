@@ -10,6 +10,15 @@ const config: Config = {
     ],
     theme: {
         extend: {
+            boxShadow: {
+                DEFAULT: '0 2px 4px 0 rgba(0, 0, 0, 0.1)',
+                md: '0 4px 8px 0 rgba(0, 0, 0, 0.1)',
+                lg: '0 8px 16px 0 rgba(0, 0, 0, 0.1)',
+                xl: '0 16px 24px 0 rgba(0, 0, 0, 0.1)',
+                '2xl': '0 32px 48px 0 rgba(0, 0, 0, 0.1)',
+                button: 'rgba(0, 0, 0, 0.2) 0px -4px 0px inset',
+                pressed: 'rgba(0, 0, 0, 0.3) 0px 0px 0px inset',
+            },
             colors: {
                 background: 'hsl(var(--background))',
                 foreground: 'hsl(var(--foreground))',
@@ -105,8 +114,8 @@ const config: Config = {
                 'fade-out': 'fade-out 0.5s ease-in-out',
                 'slide-left': 'slide-left 0.5s ease-in-out',
                 'slide-right': 'slide-right 0.5s ease-in-out',
-                'enter': 'enter 0.3s ease-out forwards',
-                'exit': 'exit 0.3s ease-out forwards',
+                'enter': 'enter 0.5s ease-out forwards',
+                'exit': 'exit 0.5s ease-out forwards',
             },
             maxWidth: {
                 '18': '4.5rem',

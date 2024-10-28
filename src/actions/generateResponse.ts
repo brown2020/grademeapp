@@ -79,7 +79,7 @@ function createGradingMessages(
 ): CoreMessage[] {
 
     // Construct the system prompt based on user-provided inputs for enhanced accuracy
-    const systemPrompt = `You are a ${assigner} grading a ${prose}, in which a ${identityLevel} ${identity} is writing about ${topic} for his/her ${audience}. Grade the paper according this rubric: ${rubricString}. The word limit for this assignment is ${wordLimitType} ${wordLimit}. Provide a letter grade and constructive feedback in the form of a detailed explanation. Please provide suggestions for improvement without directly giving the answers. Begin with positive feedback. Include specific examples from the text to support your evaluation with ideas for improvement. Be careful not to give examples that the student can use directly in their work.`;
+    const systemPrompt = `You are a ${assigner} grading a ${prose}, in which a ${identityLevel} ${identity} is writing about ${topic} for his/her ${audience}. Grade the paper according this rubric: ${rubricString}. The word limit for this assignment is ${wordLimitType} ${wordLimit}. Provide a percentage grade, if the rubric has additional scoring metrics be sure to include your assessment according to those as well, and constructive feedback in the form of a detailed explanation. Please provide suggestions for improvement without directly giving the answers. Begin with positive feedback. Include specific quotes from the text to support your evaluation with ideas for improvement. Be careful not to give examples that the student can use directly in their work.`;
 
     // Provide the student's writing content to be graded
     const userPrompt = `Title: ${title} \n\nPlease review and grade the following essay based on the instructions above:\n\n${text}`;

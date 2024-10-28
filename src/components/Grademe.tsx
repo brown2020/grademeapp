@@ -11,22 +11,22 @@ import { PulseLoader } from "react-spinners";
 import { generateGrade } from "@/actions/generateResponse";
 import { parseDocumentFromUrl } from "@/actions/parseDocumentFromUrl";
 import { readStreamableValue } from "ai/rsc";
-import TextareaAutosize from "react-textarea-autosize";
 import ReactMarkdown from "react-markdown";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 
 import { FileSearch, Paperclip, Bot } from "lucide-react"
 import { extractGrade } from "@/utils/responseParser";
 import { saveHistory } from "@/utils/saveHistory";
 import { useRubricStore } from "@/zustand/useRubricStore";
+import CustomButton from "@/components/ui/CustomButton";
+import Tiptap from "@/components/ui/Tiptap";
 
 export default function Grademe() {
     const { uid } = useAuthStore();
     const { selectedRubric, gradingData, setGradingData } = useRubricStore();
     const { profile, minusCredits } = useProfileStore();
-    const [summary, setSummary] = useState<string>("");
+    const [response, setResponse] = useState<string>("");
     const [flagged, setFlagged] = useState<string>("");
     const [active, setActive] = useState<boolean>(false);
     const [grade, setGrade] = useState<string>("");
@@ -43,7 +43,7 @@ export default function Grademe() {
         const selectedFile = e.target.files ? e.target.files[0] : null;
         if (selectedFile && uid) {
             setUploading(true);
-            toast.loading("Uploading file...");
+            toast.loading("Uploading file...", { position: "top-center" });
 
             // Log file information for debugging
             console.log('Uploading file:', selectedFile.name, 'of type:', selectedFile.type, 'and size:', selectedFile.size);
@@ -65,14 +65,14 @@ export default function Grademe() {
             } catch (error) {
                 console.error('Failed to upload file:', error);
                 toast.dismiss();
-                toast.error('Failed to upload file. Please try again.');
+                toast.error('Failed to upload file. Please try again.', { position: "top-center" });
             } finally {
                 setUploading(false);
                 toast.dismiss();
-                toast.success('File uploaded successfully.');
+                toast.success('File uploaded successfully.', { position: "top-center" });
             }
         } else if (!uid) {
-            toast.error('Please log in to upload a file.');
+            toast.error('Please log in to upload a file.', { position: "top-center" });
             console.error('User is not authenticated');
         }
     };
@@ -87,17 +87,14 @@ export default function Grademe() {
     const handleSubmit = useCallback(async (e: FormEvent) => {
         e.preventDefault();
         setActive(false);
-        setSummary("");
+        setResponse("");
         setFlagged("");
         setThinking(true);
         setIsStreamingComplete(false);
         setHasSaved(false);
 
-        console.log("Form Data:", gradingData);
-
         // convert rubric to string
         const rubricString = JSON.stringify(gradingData.rubric);
-        console.log("Selected Rubric:", rubricString);
 
         try {
             const { result, creditsUsed } = await generateGrade(
@@ -125,7 +122,7 @@ export default function Grademe() {
 
             for await (const content of readStreamableValue(result)) {
                 if (content) {
-                    setSummary(content.trim());
+                    setResponse(content.trim());
                     setGrade(extractGrade(content.trim()));
                 }
             }
@@ -144,24 +141,27 @@ export default function Grademe() {
 
     // Effect to handle saving to history
     useEffect(() => {
-        if (isStreamingComplete && !hasSaved && summary) {
-            saveHistory(uid, gradingData, [{ text: gradingData.text, response: summary, grade, timestamp: Timestamp.now() }], fileUrl || null).then(() => {
+        if (isStreamingComplete && !hasSaved && response) {
+            console.log(fileUrl)
+            saveHistory(uid, gradingData, [{ text: gradingData.text, response: response, grade, timestamp: Timestamp.now() }], fileUrl).then(() => {
                 setHasSaved(true);
             });
         }
-    }, [isStreamingComplete, hasSaved, summary, uid, gradingData, grade, fileUrl]);
+    }, [isStreamingComplete, hasSaved, response, uid, gradingData, grade, fileUrl]);
 
     // Scroll into view when content changes
     useEffect(() => {
-        if (summary) {
+        if (response) {
             document.getElementById("response")?.scrollIntoView({ behavior: "smooth" });
         }
         else if (flagged) {
             document.getElementById("flagged")?.scrollIntoView({ behavior: "smooth" });
         } else if (thinking) {
             document.getElementById("thinking")?.scrollIntoView({ behavior: "smooth" });
+        } else if (uploading == false) {
+            document.getElementById("grademe")?.scrollIntoView({ behavior: "smooth" });
         }
-    }, [summary, flagged, thinking]);
+    }, [response, flagged, thinking, uploading]);
 
     return (
         <>
@@ -174,10 +174,10 @@ export default function Grademe() {
                 >
                     {selectedRubric?.name ? selectedRubric.name : "Select a rubric"}
                 </div>
-                <Link href={'/rubrics'} className="flex flex-row gap-2 bg-accent text-primary-foreground w-fit items-center justify-center px-2 py-1 rounded-lg">
-                    <FileSearch size={18} className="" />
+                <CustomButton onClick={() => setTimeout(() => router.push("/rubrics"), 300)} className="btn-test">
+                    <FileSearch />
                     <p>Explore Rubrics</p>
-                </Link>
+                </CustomButton>
                 <form className="flex flex-col gap-y-2" onSubmit={handleSubmit}>
                     {/* Title */}
                     <section>
@@ -193,21 +193,16 @@ export default function Grademe() {
                             className="mt-1 block w-full rounded-md bg-secondary px-2 py-1 shadow-sm focus:border-accent focus:ring-accent sm:text-sm placeholder:text-primary"
                         />
                     </section>
-                    {/* Text Area and File Upload */}
+                    {/* Text Editor and File Upload */}
                     <section>
                         <div className="relative">
-
-                            {/* Text Area */}
                             <label className="block font-medium text-primary" htmlFor="text">Text</label>
                             <hr className="border border-accent mb-2" />
-                            <TextareaAutosize
-                                id="text"
-                                name="text"
-                                value={gradingData.text}
-                                onChange={(e) => setGradingData({ text: e.target.value })}
-                                minRows={15}
-                                placeholder="Upload your text or paste it here."
-                                className="mt-1 block w-full rounded-md bg-secondary px-2 py-1 shadow-sm focus:border-accent focus:ring-accent sm:text-sm placeholder:text-primary"
+                            <Tiptap
+                                wordLimit={gradingData.wordLimit}
+                                wordLimitType={gradingData.wordLimitType}
+                                editorContent={gradingData.text}
+                                onChange={(text) => setGradingData({ text })}
                             />
                         </div>
                     </section>
@@ -215,9 +210,9 @@ export default function Grademe() {
                     <section className="flex flex-row items-center gap-x-4">
                         {/* Submit Button */}
                         <div className={`flex flex-row bg-primary  rounded-full items-center ${active ? 'opacity-100' : 'opacity-50'}`}>
-
                             <button
                                 type="submit"
+                                id="grademe"
                                 onClick={handleSubmit}
                                 disabled={!active || uploading}
                                 className={`inline-flex justify-center items-center gap-x-2 rounded-md border-transparent text-primary-foreground mr-2`}
@@ -227,7 +222,7 @@ export default function Grademe() {
                             </button>
                         </div>
                         {/* File Upload */}
-                        <div className="flex gap-x-2 group relative bg-secondary border-2 border-primary rounded-full p-1.5">
+                        <div className="flex group items-center relative bg-secondary border-2 border-primary rounded-full p-1.5">
                             <label htmlFor="file-upload" className="cursor-pointer flex flex-row items-center justify-center">
                                 <Paperclip size={25} className="flex place-self-center place-items-center text-primary" />
                                 {/* Hidden file input */}
@@ -240,7 +235,7 @@ export default function Grademe() {
                                 />
                             </label>
                             {/* Tooltip */}
-                            <div className="absolute bottom-full mb-2 w-32 px-2 py-1 bg-accent text-primary-foreground text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="absolute left-11 w-32 px-2 py-1 bg-accent text-primary-foreground text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity">
                                 Upload a file (docx, pdf, odt, txt)
                             </div>
                         </div>
@@ -249,9 +244,9 @@ export default function Grademe() {
                 </form>
                 {thinking && <PulseLoader id="thinking" color="orange" size={20} />}
 
-                {summary && (
+                {response && (
                     <div id="response" className="px-5 py-2 shadow-lg bg-blue-500/20 rounded-md">
-                        <ReactMarkdown>{summary}</ReactMarkdown>
+                        <ReactMarkdown>{response}</ReactMarkdown>
                     </div>
                 )}
             </div>

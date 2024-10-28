@@ -16,7 +16,7 @@ export default function RubricDisplay({ rubric }: { rubric: RubricState }) {
     return (
         <div className="w-full h-52 max-h-52">
             <div className="flex flex-col p-1 rounded-md bg-primary">
-                <p className=" text-left font-medium text-background pl-2 pb-1">Rubric Criteria</p>
+                <h2 className=" text-left font-medium text-background pl-2 pb-1">Rubric Criteria</h2>
                 <div className="bg-background p-1 rounded-sm">
                     <div className="mt-2 p-1 text-xs border-l-2 border-accent h-40 max-h-40 overflow-auto">
                         {renderRubricCriteria(rubric)}
@@ -49,7 +49,7 @@ function renderGenericCriteria(rubric: OtherRubricType) {
         <div>
             {Object.entries(rubric.criteria).map(([criterion, levels]) => (
                 <div key={criterion} className="mb-4">
-                    <p className=" font-semibold">{criterion}</p>
+                    <h3 className=" font-semibold">{criterion}</h3>
                     {/* Check if levels are an object (i.e., for Analytical/MultiTrait), otherwise treat it as a simple string */}
                     {typeof levels === 'object' ? (
                         Object.entries(levels as Record<string, string>).map(([level, description]) => (
@@ -87,7 +87,7 @@ function renderDetailedCriteria(rubric: AnalyticalRubric) {
         <div>
             {Object.entries(rubric.criteria).map(([criterion, details]) => (
                 <div key={criterion} className="mb-4">
-                    <p className=" font-semibold mb-2">{criterion}</p>
+                    <h3 className=" font-semibold mb-2">{criterion}</h3>
                     {typeof details === 'object' && 'points' in details ? (
                         <div>
                             <p className="ml-3  font-medium mb-2">Points: {details.points as string | number}</p>

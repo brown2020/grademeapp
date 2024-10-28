@@ -70,7 +70,7 @@ export default function RubricHelper() {
 
     return (
         <div>
-            <div onClick={isOpen ? closeRubricHelper : () => setIsOpen(true)} className="flex flex-row bg-primary text-center w-40 px-2 py-1 mb-1 gap-x-2 justify-center rounded-lg shadow-md hover:bg-accent text-background font-medium cursor-pointer">
+            <div onClick={isOpen ? closeRubricHelper : () => setIsOpen(true)} className="bg-accent w-40 flex flex-row gap-x-2 justify-center py-2 rounded-lg shadow-button active:shadow-pressed text-accent-foreground font-medium cursor-pointer transition-shadow duration-150 ease-in-out">
                 <LifeBuoy />
                 <h2>Rubric Helper</h2>
             </div>

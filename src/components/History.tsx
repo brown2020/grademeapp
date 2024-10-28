@@ -19,7 +19,6 @@ import {
 import { toast } from "react-hot-toast";
 import { db } from "@/firebase/firebaseClient";
 import { useAuthStore } from "@/zustand/useAuthStore";
-import Link from "next/link";
 import { PlusCircle, Search, XCircle } from "lucide-react";
 // import { getExcerpt } from "@/utils/responseParser";
 import { UserHistoryType } from "@/types/user-history";
@@ -93,10 +92,10 @@ export default function History() {
             setSummaries((prev) =>
                 prev.filter((summary) => summary.id !== summaryId)
             );
-            toast.success("Document deleted successfully");
+            toast.success("Document deleted successfully", { position: "top-center" });
             return true;
         } catch (error) {
-            toast.error("An error occurred while deleting the summary");
+            toast.error("An error occurred while deleting the summary", { position: "top-center" });
             console.error("Error deleting document:", error);
             return false;
         }
@@ -140,7 +139,7 @@ export default function History() {
                     setLastKey(
                         querySnapshot.docs[querySnapshot.docs.length - 1]?.data().timestamp
                     );
-                    toast.success("History loaded successfully", { id, position: "top-center" });
+                    toast.success("Assignments loaded successfully", { id, position: "top-center" });
                 } catch (error) {
                     toast.error("Error loading history");
                     console.error("Error fetching summaries:", error);
@@ -174,15 +173,15 @@ export default function History() {
                 <hr className="border border-primary" />
             </div>
 
-            <Link href={'/grademe'} className="bg-accent text-primary-foreground flex flex-row gap-x-2 items-center rounded-lg h-10 px-3 justify-center w-fit">
-                <PlusCircle size={20} className="flex" />
-                <p className="flex text-center">Grade New Assignment</p>
-            </Link>
+            <div onClick={()=> setTimeout(() => router.push('/grademe'), 300)} className="btn-test">
+                <PlusCircle />
+                <p>Grade New Assignment</p>
+            </div>
 
-            <div className="flex flex-row items-center px-3 bg-secondary focus:ring-1 ring-accent rounded-full w-full ring-offset-1">
+            <div className="flex flex-row items-center px-3 bg-secondary focus-within:ring ring-accent rounded-full w-full ring-offset-1">
                 <Search size={20} className="flex text-primary" />
                 <input
-                    className="px-3 h-8 bg-secondary outline-none placeholder:text-primary"
+                    className="w-full px-3 h-8 bg-secondary outline-none placeholder:text-primary"
                     type="text"
                     placeholder="Find an assignment..."
                     onChange={(e) => handleSearchChange(e.target.value)}
@@ -204,7 +203,7 @@ export default function History() {
                     .map((summary, index) => (
                         <div
                             key={`${summary.id}-${summary.timestamp.seconds}-${index}`}
-                            className="flex flex-col px-2 py-1 rounded-lg shadow-md bg-secondary"
+                            className="flex flex-col px-2 py-1 rounded-lg shadow-md bg-accent"
                         >
 
                             <div className="flex flex-col justify-between items-baseline w-full">
@@ -217,7 +216,7 @@ export default function History() {
                                     </p>
                                     <XCircle
                                         size={20}
-                                        className="flex ml-auto text-red-800 cursor-pointer"
+                                        className="flex ml-auto text-red-600 cursor-pointer"
                                         onClick={handleDelete}
                                         data-summary-id={summary.id}
                                     />
@@ -251,7 +250,7 @@ export default function History() {
             </div>
             {lastKey && (
                 <button
-                    className="my-3 px-4 py-2 bg-accent text-white rounded-md"
+                    className="btn-test w-full"
                     onClick={postsNextBatch}
                 >
                     Load More

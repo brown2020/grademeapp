@@ -65,7 +65,21 @@ export function ClientProvider({ children }: { children: React.ReactNode }) {
             This app uses cookies to enhance the user experience.
           </CookieConsent>
         )}
-        <Toaster position="bottom-center" />
+        <Toaster 
+        position="top-center"
+        gutter={8}
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#5AB1BB',
+            color: '#031D44',
+            fontFamily: 'Poppins',
+            fontSize: '0.8rem',
+            fontWeight: '700',
+          },
+        }}
+       
+        />
       </div>
     </ErrorBoundary>
   );

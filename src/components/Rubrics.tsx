@@ -14,6 +14,7 @@ import RubricDisplay from "@/components/rubrics/RubricDisplay";
 import RubricBuilder from "@/components/rubrics/RubricBuilder";
 import RubricSearch from "@/components/rubrics/RubricSearch";
 import RubricHelper from "@/components/rubrics/RubricHelper";
+import CustomButton from "@/components/ui/CustomButton";
 
 export default function Rubrics() {
     const { uid } = useAuthStore();
@@ -84,7 +85,7 @@ export default function Rubrics() {
                         <Switch
                             checked={useCustomRubrics}
                             onChange={() => handleCustomRubrics()}
-                            className={`${useCustomRubrics ? "bg-accent" : "bg-gray-200"} transition duration-300 ease-in-out relative inline-flex items-center h-6 rounded-full w-11`}
+                            className={`${useCustomRubrics ? "bg-accent" : "bg-gray-300"} transition duration-300 ease-in-out relative inline-flex items-center h-6 rounded-full w-11`}
                         >
                             <span className="sr-only">Use Custom Rubrics</span>
                             <span
@@ -97,10 +98,10 @@ export default function Rubrics() {
                 <hr className="border border-accent" />
             </div>
             {/* Rubric Display */}
-            <div className="flex flex-col w-full p-2 text-sm border border-dashed rounded-lg bg-secondary">
+            <div className="flex flex-col w-full p-2 text-sm border border-dashed rounded-lg bg-accent">
                 <div className="flex flex-row gap-2 mb-2 relative items-center">
                     <Info onClick={() => setShowTooltip(!showTooltip)} size={18} className="cursor-pointer" />
-                    <span className={`absolute bottom-full z-50 text-wrap px-2 py-1 bg-accent text-primary-foreground text-xs rounded transition-opacity ${showTooltip ? 'opacity-100' : 'opacity-0'}`}>
+                    <span className={`absolute bottom-full z-50 text-wrap px-2 py-1 bg-primary text-primary-foreground text-xs rounded transition-opacity ${showTooltip ? 'opacity-100' : 'opacity-0'}`}>
                         {selectedRubric?.description}
                     </span>
                     <h2 className=" font-bold text-center">{selectedRubric ? selectedRubric.name : "Select a rubric..."}</h2>
@@ -118,13 +119,10 @@ export default function Rubrics() {
                 {/* Rubric Helper */}
                 <RubricHelper />
                 {/* Rubric Builder Button */}
-                <div
-                    onClick={() => setShowRubricBuilder(true)}
-                    className="bg-primary w-40 flex flex-row gap-x-2 justify-center py-1 mb-1 rounded-lg shadow-md hover:bg-accent text-background font-medium cursor-pointer"
-                >
+                <CustomButton onClick={() => setShowRubricBuilder(true)}>
                     <Blocks />
                     <h2>Rubric Builder</h2>
-                </div>
+                </CustomButton>
             </div>
 
             {/* Rubric Search */}

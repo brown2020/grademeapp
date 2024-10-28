@@ -18,6 +18,7 @@ export interface ProfileType {
     selectedAvatar: string;
     selectedTalkingPhoto: string;
     useCredits: boolean;
+    favoriteRubrics: string[];
 }
 
 const defaultProfile: ProfileType = {
@@ -33,7 +34,8 @@ const defaultProfile: ProfileType = {
     openai_api_key: "",
     selectedAvatar: "",
     selectedTalkingPhoto: "",
-    useCredits: true
+    useCredits: true,
+    favoriteRubrics: []
 };
 
 interface ProfileState {
@@ -43,6 +45,8 @@ interface ProfileState {
     minusCredits: (amount: number) => Promise<boolean>;
     addCredits: (amount: number) => Promise<void>;
     deleteAccount: () => Promise<void>;
+    addFavoriteRubric: (rubricId: string) => Promise<void>;
+    removeFavoriteRubric: (rubricId: string) => Promise<void>;
 }
 
 const mergeProfileWithDefaults = (
@@ -123,7 +127,7 @@ const useProfileStore = create<ProfileState>((set, get) => ({
 
         const uid = useAuthStore.getState().uid;
         if (!uid || !currentUser) return;
-    
+
         try {
             const userRef = doc(db, `users/${uid}/profile/userData`);
             // Delete the user profile data from Firestore
@@ -170,6 +174,54 @@ const useProfileStore = create<ProfileState>((set, get) => ({
             handleProfileError("adding credits", error);
         }
     },
+
+    addFavoriteRubric: async (rubricId: string) => {
+        const uid = useAuthStore.getState().uid;
+        if (!uid) return;
+
+        const profile = get().profile;
+        if (profile.favoriteRubrics.includes(rubricId)) return; // Avoid duplicates
+
+        try {
+            const updatedFavorites = [...profile.favoriteRubrics, rubricId];
+            await updateDoc(doc(db, `users/${uid}/profile/userData`), {
+                favoriteRubrics: updatedFavorites,
+            });
+
+            set({
+                profile: {
+                    ...profile,
+                    favoriteRubrics: updatedFavorites,
+                },
+            });
+        } catch (error) {
+            handleProfileError("adding favorite rubric", error);
+        }
+    },
+
+    removeFavoriteRubric: async (rubricId: string) => {
+        const uid = useAuthStore.getState().uid;
+        if (!uid) return;
+
+        const profile = get().profile;
+        if (!profile.favoriteRubrics.includes(rubricId)) return; // Ensure rubric exists in favorites
+
+        try {
+            const updatedFavorites = profile.favoriteRubrics.filter(id => id !== rubricId);
+            await updateDoc(doc(db, `users/${uid}/profile/userData`), {
+                favoriteRubrics: updatedFavorites,
+            });
+
+            set({
+                profile: {
+                    ...profile,
+                    favoriteRubrics: updatedFavorites,
+                },
+            });
+        } catch (error) {
+            handleProfileError("removing favorite rubric", error);
+        }
+    },
 }));
 
 // Helper function to create a new profile
@@ -192,7 +244,8 @@ function createNewProfile(
         openai_api_key: "",
         selectedAvatar: "",
         selectedTalkingPhoto: "",
-        useCredits: true
+        useCredits: true,
+        favoriteRubrics: [],
     };
 }
 

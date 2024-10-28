@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from 'react';
 import { RubricState } from '@/types/rubrics-types';
 import { useRubricStore } from '@/zustand/useRubricStore';
 import useProfileStore from '@/zustand/useProfileStore';
+import { toast } from 'react-hot-toast';
+import { Star } from 'lucide-react';
 
 export default function RubricSearch({
     openRubricBuilder,
@@ -17,6 +19,8 @@ export default function RubricSearch({
     const wrapperRef = useRef<HTMLDivElement>(null);
     const previousSelectedRubric = useRef<RubricState | null>(null); // Track previous selectedRubric
     const profile = useProfileStore((state) => state.profile);
+    const addFavoriteRubric = useProfileStore((state) => state.addFavoriteRubric);
+    const removeFavoriteRubric = useProfileStore((state) => state.removeFavoriteRubric);
 
     // Dynamically filter rubrics based on "gradingData" and "searchQuery"
     useEffect(() => {
@@ -42,14 +46,42 @@ export default function RubricSearch({
             setFilteredRubrics(rubricOptions); // Show all rubrics if no query
         }
 
+        // Sort to ensure favorites appear at the top
+        filtered = filtered.sort((a, b) => {
+            const aIsFavorite = profile.favoriteRubrics.includes(a.id);
+            const bIsFavorite = profile.favoriteRubrics.includes(b.id);
+            return aIsFavorite === bIsFavorite ? 0 : aIsFavorite ? -1 : 1;
+        });
+
         setFilteredRubrics(filtered);
 
-    }, [gradingData, rubricOptions, searchQuery, setFilteredRubrics, useCustomRubrics, profile.identityLevel]);
+    }, [gradingData, rubricOptions, searchQuery, setFilteredRubrics, useCustomRubrics, profile.identityLevel, profile.favoriteRubrics]);
 
     // Handle selecting a rubric
     const handleRubricSelect = (rubric: RubricState) => {
         previousSelectedRubric.current = selectedRubric;
         setSelectedRubric(rubric);
+        toast.success(`Selected: ${rubric.name}`, {
+            icon: '🎉'
+        });
+    };
+
+    // Handle adding/removing a rubric from favorites
+    const handleRubricFavorite = async (rubric: RubricState) => {
+        const isFavorite = profile.favoriteRubrics.includes(rubric.id);
+
+        try {
+            if (isFavorite) {
+                await removeFavoriteRubric(rubric.id);
+                toast.success("Removed from favorites");
+            } else {
+                await addFavoriteRubric(rubric.id);
+                toast.success("Added to favorites");
+            }
+        } catch (error) {
+            console.error("Error updating favorites:", error);
+            toast.error("Error updating favorites");
+        }
     };
 
     return (
@@ -63,25 +95,35 @@ export default function RubricSearch({
                     placeholder="Search for a rubric..."
                 />
             </div>
-            {/* Seach Results Display */}
-            <div ref={wrapperRef} className="w-full bg-secondary rounded-b-lg h-[33vh] overflow-y-auto">
+            {/* Search Results Display */}
+            <div ref={wrapperRef} className="w-full bg-accent rounded-b-lg h-[33vh] overflow-y-auto">
                 <div
-                    className="cursor-pointer font-medium select-none px-4 pt-1 text-blue-600 hover:underline"
+                    className="cursor-pointer font-medium select-none px-4 pt-1 mb-1 text-primary underline underline-offset-2 hover:text-primary-foreground"
                     onClick={openRubricBuilder} // Open the custom rubric builder
                 >
                     Create Custom Rubric
                 </div>
                 {filteredRubrics.length > 0 ? (
-                    filteredRubrics.map((rubric) => (
-                        <div
-                            key={rubric.name}
-                            onClick={() => handleRubricSelect(rubric)}
-                            className="cursor-pointer select-none px-4 pb-2 hover:ring-2 focus:ring-2 ring-accent ring-inset "
-                        >
-                            <span className="block text-sm font-semibold">{rubric.name}</span>
-                            <span className="block text-xs text-gray-800">{rubric.description}</span>
-                        </div>
-                    ))
+                    filteredRubrics.map((rubric) => {
+                        const isFavorite = profile.favoriteRubrics.includes(rubric.id);
+                        return (
+                            <div key={rubric.id} className='flex flex-row gap-x-2 px-2'>
+                                <Star
+                                    onClick={() => handleRubricFavorite(rubric)}
+                                    size={20}
+                                    className={`flex-none cursor-pointer ${isFavorite ? " fill-secondary" : "fill-none"}`}
+                                />
+                                <div
+                                    key={rubric.name}
+                                    onClick={() => handleRubricSelect(rubric)}
+                                    className="cursor-pointer select-none pb-2 hover:brightness-110 bg-accent focus:ring-2 ring-secondary ring-inset "
+                                >
+                                    <span className="block text-sm font-semibold">{rubric.name}</span>
+                                    <span className="block text-xs text-gray-800">{rubric.description}</span>
+                                </div>
+                            </div>
+                        );
+                    })
                 ) : (
                     <div className="cursor-default select-none px-4 text-gray-700">
                         No matching rubrics
