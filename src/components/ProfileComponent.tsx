@@ -117,13 +117,13 @@ export default function ProfileComponent() {
   return (
     <div className="flex flex-col gap-4">
       {/* Conditionally render the credits purchase section */}
-      <div className="flex flex-col sm:flex-row px-5 py-3 gap-3 border border-gray-500 rounded-md">
+      <div className="flex flex-col sm:flex-row px-2 py-3 gap-3 border border-gray-500 rounded-md">
         <div className="flex gap-2 w-full items-center">
-          <div className="flex-1">
-            Usage Credits: {Math.round(profile.credits)}
+          <div className="flex-1 bg-secondary-90 px-2 py-1 rounded-full text-center">
+            Available Credits: {Math.round(profile.credits)}
           </div>
           <button
-            className="bg-blue-500 text-white px-3 py-2 rounded-md hover:opacity-50 flex-1 text-center"
+            className="btn btn-shiny btn-shiny-blue"
             onClick={handleBuyClick}
           >
             Buy 10,000 Credits
@@ -178,7 +178,7 @@ export default function ProfileComponent() {
           Settings:
         </label>
         <button
-          className="btn-primary bg-[#e32012] self-start rounded-md hover:bg-[#e32012]/30"
+          className="btn btn-shiny btn-shiny-red"
           onClick={handleDeleteClick}
         >
           Delete Account

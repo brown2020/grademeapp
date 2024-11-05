@@ -8,6 +8,7 @@ import { getVerbsByValue, userInputs } from "@/constants/userInputs";
 import { useRubricStore } from "@/zustand/useRubricStore";
 import useProfileStore from "@/zustand/useProfileStore";
 import { LifeBuoy } from "lucide-react";
+import CustomButton from "@/components/ui/CustomButton";
 
 export default function RubricHelper() {
     const { gradingData, setGradingData } = useRubricStore();
@@ -70,18 +71,18 @@ export default function RubricHelper() {
 
     return (
         <div>
-            <div onClick={isOpen ? closeRubricHelper : () => setIsOpen(true)} className="bg-accent w-40 flex flex-row gap-x-2 justify-center py-2 rounded-lg shadow-button active:shadow-pressed text-accent-foreground font-medium cursor-pointer transition-shadow duration-150 ease-in-out">
+            <CustomButton onClick={isOpen ? closeRubricHelper : () => setIsOpen(true)} className="btn-shiny btn-shiny-yellow-orange">
                 <LifeBuoy />
                 <h2>Rubric Helper</h2>
-            </div>
+            </CustomButton>
 
             <div className={`bg-black/30 absolute inset-0 w-full h-full z-10 ${isOpen ? 'overlay-open' : 'overlay-closed'}`} aria-hidden="true" />
             <div
                 ref={rubricHelperRef}
-                className={`flex  flex-col bg-background border-primary border-t-2 border-l-2 border-b-2 p-2 rounded-l-lg fixed right-0 top-[100px] h-[310px] max-w-xs w-full z-10 transition-all ${isOpen ? 'animate-enter' : isExiting ? 'animate-exit' : 'hidden'}`}
+                className={`flex  flex-col bg-background border-primary-40 border-t-2 border-l-2 border-b-2 p-2 rounded-l-lg fixed right-0 top-[8svh] h-[42svh] max-w-xs w-full z-10 transition-all ${isOpen ? 'animate-enter' : isExiting ? 'animate-exit' : 'hidden'}`}
             >
                 <div className="flex flex-row gap-x-2 items-center justify-center mb-2">
-                    <LifeBuoy className="text-primary" />
+                    <LifeBuoy className="text-primary-40" />
                     <h2 className="text-xl font-medium">Rubric Helper</h2>
                 </div>
                 <div className="flex flex-wrap items-center mr-2">
@@ -128,7 +129,7 @@ export default function RubricHelper() {
                 {/* My [assigner] has asked me to [text_type][verb] [topic] in a(n) [prose] for [audience]. */}
 
                 <div className="flex flex-wrap items-center gap-y-2">
-                    <hr className="w-full border-t-2 border-gray-300" />
+                    <hr />
                     <div className="flex flex-row flex-wrap items-center">
                         <span className="w-fit mr-2">My</span>
                         <div className="w-fit mr-2">
@@ -241,6 +242,7 @@ export default function RubricHelper() {
                                 buttonClassName="w-fit flex"
                                 placeholder="Select..."
                             />
+
                             <input
                                 type="number"
                                 name="wordLimit"
@@ -252,13 +254,22 @@ export default function RubricHelper() {
                                     }
                                 }}
                                 placeholder="Enter word limit"
-                                className="flex h-8 w-28 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs sm:text-lg"
+                                className="flex h-8 w-24 text-center px-1 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs sm:text-lg"
                             />
+                            <span className="w-fit">words.</span>
                         </div>
                     </div>
                 </div>
-                <div onClick={handleReset} className="bg-red-600 px-2 py-1 rounded-md shadow cursor-pointer text-sm text-gray-200 absolute bottom-2 right-2">
-                    Reset
+
+                <div className="absolute bottom-2 flex flex-row gap-x-4 justify-start">
+                    {/* Done button to close form */}
+                    <div onClick={closeRubricHelper} className="btn btn-shiny btn-shiny-green">
+                        Done
+                    </div>
+                    {/* Reset the form */}
+                    <div onClick={handleReset} className="btn btn-shiny btn-shiny-red">
+                        Reset
+                    </div>
                 </div>
             </div>
         </div>

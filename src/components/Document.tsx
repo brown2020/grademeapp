@@ -19,9 +19,11 @@ import { correctGrammarAndSpelling } from "@/actions/correctGrammarSpelling";
 import { extractGrade } from "@/utils/responseParser";
 import { saveHistory } from "@/utils/saveHistory";
 import { UserHistoryType } from "@/types/user-history";
-import { Bot, Download, Wand2 } from "lucide-react";
+import { Download, Wand2 } from "lucide-react";
 import Tiptap from "@/components/ui/Tiptap";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import grademe from "@/app/assets/grademe.svg";
 
 
 const fetchDocumentById = async (uid: string, id: string) => {
@@ -50,14 +52,14 @@ const Document = () => {
     const [prompt, setPrompt] = useState<string>("");
     const [fileUrl, setFileUrl] = useState<string>("");
     const router = useRouter();
-    // get timestamp from path /history/${summary.id}/${submission.timestamp}
 
+    // get timestamp from path /history/${summary.id}/${submission.timestamp}
     useEffect(() => {
         const submissionTimestamp = Timestamp.fromMillis(Number(timestamp));
         setSubmissionTimestamp(submissionTimestamp);
     }, [timestamp]);
 
-
+    // Load the requested document
     useEffect(() => {
         const getDocument = async () => {
             try {
@@ -79,8 +81,7 @@ const Document = () => {
         }
     }, [uid, summaryID, submissionTimestamp]);
 
-    console.log(userDoc);
-
+    // Find the matching submission
     useEffect(() => {
         if (userDoc && submissionTimestamp) {
             // Find the submission with the matching timestamp
@@ -118,6 +119,7 @@ const Document = () => {
         setActive(gradingData.text.length > 1 && localCount > 0);
     }, [localCount, gradingData.text]);
 
+    // Get the current amount of credits from the profile
     useEffect(() => {
         setLocalCount(profile.credits);
     }, [profile]);
@@ -209,7 +211,7 @@ const Document = () => {
                     setHasSaved(true);
                 }
             );
-            toast.success("Document saved successfully", { position: "top-center" });
+            toast.success("Document saved successfully");
         }
     }, [
         isStreamingComplete,
@@ -285,12 +287,15 @@ const Document = () => {
     }
 
     return (
-        <div className="mb-5">
-            <h1 className="font-bold text-xl">{gradingData.title}</h1>
+        <div className="flex flex-col gap-y-3 mb-5">
+            <div>
+                <h1>{gradingData.title}</h1>
+                <hr />
+            </div>
             <h2 className="font-medium">( Grade: {grade} )</h2>
             <div
                 onClick={() => router.push("/rubrics")}
-                className="text-sm font-semibold px-2 py-1 bg-accent text-primary-foreground shadow rounded-lg cursor-pointer"
+                className="bg-primary-90 text-sm font-semibold p-2 text-center shadow-sm rounded-lg cursor-pointer"
             >
                 {selectedRubric?.name ? selectedRubric.name : "Select a rubric"}
             </div>
@@ -298,8 +303,8 @@ const Document = () => {
                 <form className="flex flex-col gap-y-2" onSubmit={handleSubmit}>
                     {/* Title */}
                     <section>
-                        <label className="block text-primary font-medium" htmlFor="title">Title</label>
-                        <hr className="border border-accent mb-2" />
+                        <label className="block text-primary-40 font-medium" htmlFor="title">Title</label>
+                        <hr />
                         <input
                             type="text"
                             name="title"
@@ -307,14 +312,14 @@ const Document = () => {
                             value={gradingData.title}
                             onChange={(e) => setGradingData({ title: e.target.value })}
                             placeholder="Enter the title here"
-                            className="mt-1 block w-full rounded-md bg-secondary px-2 py-1 shadow-sm focus:border-accent focus:ring-accent sm:text-sm placeholder:text-primary"
+                            className="py-1 px-2 w-full bg-primary-90 border-b-2 border-slate-800 focus:outline-none focus:border-primary-40 focus:bg-primary-80 rounded-t-lg"
                         />
                     </section>
                     {/* Text Editor and File Upload */}
                     <section>
                         <div className="relative">
-                            <label className="block font-medium text-primary" htmlFor="text">Text</label>
-                            <hr className="border border-accent mb-2" />
+                            <label className="block font-medium text-primary-40" htmlFor="text">Text</label>
+                            <hr />
                             <Tiptap
                                 wordLimit={gradingData.wordLimit}
                                 wordLimitType={gradingData.wordLimitType}
@@ -327,37 +332,34 @@ const Document = () => {
                     <div className="flex flex-row justify-between gap-10">
                         <div className="flex flex-row gap-x-2">
                             {/* Submit Button */}
-                        <div className={`flex flex-row bg-primary  rounded-full items-center ${active ? 'opacity-100' : 'opacity-50'}`}>
                             <button
                                 type="submit"
                                 id="grademe"
                                 onClick={handleSubmit}
                                 disabled={!active}
-                                className={`inline-flex justify-center items-center gap-x-2 rounded-md border-transparent text-primary-foreground mr-2`}
+                                className={`btn btn-shiny border-2 border-primary-40 rounded-full size-20 p-1  ${!active ? "cursor-not-allowed" : ""}`}
                             >
-                                <Bot className=" text-primary flex place-self-center place-items-center rounded-full border-2 border-primary bg-secondary p-1.5 size-10" />
-                                <p>grade.me</p>
+                                <Image alt={"grademe logo"} src={grademe} width={50} height={50} layout="contain" objectFit="cover" className="bg-secondary-97 rounded-full p-1 size-16" />
                             </button>
-                        </div>
 
                             {fileUrl && (
                                 <a href={fileUrl} target="_blank" rel="noreferrer">
                                     <div
                                         className={
-                                            "flex gap-x-2 text-white font-semibold bg-accent rounded-lg px-3 py-2 justify-center items-center cursor-pointer hover:brightness-110"
+                                            "btn btn-shiny btn-shiny-teal size-20 rounded-full flex gap-x-2 text-white font-semibold bg-accent md:rounded-lg md:size-fit px-3 py-2 justify-center items-center cursor-pointer hover:brightness-110"
                                         }
                                     >
-                                        <Download size={25} />
+                                        <Download size={35} />
                                         <p className="hidden sm:flex">Download</p>
                                     </div>
                                 </a>
                             )}
 
                             <div
-                                className="flex gap-x-2 text-white font-semibold bg-purple-500 rounded-lg px-3 py-1 items-center cursor-pointer hover:bg-purple-400"
+                                className="btn btn-shiny btn-shiny-purple-blue rounded-full size-20 flex gap-x-2 text-white font-semibold bg-purple-500 md:rounded-lg md:size-fit px-3 py-2 items-center cursor-pointer hover:bg-purple-400"
                                 onClick={handleFixGrammarSpelling}
                             >
-                                <Wand2 size={20} />
+                                <Wand2 size={35} />
                                 <p className="hidden sm:flex">Fix Grammar & Spelling</p>
                             </div>
 

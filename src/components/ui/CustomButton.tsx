@@ -7,10 +7,11 @@ interface CustomButtonProps {
 }
 
 const CustomButton: React.FC<CustomButtonProps> = ({ onClick, children, className }) => {
+
     return (
         <div
             onClick={onClick}
-            className={`btn-test ${className}`}
+            className={`btn btn-hover btn-disabled ${className}`}
         >
             {children}
         </div>

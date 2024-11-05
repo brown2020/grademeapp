@@ -11,55 +11,30 @@
         width: 100vw;
         overflow-x: hidden;
         overflow-y: hidden;
-        background-color: #FEFEFE;
-        color: #283618;
+        background-color: #FAFFFA;
+        color: #0D2330;
     }
 
     :root {
-        --background: 0, 0%, 95%;
-        /* New background color */
+        --background: 105 100%, 99%;
         --foreground: 240 10% 3.9%;
-        /* New text color */
-        --primary: 216, 92%, 14%;
-        /* New primary color */
-        --primary-foreground: 0 0% 95%;
-        /* Light foreground for contrast */
-        --secondary: 330, 28%, 82%;
-        /* New secondary color */
-        --secondary-foreground: 0 0% 95%;
-        /* Text color */
-        --accent: 186, 42%, 54%;
-        /* New accent color */
-        --accent-foreground: 0 0% 95%;
-        /* Light foreground */
+        --color-primary-h: 94;
+        --color-primary-s: 98%;
+        --color-secondary-h: 120;
+        --color-secondary-s: 100%;
+        --accent: 180, 20%, 96%;
+        --accent-foreground: 300 100% 0%;
         --border: 0 22% 14%;
-        /* New border color */
         --input: 0 22% 14%;
-        /* Input border color */
         --ring: 216 92% 14%;
-        /* Accent color for ring */
         --card: 0 0% 100%;
         --card-foreground: 240 10% 3.9%;
         --popover: 0 0% 100%;
         --popover-foreground: 240 10% 3.9%;
-        /* --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%; */
         --muted: 240 4.8% 95.9%;
         --muted-foreground: 240 3.8% 46.1%;
-        /* --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%; */
         --destructive: 0 84.2% 60.2%;
         --destructive-foreground: 0 0% 98%;
-        /* --border: 240 5.9% 90%; */
-        /* --input: 240 5.9% 90%; */
-        /* --ring: 240 10% 3.9%; */
-        --chart-1: 12 76% 61%;
-        --chart-2: 173 58% 39%;
-        --chart-3: 197 37% 24%;
-        --chart-4: 43 74% 66%;
-        --chart-5: 27 87% 67%;
         --radius: 0.5rem;
     }
 
@@ -67,7 +42,6 @@
         --background: 240 10% 3.9%;
         --foreground: 0 0% 98%;
         --primary: 0 55% 44%;
-        /* Keeping primary color consistent */
         --primary-foreground: 0 0% 100%;
         --secondary: 34 100% 86%;
         --secondary-foreground: 0 22% 14%;
@@ -76,30 +50,14 @@
         --border: 0 22% 14%;
         --input: 0 22% 14%;
         --ring: 88 15% 33%;
-        /* --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%; */
         --card: 240 10% 3.9%;
         --card-foreground: 0 0% 98%;
         --popover: 240 10% 3.9%;
         --popover-foreground: 0 0% 98%;
-        /* --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%; */
         --muted: 240 3.7% 15.9%;
         --muted-foreground: 240 5% 64.9%;
-        /* --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%; */
         --destructive: 0 62.8% 30.6%;
         --destructive-foreground: 0 0% 98%;
-        /* --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%; */
-        --chart-1: 220 70% 50%;
-        --chart-2: 160 60% 45%;
-        --chart-3: 30 80% 55%;
-        --chart-4: 280 65% 60%;
-        --chart-5: 340 75% 55%;
     }
 }
 
@@ -213,7 +171,7 @@
             }
 
             &.is-active {
-                @apply bg-secondary text-secondary-foreground;
+                @apply bg-secondary text-secondary-50;
 
                 &:hover {
                     @apply brightness-110;
@@ -222,20 +180,75 @@
         }
     }
 
-    .btn {
-        @apply flex items-center justify-center px-3 py-2 hover:opacity-50 rounded-md gap-1 disabled:opacity-50;
-    }
+
 
     .btn-primary {
-        @apply cursor-pointer flex w-full outline-none text-center justify-center items-center gap-2 mt-2 px-6 py-2 bg-[#2563EB] text-white font-semibold hover:bg-[#2563EB]/30 rounded-full disabled:bg-[#2563EB]/30 disabled:hover:bg-[#2563EB]/30 disabled:cursor-not-allowed;
+        @apply bg-[#58CC02] text-gray-200 w-fit flex flex-row gap-x-2 justify-center items-center py-2 px-3 rounded-lg shadow-button active:shadow-pressed active:scale-95 font-medium cursor-pointer transition duration-100 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed;
     }
 
-    .btn-test {
-        @apply bg-accent w-fit flex flex-row gap-x-2 justify-center items-center py-2 px-3 rounded-lg shadow-button active:shadow-pressed text-accent-foreground font-medium cursor-pointer transition-shadow duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed;
+    .btn {
+        @apply flex items-center justify-center px-3 py-2  rounded-lg gap-1 disabled:opacity-50 w-fit;
     }
 
-    .btn-danger {
-        @apply cursor-pointer flex w-full outline-none text-center justify-center items-center gap-2 mt-2 px-6 py-2 bg-[#DC2626] text-white font-semibold hover:bg-[#DC2626]/30 rounded-full disabled:bg-[#DC2626]/30 disabled:hover:bg-[#DC2626]/30 disabled:cursor-not-allowed;
+    .btn-shiny {
+        @apply cursor-pointer inline-flex justify-center whitespace-nowrap rounded-lg px-3.5 py-2.5 text-sm font-medium text-primary-97 dark:text-slate-800 shadow-button active:shadow-pressed active:scale-95 focus:outline-none focus:ring focus:ring-slate-500/50 focus-visible:outline-none focus-visible:ring focus-visible:ring-slate-500/50 relative;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-shiny::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        @apply rounded-[inherit];
+        background: linear-gradient(45deg,
+                transparent 25%,
+                rgba(255, 255, 255, 0.5) 50%,
+                transparent 75%,
+                transparent 100%);
+        background-size: 250% 250%;
+        background-position: 200% 0;
+        @apply bg-no-repeat;
+        transition: background-position 1.5s ease;
+    }
+
+    .btn-shiny:hover::before {
+        background-position: -100% 0;
+    }
+
+    .btn-shiny-green {
+        @apply bg-gradient-to-r from-[#02cc1d] to-green-600 dark:from-slate-200 dark:to-slate-100 dark:hover:bg-slate-100;
+    }
+
+    .btn-shiny-red {
+        @apply bg-gradient-to-r from-[#DC2626] to-red-600 dark:from-red-300 dark:to-red-200 dark:hover:bg-red-200;
+    }
+
+    .btn-shiny-blue {
+        @apply bg-gradient-to-r from-blue-500 to-blue-700 dark:from-blue-300 dark:to-blue-100 dark:hover:bg-blue-100;
+    }
+
+    .btn-shiny-pink-orange {
+        @apply bg-gradient-to-r from-[#F54EA2] to-[#FF7676] dark:from-pink-200 dark:to-orange-100 dark:hover:bg-pink-100;
+    }
+
+    .btn-shiny-teal {
+        @apply bg-gradient-to-r from-[#13cdfc] to-[#0470DC] dark:from-teal-300 dark:to-blue-200 dark:hover:bg-teal-100;
+    }
+
+    .btn-shiny-yellow-orange {
+        @apply bg-gradient-to-r from-[#fabd61] to-[#F76B1C] dark:from-yellow-200 dark:to-orange-100 dark:hover:bg-yellow-100;
+    }
+
+    .btn-shiny-purple-blue {
+        @apply bg-gradient-to-r from-[#8A2BE2] to-[#4B0082] dark:from-purple-300 dark:to-indigo-200 dark:hover:bg-purple-100;
+    }
+
+
+
+    /* .btn-danger {
+        @apply cursor-pointer flex w-full outline-none text-center justify-center items-center gap-2 mt-2 px-6 py-2 from-[#DC2626] to-red-600 text-white font-semibold hover:bg-[#DC2626]/30 rounded-full disabled:bg-[#DC2626]/30 disabled:hover:bg-[#DC2626]/30 disabled:cursor-not-allowed;
     }
 
     .btn-blue {
@@ -256,10 +269,14 @@
 
     .btn-secondary {
         @apply cursor-pointer flex outline-none items-center gap-2 mt-2 px-6 py-2 bg-white/10 text-black/50 font-semibold hover:bg-white/30 ml-auto rounded-full;
-    }
+    } */
 
     .input-primary {
-        @apply w-full text-black px-4 py-2 outline-none shadow-md bg-secondary rounded-lg;
+        @apply w-full text-black px-4 py-2 outline-none shadow-md bg-gray-200 rounded-lg;
+    }
+
+    .input-secondary {
+        @apply py-1 px-2 w-full bg-primary-97 border-b-2 border-slate-800 focus:outline-none focus:border-primary-40 focus:bg-secondary-90 rounded-t-lg;
     }
 
     .text-wrapper {
@@ -292,11 +309,11 @@
 
     .form-wrapper input,
     .form-wrapper textarea {
-        @apply px-2 py-1 bg-secondary rounded-md;
+        @apply px-2 py-1 bg-gray-200 rounded-md;
     }
 
     .form-wrapper button {
-        @apply mr-auto bg-primary text-background font-medium cursor-pointer disabled:opacity-50 hover:bg-accent;
+        @apply mr-auto bg-primary-40 text-background font-medium cursor-pointer disabled:opacity-50 hover:bg-accent;
     }
 
     .response {
@@ -310,6 +327,10 @@
     .form-input-required {
         @apply px-2 py-2 border border-red-500 w-full outline-none text-sm rounded-[4px];
     }
+
+    .tooltip {
+        @apply absolute left-0 w-32 px-2 py-1 bg-secondary-20 text-xs text-primary-90 rounded opacity-100 peer-hover:opacity-100 transition-opacity z-20;
+    }
 }
 
 @layer base {
@@ -319,5 +340,13 @@
 
     body {
         @apply bg-background text-foreground;
+    }
+
+    h1 {
+        @apply text-xl font-bold text-left text-primary-30 mb-1;
+    }
+
+    hr {
+        @apply border-t border-primary-30 mb-2;
     }
 }

@@ -82,7 +82,7 @@ const CustomListbox = <T extends string | number | string[] | null>({
                                     )}
                                 />
                             </div>
-                            <hr className="border border-accent absolute left-0 right-0 top-full mt-1" />
+                            <hr />
                         </div>
                     </ListboxButton>
                     <ListboxOptions anchor="bottom" className={clsx("rounded-md cursor-pointer z-10", "custom-listbox-options", optionsWrapperClassName)}>
@@ -93,8 +93,8 @@ const CustomListbox = <T extends string | number | string[] | null>({
                                 as={MyCustomDiv}
                                 // Apply alternating background color based on even/odd index
                                 className={clsx(
-                                    "group flex gap-2 px-2 py-1 data-[focus]:bg-background text-sm",
-                                    index % 2 === 0 ? "bg-gray-200" : "bg-gray-100", // Alternating background colors
+                                    "group flex gap-2 px-2 py-1 data-[focus]:bg-secondary-50 text-sm",
+                                    index % 2 === 0 ? "bg-secondary-97" : "bg-secondary-93", // Alternating background colors
                                     optionClassName
                                 )}
                             >

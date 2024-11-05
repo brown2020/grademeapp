@@ -23,6 +23,7 @@ import { PlusCircle, Search, XCircle } from "lucide-react";
 // import { getExcerpt } from "@/utils/responseParser";
 import { UserHistoryType } from "@/types/user-history";
 import { useRouter } from "next/navigation";
+import CustomButton from "./ui/CustomButton";
 
 interface DebounceFunction {
     (func: (value: string) => void, delay: number): (value: string) => void;
@@ -92,10 +93,10 @@ export default function History() {
             setSummaries((prev) =>
                 prev.filter((summary) => summary.id !== summaryId)
             );
-            toast.success("Document deleted successfully", { position: "top-center" });
+            toast.success("Document deleted successfully");
             return true;
         } catch (error) {
-            toast.error("An error occurred while deleting the summary", { position: "top-center" });
+            toast.error("An error occurred while deleting the summary");
             console.error("Error deleting document:", error);
             return false;
         }
@@ -106,7 +107,7 @@ export default function History() {
         async (startAfterKey?: Timestamp) => {
             if (uid && !loading) {
                 setLoading(true);
-                const id = toast.loading("Loading history...", { position: "top-center" });
+                const id = toast.loading("Loading history...");
                 try {
                     const c = collection(db, "users", uid, "summaries");
                     const q = startAfterKey
@@ -167,21 +168,21 @@ export default function History() {
     if (!uid) return <div>Not signed in</div>;
 
     return (
-        <div className="flex flex-col gap-y-2">
+        <div className="flex flex-col gap-y-4">
             <div>
-                <h1 className="text-xl font-bold text-left text-primary">Assignments</h1>
-                <hr className="border border-primary" />
+                <h1>Assignments</h1>
+                <hr />
             </div>
 
-            <div onClick={()=> setTimeout(() => router.push('/grademe'), 300)} className="btn-test">
+            <CustomButton onClick={()=> setTimeout(() => router.push('/grademe'), 300)} className="btn-shiny btn-shiny-green w-full md:w-fit">
                 <PlusCircle />
                 <p>Grade New Assignment</p>
-            </div>
+            </CustomButton>
 
-            <div className="flex flex-row items-center px-3 bg-secondary focus-within:ring ring-accent rounded-full w-full ring-offset-1">
-                <Search size={20} className="flex text-primary" />
+            <div className="flex flex-row items-center px-3 bg-secondary-95 focus-within:ring-1 ring-primary-30 rounded-full w-full ring-offset-4 shadow-sm">
+                <Search size={20} className="flex text-primary-40" />
                 <input
-                    className="w-full px-3 h-8 bg-secondary outline-none placeholder:text-primary"
+                    className="w-full px-3 h-8 outline-none bg-secondary-95 placeholder:text-primary-30"
                     type="text"
                     placeholder="Find an assignment..."
                     onChange={(e) => handleSearchChange(e.target.value)}
@@ -189,8 +190,8 @@ export default function History() {
             </div>
 
             <div>
-                <h2 className="text-primary text-left font-medium text-lg">Recent Assignments</h2>
-                <hr className="border-0.5 border-accent mb-2" />
+                <h2 className="text-primary-30 text-left font-medium text-lg">Recent Assignments</h2>
+                <hr />
             </div>
             <div className="flex flex-col space-y-3">
                 {orderedSummaries
@@ -203,11 +204,10 @@ export default function History() {
                     .map((summary, index) => (
                         <div
                             key={`${summary.id}-${summary.timestamp.seconds}-${index}`}
-                            className="flex flex-col px-2 py-1 rounded-lg shadow-md bg-accent"
+                            className="flex flex-col px-2 py-1 rounded-lg shadow-md bg-secondary-98"
                         >
-
                             <div className="flex flex-col justify-between items-baseline w-full">
-                                <div className="flex flex-row text-primary w-full font-medium cursor-pointer">
+                                <div className="flex flex-row text-primary-10 w-full font-medium cursor-pointer">
                                     <p
                                         className="truncate underline"
                                         onClick={() => { router.push(`/history/${summary.id}`) }}
@@ -229,7 +229,7 @@ export default function History() {
                                 </div>
                             </div>
                             <div>
-                                <hr className="border-0.5 border-accent" />
+                                <hr />
                                 <div className="flex flex-col gap-y-2">
                                     {summary.submissions.map((submission, i) => (
                                         <div key={i} className="text-sm flex flex-row gap-x-2 justify-between">
@@ -250,7 +250,7 @@ export default function History() {
             </div>
             {lastKey && (
                 <button
-                    className="btn-test w-full"
+                    className="btn btn-shiny btn-shiny-blue w-full md:fit"
                     onClick={postsNextBatch}
                 >
                     Load More

@@ -104,7 +104,7 @@ export default function PaymentSuccessPage({ payment_intent }: Props) {
         <div>validating...</div>
       ) : id ? (
         <div className="mb-10">
-          <h1 className="text-4xl font-extrabold mb-2">Thank you!</h1>
+          <h1>Thank you!</h1>
           <h2 className="text-2xl">You successfully purchased credits</h2>
           <div className="bg-white p-2 rounded-md my-5 text-4xl font-bold mx-auto">
             ${amount / 100}

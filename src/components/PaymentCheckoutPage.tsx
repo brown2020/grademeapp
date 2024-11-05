@@ -90,7 +90,7 @@ export default function PaymentCheckoutPage({ amount }: Props) {
   return (
     <main className="flex flex-col w-full items-center max-w-6xl mx-auto py-10">
       <div className="mb-10">
-        <h1 className="text-4xl">Buy 10,000 Credits</h1>
+        <h1>Buy 10,000 Credits</h1>
         <h2 className="text-2xl">
           Purchase amount: <span className="font-bold">${amount}</span>
         </h2>

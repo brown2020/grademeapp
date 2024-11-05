@@ -20,6 +20,7 @@ import { useAuthStore } from "@/zustand/useAuthStore";
 import { auth } from "@/firebase/firebaseClient";
 import { isIOSReactNativeWebView } from "@/utils/platform";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 export default function AuthComponent() {
   const setAuthDetails = useAuthStore((s) => s.setAuthDetails);
@@ -38,8 +39,9 @@ export default function AuthComponent() {
   const modalRef = useRef<HTMLDivElement>(null);
   const [showGoogleLogin, setShowGoogleLogin] = useState(true);
   const [forgotPasswordMode, setForgotPasswordMode] = useState(false); // New state
+  const router = useRouter();
 
-  const showModal = () => setIsVisible(true);
+  const showModal = () => setTimeout(() => setIsVisible(true), 300);
   const hideModal = () => setIsVisible(false);
 
   useEffect(() => {
@@ -73,6 +75,7 @@ export default function AuthComponent() {
       alert("An error occurred while signing out.");
     } finally {
       hideModal();
+      router.push("/");
     }
   };
 
@@ -146,13 +149,13 @@ export default function AuthComponent() {
   return (
     <>
       <div className="flex flex-col">
-        <button onClick={showModal} className="btn-primary max-w-md mx-auto">
+        <button onClick={showModal} className="btn-shiny btn-shiny-green text-lg">
           {uid ? "You are signed in" : "Sign In to Enable Your Account"}
         </button>
       </div>
 
       {isVisible && (
-        <div className="fixed inset-0 bg-black/60 flex justify-center items-center">
+        <div className="fixed inset-0 px-2 bg-black/60 flex justify-center items-center">
           <div
             ref={modalRef}
             className="relative bg-white text-black p-4 rounded-lg shadow-lg w-full max-w-md mx-auto"
@@ -170,7 +173,7 @@ export default function AuthComponent() {
                 <div className="text-2xl text-center">You are signed in</div>
                 <div className="input-disabled">{authDisplayName}</div>
                 <div className="input-disabled">{authEmail}</div>
-                <button onClick={handleSignOut} className="btn-danger">
+                <button onClick={handleSignOut} className="btn-shiny btn-shiny-red">
                   Sign Out
                 </button>
               </div>
@@ -194,7 +197,7 @@ export default function AuthComponent() {
                     </span>
                   </div>
                 </div>
-                <button onClick={handleSignOut} className="btn-danger">
+                <button onClick={handleSignOut} className="btn-shiny btn-shiny-red">
                   Start Over
                 </button>
               </div>
@@ -283,12 +286,12 @@ export default function AuthComponent() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
-                    className="input-primary mt-2"
+                    className="input-primary my-2"
                   />
                 )}
                 <button
                   type="submit"
-                  className="btn-primary"
+                  className="btn-shiny btn-shiny-green text-lg w-fit place-self-center"
                   disabled={!email || (!isEmailLinkLogin && !password)}
                 >
                   {isEmailLinkLogin ? (
@@ -321,12 +324,12 @@ export default function AuthComponent() {
                     Forgot Password?
                   </button>
                 </div>
-                <label className="flex items-center space-x-2 pl-1">
+                <label className="flex w-fit items-center space-x-2 pl-1">
                   <input
                     type="checkbox"
                     checked={acceptTerms}
                     onChange={(e) => setAcceptTerms(e.target.checked)}
-                    className="h-full"
+                    className="w-fit"
                     required
                   />
                   <span>

@@ -39,13 +39,13 @@ const Summary = () => {
                 const summaryData = await fetchSummaryById(uid as string, summaryID as string);
                 setSummary(summaryData || null);
                 setRubric(summaryData?.userInput?.rubric as unknown as BaseRubric || null);
-                toast.dismiss();
-                toast.success("Summary loaded successfully", { id: "loading", position: "top-center" });
             } catch (error) {
                 console.error("Error in getSummary", error);
-                toast.error("Failed to load the summary.", { id: "loading", position: "top-center" });
+                toast.error("Failed to load the summary.", { id: "loading" });
             } finally {
                 setLoading(false);
+                toast.dismiss();
+                toast.success("Summary loaded successfully", { id: "loading" });
             }
         };
 
@@ -65,16 +65,20 @@ const Summary = () => {
     console.log(summary);
 
     return (
-        <div className="flex flex-col gap-y-2 p-1 max-w-2xl mx-auto">
+        <div className="flex flex-col gap-y-4 p-1 max-w-2xl mx-auto">
             {/* Title, Topic, and Rubric */}
-            <h1 className="text-xl font-bold">Title: {summary.userInput.title}</h1>
+            <div>
+                <h1>Summary</h1>
+                <hr />
+            </div>
+            <h2>Title: {summary.userInput.title}</h2>
             <p className="text-lg"><strong>Topic: </strong> {summary.userInput.topic}</p>
             {/* File Download Button */}
             {summary.fileUrl && (
-                <a href={summary.fileUrl} target="_blank" rel="noreferrer">
+                <a href={summary.fileUrl} target="_blank" rel="noreferrer" className="w-full">
                     <div
                         className={
-                            "flex gap-x-2 text-white w-fit font-semibold bg-accent rounded-lg px-3 py-1 items-center cursor-pointer hover:brightness-110"
+                            "btn btn-shiny btn-shiny-teal w-full gap-x-4 text-lg py-1"
                         }
                     >
                         <Download />
@@ -98,24 +102,24 @@ const Summary = () => {
                         <Disclosure key={index}>
                             {({ open }) => (
                                 <>
-                                    <DisclosureButton className="flex justify-between items-center w-full px-2 py-2 text-xs sm:text-sm font-medium text-left text-primary bg-secondary rounded-lg hover:brightness-110 focus:ring focus:ring-accent mb-2">
+                                    <DisclosureButton className="btn btn-shiny btn-shiny-teal text-primary-95 w-full mb-3 px-2 justify-between">
                                         <span>
                                             #{index + 1} - {submission.timestamp.toDate().toLocaleDateString('en-US')}
                                         </span>
                                         <span>Grade: {submission.grade}</span>
                                         <Link href={`/history/${summaryID}/${submission.timestamp.toMillis()}`}>
-                                            <p className="text-white bg-primary px-3 py-2 rounded">
+                                            <p className=" px-3 py-2 underline underline-offset-4">
                                                 Revise and Edit
                                             </p>
                                         </Link>
-                                        <ChevronDown className={`${open ? "transform rotate-180" : ""} w-5 h-5 text-primary duration-300 ease-in-out transition`} />
+                                        <ChevronDown className={`${open ? "transform rotate-180" : ""} w-5 h-5 duration-300 ease-in-out transition`} />
                                     </DisclosureButton>
 
-                                    <DisclosurePanel transition className="ring ring-accent rounded-lg ring-inset p-2 text-sm origin-top transition duration-200 ease-out data-[closed]:-translate-y-6 data-[closed]:opacity-0 mb-2">
+                                    <DisclosurePanel transition className="bg-secondary-97 ring ring-primary-40 rounded-lg ring-inset p-2 text-sm origin-top transition duration-200 ease-out data-[closed]:-translate-y-6 data-[closed]:opacity-0 mb-2">
                                         {/* Submitted Text */}
                                         <div className="mb-4">
                                             <h4 className="font-semibold">Submitted Text</h4>
-                                            <div className="bg-secondary p-3 rounded h-96 overflow-y-auto">
+                                            <div className="p-3 rounded h-96 overflow-y-auto">
                                                 <ReactMarkdown>{submission.text || "No text submitted"}</ReactMarkdown>
                                             </div>
                                         </div>

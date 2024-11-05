@@ -68,18 +68,20 @@ export default function Rubrics() {
     };
 
     const closeRubricBuilder = () => {
-        setShowRubricBuilder(false);
-        setIsExiting(true);
         setTimeout(() => {
-            setIsExiting(false);
-        }, 300); // Match the duration of your exit animation
+            setShowRubricBuilder(false);
+            setIsExiting(true);
+        }, 300);
+
+        setIsExiting(false);
+
     };
 
     return (
         <div className="space-y-3">
             <div>
                 <div className="flex flex-row justify-between">
-                    <h1 className="text-xl font-bold text-left text-primary">Selected Rubric</h1>
+                    <h1>Rubrics</h1>
                     {/* Use Custom Rubrics Toggle */}
                     <div className="flex items-center space-x-2">
                         <Switch
@@ -95,23 +97,23 @@ export default function Rubrics() {
                         <label className="text-xs w-[120px]">{useCustomRubrics ? "Using Custom Rubrics" : "Using Default Rubrics"}</label>
                     </div>
                 </div>
-                <hr className="border border-accent" />
+                <hr />
             </div>
             {/* Rubric Display */}
-            <div className="flex flex-col w-full p-2 text-sm border border-dashed rounded-lg bg-accent">
-                <div className="flex flex-row gap-2 mb-2 relative items-center">
-                    <Info onClick={() => setShowTooltip(!showTooltip)} size={18} className="cursor-pointer" />
-                    <span className={`absolute bottom-full z-50 text-wrap px-2 py-1 bg-primary text-primary-foreground text-xs rounded transition-opacity ${showTooltip ? 'opacity-100' : 'opacity-0'}`}>
+            <div className="flex flex-col w-full p-2 text-sm border border-primary-40 rounded-lg bg-primary-98">
+                <div className="flex flex-row gap-2 mb-2 relative items-center justify-center text-primary-10">
+                    <Info onClick={() => setShowTooltip(!showTooltip)} size={18} className="cursor-pointer text-primary-20" />
+                    <span className={`absolute bottom-full z-50 text-wrap px-2 py-1 bg-primary-90 border border-primary-40 text-xs rounded transition-opacity ${showTooltip ? 'opacity-100 flex' : 'opacity-0 hidden'}`}>
                         {selectedRubric?.description}
                     </span>
-                    <h2 className=" font-bold text-center">{selectedRubric ? selectedRubric.name : "Select a rubric..."}</h2>
+                    <h2 className="text-primary-20 font-semibold">{selectedRubric ? selectedRubric.name : "Select a rubric..."}</h2>
                 </div>
-                <p className="sm:relative text-sm max-w-xs text-gray-700 truncate mb-1 hidden">{selectedRubric ? selectedRubric.description : "..."}</p>
+                <p className="sm:relative text-sm max-w-xs truncate mb-1 hidden">{selectedRubric ? selectedRubric.description : "..."}</p>
 
                 {selectedRubric ? (
                     <RubricDisplay rubric={selectedRubric} />
                 ) : (
-                    <div className="flex items-center justify-center h-24  text-gray-700">No rubric selected.</div>
+                    <div className="flex items-center justify-center h-24">No rubric selected.</div>
                 )}
             </div>
 
@@ -119,7 +121,7 @@ export default function Rubrics() {
                 {/* Rubric Helper */}
                 <RubricHelper />
                 {/* Rubric Builder Button */}
-                <CustomButton onClick={() => setShowRubricBuilder(true)}>
+                <CustomButton onClick={() => setShowRubricBuilder(true)} className="btn-shiny btn-shiny-teal">
                     <Blocks />
                     <h2>Rubric Builder</h2>
                 </CustomButton>
@@ -129,7 +131,7 @@ export default function Rubrics() {
             <RubricSearch useCustomRubrics={useCustomRubrics} openRubricBuilder={openRubricBuilder} />
 
             {/* Custom Rubric Builder Modal */}
-            <div className={`absolute top-[60px] rounded-l-lg border-2 border-r-0 border-primary left-2 right-0 bottom-[100px] scroll shadow-lg p-2 bg-background overflow-y-auto 
+            <div className={`bg-secondary p-2 absolute top-[60px] md:top-[80px] rounded-l-lg border-2 border-r-0 border-primary-40 left-2 right-0 bottom-[70px] scroll shadow-lg overflow-y-auto  
                         ${showRubricBuilder ? 'animate-enter' : isExiting ? 'animate-exit' : 'hidden'}`}>
                 <RubricBuilder
                     onSave={async (customRubric) => {

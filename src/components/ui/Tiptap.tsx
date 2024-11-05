@@ -17,7 +17,7 @@ import FontFamily from '@tiptap/extension-font-family'
 import { HeadingIcon, List, ListOrdered, AlignLeftIcon, AlignCenterIcon, AlignRightIcon, AlignJustifyIcon } from 'lucide-react'
 import { useEffect } from 'react'
 import { Popover, PopoverPanel, PopoverButton } from '@headlessui/react'
-import FontFamilyDropdown from '@/components/ui/FontFamilyDropdown'
+import FontFamilyDropdown from '@/components/menus/TextMenu/components/FontFamilyDropdown'
 
 interface TiptapProps {
     wordLimit: string;
@@ -28,8 +28,6 @@ interface TiptapProps {
 
 
 const Tiptap = ({ wordLimit, wordLimitType, editorContent, onChange }: TiptapProps) => {
-
-    console.log(wordLimit, wordLimitType, editorContent, onChange)
 
     const editor = useEditor({
         extensions: [
@@ -47,7 +45,7 @@ const Tiptap = ({ wordLimit, wordLimitType, editorContent, onChange }: TiptapPro
                 HTMLAttributes: {
                     class: "list-disc ml-2",
                 },
-            }),            
+            }),
             OrderedList.configure({
                 HTMLAttributes: {
                     class: "list-decimal ml-2",
@@ -94,22 +92,24 @@ const Tiptap = ({ wordLimit, wordLimitType, editorContent, onChange }: TiptapPro
 
     return (
         <div className="flex flex-col justify-stretch min-h-[200px]">
-            <div className='flex bg-accent px-3 py-1 mb-1 rounded-full text-accent-foreground'>
-                {wordLimitType === "less than" ? (
-                    <div className="flex">
-                        {editor.storage.characterCount.words()} of {wordLimit} word limit.
-                    </div>
-                ) : wordLimitType === "more than" ? (
-                    <div className="flex">
-                        {editor.storage.characterCount.words()} of {wordLimit}
-                    </div>
-                ) : wordLimitType === "between" && (editor.storage.characterCount.words() ? (
-                    <div className="flex">
-                        {editor.storage.characterCount.words()} out of the {wordLimit}
-                    </div>
-                ) : null
-                )}
-            </div>
+            {wordLimit && (
+                <div className='flex bg-accent px-3 py-1 mb-1 rounded-full text-accent-foreground'>
+                    {wordLimitType === "less than" ? (
+                        <div className="flex">
+                            {editor.storage.characterCount.words()} of {wordLimit} word limit.
+                        </div>
+                    ) : wordLimitType === "more than" ? (
+                        <div className="flex">
+                            {editor.storage.characterCount.words()} of {wordLimit} word limit.
+                        </div>
+                    ) : wordLimitType === "between" && (editor.storage.characterCount.words() ? (
+                        <div className="flex">
+                            {editor.storage.characterCount.words()} out of the {wordLimit} word limit.
+                        </div>
+                    ) : null
+                    )}
+                </div>
+            )}
             <div className="flex items-center gap-2 mb-2 p-1 bg-gray-200 rounded-full">
                 {/* FontFamily Dropdown */}
                 <FontFamilyDropdown editor={editor} />
@@ -155,7 +155,6 @@ const Tiptap = ({ wordLimit, wordLimitType, editorContent, onChange }: TiptapPro
                 >
                     <HeadingIcon size={18} />
                 </button>
-                {/* Heading */}
                 {/* Bullet List Button */}
                 <button
                     type="button"
@@ -230,7 +229,7 @@ const Tiptap = ({ wordLimit, wordLimitType, editorContent, onChange }: TiptapPro
                     )}
                 </Popover>
             </div>
-            
+
             <BubbleMenu editor={editor} tippyOptions={{ duration: 100 }}>
                 <div className="bubble-menu">
                     {/* Bold Button */}

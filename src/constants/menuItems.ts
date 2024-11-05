@@ -1,4 +1,9 @@
-import { User2Icon, FileTextIcon, School, Bot, FileCheck2, Handshake, GlobeLock, LifeBuoy } from "lucide-react";
+import { Bot, Handshake, GlobeLock, LifeBuoy } from "lucide-react";
+import school from "@/app/assets/school.svg";
+import dashboard from "@/app/assets/dashboard.svg";
+import rubric from "@/app/assets/rubric.svg";
+import grademe from "@/app/assets/grademe.svg";
+import profile from "@/app/assets/profile.svg";
 
 export const MENU_ITEMS: MenuItem[] = [
     {
@@ -37,36 +42,36 @@ export const MENU_ITEMS: MenuItem[] = [
 
 type navItemType = {
     label: string;
-    icon: React.ElementType;
+    image: string;
     path: string;
 };
 
 export const navItems: navItemType[] = [
     {
         label: "assignments",
-        icon: School,
+        image: school,
         path: "/history",
     },
    
     {
         label: "rubrics",
-        icon: FileCheck2,
+        image: rubric,
         path: "/rubrics",
     },
     {
-        label: "grade.me",
-        icon: Bot,
+        label: "grademe",
+        image: grademe,
         path: "/grademe",
     },
     {
-        label: "history",
-        icon: FileTextIcon,
-        path: "/history",
+        label: "dashboard",
+        image: dashboard,
+        path: "/dashboard",
     },
 
     {
         label: "profile",
-        icon: User2Icon,
+        image: profile,
         path: "/profile",
     },
 ];

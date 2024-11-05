@@ -21,6 +21,8 @@ import { saveHistory } from "@/utils/saveHistory";
 import { useRubricStore } from "@/zustand/useRubricStore";
 import CustomButton from "@/components/ui/CustomButton";
 import Tiptap from "@/components/ui/Tiptap";
+import Image from "next/image";
+import grademe from "@/app/assets/grademe.svg";
 
 export default function Grademe() {
     const { uid } = useAuthStore();
@@ -40,10 +42,12 @@ export default function Grademe() {
 
     // Handle file upload
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+
+        console.log("something")
         const selectedFile = e.target.files ? e.target.files[0] : null;
         if (selectedFile && uid) {
             setUploading(true);
-            toast.loading("Uploading file...", { position: "top-center" });
+            toast.loading("Uploading file...");
 
             // Log file information for debugging
             console.log('Uploading file:', selectedFile.name, 'of type:', selectedFile.type, 'and size:', selectedFile.size);
@@ -65,14 +69,14 @@ export default function Grademe() {
             } catch (error) {
                 console.error('Failed to upload file:', error);
                 toast.dismiss();
-                toast.error('Failed to upload file. Please try again.', { position: "top-center" });
+                toast.error('Failed to upload file. Please try again.');
             } finally {
                 setUploading(false);
                 toast.dismiss();
-                toast.success('File uploaded successfully.', { position: "top-center" });
+                toast.success('File uploaded successfully.');
             }
         } else if (!uid) {
-            toast.error('Please log in to upload a file.', { position: "top-center" });
+            toast.error('Please log in to upload a file.');
             console.error('User is not authenticated');
         }
     };
@@ -164,25 +168,34 @@ export default function Grademe() {
     }, [response, flagged, thinking, uploading]);
 
     return (
-        <>
-            <h1 className="text-xl font-bold text-left text-primary">Selected Rubric</h1>
-            <hr className="border border-accent mb-2" />
-            <div className="flex flex-col gap-y-4">
+        <main className="flex flex-col gap-y-4">
+            <div>
+                <h1>Grade.me</h1>
+                <hr />
+            </div>
+            <section className="flex flex-col">
+                <div>
+                    <h2 className="block text-primary-30 font-medium">Selected Rubric</h2>
+                    <hr />
+                </div>
                 <div
                     onClick={() => router.push("/rubrics")}
-                    className="text-sm font-semibold px-2 py-1 bg-accent text-primary-foreground shadow rounded-lg cursor-pointer"
+                    className="text-sm font-semibold p-2 bg-primary-90 text-center shadow-sm rounded-lg cursor-pointer mb-4"
                 >
                     {selectedRubric?.name ? selectedRubric.name : "Select a rubric"}
                 </div>
-                <CustomButton onClick={() => setTimeout(() => router.push("/rubrics"), 300)} className="btn-test">
+                <CustomButton onClick={() => setTimeout(() => router.push("/rubrics"), 300)} className="btn btn-shiny btn-shiny-green w-full md:w-fit">
                     <FileSearch />
                     <p>Explore Rubrics</p>
                 </CustomButton>
-                <form className="flex flex-col gap-y-2" onSubmit={handleSubmit}>
+            </section>
+            <section className="flex flex-col gap-y-4">
+
+                <form className="flex flex-col gap-y-4" onSubmit={handleSubmit}>
                     {/* Title */}
                     <section>
-                        <label className="block text-primary font-medium" htmlFor="title">Title</label>
-                        <hr className="border border-accent mb-2" />
+                        <label className="block text-primary-30 font-medium" htmlFor="title">Title</label>
+                        <hr />
                         <input
                             type="text"
                             name="title"
@@ -190,14 +203,14 @@ export default function Grademe() {
                             value={gradingData.title}
                             onChange={(e) => setGradingData({ title: e.target.value })}
                             placeholder="Enter the title here"
-                            className="mt-1 block w-full rounded-md bg-secondary px-2 py-1 shadow-sm focus:border-accent focus:ring-accent sm:text-sm placeholder:text-primary"
+                            className="input-secondary"
                         />
                     </section>
                     {/* Text Editor and File Upload */}
                     <section>
                         <div className="relative">
-                            <label className="block font-medium text-primary" htmlFor="text">Text</label>
-                            <hr className="border border-accent mb-2" />
+                            <label className="block font-medium text-primary-30" htmlFor="text">Text</label>
+                            <hr />
                             <Tiptap
                                 wordLimit={gradingData.wordLimit}
                                 wordLimitType={gradingData.wordLimitType}
@@ -206,41 +219,44 @@ export default function Grademe() {
                             />
                         </div>
                     </section>
-
-                    <section className="flex flex-row items-center gap-x-4">
+                    {/* Submit Button */}
+                    <section className="flex flex-row items-center w-full gap-x-8 pt-2">
                         {/* Submit Button */}
-                        <div className={`flex flex-row bg-primary  rounded-full items-center ${active ? 'opacity-100' : 'opacity-50'}`}>
-                            <button
-                                type="submit"
-                                id="grademe"
-                                onClick={handleSubmit}
-                                disabled={!active || uploading}
-                                className={`inline-flex justify-center items-center gap-x-2 rounded-md border-transparent text-primary-foreground mr-2`}
-                            >
-                                <Bot className=" text-primary flex place-self-center place-items-center rounded-full border-2 border-primary bg-secondary p-1.5 size-10" />
-                                {uploading ? 'Uploading...' : 'grade.me'}
-                            </button>
-                        </div>
+                        <button
+                            type="submit"
+                            id="grademe"
+                            onClick={handleSubmit}
+                            disabled={!active || uploading}
+                            className={`btn btn-shiny border-2 border-primary-40 rounded-full size-20 p-1  ${!active ? "cursor-not-allowed" : ""}`}
+                        >
+                            <Image alt={"grademe logo"} src={grademe} width={50} height={50} layout="contain" objectFit="cover" className="bg-secondary-97 rounded-full p-1 size-16" />
+                        </button>
                         {/* File Upload */}
-                        <div className="flex group items-center relative bg-secondary border-2 border-primary rounded-full p-1.5">
-                            <label htmlFor="file-upload" className="cursor-pointer flex flex-row items-center justify-center">
-                                <Paperclip size={25} className="flex place-self-center place-items-center text-primary" />
-                                {/* Hidden file input */}
-                                <input
-                                    id="file-upload"
-                                    type="file"
-                                    accept=".docx,.pdf,.odt,.txt"
-                                    className="hidden"
-                                    onChange={handleFileChange}
-                                />
+                        <div
+                            className="btn btn-shiny overflow-visible size-20 flex items-center bg-secondary-97 border-2 border-primary-40 rounded-full p-1.5"
+                            onClick={() => document.getElementById("file-upload")?.click()} // Trigger input click on div click
+                        >
+                            <label
+                                htmlFor="file-upload"
+                                className="cursor-pointer flex items-center justify-center peer"
+                                onClick={(e) => e.stopPropagation()} // Prevent label click from propagating
+                            >
+                                <Paperclip size={40} className="place-self-center place-items-center text-primary-30" />
                             </label>
+                            {/* Hidden file input */}
+                            <input
+                                id="file-upload"
+                                type="file"
+                                accept=".docx,.pdf,.odt,.txt"
+                                className="hidden"
+                                onChange={handleFileChange}
+                            />
                             {/* Tooltip */}
-                            <div className="absolute left-11 w-32 px-2 py-1 bg-accent text-primary-foreground text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="absolute left-12 -top-4 w-fit px-2 py-1 bg-secondary-20 text-xs text-primary-90 rounded opacity-0 hidden peer-hover:opacity-100 peer-hover:flex transition-opacity z-20">
                                 Upload a file (docx, pdf, odt, txt)
                             </div>
                         </div>
                     </section>
-
                 </form>
                 {thinking && <PulseLoader id="thinking" color="orange" size={20} />}
 
@@ -249,7 +265,7 @@ export default function Grademe() {
                         <ReactMarkdown>{response}</ReactMarkdown>
                     </div>
                 )}
-            </div>
-        </>
+            </section>
+        </main>
     );
 }

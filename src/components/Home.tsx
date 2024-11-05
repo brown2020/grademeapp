@@ -1,22 +1,21 @@
 "use client";
 
-// import Image from "next/image";
 import AuthComponent from "@/components/AuthComponent";
-import { Bot } from "lucide-react";
-// import logo from "@/app/assets/grade512.png";
+import Image from "next/image";
+import grademe from "@/app/assets/grademe.svg";
 import Footer from "./Footer";
 
 export default function Home() {
   return (
     <div className="flex flex-col space-y-5 my-7 px-2">
       {/* Logo and Title Section */}
-      <div className="flex flex-col w-58 max-w-md size-56 items-center justify-center mx-auto shadow-2xl bg-secondary border-4 border-primary rounded-full">
-        <Bot size={128} className="mx-auto text-primary" />
-        <div className="text-3xl text-center text-primary leading-6">GRADE.ME</div>
+      <div className="flex flex-col w-58 max-w-md size-56 items-center justify-center mx-auto shadow-2xl bg-secondary border-4 border-primary-40 rounded-full">
+        <Image src={grademe} alt="Grade.me" width={100} height={100} />
+        <div className="text-2xl text-center text-primary-40 leading-6">Grade.me</div>
       </div>
 
       {/* Description Section */}
-      <div className="flex flex-col max-w-2xl mx-auto space-y-3 text-lg rounded-md px-5 py-3 shadow-lg">
+      <div className="flex flex-col max-w-2xl mx-auto space-y-3 text-lg rounded-md px-5 py-3">
         <p>
           Welcome to Grade.me, an AI-powered essay grading platform that helps
           improve your writing skills. Submit your essay, receive an instant
