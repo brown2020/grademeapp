@@ -107,6 +107,8 @@ export default function AuthComponent() {
       }
       hideModal();
       handleAuthError(error);
+    } finally {
+      hideModal();
     }
   };
 
@@ -291,7 +293,7 @@ export default function AuthComponent() {
                 )}
                 <button
                   type="submit"
-                  className="btn-shiny btn-shiny-green text-lg w-fit place-self-center"
+                  className="btn btn-shiny btn-shiny-green text-lg w-fit place-self-center"
                   disabled={!email || (!isEmailLinkLogin && !password)}
                 >
                   {isEmailLinkLogin ? (

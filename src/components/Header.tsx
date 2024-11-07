@@ -10,18 +10,40 @@ import useProfileStore from "@/zustand/useProfileStore";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import { signOut } from "firebase/auth";
 import { auth } from "@/firebase/firebaseClient";
+import CustomListbox from "@/components/ui/CustomListbox";
+import { userInputs } from "@/constants/userInputs";
 
 
 export default function Header() {
   const profile = useProfileStore((state) => state.profile);
+  const updateProfile = useProfileStore((state) => state.updateProfile);
+  const identityLevels = userInputs?.identity?.identityLevels?.[profile?.identity ?? "student"] ?? ["3rd grade"];
   const clearAuthDetails = useAuthStore((s) => s.clearAuthDetails);
   const { uid } = useAuthStore();
   const [isOpen, setIsOpen] = useState(false); // State for dialog open/close
   const [isExiting, setIsExiting] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const [identityModalOpen, setIdentityModalOpen] = useState(false);
+  const [modalClosing, setModalClosing] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
+
+
 
   const router = useRouter();
   const pathname = usePathname();
+
+  useEffect(() => {
+
+    console.log("profile", profile);
+
+    if (uid && profile && profile.contactEmail && !profile.identity) {
+      setIdentityModalOpen(true);
+    }
+
+    if (uid && profile && profile.contactEmail && profile.identity && !profile.identityLevel) {
+      setIdentityModalOpen(true);
+    }
+  }, [uid, profile, profile?.identity, profile?.identityLevel]);
 
   useEffect(() => {
     // Close the dialog when clicking outside of it
@@ -47,6 +69,14 @@ export default function Header() {
     }, 300); // Match the duration of your exit animation
   };
 
+  const closeModal = () => {
+    setIdentityModalOpen(false);
+    setModalClosing(true);
+    setTimeout(() => {
+      setModalClosing(false);
+    }, 300); // Match the duration of your exit animation
+  };
+
   const handleSignOut = async () => {
     try {
       await signOut(auth);
@@ -63,8 +93,6 @@ export default function Header() {
     <>
       {/* Header content */}
       <div className="z-10 flex py-1 justify-between items-center h-16 md:h-24  px-2  text-primary-20 border-b border-primary-40">
-
-
         <div className="flex h-full gap-4 items-center w-full">
           {navItems.map((item, index) => (
             item.label !== "Grade.me" ? (
@@ -87,7 +115,6 @@ export default function Header() {
             )
           ))}
         </div>
-
 
         <div className="flex gap-x-4">
           <div className="hidden md:flex h-full gap-x-4 items-center w-full">
@@ -113,7 +140,7 @@ export default function Header() {
             ))}
           </div>
           <div
-            className="hidden md:flex justify-start items-center md:flex-col gap-x-2 md:gap-y-1"
+            className="cursor-pointer hidden md:flex justify-start items-center md:flex-col gap-x-2 md:gap-y-0 hover:text-primary-40 text-primary-10"
             onClick={() => {
               setTimeout(() => router.push('/profile'), 100);
             }}
@@ -128,13 +155,11 @@ export default function Header() {
                   className="rounded-full border-2 border-spacing-2 border-primary-40"
                 />
               </div>
-            ) : uid ? (
-              <div className="h-9 aspect-square">
-                <User2 size={25} className="h-full w-full object-cover text-primary-30" />
-              </div>
-            ) : null}
-            <div className="flex text-center font-medium whitespace-nowrap text-primary-10">
-              {uid && profile?.displayName ? profile.displayName.split(" ")[0] : uid ? "grade.me" : ""}
+            ) : <div className="size-9 md:size-12 aspect-square">
+              <User2 size={25} className="h-full w-full object-cover" />
+            </div>}
+            <div className="flex text-center text-lg font-medium whitespace-nowrap">
+              profile
             </div>
           </div>
         </div>
@@ -158,8 +183,9 @@ export default function Header() {
         </div>
       </div>
 
-
+      {/* Overlay */}
       <div className={`bg-black/30 absolute inset-0 w-full h-full z-10 ${isOpen ? 'overlay-open' : 'overlay-closed'}`} aria-hidden="true" />
+      {/* Mobile Menu */}
       <div
         ref={menuRef}
         className={`fixed right-0 top-16 h-auto max-w-56 w-full z-10 transition-all ${isOpen ? 'animate-enter' : isExiting ? 'animate-exit' : 'hidden'}`}
@@ -184,12 +210,12 @@ export default function Header() {
                   />
                 </div>
               ) : uid ? (
-                <div className="h-9 aspect-square">
-                  <User2 size={25} className="h-full w-full object-cover text-primary-30" />
+                <div className="cursor-pointer text-primary-30 hover:bg-gray-100 flex flex-row items-center">
+                  <User2 />
                 </div>
               ) : null}
-              <div className="flex text-center font-medium whitespace-nowrap text-primary-10">
-                {uid && profile?.identity && profile.identityLevel ? profile?.identityLevel + " " + profile?.identity : uid ? "grade.me" : ""}
+              <div className="flex text-center whitespace-nowrap text-primary-30">
+                Profile
               </div>
             </li>
             {MENU_ITEMS.map((item, index) => (
@@ -212,6 +238,65 @@ export default function Header() {
           </ul>
         </div>
       </div>
+
+      {/* Identity Modal */}
+      {uid && identityModalOpen && (
+        <>
+          <div ref={modalRef} className={`bg-black/30 absolute inset-0 w-full h-full z-0 ${identityModalOpen ? 'overlay-open' : 'overlay-closed'}`} aria-hidden="true" />
+          <div className={`fixed w-96 bg-secondary p-4 rounded-lg flex flex-col place-self-center top-1/3 z-10 transition-all ${identityModalOpen ? 'animate-enter' : modalClosing ? 'animate-exit' : 'hidden'}`}>
+            <div className="flex justify-end">
+              <XIcon size={24} className="text-primary-10 cursor-pointer" onClick={closeModal} />
+            </div>
+            <div>
+              <div>
+                <h2 className="text-primary-30 text-left font-medium text-lg">Please set your identity.</h2>
+                <hr />
+              </div>
+              <div className="flex flex-wrap items-baseline justify-center">
+                <span className="mr-2">I am a</span>
+                <div className="flex flex-row gap-x-2">
+                  {/* Identity Level */}
+                  <CustomListbox
+                    value={profile?.identityLevel ?? identityLevels[0]}
+                    options={
+                      identityLevels.map((level) => ({
+                        label: level,
+                        value: level,
+                      }))
+                    }
+                    onChange={(value) => {
+                      if (profile?.identityLevel !== value) {
+                        updateProfile({ identityLevel: value });
+                      }
+                    }}
+                    buttonClassName="w-fit"
+                    placeholder="Select"
+                  />
+                  {/* Identity Selection */}
+                  <CustomListbox
+                    value={profile?.identity ?? "student"} // Default to "student"
+                    options={userInputs?.identity?.options?.map((identity) => ({
+                      label: identity,
+                      value: identity,
+                    })) ?? []} // Fallback to an empty array
+                    onChange={(value) => {
+                      if (profile?.identity !== value) {
+                        // Update identity and reset identityLevel to the first in the new array
+                        const newIdentityLevels = userInputs?.identity?.identityLevels?.[value] ?? ["3rd grade"];
+                        updateProfile({ identity: value, identityLevel: newIdentityLevels[0] });
+                      }
+                    }}
+                    buttonClassName="w-fit"
+                    placeholder="Select"
+                  />
+                </div>
+                <span className="w-fit ml-0.5">.</span>
+              </div>
+            </div>
+          </div>
+        </>
+
+      )}
     </>
   );
 }
