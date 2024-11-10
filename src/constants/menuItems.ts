@@ -50,12 +50,12 @@ export const navItems: navItemType[] = [
   {
     label: `Grade.me`,
     image: grademe,
-    path: "/grademe",
+    path: "/",
   },
   {
     label: "assignments",
     image: school,
-    path: "/history",
+    path: "/assignments",
   },
 
   {
@@ -67,7 +67,7 @@ export const navItems: navItemType[] = [
   {
     label: "tools",
     image: tools,
-    path: "/grademe",
+    path: "/tools",
   },
 
 ];

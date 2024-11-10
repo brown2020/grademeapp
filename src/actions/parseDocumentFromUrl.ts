@@ -1,78 +1,126 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
-import mammoth from 'mammoth'; // For parsing .docx files
-import PDFParser from 'pdf2json'; // For parsing .pdf files
-import { Buffer } from 'buffer'; // For handling binary data
-import { extractTextFromPDF } from '@/utils/pdfFormatter'; // Import the PDF text extraction function
-// import fs from 'fs'; // For file system operations
+import mammoth from "mammoth";
+import PDFParser from "pdf2json";
+import { Buffer } from "buffer";
+import { extractTextFromPDF } from "@/utils/pdfFormatter";
+import rtfToHTML from "@iarna/rtf-to-html";
+import officeParser from "officeparser";
 
-// Function to write parsed text or logs to a file
-// function writeLogToFile(logData: string, fileName = 'log.txt') {
-//     fs.writeFile(fileName, logData, (err) => {
-//         if (err) {
-//             console.error('Error writing to log file:', err);
-//         } else {
-//             console.log('Log successfully written to', fileName);
-//         }
-//     });
-// }
 
 export async function parseDocumentFromUrl(fileUrl: string): Promise<string> {
+  try {
+    console.log(`Starting to parse document from URL: ${fileUrl}`);
 
-    // console.log(`Parsing document from URL: ${fileUrl}`);
-
-    try {
-        const response = await fetch(fileUrl); // Fetch the file from the URL
-        if (!response.ok) {
-            throw new Error(`Failed to fetch file from URL: ${fileUrl}`);
-        }
-
-        const contentType = response.headers.get("content-type");
-        const arrayBuffer = await response.arrayBuffer();
-        let parsedText = '';
-
-        if (contentType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-            // Parse .docx using Mammoth.js
-            const buffer = Buffer.from(arrayBuffer);
-            const result = await mammoth.extractRawText({ buffer });
-            parsedText = result.value;
-        } else if (contentType === 'application/pdf') {
-            const buffer = Buffer.from(arrayBuffer);
-
-            const pdfParser = new PDFParser(null, true);
-
-            // Use a Promise to handle the asynchronous parsing
-            const rawText = await new Promise<string>((resolve, reject) => {
-                pdfParser.on('pdfParser_dataError', (errMsg: Record<"parserError", Error>) => {
-                    console.error('Error while parsing PDF:', errMsg.parserError);
-                    reject(new Error(errMsg.parserError.message));
-                });
-
-                pdfParser.on('pdfParser_dataReady', (pdfData: any) => {
-                    // console.log('Full PDF Data:', JSON.stringify(pdfData, null, 2));
-                    // writeLogToFile(JSON.stringify(pdfData, null, 2), 'parsed_output.txt'); // Write the parsed text to a file
-                    const parsedText = extractTextFromPDF(pdfData); // Extract text from PDF JSON data
-                    resolve(parsedText); // Resolve the Promise with the parsed text
-                });
-
-                // Parse the PDF buffer
-                pdfParser.parseBuffer(buffer);
-            });
-
-            // Process raw text to insert spaces between words
-            parsedText = rawText;
-
-
-        } else if (contentType === 'application/vnd.oasis.opendocument.text' || contentType === 'text/plain') {
-            // Handle .odt and .txt parsing
-            parsedText = new TextDecoder().decode(arrayBuffer);
-        }
-
-        // console.log(parsedText);
-        return parsedText;
-    } catch (error) {
-        console.error('Failed to parse document:', error);
-        return `Failed to parse document: ${(error as Error).message}`;
+    const response = await fetch(fileUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch file from URL: ${fileUrl}`);
     }
+
+    const contentType = response.headers.get("content-type");
+    console.log("Detected content type:", contentType);
+
+    const arrayBuffer = await response.arrayBuffer();
+    console.log("Fetched array buffer, length:", arrayBuffer.byteLength);
+
+    let parsedHtml = "";
+
+    // Helper function to determine file extension
+    const getFileExtension = (url: string) => {
+      const path = url.split("?")[0]; // Remove query parameters
+      return path.split(".").pop()?.toLowerCase();
+    };
+    const fileExtension = getFileExtension(fileUrl);
+    console.log("Detected file extension:", fileExtension);
+
+    if (contentType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+      // console.log("Processing as DOCX file with Mammoth.");
+      const buffer = Buffer.from(arrayBuffer);
+      const result = await mammoth.convertToHtml({ buffer });
+      parsedHtml = result.value;
+      console.log("Parsed DOCX content:", parsedHtml.substring(0, 100)); // Log a preview of the result
+    } else if (contentType === "application/pdf") {
+      console.log("Processing as PDF file with pdf2json.");
+      const buffer = Buffer.from(arrayBuffer);
+      const pdfParser = new PDFParser(null, true);
+
+      const rawText = await new Promise<string>((resolve, reject) => {
+        pdfParser.on("pdfParser_dataError", (errMsg) => {
+          console.error("PDF parsing error:", errMsg.parserError);
+          reject(new Error(errMsg.parserError.message));
+        });
+
+        pdfParser.on("pdfParser_dataReady", (pdfData) => {
+          const text = extractTextFromPDF(pdfData);
+          resolve(text);
+        });
+
+        pdfParser.parseBuffer(buffer);
+      });
+
+      parsedHtml = rawText
+        .split(/\n\s*\n/) // Split by double newlines for paragraphs
+        .map((para) => `<p>${para.trim()}</p>`)
+        .join("");
+      console.log("Parsed PDF content:", parsedHtml.substring(0, 100)); // Log a preview of the result
+    } else if (
+      contentType === "text/plain" ||
+      contentType === "application/vnd.oasis.opendocument.text" ||
+      (contentType === "application/octet-stream" && fileExtension === "txt")
+    ) {
+      console.log("Processing as plain text or TXT file.");
+      const rawText = new TextDecoder().decode(arrayBuffer);
+      parsedHtml = rawText.replace(/\n/g, "<br>");
+      console.log("Parsed TXT content:", parsedHtml.substring(0, 100)); // Log a preview of the result
+    } else if (contentType === "application/octet-stream" && fileExtension === "odt") {
+      // console.log("Processing as ODT file with fallback plain text handling.");
+
+      const buffer = Buffer.from(arrayBuffer);
+      const rawText = await new Promise<string>((resolve, reject) => {
+        officeParser.parseOffice(buffer, (data: string, err: Error | null) => {
+          if (err) {
+            console.error('ODT parsing error:', err);
+            reject(new Error('Failed to parse ODT content.'));
+          } else if (data) {
+            resolve(data);
+          } else {
+            reject(new Error('No data returned from ODT parser.'));
+          }
+        });
+      });
+
+      parsedHtml = `<html><body><p>${rawText.replace(/\n/g, '</p><p>')}</p></body></html>`;
+
+
+      // console.log("Parsed ODT content:", parsedHtml); // Log a preview of the result
+
+    } else if (contentType === "application/rtf" || (contentType === "application/octet-stream" && fileExtension === "rtf")) {
+      // console.log("Processing as RTF file with fallback plain text handling.");
+
+      const rawText = new TextDecoder().decode(arrayBuffer);
+
+      // Use @iarna/rtf-to-html to convert RTF content to HTML
+      parsedHtml = await new Promise((resolve, reject) => {
+        rtfToHTML.fromString(rawText, (err: Error | null, html: string) => {
+          if (err) {
+            console.error('RTF parsing error:', err);
+            reject(new Error('Failed to parse RTF content.'));
+          } else {
+            resolve(html);
+          }
+        });
+      });
+
+      // console.log("Parsed RTF content:", parsedHtml); // Log a preview of the result
+    } else {
+      console.warn("Unrecognized content type and file extension. File may not be supported.");
+    }
+
+    // console.log("Parsing complete.", parsedHtml);
+    return parsedHtml;
+  } catch (error) {
+    console.error("Failed to parse document:", error);
+    return `Failed to parse document: ${(error as Error).message}`;
+  }
 }

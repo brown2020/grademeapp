@@ -42,7 +42,7 @@ export default function BottomBar() {
             }}
           >
             <div className="h-10 aspect-square">
-              <Image alt={item.label} src={item.image} width={75} height={75} layout="contain" objectFit="cover" />
+              <Image alt={item.label} src={item.image} width={75} height={75} />
             </div>
           </div>
         ) : (

@@ -108,7 +108,7 @@ export default function Header() {
                 }}
               >
                 <div className="flex size-12 aspect-square">
-                  <Image alt={item.label} src={item.image} width={50} height={50} layout="contain" objectFit="cover" className="" />
+                  <Image alt={item.label} src={item.image} width={50} height={50} className="" />
                 </div>
                 <div className="flex text-lg font-medium">{item.label}</div>
               </div>
@@ -130,7 +130,7 @@ export default function Header() {
                   }}
                 >
                   <div className="h-12 aspect-square">
-                    <Image alt={item.label} src={item.image} width={75} height={75} layout="contain" objectFit="cover" className="" />
+                    <Image alt={item.label} src={item.image} width={75} height={75} className="" />
                   </div>
                   <div className="text-lg font-medium">{item.label}</div>
                 </div>

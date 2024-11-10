@@ -15,16 +15,16 @@ import ReactMarkdown from "react-markdown";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
-import { FileSearch, Paperclip, Bot } from "lucide-react"
+import { FileSearch, Paperclip, PlusCircle } from "lucide-react"
 import { extractGrade } from "@/utils/responseParser";
-import { saveHistory } from "@/utils/saveHistory";
+import { saveDocument } from "@/utils/saveHistory";
 import { useRubricStore } from "@/zustand/useRubricStore";
 import CustomButton from "@/components/ui/CustomButton";
-import Tiptap from "@/components/ui/Tiptap";
+import Tiptap from "@/components/tiptap/Tiptap";
 import Image from "next/image";
 import grademe from "@/app/assets/grademe.svg";
 
-export default function Grademe() {
+export default function Tools() {
   const { uid } = useAuthStore();
   const { selectedRubric, gradingData, setGradingData } = useRubricStore();
   const { profile, minusCredits } = useProfileStore();
@@ -43,7 +43,6 @@ export default function Grademe() {
   // Handle file upload
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
-    console.log("something")
     const selectedFile = e.target.files ? e.target.files[0] : null;
     if (selectedFile && uid) {
       setUploading(true);
@@ -65,15 +64,17 @@ export default function Grademe() {
         setFileUrl(downloadURL);
 
         const parsedText = await parseDocumentFromUrl(downloadURL);
+        // console.log('Parsed text:', parsedText);
+
         setGradingData({ text: parsedText });
-      } catch (error) {
-        console.error('Failed to upload file:', error);
-        toast.dismiss();
-        toast.error('Failed to upload file. Please try again.');
-      } finally {
+
         setUploading(false);
         toast.dismiss();
         toast.success('File uploaded successfully.');
+      } catch (error) {
+        toast.dismiss();
+        toast.error('Failed to upload file. Please try again.');
+        console.error('Failed to upload file:', error);
       }
     } else if (!uid) {
       toast.error('Please log in to upload a file.');
@@ -147,7 +148,7 @@ export default function Grademe() {
   useEffect(() => {
     if (isStreamingComplete && !hasSaved && response) {
       console.log(fileUrl)
-      saveHistory(uid, gradingData, [{ text: gradingData.text, response: response, grade, timestamp: Timestamp.now() }], fileUrl).then(() => {
+      saveDocument(uid, gradingData, [{ text: gradingData.text, response: response, grade, timestamp: Timestamp.now() }], fileUrl).then(() => {
         setHasSaved(true);
       });
     }
@@ -170,7 +171,7 @@ export default function Grademe() {
   return (
     <main className="flex flex-col gap-y-4">
       <div>
-        <h1>Grade.me</h1>
+        <h1>Tools</h1>
         <hr />
       </div>
       <section className="flex flex-col">
@@ -184,10 +185,19 @@ export default function Grademe() {
         >
           {selectedRubric?.name ? selectedRubric.name : "Select a rubric"}
         </div>
-        <CustomButton onClick={() => setTimeout(() => router.push("/rubrics"), 300)} className="btn btn-shiny btn-shiny-green w-full md:w-fit">
-          <FileSearch />
-          <p>Explore Rubrics</p>
-        </CustomButton>
+        <div className="flex gap-x-4 justify-between md:justify-start">
+          <CustomButton onClick={() => setTimeout(() => router.push("/rubrics"), 300)} className="btn btn-shiny btn-shiny-green w-fit">
+            <FileSearch />
+            <p>Explore Rubrics</p>
+          </CustomButton>
+          <CustomButton onClick={() => {
+            setGradingData({ title: "", text: "" });
+          }}
+            className="btn-shiny btn-shiny-green w-fit">
+            <PlusCircle size={25} className="" />
+            <p>Grade New Assignment</p>
+          </CustomButton>
+        </div>
       </section>
       <section className="flex flex-col gap-y-4">
 
@@ -229,7 +239,7 @@ export default function Grademe() {
               disabled={!active || uploading}
               className={`btn btn-shiny border-2 border-primary-40 rounded-full size-20 p-1  ${!active ? "cursor-not-allowed" : ""}`}
             >
-              <Image alt={"grademe logo"} src={grademe} width={50} height={50} layout="contain" objectFit="cover" className="bg-secondary-97 rounded-full p-1 size-16" />
+              <Image alt={"grademe logo"} src={grademe} width={50} height={50} className="bg-secondary-97 rounded-full p-1 size-16" />
             </button>
             {/* File Upload */}
             <div
@@ -247,13 +257,13 @@ export default function Grademe() {
               <input
                 id="file-upload"
                 type="file"
-                accept=".docx,.pdf,.odt,.txt"
+                accept=".docx,.pdf,.odt,.txt,.rtf"
                 className="hidden"
                 onChange={handleFileChange}
               />
               {/* Tooltip */}
               <div className="absolute left-12 -top-4 w-fit px-2 py-1 bg-secondary-20 text-xs text-primary-90 rounded opacity-0 hidden peer-hover:opacity-100 peer-hover:flex transition-opacity z-20">
-                Upload a file (docx, pdf, odt, txt)
+                Upload a file (docx, pdf, odt, rtf, txt)
               </div>
             </div>
           </section>

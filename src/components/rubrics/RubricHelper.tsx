@@ -179,7 +179,7 @@ export default function RubricHelper() {
               value={gradingData.topic}
               onChange={handleInputChange}
               minRows={1}
-              placeholder="Explain the assignment"
+              placeholder="Topic of the assignment"
               className="border rounded-md w-full text-sm px-2 py-1"
             />
           </Field>
