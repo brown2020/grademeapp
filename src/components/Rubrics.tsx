@@ -87,7 +87,7 @@ export default function Rubrics() {
             <Switch
               checked={useCustomRubrics}
               onChange={() => handleCustomRubrics()}
-              className={`${useCustomRubrics ? "bg-accent" : "bg-gray-300"} transition duration-300 ease-in-out relative inline-flex items-center h-6 rounded-full w-11`}
+              className={`${useCustomRubrics ? "bg-primary" : "bg-gray-300"} transition duration-300 ease-in-out relative inline-flex items-center h-6 rounded-full w-11`}
             >
               <span className="sr-only">Use Custom Rubrics</span>
               <span
@@ -155,7 +155,5 @@ export default function Rubrics() {
         />
       </div>
     </div>
-
-
   );
 }

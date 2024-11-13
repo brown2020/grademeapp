@@ -68,7 +68,7 @@ const CustomListbox = <T extends string | number | string[] | null>({
           <ListboxButton
             as={MyCustomButton}
             className={clsx(
-              "justify-center items-center py-1 rounded-md text-sm ring-0 data-[focus]:ring-0 focus:outline-none data-[focus]:bg-secondary",
+              "align-bottom pt-2 rounded-md text-sm ring-0 data-[focus]:ring-0 focus:outline-none data-[focus]:bg-secondary",
               buttonClassName
             )}
           >
