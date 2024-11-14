@@ -128,6 +128,7 @@ export type DefaultRubricKeys =
   | "holistic"
   | "analytical"
   | "holistic_analytical"
+  | "content-specific"
   | "developmental"
   | "primary_trait"
   | "multitrait"

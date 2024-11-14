@@ -1,7 +1,8 @@
 "use client"
 
 import React, { useState } from 'react';
-import RubricTypeSelector from '@/components/rubrics/RubricTypeSelector';
+import RubricTypeSelector from '@/components/rubrics/rubricTypes/RubricTypeSelector';
+import RubricTypeExplanation from '@/components/rubrics/rubricTypes/RubricTypeExplanation';
 import {
   RubricType,
   AnalyticalRubric,
@@ -9,6 +10,7 @@ import {
   RubricState,
   SinglePointRubric,
   ChecklistRubric,
+  OtherRubricType,
 } from '@/types/rubrics-types';
 import { toast } from "react-hot-toast";
 import { Ban, Blocks, Save, XCircleIcon } from 'lucide-react';
@@ -66,6 +68,15 @@ const initialChecklistRubric: ChecklistRubric = {
   }
 };
 
+// Initial state for Other Rubric Types
+const initialOtherRubric: OtherRubricType = {
+  id: '',
+  name: '',
+  description: '',
+  type: RubricType.ContentSpecific,
+  criteria: {}
+};
+
 export default function RubricBuilder({ onSave, onCancel }: { onSave: (rubric: RubricState) => void; onCancel: () => void }) {
   // State to track the rubric type and the rubric itself
   const [hasSaved, setHasSaved] = useState(false);
@@ -120,6 +131,8 @@ export default function RubricBuilder({ onSave, onCancel }: { onSave: (rubric: R
       case RubricType.Checklist:
         setRubric(initialChecklistRubric);
         break;
+      case RubricType.ContentSpecific:
+        setRubric(initialOtherRubric)
       default:
         setRubric(initialHolisticRubric);
     }
@@ -158,8 +171,12 @@ export default function RubricBuilder({ onSave, onCancel }: { onSave: (rubric: R
           <option className='text-sm ' value={RubricType.Holistic}>Holistic</option>
           <option className='text-sm ' value={RubricType.SinglePoint}>Single Point</option>
           <option className='text-sm ' value={RubricType.Checklist}>Checklist</option>
+          <option className='text-sm ' value={RubricType.ContentSpecific}>Content Specific</option>
+          <option className='text-sm ' value={RubricType.Developmental}>Developmental</option>
         </select>
       </div>
+
+      <RubricTypeExplanation selectedType={rubricType} />
 
       {/* Rubric Name */}
       <div className="mb-1">
