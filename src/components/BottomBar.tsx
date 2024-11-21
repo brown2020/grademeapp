@@ -19,21 +19,21 @@ export default function BottomBar() {
   }
 
   return (
-    <div className="flex items-center z-20 h-16 border-t border-primary-40 justify-between md:hidden text-slate-900 absolute right-0 left-0 bottom-0">
+    <div className="flex items-center z-20 h-16 px-4 border-t border-primary-40 justify-between md:hidden text-slate-900 absolute right-0 left-0 bottom-0">
       <div
         className="flex items-center cursor-pointer"
         onClick={() => {
           setTimeout(() => router.back(), 100);
         }}
       >
-        <ChevronLeft size={30} className="text-primary-30 -mr-1" />
+        <ChevronLeft size={30} className="text-primary-30 back-button" />
       </div>
       {navItems.map((item, index) => (
         item.label !== "Grade.me" ? (
           <div
             key={index}
-            className={`flex hover:animate-wiggle 
-                            ${pathname.slice(0, 5) === item.path.slice(0, 5) && pathname !== "/"
+            className={`flex hover:animate-wiggle ${item.mobile}
+                ${pathname.slice(0, 5) === item.path.slice(0, 5) && pathname !== "/"
                 ? ""
                 : ""
               }`}
@@ -50,12 +50,12 @@ export default function BottomBar() {
         )
       ))}
       <div
-        className="flex items-center cursor-pointer"
+        className="flex items-center cursor-pointer forward-button"
         onClick={() => {
           setTimeout(() => router.forward(), 100);
         }}
       >
-        <ChevronRight size={30} className="text-primary-30 -ml-1" />
+        <ChevronRight size={30} className="text-primary-30" />
       </div>
     </div>
   );

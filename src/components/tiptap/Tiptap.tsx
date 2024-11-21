@@ -93,7 +93,7 @@ const Tiptap = ({ wordLimit, wordLimitType, editorContent, onChange }: TiptapPro
       },
       attributes: {
         class:
-          "shadow appearance-none min-h-[150px] border rounded w-full p-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline",
+          "shadow appearance-none h-[300px] overflow-y-scroll border rounded w-full p-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline",
       },
     },
     content: editorContent,
@@ -173,9 +173,7 @@ const Tiptap = ({ wordLimit, wordLimitType, editorContent, onChange }: TiptapPro
           onClick={() =>
             editor.chain().focus().toggleHeading({ level: 2 }).run()
           }
-          className={`
-                        size-8 rounded place-items-center ${editor.isActive("heading", { level: 2 }) ? "is-active bg-gray-300" : ""
-            }`}
+          className={`size-8 rounded place-items-center ${editor.isActive("heading", { level: 2 }) ? "is-active bg-gray-300" : ""}`}
         >
           <HeadingIcon size={18} />
         </button>
@@ -289,7 +287,7 @@ const Tiptap = ({ wordLimit, wordLimitType, editorContent, onChange }: TiptapPro
         </div>
       </BubbleMenu>
       {/* Editor Content */}
-      <EditorContent editor={editor} />
+      <EditorContent className='' editor={editor} />
     </div>
   )
 }

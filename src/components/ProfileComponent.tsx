@@ -115,15 +115,15 @@ export default function ProfileComponent() {
   const areApiKeysAvailable = fireworksApiKey && openaiApiKey;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 profile-component">
       {/* Conditionally render the credits purchase section */}
       <div className="flex flex-col sm:flex-row px-2 py-3 gap-3 border border-gray-500 rounded-md">
         <div className="flex gap-2 w-full items-center">
-          <div className="flex-1 bg-secondary-90 px-2 py-1 rounded-full text-center">
+          <div className="flex-1 bg-secondary-90 px-2 py-1 rounded-full text-center profile-component-available-credits">
             Available Credits: {Math.round(profile.credits)}
           </div>
           <button
-            className="btn btn-shiny btn-shiny-blue"
+            className="btn btn-shiny btn-shiny-blue profile-component-buy-credits"
             onClick={handleBuyClick}
           >
             Buy 10,000 Credits
@@ -137,7 +137,7 @@ export default function ProfileComponent() {
       </div>
 
       {showCreditsSection && (
-        <div className="flex flex-col px-5 py-3 gap-3 border border-gray-500 rounded-md">
+        <div className="flex flex-col px-5 py-3 gap-3 border border-gray-500 rounded-md profile-component-keys">
           <label htmlFor="fireworks-api-key" className="text-sm font-medium">
             Fireworks API Key:
           </label>
@@ -173,7 +173,7 @@ export default function ProfileComponent() {
         </div>
       )}
 
-      <div className="flex flex-col px-5 py-3 gap-3 border border-gray-500 rounded-md">
+      <div className="flex flex-col px-5 py-3 gap-3 border border-gray-500 rounded-md profile-component-settings">
         <label htmlFor="setting-lable-key" className="text-sm font-medium">
           Settings:
         </label>
@@ -185,7 +185,7 @@ export default function ProfileComponent() {
         </button>
       </div>
 
-      <div className="flex items-center px-5 py-3 gap-3 border border-gray-500 rounded-md">
+      <div className="flex items-center px-5 py-3 gap-3 border border-gray-500 rounded-md profile-component-use-keys-credits">
         <label htmlFor="toggle-use-credits" className="text-sm font-medium">
           Use:
         </label>

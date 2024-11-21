@@ -5,261 +5,261 @@ import { db } from "@/firebase/firebaseClient";
 import { deleteUser, getAuth } from "firebase/auth";
 
 export interface ProfileType {
-    email: string;
-    contactEmail: string;
-    displayName: string;
-    photoUrl: string;
-    identityLevel?: string;
-    identity?: string;
-    emailVerified: boolean;
-    credits: number;
-    fireworks_api_key: string;
-    openai_api_key: string;
-    selectedAvatar: string;
-    selectedTalkingPhoto: string;
-    useCredits: boolean;
-    favoriteRubrics: string[];
+  email: string;
+  contactEmail: string;
+  displayName: string;
+  photoUrl: string;
+  identityLevel?: string;
+  identity?: string;
+  emailVerified: boolean;
+  credits: number;
+  fireworks_api_key: string;
+  openai_api_key: string;
+  selectedAvatar: string;
+  selectedTalkingPhoto: string;
+  useCredits: boolean;
+  favoriteRubrics: string[];
 }
 
 const defaultProfile: ProfileType = {
-    email: "",
+  email: "",
+  contactEmail: "",
+  displayName: "",
+  photoUrl: "",
+  identityLevel: "",
+  identity: "",
+  emailVerified: false,
+  credits: 0,
+  fireworks_api_key: "",
+  openai_api_key: "",
+  selectedAvatar: "",
+  selectedTalkingPhoto: "",
+  useCredits: true,
+  favoriteRubrics: []
+};
+
+interface ProfileState {
+  profile: ProfileType;
+  fetchProfile: () => Promise<void>;
+  updateProfile: (newProfile: Partial<ProfileType>) => Promise<void>;
+  minusCredits: (amount: number) => Promise<boolean>;
+  addCredits: (amount: number) => Promise<void>;
+  deleteAccount: () => Promise<void>;
+  addFavoriteRubric: (rubricId: string) => Promise<void>;
+  removeFavoriteRubric: (rubricId: string) => Promise<void>;
+}
+
+const mergeProfileWithDefaults = (
+  profile: Partial<ProfileType>,
+  authState: {
+    authEmail?: string;
+    authDisplayName?: string;
+    authPhotoUrl?: string;
+  }
+): ProfileType => ({
+  ...defaultProfile,
+  ...profile,
+  credits: profile.credits && profile.credits >= 100 ? profile.credits : 1000,
+  email: authState.authEmail || profile.email || "",
+  contactEmail: profile.contactEmail || authState.authEmail || "",
+  displayName: profile.displayName || authState.authDisplayName || "",
+  photoUrl: profile.photoUrl || authState.authPhotoUrl || "",
+});
+
+const useProfileStore = create<ProfileState>((set, get) => ({
+  profile: defaultProfile,
+
+  fetchProfile: async () => {
+    const { uid, authEmail, authDisplayName, authPhotoUrl, authEmailVerified } =
+      useAuthStore.getState();
+    if (!uid) return;
+
+    try {
+      const userRef = doc(db, `users/${uid}/profile/userData`);
+      const docSnap = await getDoc(userRef);
+
+      const newProfile = docSnap.exists()
+        ? mergeProfileWithDefaults(docSnap.data() as ProfileType, {
+          authEmail,
+          authDisplayName,
+          authPhotoUrl,
+        })
+        : createNewProfile(
+          authEmail,
+          authDisplayName,
+          authPhotoUrl,
+          authEmailVerified
+        );
+
+      // console.log(
+      //     docSnap.exists()
+      //         ? "Profile found:"
+      //         : "No profile found. Creating new profile document.",
+      //     newProfile
+      // );
+
+      await setDoc(userRef, newProfile);
+      set({ profile: newProfile });
+    } catch (error) {
+      handleProfileError("fetching or creating profile", error);
+    }
+  },
+
+  updateProfile: async (newProfile: Partial<ProfileType>) => {
+    const uid = useAuthStore.getState().uid;
+    if (!uid) return;
+
+    try {
+      const userRef = doc(db, `users/${uid}/profile/userData`);
+      const updatedProfile = { ...get().profile, ...newProfile };
+
+      set({ profile: updatedProfile });
+      await updateDoc(userRef, updatedProfile);
+      console.log("Profile updated successfully");
+    } catch (error) {
+      handleProfileError("updating profile", error);
+    }
+  },
+
+  deleteAccount: async () => {
+    const auth = getAuth(); // Get Firebase auth instance
+    const currentUser = auth.currentUser;
+
+    const uid = useAuthStore.getState().uid;
+    if (!uid || !currentUser) return;
+
+    try {
+      const userRef = doc(db, `users/${uid}/profile/userData`);
+      // Delete the user profile data from Firestore
+      await deleteDoc(userRef);
+
+      //Delete the user from Firebase Authentication
+      await deleteUser(currentUser);
+
+      console.log("Account deleted successfully");
+    } catch (error) {
+      handleProfileError("deleting account", error);
+    }
+  },
+
+  minusCredits: async (amount: number) => {
+    const uid = useAuthStore.getState().uid;
+    if (!uid) return false;
+
+    const profile = get().profile;
+    if (profile.credits < amount) return false;
+
+    try {
+      const newCredits = profile.credits - amount;
+      await updateCredits(uid, newCredits);
+      set({ profile: { ...profile, credits: newCredits } });
+      return true;
+    } catch (error) {
+      handleProfileError("using credits", error);
+      return false;
+    }
+  },
+
+  addCredits: async (amount: number) => {
+    const uid = useAuthStore.getState().uid;
+    if (!uid) return;
+
+    const profile = get().profile;
+    const newCredits = profile.credits + amount;
+
+    try {
+      await updateCredits(uid, newCredits);
+      set({ profile: { ...profile, credits: newCredits } });
+    } catch (error) {
+      handleProfileError("adding credits", error);
+    }
+  },
+
+  addFavoriteRubric: async (rubricId: string) => {
+    const uid = useAuthStore.getState().uid;
+    if (!uid) return;
+
+    const profile = get().profile;
+    if (profile.favoriteRubrics.includes(rubricId)) return; // Avoid duplicates
+
+    try {
+      const updatedFavorites = [...profile.favoriteRubrics, rubricId];
+      await updateDoc(doc(db, `users/${uid}/profile/userData`), {
+        favoriteRubrics: updatedFavorites,
+      });
+
+      set({
+        profile: {
+          ...profile,
+          favoriteRubrics: updatedFavorites,
+        },
+      });
+    } catch (error) {
+      handleProfileError("adding favorite rubric", error);
+    }
+  },
+
+  removeFavoriteRubric: async (rubricId: string) => {
+    const uid = useAuthStore.getState().uid;
+    if (!uid) return;
+
+    const profile = get().profile;
+    if (!profile.favoriteRubrics.includes(rubricId)) return; // Ensure rubric exists in favorites
+
+    try {
+      const updatedFavorites = profile.favoriteRubrics.filter(id => id !== rubricId);
+      await updateDoc(doc(db, `users/${uid}/profile/userData`), {
+        favoriteRubrics: updatedFavorites,
+      });
+
+      set({
+        profile: {
+          ...profile,
+          favoriteRubrics: updatedFavorites,
+        },
+      });
+    } catch (error) {
+      handleProfileError("removing favorite rubric", error);
+    }
+  },
+}));
+
+// Helper function to create a new profile
+function createNewProfile(
+  authEmail?: string,
+  authDisplayName?: string,
+  authPhotoUrl?: string,
+  authEmailVerified?: boolean
+): ProfileType {
+  return {
+    email: authEmail || "",
     contactEmail: "",
-    displayName: "",
-    photoUrl: "",
+    displayName: authDisplayName || "",
+    photoUrl: authPhotoUrl || "",
     identityLevel: "",
     identity: "",
-    emailVerified: false,
-    credits: 0,
+    emailVerified: authEmailVerified || false,
+    credits: 1000,
     fireworks_api_key: "",
     openai_api_key: "",
     selectedAvatar: "",
     selectedTalkingPhoto: "",
     useCredits: true,
-    favoriteRubrics: []
-};
-
-interface ProfileState {
-    profile: ProfileType;
-    fetchProfile: () => Promise<void>;
-    updateProfile: (newProfile: Partial<ProfileType>) => Promise<void>;
-    minusCredits: (amount: number) => Promise<boolean>;
-    addCredits: (amount: number) => Promise<void>;
-    deleteAccount: () => Promise<void>;
-    addFavoriteRubric: (rubricId: string) => Promise<void>;
-    removeFavoriteRubric: (rubricId: string) => Promise<void>;
-}
-
-const mergeProfileWithDefaults = (
-    profile: Partial<ProfileType>,
-    authState: {
-        authEmail?: string;
-        authDisplayName?: string;
-        authPhotoUrl?: string;
-    }
-): ProfileType => ({
-    ...defaultProfile,
-    ...profile,
-    credits: profile.credits && profile.credits >= 100 ? profile.credits : 1000,
-    email: authState.authEmail || profile.email || "",
-    contactEmail: profile.contactEmail || authState.authEmail || "",
-    displayName: profile.displayName || authState.authDisplayName || "",
-    photoUrl: profile.photoUrl || authState.authPhotoUrl || "",
-});
-
-const useProfileStore = create<ProfileState>((set, get) => ({
-    profile: defaultProfile,
-
-    fetchProfile: async () => {
-        const { uid, authEmail, authDisplayName, authPhotoUrl, authEmailVerified } =
-            useAuthStore.getState();
-        if (!uid) return;
-
-        try {
-            const userRef = doc(db, `users/${uid}/profile/userData`);
-            const docSnap = await getDoc(userRef);
-
-            const newProfile = docSnap.exists()
-                ? mergeProfileWithDefaults(docSnap.data() as ProfileType, {
-                    authEmail,
-                    authDisplayName,
-                    authPhotoUrl,
-                })
-                : createNewProfile(
-                    authEmail,
-                    authDisplayName,
-                    authPhotoUrl,
-                    authEmailVerified
-                );
-
-            console.log(
-                docSnap.exists()
-                    ? "Profile found:"
-                    : "No profile found. Creating new profile document.",
-                newProfile
-            );
-
-            await setDoc(userRef, newProfile);
-            set({ profile: newProfile });
-        } catch (error) {
-            handleProfileError("fetching or creating profile", error);
-        }
-    },
-
-    updateProfile: async (newProfile: Partial<ProfileType>) => {
-        const uid = useAuthStore.getState().uid;
-        if (!uid) return;
-
-        try {
-            const userRef = doc(db, `users/${uid}/profile/userData`);
-            const updatedProfile = { ...get().profile, ...newProfile };
-
-            set({ profile: updatedProfile });
-            await updateDoc(userRef, updatedProfile);
-            console.log("Profile updated successfully");
-        } catch (error) {
-            handleProfileError("updating profile", error);
-        }
-    },
-
-    deleteAccount: async () => {
-        const auth = getAuth(); // Get Firebase auth instance
-        const currentUser = auth.currentUser;
-
-        const uid = useAuthStore.getState().uid;
-        if (!uid || !currentUser) return;
-
-        try {
-            const userRef = doc(db, `users/${uid}/profile/userData`);
-            // Delete the user profile data from Firestore
-            await deleteDoc(userRef);
-
-            //Delete the user from Firebase Authentication
-            await deleteUser(currentUser);
-
-            console.log("Account deleted successfully");
-        } catch (error) {
-            handleProfileError("deleting account", error);
-        }
-    },
-
-    minusCredits: async (amount: number) => {
-        const uid = useAuthStore.getState().uid;
-        if (!uid) return false;
-
-        const profile = get().profile;
-        if (profile.credits < amount) return false;
-
-        try {
-            const newCredits = profile.credits - amount;
-            await updateCredits(uid, newCredits);
-            set({ profile: { ...profile, credits: newCredits } });
-            return true;
-        } catch (error) {
-            handleProfileError("using credits", error);
-            return false;
-        }
-    },
-
-    addCredits: async (amount: number) => {
-        const uid = useAuthStore.getState().uid;
-        if (!uid) return;
-
-        const profile = get().profile;
-        const newCredits = profile.credits + amount;
-
-        try {
-            await updateCredits(uid, newCredits);
-            set({ profile: { ...profile, credits: newCredits } });
-        } catch (error) {
-            handleProfileError("adding credits", error);
-        }
-    },
-
-    addFavoriteRubric: async (rubricId: string) => {
-        const uid = useAuthStore.getState().uid;
-        if (!uid) return;
-
-        const profile = get().profile;
-        if (profile.favoriteRubrics.includes(rubricId)) return; // Avoid duplicates
-
-        try {
-            const updatedFavorites = [...profile.favoriteRubrics, rubricId];
-            await updateDoc(doc(db, `users/${uid}/profile/userData`), {
-                favoriteRubrics: updatedFavorites,
-            });
-
-            set({
-                profile: {
-                    ...profile,
-                    favoriteRubrics: updatedFavorites,
-                },
-            });
-        } catch (error) {
-            handleProfileError("adding favorite rubric", error);
-        }
-    },
-
-    removeFavoriteRubric: async (rubricId: string) => {
-        const uid = useAuthStore.getState().uid;
-        if (!uid) return;
-
-        const profile = get().profile;
-        if (!profile.favoriteRubrics.includes(rubricId)) return; // Ensure rubric exists in favorites
-
-        try {
-            const updatedFavorites = profile.favoriteRubrics.filter(id => id !== rubricId);
-            await updateDoc(doc(db, `users/${uid}/profile/userData`), {
-                favoriteRubrics: updatedFavorites,
-            });
-
-            set({
-                profile: {
-                    ...profile,
-                    favoriteRubrics: updatedFavorites,
-                },
-            });
-        } catch (error) {
-            handleProfileError("removing favorite rubric", error);
-        }
-    },
-}));
-
-// Helper function to create a new profile
-function createNewProfile(
-    authEmail?: string,
-    authDisplayName?: string,
-    authPhotoUrl?: string,
-    authEmailVerified?: boolean
-): ProfileType {
-    return {
-        email: authEmail || "",
-        contactEmail: "",
-        displayName: authDisplayName || "",
-        photoUrl: authPhotoUrl || "",
-        identityLevel: "",
-        identity: "",
-        emailVerified: authEmailVerified || false,
-        credits: 1000,
-        fireworks_api_key: "",
-        openai_api_key: "",
-        selectedAvatar: "",
-        selectedTalkingPhoto: "",
-        useCredits: true,
-        favoriteRubrics: [],
-    };
+    favoriteRubrics: [],
+  };
 }
 
 // Helper function to update credits
 async function updateCredits(uid: string, credits: number): Promise<void> {
-    const userRef = doc(db, `users/${uid}/profile/userData`);
-    await updateDoc(userRef, { credits });
+  const userRef = doc(db, `users/${uid}/profile/userData`);
+  await updateDoc(userRef, { credits });
 }
 
 // Helper function to handle errors
 function handleProfileError(action: string, error: unknown): void {
-    const errorMessage =
-        error instanceof Error ? error.message : "An unknown error occurred";
-    console.error(`Error ${action}:`, errorMessage);
+  const errorMessage =
+    error instanceof Error ? error.message : "An unknown error occurred";
+  console.error(`Error ${action}:`, errorMessage);
 }
 
 export default useProfileStore;

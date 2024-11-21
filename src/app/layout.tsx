@@ -3,6 +3,7 @@ import "./globals.css";
 import { ClientProvider } from "@/components/ClientProvider";
 import Header from "@/components/Header";
 import BottomBar from "@/components/BottomBar";
+import TourGuide from "@/components/TourGuide";
 
 export const metadata: Metadata = {
   title: "Grade.me",
@@ -31,12 +32,15 @@ export default function RootLayout({
       <body>
         <ClientProvider>
           <div className="flex flex-col h-full relative">
+
             <Header />
             <div className="flex flex-col h-container-small md:h-container-custom overflow-y-scroll">
               <div className="flex flex-col h-full flex-1">{children}</div>
+              {/* <TourGuide /> */}
             </div>
             <BottomBar />
           </div>
+
         </ClientProvider>
       </body>
     </html>

@@ -1,9 +1,6 @@
 "use client"
 
 import { useState } from "react";
-import { RubricState } from "@/types/rubrics-types"; // Adjust the import path as necessary
-import { collection, getDocs, doc, setDoc, Timestamp } from "firebase/firestore";
-import { db } from "@/firebase/firebaseClient";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import { useRubricStore } from "@/zustand/useRubricStore";
 import { Switch } from "@headlessui/react";
@@ -15,25 +12,25 @@ import RubricBuilder from "@/components/rubrics/RubricBuilder";
 import RubricSearch from "@/components/rubrics/RubricSearch";
 import RubricHelper from "@/components/rubrics/RubricHelper";
 import CustomButton from "@/components/ui/CustomButton";
+import DeleteConfirmationModal from "@/components/rubrics/DeleteConfirmationModal";
+import RubricsTour from "@/components/tours/RubricsTour"
 
 export default function Rubrics() {
   const { uid } = useAuthStore();
   const {
-    rubricOptions,
-    setRubricOptions,
     selectedRubric,
-    setSelectedRubric,
     useCustomRubrics,
     setUseCustomRubrics,
     resetToDefaultRubrics,
+    fetchCustomRubrics,
+    showRubricBuilder,
+    setShowRubricBuilder,
+    setEditingRubricId,
   } = useRubricStore();
-  const [showRubricBuilder, setShowRubricBuilder] = useState<boolean>(false);
   const [isExiting, setIsExiting] = useState<boolean>(false);
   const [showTooltip, setShowTooltip] = useState<boolean>(false);
 
-  const openRubricBuilder = () => {
-    setShowRubricBuilder(true);
-  };
+
 
   // Fetch default rubrics or custom rubrics based on toggle
   const handleCustomRubrics = async () => {
@@ -41,47 +38,32 @@ export default function Rubrics() {
     setUseCustomRubrics(newUseCustomRubrics);
 
     if (newUseCustomRubrics && uid) {
-      // If switching to custom rubrics and user is logged in, fetch custom rubrics
-      const fetchCustomRubrics = async () => {
-        try {
-          const customRubricCollection = collection(db, "users", uid, "custom_rubrics");
-          const customRubricSnapshot = await getDocs(customRubricCollection);
-          const fetchedRubrics = customRubricSnapshot.docs.map((doc) => doc.data() as RubricState);
-          setRubricOptions(fetchedRubrics);
-
-          // Set the first custom rubric as the selected one, if available
-          if (fetchedRubrics.length > 0) {
-            setSelectedRubric(fetchedRubrics[0]);
-          } else {
-            setSelectedRubric(null);
-          }
-        } catch (error) {
-          toast.error("Failed to fetch custom rubrics.");
-          console.error("Error fetching custom rubrics:", error);
-        }
-      };
-      await fetchCustomRubrics();
+      await fetchCustomRubrics(uid);
+      toast.success("Custom rubrics loaded.");
     } else {
-      // Reset to default rubrics when toggling off custom rubrics
       resetToDefaultRubrics();
+      toast.success("Default rubrics loaded.");
     }
   };
 
-  const closeRubricBuilder = () => {
+  const handleCloseRubricBuilder = () => {
+    setIsExiting(true);
     setTimeout(() => {
       setShowRubricBuilder(false);
-      setIsExiting(true);
-    }, 300);
-
-    setIsExiting(false);
-
+      setIsExiting(false);
+      setEditingRubricId(undefined);
+    }, 150);
   };
 
   return (
     <div className="space-y-3">
       <div>
         <div className="flex flex-row justify-between">
-          <h1>Rubrics</h1>
+          <div className="flex gap-x-1 items-center">
+            <RubricsTour />
+            <h1>Rubrics</h1>
+
+          </div>
           {/* Use Custom Rubrics Toggle */}
           <div className="flex items-center space-x-2">
             <Switch
@@ -106,14 +88,14 @@ export default function Rubrics() {
           <span className={`absolute bottom-full z-50 text-wrap px-2 py-1 bg-primary-90 border border-primary-40 text-xs rounded transition-opacity ${showTooltip ? 'opacity-100 flex' : 'opacity-0 hidden'}`}>
             {selectedRubric?.description}
           </span>
-          <h2 className="text-primary-20 font-semibold">{selectedRubric ? selectedRubric.name : "Select a rubric..."}</h2>
+          <h2 className="text-primary-20 font-bold underline underline-offset-2 rubric-selected">{selectedRubric ? selectedRubric.name : "Select a rubric..."}</h2>
         </div>
         <p className="sm:relative text-sm max-w-xs truncate mb-1 hidden">{selectedRubric ? selectedRubric.description : "..."}</p>
 
         {selectedRubric ? (
           <RubricDisplay rubric={selectedRubric} />
         ) : (
-          <div className="flex items-center justify-center h-24">No rubric selected.</div>
+          <div className="flex items-center justify-center h-52">No rubric selected. Search for and select a rubric below.</div>
         )}
       </div>
 
@@ -121,39 +103,22 @@ export default function Rubrics() {
         {/* Rubric Helper */}
         <RubricHelper />
         {/* Rubric Builder Button */}
-        <CustomButton onClick={() => setShowRubricBuilder(true)} className="btn-shiny btn-shiny-teal">
+        <CustomButton onClick={() => setShowRubricBuilder(true)} className="btn-shiny btn-shiny-teal rubric-builder">
           <Blocks />
           <h2>Rubric Builder</h2>
         </CustomButton>
       </div>
 
       {/* Rubric Search */}
-      <RubricSearch useCustomRubrics={useCustomRubrics} openRubricBuilder={openRubricBuilder} />
+      <RubricSearch />
 
       {/* Custom Rubric Builder Modal */}
-      <div className={`bg-secondary p-2 absolute top-[60px] md:top-[90px] h-fit max-h-[78%] rounded-l-lg border-2 border-r-0 border-primary-40 left-2 right-0 scroll shadow-lg overflow-y-auto  
+      <div className={`bg-secondary p-2 absolute top-[54px] md:top-[90px] h-fit max-h-[84%] rounded-l-lg border-2 border-r-0 border-primary-40 left-2 right-0 scroll shadow-lg overflow-y-auto  
                         ${showRubricBuilder ? 'animate-enter' : isExiting ? 'animate-exit' : 'hidden'}`}>
-        <RubricBuilder
-          onSave={async (customRubric) => {
-            if (uid) {
-              const customRubricRef = doc(collection(db, "users", uid, "custom_rubrics"));
-              await setDoc(customRubricRef, {
-                ...customRubric,
-                id: customRubricRef.id,
-                timestamp: Timestamp.now(),
-              });
-              setRubricOptions([...rubricOptions, customRubric]);
-              setSelectedRubric(customRubric);
-
-              toast.success("Custom rubric saved successfully!");
-            } else {
-              toast.error("Please log in to save a custom rubric.");
-            }
-            closeRubricBuilder();
-          }}
-          onCancel={closeRubricBuilder}
-        />
+        <RubricBuilder onClose={handleCloseRubricBuilder} />
       </div>
+
+      <DeleteConfirmationModal />
     </div>
   );
 }

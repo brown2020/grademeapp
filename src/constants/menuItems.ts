@@ -1,9 +1,19 @@
 import { Bot, Handshake, GlobeLock, LifeBuoy } from "lucide-react";
 import school from "@/app/assets/school.svg";
-import tools from "@/app/assets/tools.svg";
+import grader from "@/app/assets/grader.svg";
 import rubric from "@/app/assets/rubric.svg";
 import grademe from "@/app/assets/grademe.svg";
-// import profile from "@/app/assets/profile.svg";
+
+type MenuItem = {
+  label: string;
+  href: string;
+  show: string;
+  icon: React.ComponentType;
+  header: boolean;
+  footer: boolean;
+  desktop: string;
+  mobile: string;
+};
 
 export const MENU_ITEMS: MenuItem[] = [
   {
@@ -13,6 +23,8 @@ export const MENU_ITEMS: MenuItem[] = [
     icon: Bot,
     header: false,
     footer: true,
+    desktop: 'desktop-about',
+    mobile: 'mobile-menu-about',
   },
   {
     label: "Support",
@@ -21,6 +33,8 @@ export const MENU_ITEMS: MenuItem[] = [
     icon: LifeBuoy,
     header: false,
     footer: true,
+    desktop: 'desktop-support',
+    mobile: 'mobile-menu-support',
   },
   {
     label: "Terms",
@@ -29,6 +43,8 @@ export const MENU_ITEMS: MenuItem[] = [
     icon: Handshake,
     header: false,
     footer: true,
+    desktop: 'desktop-terms',
+    mobile: 'mobile-menu-terms',
   },
   {
     label: "Privacy",
@@ -37,6 +53,8 @@ export const MENU_ITEMS: MenuItem[] = [
     icon: GlobeLock,
     header: false,
     footer: true,
+    desktop: 'desktop-privacy',
+    mobile: 'mobile-menu-privacy',
   },
 ];
 
@@ -44,6 +62,8 @@ type navItemType = {
   label: string;
   image: string;
   path: string;
+  desktop: string;
+  mobile: string;
 };
 
 export const navItems: navItemType[] = [
@@ -51,23 +71,29 @@ export const navItems: navItemType[] = [
     label: `Grade.me`,
     image: grademe,
     path: "/",
+    desktop: "grademe-link-desktop",
+    mobile: "grademe-link-mobile",
+  },
+  {
+    label: "rubrics",
+    image: rubric,
+    path: "/rubrics",
+    desktop: "rubrics-link-desktop",
+    mobile: "rubrics-link-mobile",
+  },
+
+  {
+    label: "grader",
+    image: grader,
+    path: "/grader",
+    desktop: "grader-link-desktop",
+    mobile: "grader-link-mobile",
   },
   {
     label: "assignments",
     image: school,
     path: "/assignments",
+    desktop: "assignments-link-desktop",
+    mobile: "assignments-link-mobile",
   },
-
-  {
-    label: "rubrics",
-    image: rubric,
-    path: "/rubrics",
-  },
-
-  {
-    label: "tools",
-    image: tools,
-    path: "/tools",
-  },
-
 ];

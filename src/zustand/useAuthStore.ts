@@ -73,14 +73,14 @@ async function updateUserDetailsInFirestore(
       }
     });
 
-    console.log("Updating auth details in Firestore:", sanitizedDetails);
+    // console.log("Updating auth details in Firestore:", sanitizedDetails);
     try {
       await setDoc(
         userRef,
         { ...sanitizedDetails, lastSignIn: serverTimestamp() },
         { merge: true }
       );
-      console.log("Auth details updated successfully in Firestore.");
+      // console.log("Auth details updated successfully in Firestore.");
     } catch (error) {
       console.error("Error updating auth details in Firestore:", error);
     }

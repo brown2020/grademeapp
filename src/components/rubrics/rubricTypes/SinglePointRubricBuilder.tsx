@@ -1,9 +1,9 @@
 import React from 'react';
-import { SinglePointRubric, GenericRubricCriteria } from '@/types/rubrics-types';
+import { SinglePointRubric, GenericRubricCriteria, RubricState } from '@/types/rubrics-types';
 
 interface SinglePointRubricBuilderProps {
   rubric: SinglePointRubric;
-  onChange: (updatedRubric: SinglePointRubric) => void;
+  onChange: (updatedRubric: Partial<RubricState>) => void;
 }
 
 const SinglePointRubricBuilder: React.FC<SinglePointRubricBuilderProps> = ({ rubric, onChange }) => {
@@ -11,7 +11,6 @@ const SinglePointRubricBuilder: React.FC<SinglePointRubricBuilderProps> = ({ rub
     const feedback = rubric.feedback || { Strengths: '', "Areas for Improvement": '' };
     if (field === 'Proficient') {
       onChange({
-        ...rubric,
         criteria: {
           ...rubric.criteria,
           [field]: value,
@@ -19,10 +18,8 @@ const SinglePointRubricBuilder: React.FC<SinglePointRubricBuilderProps> = ({ rub
       });
     } else if (field === 'Strengths' || field === 'Areas for Improvement') {
       onChange({
-        ...rubric,
         feedback: {
           ...feedback,
-          ...rubric.feedback,
           [field]: value,
         },
       });

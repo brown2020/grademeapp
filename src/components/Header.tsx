@@ -12,29 +12,28 @@ import { signOut } from "firebase/auth";
 import { auth } from "@/firebase/firebaseClient";
 import CustomListbox from "@/components/ui/CustomListbox";
 import { userInputs } from "@/constants/userInputs";
+import { useMobileMenuStore } from "@/zustand/useMobileMenuStore";
+
 
 
 export default function Header() {
+  const { isOpen, setIsOpen, toggleMenu } = useMobileMenuStore();
   const profile = useProfileStore((state) => state.profile);
   const updateProfile = useProfileStore((state) => state.updateProfile);
   const identityLevels = userInputs?.identity?.identityLevels?.[profile?.identity ?? "student"] ?? ["3rd grade"];
   const clearAuthDetails = useAuthStore((s) => s.clearAuthDetails);
   const { uid } = useAuthStore();
-  const [isOpen, setIsOpen] = useState(false); // State for dialog open/close
   const [isExiting, setIsExiting] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const [identityModalOpen, setIdentityModalOpen] = useState(false);
   const [modalClosing, setModalClosing] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
 
-
-
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-
-    console.log("profile", profile);
+    // console.log("profile", profile);
 
     if (uid && profile && profile.contactEmail && !profile.identity) {
       setIdentityModalOpen(true);
@@ -45,21 +44,22 @@ export default function Header() {
     }
   }, [uid, profile, profile?.identity, profile?.identityLevel]);
 
-  useEffect(() => {
-    // Close the dialog when clicking outside of it
-    function handleClickOutside(event: TouchEvent | MouseEvent) {
-      if (isOpen && menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        closeMenu();
-      }
-    }
+  // useEffect(() => {
+  //   // Close the dialog when clicking outside of it
+  //   function handleClickOutside(event: TouchEvent | MouseEvent) {
+  //     if (isOpen && menuRef.current && !menuRef.current.contains(event.target as Node)) {
+  //       closeMenu();
+  //     }
+  //   }
 
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("touchstart", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("touchstart", handleClickOutside);
-    };
-  }, [menuRef, isOpen]);
+  //   document.addEventListener("mousedown", handleClickOutside);
+  //   document.addEventListener("touchstart", handleClickOutside);
+  //   return () => {
+  //     document.removeEventListener("mousedown", handleClickOutside);
+  //     document.removeEventListener("touchstart", handleClickOutside);
+  //   };
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [menuRef, isOpen]);
 
   const closeMenu = () => {
     setIsOpen(false);
@@ -89,6 +89,8 @@ export default function Header() {
     }
   };
 
+  // console.log(navItems)
+
   return (
     <>
       {/* Header content */}
@@ -100,8 +102,7 @@ export default function Header() {
             ) : (
               <div
                 key={index}
-                className={`flex gap-x-3  md:flex-col items-center md:justify-end px-2 h-full transition duration-300 cursor-pointer hover:text-primary-40 hover:opacity-100 
-                                ${pathname.slice(0, 5) === item.path.slice(0, 5) && pathname !== "/" ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
+                className={`flex gap-x-3  md:flex-col items-center md:justify-end px-2 h-full transition duration-300 cursor-pointer hover:text-primary-40 hover:opacity-100 ${item.desktop} ${pathname.slice(0, 5) === item.path.slice(0, 5) && pathname !== "/" ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
                   }`}
                 onClick={() => {
                   setTimeout(() => router.push(item.path), 100);
@@ -122,8 +123,7 @@ export default function Header() {
               item.label !== "Grade.me" ? (
                 <div
                   key={index}
-                  className={`flex flex-col items-center justify-end px-2 h-full transition duration-300 cursor-pointer hover:text-primary-40 hover:opacity-100
-                                  ${pathname.slice(0, 5) === item.path.slice(0, 5) && pathname !== "/" ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
+                  className={`flex flex-col items-center justify-end px-2 h-full transition duration-300 cursor-pointer hover:text-primary-40 hover:opacity-100 ${item.desktop} ${pathname.slice(0, 5) === item.path.slice(0, 5) && pathname !== "/" ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
                     }`}
                   onClick={() => {
                     setTimeout(() => router.push(item.path), 100);
@@ -140,13 +140,13 @@ export default function Header() {
             ))}
           </div>
           <div
-            className="cursor-pointer hidden md:flex justify-start items-center md:flex-col gap-x-2 md:gap-y-0 hover:text-primary-40 text-primary-10"
+            className="cursor-pointer hidden md:flex justify-start items-center md:flex-col gap-x-2 md:gap-y-0 hover:text-primary-40 text-primary-10 profile-link-desktop"
             onClick={() => {
               setTimeout(() => router.push('/profile'), 100);
             }}
           >
             {uid && profile?.photoUrl ? (
-              <div className="size-9 md:size-12 aspect-square">
+              <div className={`size-9 md:size-12 aspect-square`}>
                 <Image
                   src={profile.photoUrl}
                   alt="User Avatar"
@@ -177,9 +177,8 @@ export default function Header() {
         >
         </div>
 
-
-        <div className="flex md:hidden items-end">
-          <Menu size={25} className="text-primary-30 cursor-pointer" onClick={isOpen ? closeMenu : () => setIsOpen(true)} />
+        <div className="mobile-menu flex md:hidden items-end">
+          <Menu size={25} className="text-primary-30 cursor-pointer" onClick={toggleMenu} />
         </div>
       </div>
 
@@ -194,7 +193,7 @@ export default function Header() {
           <XIcon size={24} className="text-primary-10 cursor-pointer absolute top-2 right-2" onClick={closeMenu} />
           <ul className="mt-4">
             <li
-              className="flex justify-start items-end md:flex-col md:items-end gap-x-2 md:gap-y-1 border-b border-primary-40 pb-2"
+              className="profile-link-mobile flex justify-start items-end md:flex-col md:items-end gap-x-2 md:gap-y-1 border-b border-primary-40 pb-2"
               onClick={() => {
                 setTimeout(() => router.push('/profile'), 100);
               }}
@@ -221,7 +220,7 @@ export default function Header() {
             {MENU_ITEMS.map((item, index) => (
               <li
                 key={index}
-                className="cursor-pointer text-primary-30 hover:bg-gray-100 flex flex-row items-center gap-4 border-b border-primary-40 pb-2"
+                className={`cursor-pointer text-primary-30 hover:bg-gray-100 flex flex-row items-center gap-4 border-b border-primary-40 pb-2 ${item.mobile}`}
                 onClick={() => {
                   closeMenu();
                   setTimeout(() => router.push(item.href), 100);
@@ -231,7 +230,7 @@ export default function Header() {
               </li>
             ))}
             <li>
-              <button onClick={handleSignOut} className="btn-shiny btn-shiny-red">
+              <button onClick={handleSignOut} className="btn-shiny btn-shiny-red mobile-menu-logout">
                 Sign Out
               </button>
             </li>
@@ -247,9 +246,10 @@ export default function Header() {
             <div className="flex justify-end">
               <XIcon size={24} className="text-primary-10 cursor-pointer" onClick={closeModal} />
             </div>
-            <div>
+            <div className="flex flex-col gap-y-4">
               <div>
-                <h2 className="text-primary-30 text-left font-medium text-lg">Please set your identity.</h2>
+                <h2 className="text-primary-30 text-left font-medium text-lg">Select your user type and level of experience.</h2>
+                <p className="text-primary-30 text-left text-sm">This information helps us tailor your experience on Grade.me.</p>
                 <hr />
               </div>
               <div className="flex flex-wrap items-baseline justify-center">
@@ -270,7 +270,7 @@ export default function Header() {
                       }
                     }}
                     buttonClassName="w-fit"
-                    placeholder="Select"
+                    placeholder="Select Level"
                   />
                   {/* Identity Selection */}
                   <CustomListbox
@@ -287,11 +287,12 @@ export default function Header() {
                       }
                     }}
                     buttonClassName="w-fit"
-                    placeholder="Select"
+                    placeholder="Select User Type"
                   />
                 </div>
                 <span className="w-fit ml-0.5">.</span>
               </div>
+              <div onClick={closeModal} className="flex place-self-end btn btn-shiny btn-shiny-green">Finish</div>
             </div>
           </div>
         </>

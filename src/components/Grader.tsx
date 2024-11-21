@@ -15,7 +15,7 @@ import ReactMarkdown from "react-markdown";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
-import { FileSearch, Paperclip, PlusCircle } from "lucide-react"
+import { FileSearch, Paperclip, RefreshCwIcon } from "lucide-react"
 import { extractGrade } from "@/utils/responseParser";
 import { saveDocument } from "@/utils/saveHistory";
 import { useRubricStore } from "@/zustand/useRubricStore";
@@ -23,8 +23,9 @@ import CustomButton from "@/components/ui/CustomButton";
 import Tiptap from "@/components/tiptap/Tiptap";
 import Image from "next/image";
 import grademe from "@/app/assets/grademe.svg";
+import GraderTour from "@/components/tours/GraderTour";
 
-export default function Tools() {
+export default function Grader() {
   const { uid } = useAuthStore();
   const { selectedRubric, gradingData, setGradingData } = useRubricStore();
   const { profile, minusCredits } = useProfileStore();
@@ -171,36 +172,31 @@ export default function Tools() {
   return (
     <main className="flex flex-col gap-y-4">
       <div>
-        <h1>Tools</h1>
+        <div className="flex gap-x-1 items-center">
+          <GraderTour />
+          <h1>Grader</h1>
+        </div>
         <hr />
       </div>
-      <section className="flex flex-col">
+      <section className="flex flex-col grader-selected-rubric">
         <div>
           <h2 className="block text-primary-30 font-medium">Selected Rubric</h2>
           <hr />
         </div>
         <div
           onClick={() => router.push("/rubrics")}
-          className="text-sm font-semibold p-2 bg-primary-90 text-center shadow-sm rounded-lg cursor-pointer mb-4"
+          className="jr-active-rubric text-sm font-semibold p-2 bg-primary-90 text-center shadow-sm rounded-lg cursor-pointer"
         >
           {selectedRubric?.name ? selectedRubric.name : "Select a rubric"}
         </div>
-        <div className="flex gap-x-4 justify-between md:justify-start">
-          <CustomButton onClick={() => setTimeout(() => router.push("/rubrics"), 300)} className="btn btn-shiny btn-shiny-green w-fit">
+        {/* <div className="flex gap-x-4 justify-between md:justify-start ">
+          <CustomButton onClick={() => setTimeout(() => router.push("/rubrics"), 300)} className="btn btn-shiny btn-shiny-green w-fit jr-explore-rubrics">
             <FileSearch />
             <p>Explore Rubrics</p>
           </CustomButton>
-          <CustomButton onClick={() => {
-            setGradingData({ title: "", text: "" });
-          }}
-            className="btn-shiny btn-shiny-green w-fit">
-            <PlusCircle size={25} className="" />
-            <p>Grade New Assignment</p>
-          </CustomButton>
-        </div>
+        </div> */}
       </section>
       <section className="flex flex-col gap-y-4">
-
         <form className="flex flex-col gap-y-4" onSubmit={handleSubmit}>
           {/* Title */}
           <section>
@@ -213,12 +209,12 @@ export default function Tools() {
               value={gradingData.title}
               onChange={(e) => setGradingData({ title: e.target.value })}
               placeholder="Enter the title here"
-              className="input-secondary"
+              className="input-secondary grader-title"
             />
           </section>
           {/* Text Editor and File Upload */}
           <section>
-            <div className="relative">
+            <div className="relative grader-text">
               <label className="block font-medium text-primary-30" htmlFor="text">Text</label>
               <hr />
               <Tiptap
@@ -230,20 +226,20 @@ export default function Tools() {
             </div>
           </section>
           {/* Submit Button */}
-          <section className="flex flex-row items-center w-full gap-x-8 pt-2">
+          <section className="flex flex-row items-center w-full gap-x-8 justify-center sm:justify-start">
             {/* Submit Button */}
             <button
               type="submit"
               id="grademe"
               onClick={handleSubmit}
               disabled={!active || uploading}
-              className={`btn btn-shiny border-2 border-primary-40 rounded-full size-20 p-1  ${!active ? "cursor-not-allowed" : ""}`}
+              className={`btn btn-shiny border-2 border-primary-40 rounded-full size-16 p-1 grader-grademe-button ${!active ? "cursor-not-allowed" : ""}`}
             >
               <Image alt={"grademe logo"} src={grademe} width={50} height={50} className="bg-secondary-97 rounded-full p-1 size-16" />
             </button>
             {/* File Upload */}
             <div
-              className="btn btn-shiny overflow-visible size-20 flex items-center bg-secondary-97 border-2 border-primary-40 rounded-full p-1.5"
+              className="btn btn-shiny overflow-visible size-16 flex items-center bg-secondary-97 border-2 border-primary-40 rounded-full p-1.5 grader-file-upload"
               onClick={() => document.getElementById("file-upload")?.click()} // Trigger input click on div click
             >
               <label
@@ -266,6 +262,12 @@ export default function Tools() {
                 Upload a file (docx, pdf, odt, rtf, txt)
               </div>
             </div>
+            <CustomButton onClick={() => {
+              setGradingData({ title: "", text: "" });
+            }}
+              className="size-16 btn btn-shiny flex items-center bg-secondary-97 border-2 border-primary-40 rounded-full p-1.5 grader-reset-button">
+              <RefreshCwIcon size={25} className="place-self-center place-items-center text-primary-30" />
+            </CustomButton>
           </section>
         </form>
         {thinking && <PulseLoader id="thinking" color="orange" size={20} />}

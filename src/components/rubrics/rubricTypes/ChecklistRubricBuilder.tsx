@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { ChecklistRubric, GenericRubricCriteria } from '@/types/rubrics-types';
+import { ChecklistRubric, GenericRubricCriteria, RubricState } from '@/types/rubrics-types';
 import { BadgePlus, MinusCircleIcon } from 'lucide-react';
 import CustomButton from '@/components/ui/CustomButton';
 import { toast } from 'react-hot-toast';
 
 interface ChecklistRubricBuilderProps {
   rubric: ChecklistRubric;
-  onChange: (updatedRubric: ChecklistRubric) => void;
+  onChange: (updatedRubric: Partial<RubricState>) => void;
 }
 
 const ChecklistRubricBuilder: React.FC<ChecklistRubricBuilderProps> = ({ rubric, onChange }) => {
@@ -33,7 +33,6 @@ const ChecklistRubricBuilder: React.FC<ChecklistRubricBuilderProps> = ({ rubric,
     updatedCriteria[tempValue] = 'Yes/No';
 
     onChange({
-      ...rubric,
       criteria: updatedCriteria,
     });
 
@@ -48,7 +47,6 @@ const ChecklistRubricBuilder: React.FC<ChecklistRubricBuilderProps> = ({ rubric,
     }
 
     onChange({
-      ...rubric,
       criteria: {
         ...rubric.criteria,
         [newCriterion]: 'Yes/No',
@@ -61,7 +59,6 @@ const ChecklistRubricBuilder: React.FC<ChecklistRubricBuilderProps> = ({ rubric,
     const updatedCriteria: { [requirement: string]: string } = { ...rubric.criteria };
     delete updatedCriteria[criterion];
     onChange({
-      ...rubric,
       criteria: updatedCriteria,
     });
   };
@@ -93,8 +90,8 @@ const ChecklistRubricBuilder: React.FC<ChecklistRubricBuilderProps> = ({ rubric,
           placeholder="Enter new criterion"
           className="px-1 w-full py-0.5 rounded shadow-sm border border-primary-40"
         />
-        <CustomButton onClick={addNewChecklistCriterion} className="btn btn-shiny btn-shiny-green py-1 mx-1 text-purple-100">
-          <BadgePlus size={18} />
+        <CustomButton onClick={addNewChecklistCriterion} className="btn btn-shiny btn-shiny-green py-1 mx-1">
+          <BadgePlus className='size-4 flex-none' />
           <p>Add</p>
         </CustomButton>
       </div>

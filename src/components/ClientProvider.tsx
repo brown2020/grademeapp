@@ -10,83 +10,83 @@ import { useInitializeStores } from "@/zustand/useInitializeStores";
 import ErrorBoundary from "./ErrorBoundary";
 
 export function ClientProvider({ children }: { children: React.ReactNode }) {
-    const { loading } = useAuthToken(process.env.NEXT_PUBLIC_COOKIE_NAME!);
-    useInitializeStores();
+  const { loading } = useAuthToken(process.env.NEXT_PUBLIC_COOKIE_NAME!);
+  useInitializeStores();
 
-    useEffect(() => {
-        function adjustHeight() {
-            const vh = window.innerHeight * 0.01;
-            console.log(`--vh value is now: ${vh}px`);
-            document.documentElement.style.setProperty("--vh", `${vh}px`);
-        }
+  useEffect(() => {
+    function adjustHeight() {
+      const vh = window.innerHeight * 0.01;
+      // console.log(`--vh value is now: ${vh}px`);
+      document.documentElement.style.setProperty("--vh", `${vh}px`);
+    }
 
-        window.addEventListener("resize", adjustHeight);
-        window.addEventListener("orientationchange", adjustHeight);
+    window.addEventListener("resize", adjustHeight);
+    window.addEventListener("orientationchange", adjustHeight);
 
-        // Initial adjustment
-        adjustHeight();
+    // Initial adjustment
+    adjustHeight();
 
-        // Cleanup
-        return () => {
-            window.removeEventListener("resize", adjustHeight);
-            window.removeEventListener("orientationchange", adjustHeight);
-        };
-    }, []);
+    // Cleanup
+    return () => {
+      window.removeEventListener("resize", adjustHeight);
+      window.removeEventListener("orientationchange", adjustHeight);
+    };
+  }, []);
 
-    useEffect(() => {
-        if (window.ReactNativeWebView) {
-            document.body.classList.add("noscroll");
-        } else {
-            document.body.classList.remove("noscroll");
-        }
+  useEffect(() => {
+    if (window.ReactNativeWebView) {
+      document.body.classList.add("noscroll");
+    } else {
+      document.body.classList.remove("noscroll");
+    }
 
-        return () => {
-            document.body.classList.remove("noscroll");
-        };
-    }, []);
+    return () => {
+      document.body.classList.remove("noscroll");
+    };
+  }, []);
 
-    if (loading)
-        return (
-            <ErrorBoundary>
-                <div
-                    className={`flex flex-col items-center justify-center h-full bg-[#333b51]`}
-                >
-                    <ClipLoader color="#fff" size={80} />
-                </div>
-            </ErrorBoundary>
-        );
-
+  if (loading)
     return (
-        <ErrorBoundary>
-            <div className="flex flex-col h-full">
-                {children}
-                {!window.ReactNativeWebView && (
-                    <CookieConsent>
-                        This app uses cookies to enhance the user experience.
-                    </CookieConsent>
-                )}
-                <Toaster
-                    position="bottom-center"
-                    gutter={0}
-                    toastOptions={{
-                        duration: 3000,
-                        style: {
-                            position: 'relative',
-                            bottom: '0',
-                            left: '0',
-                            width: '100%',
-                            height: '30%',
-                            // zIndex: 9999,
-                            background: '#FFFFFF',
-                            color: '#000000',
-                            fontFamily: 'Poppins',
-                            fontSize: '1rem',
-                            fontWeight: '700',
-                        },
-                    }}
-
-                />
-            </div>
-        </ErrorBoundary>
+      <ErrorBoundary>
+        <div
+          className={`flex flex-col items-center justify-center h-full bg-[#333b51]`}
+        >
+          <ClipLoader color="#fff" size={80} />
+        </div>
+      </ErrorBoundary>
     );
+
+  return (
+    <ErrorBoundary>
+      <div className="flex flex-col h-full">
+        {children}
+        {!window.ReactNativeWebView && (
+          <CookieConsent>
+            This app uses cookies to enhance the user experience.
+          </CookieConsent>
+        )}
+        <Toaster
+          position="bottom-center"
+          gutter={0}
+          toastOptions={{
+            duration: 3000,
+            style: {
+              position: 'relative',
+              bottom: '0',
+              left: '0',
+              width: '100%',
+              height: '30%',
+              // zIndex: 9999,
+              background: '#FFFFFF',
+              color: '#000000',
+              fontFamily: 'Poppins',
+              fontSize: '1rem',
+              fontWeight: '700',
+            },
+          }}
+
+        />
+      </div>
+    </ErrorBoundary>
+  );
 }

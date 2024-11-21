@@ -22,7 +22,7 @@ const RubricTypeExplanation: React.FC<RubricTypeExplanationProps> = ({ selectedT
 
   return (
     <div className="mb-4">
-      <p className="text-primary-20">{explanation}</p>
+      <p className="text-primary-20 text-xs md:text-sm">{explanation}</p>
     </div>
   );
 };

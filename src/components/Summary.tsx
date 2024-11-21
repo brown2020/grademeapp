@@ -15,6 +15,7 @@ import RubricDisplay from "@/components/rubrics/RubricDisplay";
 import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/react";
 import { ChevronDown, Download } from "lucide-react";
 import { RubricState, BaseRubric } from "@/types/rubrics-types";
+import SummaryTour from "@/components/tours/SummaryTour";
 
 // Fetch summary by ID
 const fetchSummaryById = async (uid: string, id: string) => {
@@ -73,11 +74,14 @@ const Summary = () => {
     <div className="flex flex-col gap-y-4 p-1 max-w-2xl mx-auto">
       {/* Title, Topic, and Rubric */}
       <div>
-        <h1>Summary</h1>
+        <div className="flex gap-x-1">
+          <SummaryTour />
+          <h1>Summary</h1>
+        </div>
         <hr />
       </div>
-      <h2><span className="font-medium">Title:</span> {summary.userInput.title}</h2>
-      <p className="">
+      <h2 className="summary-title"><span className="font-medium">Title:</span> {summary.userInput.title}</h2>
+      <p className="summary-topic">
         <span className="font-medium">Topic:</span> {summary.userInput.topic ? summary.userInput.topic :
           <input
             id="topic"
@@ -91,7 +95,7 @@ const Summary = () => {
       </p>
       {/* File Download Button */}
       {summary.fileUrl && (
-        <a href={summary.fileUrl} target="_blank" rel="noreferrer" className="w-full">
+        <a href={summary.fileUrl} target="_blank" rel="noreferrer" className="w-full summary-download-original">
           <div
             className={
               "btn btn-shiny btn-shiny-teal w-full gap-x-4 text-lg py-1"
@@ -103,12 +107,14 @@ const Summary = () => {
         </a>
       )}
       {/* Rubric Display */}
-      <h2 className=" font-semibold">{rubric?.name}</h2>
-      <p className="text-sm">{rubric?.description}</p>
-      <RubricDisplay rubric={rubric as RubricState} />
+      <div className="summary-rubric">
+        <h2 className=" font-semibold">{rubric?.name}</h2>
+        <p className="text-sm">{rubric?.description}</p>
+        <RubricDisplay rubric={rubric as RubricState} />
+      </div>
 
       {/* Accordion for Submissions */}
-      <div className="mb-4">
+      <div className="mb-4 summary-submissions">
         <h2 className="text-lg font-semibold">Submissions</h2>
 
         {summary.submissions.length === 0 ? (
@@ -118,13 +124,13 @@ const Summary = () => {
             <Disclosure key={index}>
               {({ open }) => (
                 <>
-                  <DisclosureButton className="btn btn-shiny btn-shiny-teal text-primary-95 w-full mb-3 px-2 justify-between">
+                  <DisclosureButton className="btn btn-shiny btn-shiny-teal text-primary-95 w-full mb-3 px-2 justify-between summary-submission-item">
                     <span>
                       #{index + 1} - {submission.timestamp.toDate().toLocaleDateString('en-US')}
                     </span>
                     <span>Grade: {submission.grade}</span>
                     <Link href={`/assignments/${summaryID}/${submission.timestamp.toMillis()}`}>
-                      <p className=" px-3 py-2 underline underline-offset-4">
+                      <p className=" px-3 py-2 underline underline-offset-4 summary-revise-edit">
                         Revise and Edit
                       </p>
                     </Link>
