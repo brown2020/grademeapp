@@ -23,6 +23,7 @@ interface RubricStoreState {
   setShowDeleteModal: (show: boolean) => void;
   setRubricToDelete: (id: string | null) => void;
   createNewRubric: (type: RubricType) => void;
+  clearActiveRubric: () => void;
   setActiveRubric: (rubric: RubricState | null) => void;
   updateActiveRubric: (updates: Partial<RubricState>) => void;
   setEditingRubricId: (id: string | undefined) => void;
@@ -94,6 +95,7 @@ export const useRubricStore = create<RubricStoreState>((set, get) => ({
       activeRubric: state.activeRubric ? { ...state.activeRubric, ...updates } as RubricState : null,
     })),
   createNewRubric: (type) => set({ activeRubric: getInitialRubricState(type) }),
+  clearActiveRubric: () => set({ activeRubric: null }),
   showDeleteModal: false,
   rubricToDelete: null,
   setShowDeleteModal: (show) => set({ showDeleteModal: show }),

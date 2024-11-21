@@ -24,25 +24,27 @@ export default function RubricBuilder({ onClose }: {
     createNewRubric,
     setShowDeleteModal,
     setRubricToDelete,
+    clearActiveRubric,
   } = useRubricStore();
   const [hasSaved, setHasSaved] = useState(false);
 
   useEffect(() => {
-    if (editingRubricId) {
-      const rubricToEdit = useRubricStore.getState().rubricOptions.find((r) => r.id === editingRubricId);
-      if (rubricToEdit) {
-        setActiveRubric(rubricToEdit);
+    if (!activeRubric) {
+      if (editingRubricId) {
+        const rubricToEdit = useRubricStore.getState().rubricOptions.find((r) => r.id === editingRubricId);
+        if (rubricToEdit) {
+          setActiveRubric(rubricToEdit);
+        }
+      } else {
+        createNewRubric(RubricType.Analytical);
       }
-    } else {
-      // Initialize with Analytical rubric if not editing
-      createNewRubric(RubricType.Analytical);
     }
+  }, [editingRubricId, activeRubric, setActiveRubric, createNewRubric]);
 
-    return () => {
-      // Reset state when component unmounts or editingRubricId changes
-      setActiveRubric(null);
-    };
-  }, [editingRubricId, setActiveRubric, createNewRubric]);
+  const handleClose = () => {
+    clearActiveRubric();
+    onClose();
+  };
 
   const handleSaveOrUpdate = () => {
     if (!activeRubric) return;
@@ -64,17 +66,12 @@ export default function RubricBuilder({ onClose }: {
       addCustomRubric(activeRubric);
       toast.success('Rubric created successfully!');
     }
-    setActiveRubric(null);
+    setHasSaved(true);
     onClose();
   };
 
   const handleRubricTypeChange = (type: RubricType) => {
     createNewRubric(type);
-  };
-
-  const handleClose = () => {
-    setActiveRubric(null);
-    onClose();
   };
 
   const handleDelete = () => {
