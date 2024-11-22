@@ -328,32 +328,28 @@ const Document = () => {
             </div>
           </section>
 
-          <div className="flex flex-row justify-between gap-10">
-            <div className="flex flex-row gap-x-4 items-center">
-              {/* Submit Button */}
-              <button
-                type="submit"
-                id="grademe"
-                onClick={handleSubmit}
-                disabled={!active}
-                className={`btn btn-shiny border-2 border-primary-40 rounded-full size-20 p-1  ${!active ? "cursor-not-allowed" : ""}`}
-              >
-                <Image alt={"grademe logo"} src={grademe} width={50} height={50} className="bg-secondary-97 rounded-full p-1 size-16" />
-              </button>
 
-              <DownloadPopover content={gradingData.text} />
-
-              <div
-                className="btn btn-shiny btn-shiny-purple-blue rounded-full size-20 flex gap-x-2 md:rounded-lg md:size-fit px-3 py-2 items-center"
-                onClick={handleFixGrammarSpelling}
-              >
-                <Wand2 size={35} />
-                <p className="hidden sm:flex">Fix Grammar & Spelling</p>
-              </div>
-
+          <div className="flex flex-row gap-x-10 items-center justify-center md:justify-start">
+            {/* Submit Button */}
+            <button
+              type="submit"
+              id="grademe"
+              onClick={handleSubmit}
+              disabled={!active}
+              className={`btn btn-shiny border-2 border-primary-40 rounded-full size-16 p-1  ${!active ? "cursor-not-allowed" : ""}`}
+            >
+              <Image alt={"grademe logo"} src={grademe} width={50} height={50} className="bg-secondary-97 rounded-full p-1 size-16" />
+            </button>
+            <DownloadPopover content={gradingData.text} />
+            <div
+              className="btn btn-shiny btn-shiny-purple-blue rounded-full size-16 flex gap-x-2 md:rounded-lg md:size-fit p-3 items-center"
+              onClick={handleFixGrammarSpelling}
+            >
+              <Wand2 size={30} />
+              <p className="hidden sm:flex">Fix Grammar & Spelling</p>
             </div>
-
           </div>
+
 
           {!thinking && profile.credits < 10 && (
             <h3>{`You don't have enough credits to grade.`}</h3>
