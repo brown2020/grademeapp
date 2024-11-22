@@ -6682,5 +6682,324 @@
       "collection",
       "holistic"
     ]
+  },
+  {
+    "id": "undergraduate-reflective-analytical-writing-rubric",
+    "name": "Undergraduate Analytical Reflective Writing Rubric",
+    "description": "Evaluates insightfulness, personal connection, critical thinking, articulation, and depth in reflective writing.",
+    "criteria": {
+      "Insightfulness": {
+        "Excellent": "Demonstrates exceptional insight, offering original and profound perspectives.",
+        "Proficient": "Demonstrates thoughtful insight, drawing meaningful connections.",
+        "Developing": "Shows emerging insight, but connections are surface-level or inconsistent.",
+        "Beginning": "Lacks insight, offering basic or superficial observations."
+      },
+      "Personal Connection": {
+        "Excellent": "Seamlessly integrates personal experiences, adding depth and meaning.",
+        "Proficient": "Clearly connects personal experiences, enhancing relevance.",
+        "Developing": "Attempts to connect personal experiences but with minimal depth.",
+        "Beginning": "Fails to establish meaningful personal connections."
+      },
+      "Critical Thinking": {
+        "Excellent": "Provides nuanced analysis, engaging deeply with reflective questions.",
+        "Proficient": "Engages critically with reflective questions, though depth may vary.",
+        "Developing": "Attempts critical thinking but remains shallow or inconsistent.",
+        "Beginning": "Lacks critical thinking, with minimal engagement."
+      },
+      "Articulation": {
+        "Excellent": "Articulates ideas with precision and stylistic sophistication.",
+        "Proficient": "Expresses ideas clearly with minor stylistic lapses.",
+        "Developing": "Expresses ideas inconsistently with clarity issues.",
+        "Beginning": "Struggles to articulate ideas clearly."
+      },
+      "Depth": {
+        "Excellent": "Explores themes and ideas with exceptional depth and originality.",
+        "Proficient": "Explores themes and ideas thoughtfully and with sufficient depth.",
+        "Developing": "Touches on themes but lacks depth in exploration.",
+        "Beginning": "Barely explores themes, remaining superficial."
+      }
+    },
+    "type": "analytical",
+    "identity": "student",
+    "identityLevel": "undergraduate",
+    "textType": "reflective",
+    "proseType": "writing",
+    "tags": [
+      "student",
+      "undergraduate",
+      "reflective",
+      "writing",
+      "analytical"
+    ]
+  },
+  {
+    "id": "undergraduate-lab-holistic-report-rubric",
+    "name": "Undergraduate Holistic Lab Report Rubric",
+    "description": "Evaluates the overall quality, coherence, and accuracy of lab reports.",
+    "criteria": {
+      "Excellent": "The report is exceptionally clear, accurate, and comprehensive, with a well-defined objective, thorough methodology, precise data analysis, and insightful conclusions.",
+      "Proficient": "The report is clear and accurate, with a sufficient objective, adequate methodology, reasonable data analysis, and clear conclusions. Minor errors or inconsistencies may be present.",
+      "Developing": "The report demonstrates basic understanding but lacks clarity or thoroughness in one or more areas, such as methodology or data analysis.",
+      "Beginning": "The report is incomplete or poorly executed, with significant issues in clarity, methodology, data analysis, or conclusions."
+    },
+    "type": "holistic",
+    "identity": "student",
+    "identityLevel": "undergraduate",
+    "textType": "lab",
+    "proseType": "report",
+    "tags": [
+      "student",
+      "undergraduate",
+      "lab",
+      "report",
+      "holistic"
+    ]
+  },
+  {
+    "id": "undergraduate-research-developmental-paper-rubric",
+    "name": "Undergraduate Developmental Research Paper Rubric",
+    "description": "Tracks progress in research question formulation, source evaluation, analysis, structure, citation, and originality over time.",
+    "criteria": {
+      "Research Question": {
+        "Beginning": "Shows minimal clarity or relevance in research question.",
+        "Emerging": "Develops a basic research question with some clarity and relevance.",
+        "Proficient": "Formulates a clear and relevant research question with adequate focus.",
+        "Mastery": "Crafts a sophisticated, clear, and highly relevant research question."
+      },
+      "Source Evaluation": {
+        "Beginning": "Demonstrates limited evaluation of sources with minimal credibility.",
+        "Emerging": "Begins to evaluate sources, though some may lack credibility.",
+        "Proficient": "Uses credible sources effectively and evaluates them critically.",
+        "Mastery": "Uses highly credible sources and integrates them with advanced critical evaluation."
+      },
+      "Analysis": {
+        "Beginning": "Shows limited analysis, with basic or unsupported arguments.",
+        "Emerging": "Attempts analysis but lacks consistency or depth.",
+        "Proficient": "Engages in logical and thoughtful analysis with sufficient depth.",
+        "Mastery": "Demonstrates exceptional analysis with depth and critical insight."
+      },
+      "Structure": {
+        "Beginning": "Lacks clear organization or logical flow.",
+        "Emerging": "Begins to organize ideas but with noticeable gaps.",
+        "Proficient": "Organizes ideas clearly, with minor inconsistencies in flow.",
+        "Mastery": "Organizes ideas exceptionally well, with seamless transitions."
+      },
+      "Citation": {
+        "Beginning": "Fails to use proper citation format or includes frequent errors.",
+        "Emerging": "Attempts to use citation format but with noticeable errors.",
+        "Proficient": "Uses citation format correctly with minor errors.",
+        "Mastery": "Uses citation format flawlessly and consistently."
+      },
+      "Originality": {
+        "Beginning": "Demonstrates minimal originality, relying heavily on existing ideas.",
+        "Emerging": "Begins to integrate original thought with existing ideas.",
+        "Proficient": "Integrates original ideas effectively with sufficient originality.",
+        "Mastery": "Demonstrates exceptional originality, offering unique insights."
+      }
+    },
+    "type": "developmental",
+    "identity": "student",
+    "identityLevel": "undergraduate",
+    "textType": "research",
+    "proseType": "paper",
+    "tags": [
+      "student",
+      "undergraduate",
+      "research",
+      "paper",
+      "developmental"
+    ]
+  },
+  {
+    "id": "undergraduate-case-checklist-study-rubric",
+    "name": "Undergraduate Checklist Case Study Rubric",
+    "description": "Assesses the presence or absence of required elements in a case study, including problem identification, analysis, application of theory, recommendations, and clarity.",
+    "criteria": {
+      "Problem is clearly identified and contextualized": "Yes/No",
+      "Analysis of the problem includes evidence and logical reasoning": "Yes/No",
+      "Application of relevant theories to the problem is clear and accurate": "Yes/No",
+      "Recommendations are actionable and well-supported by the analysis": "Yes/No",
+      "Writing is clear, concise, and logically structured": "Yes/No"
+    },
+    "type": "checklist",
+    "identity": "student",
+    "identityLevel": "undergraduate",
+    "textType": "case",
+    "proseType": "study",
+    "tags": [
+      "student",
+      "undergraduate",
+      "case",
+      "study",
+      "checklist"
+    ]
+  },
+  {
+    "id": "undergraduate-literature-holistic-review-rubric",
+    "name": "Undergraduate Holistic Literature Review Rubric",
+    "description": "Evaluates the overall quality, synthesis, and critical analysis of literature reviews.",
+    "criteria": {
+      "Excellent": "The review demonstrates exceptional synthesis, critical analysis, and coverage of relevant literature, with a coherent structure and polished writing.",
+      "Proficient": "The review demonstrates good synthesis and analysis of literature, though minor gaps in coverage or clarity may be present.",
+      "Developing": "The review shows limited synthesis or analysis, with noticeable gaps in coverage, coherence, or structure.",
+      "Beginning": "The review lacks synthesis and analysis, with significant gaps in coverage, coherence, and clarity."
+    },
+    "type": "holistic",
+    "identity": "student",
+    "identityLevel": "undergraduate",
+    "textType": "literature",
+    "proseType": "review",
+    "tags": [
+      "student",
+      "undergraduate",
+      "literature",
+      "review",
+      "holistic"
+    ]
+  },
+  {
+    "id": "undergraduate-argumentative-checklist-essay-rubric",
+    "name": "Undergraduate Checklist Argumentative Essay Rubric",
+    "description": "Assesses the presence or absence of required components in an argumentative essay, including thesis, evidence, and counterarguments.",
+    "criteria": {
+      "Thesis is clearly stated and takes a specific position": "Yes/No",
+      "Evidence supports the thesis with relevant and credible sources": "Yes/No",
+      "Counterarguments are addressed effectively and respectfully": "Yes/No",
+      "Essay is logically structured with a clear introduction, body, and conclusion": "Yes/No",
+      "Mechanics (grammar, spelling, and punctuation) are accurate": "Yes/No"
+    },
+    "type": "checklist",
+    "identity": "student",
+    "identityLevel": "undergraduate",
+    "textType": "argumentative",
+    "proseType": "essay",
+    "tags": [
+      "student",
+      "undergraduate",
+      "argumentative",
+      "essay",
+      "checklist"
+    ]
+  },
+  {
+    "id": "undergraduate-argumentative-developmental-essay-rubric",
+    "name": "Undergraduate Developmental Argumentative Essay Rubric",
+    "description": "Tracks progress in thesis development, evidence use, counterarguments, structure, and mechanics over time in argumentative essays.",
+    "criteria": {
+      "Thesis Development": {
+        "Beginning": "Thesis is unclear or lacks a specific position.",
+        "Emerging": "Thesis is present but may be vague or insufficiently specific.",
+        "Proficient": "Thesis is clear and specific, taking a well-defined position.",
+        "Mastery": "Thesis is exceptionally clear, specific, and nuanced."
+      },
+      "Evidence Use": {
+        "Beginning": "Lacks sufficient or relevant evidence to support the thesis.",
+        "Emerging": "Includes some evidence but may lack relevance or depth.",
+        "Proficient": "Uses relevant and credible evidence to support the thesis.",
+        "Mastery": "Uses a wide range of evidence, integrated seamlessly to support the thesis."
+      },
+      "Counterarguments": {
+        "Beginning": "Does not address counterarguments or does so superficially.",
+        "Emerging": "Attempts to address counterarguments but lacks depth or respect.",
+        "Proficient": "Addresses counterarguments effectively and respectfully.",
+        "Mastery": "Engages deeply with counterarguments, strengthening the overall argument."
+      },
+      "Structure": {
+        "Beginning": "Lacks clear structure or logical flow.",
+        "Emerging": "Shows some structure but with inconsistencies in flow or organization.",
+        "Proficient": "Organized logically with clear transitions between sections.",
+        "Mastery": "Exceptionally well-organized, with seamless transitions and logical flow."
+      },
+      "Mechanics": {
+        "Beginning": "Frequent errors in grammar, spelling, or punctuation.",
+        "Emerging": "Occasional errors that may detract from readability.",
+        "Proficient": "Few minor errors that do not affect readability.",
+        "Mastery": "Virtually error-free with polished mechanics."
+      }
+    },
+    "type": "developmental",
+    "identity": "student",
+    "identityLevel": "undergraduate",
+    "textType": "argumentative",
+    "proseType": "essay",
+    "tags": [
+      "student",
+      "undergraduate",
+      "argumentative",
+      "essay",
+      "developmental"
+    ]
+  },
+  {
+    "id": "undergraduate-case-developmental-study-rubric",
+    "name": "Undergraduate Developmental Case Study Rubric",
+    "description": "Tracks progress in problem identification, analysis, application of theory, recommendations, and clarity over time.",
+    "criteria": {
+      "Problem Identification": {
+        "Beginning": "Fails to clearly identify the central problem or provide relevant context.",
+        "Emerging": "Begins to identify the problem but lacks full clarity or context.",
+        "Proficient": "Clearly identifies the central problem with sufficient context.",
+        "Mastery": "Precisely identifies the central problem with detailed and relevant context."
+      },
+      "Analysis": {
+        "Beginning": "Shows limited analysis, with unsupported or superficial arguments.",
+        "Emerging": "Attempts analysis but lacks depth or logical reasoning.",
+        "Proficient": "Engages in logical analysis with sufficient depth and evidence.",
+        "Mastery": "Demonstrates exceptional analysis, with nuanced reasoning and strong evidence."
+      },
+      "Application of Theory": {
+        "Beginning": "Fails to apply relevant theories or shows misunderstandings.",
+        "Emerging": "Attempts to apply theories but with limited accuracy or depth.",
+        "Proficient": "Applies relevant theories effectively with clear understanding.",
+        "Mastery": "Applies theories exceptionally well, demonstrating advanced understanding."
+      },
+      "Recommendations": {
+        "Beginning": "Provides vague or unsupported recommendations.",
+        "Emerging": "Attempts recommendations but lacks clarity or justification.",
+        "Proficient": "Presents clear and actionable recommendations with adequate support.",
+        "Mastery": "Provides highly actionable and well-justified recommendations, aligned with analysis."
+      },
+      "Clarity": {
+        "Beginning": "Writing is unclear, with poor organization and frequent errors.",
+        "Emerging": "Writing shows some clarity but with inconsistent organization and errors.",
+        "Proficient": "Writing is clear and organized, with few errors.",
+        "Mastery": "Writing is exceptionally clear, organized, and error-free."
+      }
+    },
+    "type": "developmental",
+    "identity": "student",
+    "identityLevel": "undergraduate",
+    "textType": "case",
+    "proseType": "study",
+    "tags": [
+      "student",
+      "undergraduate",
+      "case",
+      "study",
+      "developmental"
+    ]
+  },
+  {
+    "id": "undergraduate-report-holistic-document-rubric",
+    "name": "Undergraduate Holistic Report Rubric",
+    "description": "Evaluates the overall quality, clarity, structure, and coherence of reports.",
+    "criteria": {
+      "Excellent": "The report demonstrates exceptional clarity, structure, and coherence, with precise data presentation and well-supported conclusions.",
+      "Proficient": "The report is clear and structured, with adequate data presentation and logical conclusions. Minor inconsistencies may be present.",
+      "Developing": "The report shows basic understanding but lacks clarity or thoroughness in structure, data presentation, or conclusions.",
+      "Beginning": "The report is incomplete or poorly structured, with significant gaps in clarity, data presentation, or conclusions."
+    },
+    "type": "holistic",
+    "identity": "student",
+    "identityLevel": "undergraduate",
+    "textType": "report",
+    "proseType": "document",
+    "tags": [
+      "student",
+      "undergraduate",
+      "report",
+      "document",
+      "holistic"
+    ]
   }
 ]
