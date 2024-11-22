@@ -97,7 +97,7 @@ export default function RubricBuilderTour() {
       setTimeout(() => {
         setIsPaused(false)
         setRun(true)
-        setStepIndex(4)
+        setStepIndex(5)
       }, 100) // Adjust this delay as needed
     } else if (type === 'step:after' && action === 'next') {
       setStepIndex(index + 1)
