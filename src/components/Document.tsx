@@ -264,18 +264,19 @@ const Document = () => {
 
   // Scroll into view when content changes
   useEffect(() => {
-    if (summary) {
-      document
-        .getElementById("response")
-        ?.scrollIntoView({ behavior: "smooth" });
-    } else if (thinking) {
+    // if (summary) {
+    //   document
+    //     .getElementById("response")
+    //     ?.scrollIntoView({ behavior: "smooth" });
+    // } else
+    if (thinking) {
       document.getElementById("thinking")?.scrollIntoView({ behavior: "smooth" });
     } else if (flagged) {
       document
         .getElementById("flagged")
         ?.scrollIntoView({ behavior: "smooth" });
     }
-  }, [summary, thinking, flagged]);
+  }, [thinking, flagged]);
 
   if (loading) {
     return <div>Loading...</div>;
