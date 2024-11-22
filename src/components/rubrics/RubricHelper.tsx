@@ -72,7 +72,7 @@ export default function RubricHelper() {
 
   return (
     <div>
-      <CustomButton onClick={isOpen ? closeRubricHelper : () => setIsOpen(true)} className="btn-shiny btn-shiny-yellow-orange rubric-helper">
+      <CustomButton onClick={isOpen ? closeRubricHelper : () => setIsOpen(true)} className="btn-shiny btn-shiny-yellow-orange">
         <LifeBuoy />
         <h2>Rubric Helper</h2>
       </CustomButton>

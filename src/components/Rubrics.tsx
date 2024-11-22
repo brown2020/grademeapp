@@ -101,7 +101,9 @@ export default function Rubrics() {
 
       <div className="flex flex-row gap-x-4 justify-between sm:justify-start">
         {/* Rubric Helper */}
-        <RubricHelper />
+        <div className="rubric-helper">
+          <RubricHelper />
+        </div>
         {/* Rubric Builder Button */}
         <CustomButton onClick={() => setShowRubricBuilder(true)} className="btn-shiny btn-shiny-teal rubric-builder">
           <Blocks />

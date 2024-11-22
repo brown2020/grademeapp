@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import RubricTypeSelector from '@/components/rubrics/rubricTypes/RubricTypeSelector';
 import RubricTypeExplanation from '@/components/rubrics/rubricTypes/RubricTypeExplanation';
 import { RubricType } from '@/types/rubrics-types';
@@ -13,7 +13,6 @@ import RubricBuilderTour from '@/components/tours/RubricBuilderTour';
 export default function RubricBuilder({ onClose }: {
   onClose: () => void;
 }) {
-  // State to track the rubric type and the rubric itself
   const {
     addCustomRubric,
     updateCustomRubric,
@@ -28,25 +27,27 @@ export default function RubricBuilder({ onClose }: {
   } = useRubricStore();
   const [hasSaved, setHasSaved] = useState(false);
 
-  useEffect(() => {
-    if (!activeRubric) {
-      if (editingRubricId) {
-        const rubricToEdit = useRubricStore.getState().rubricOptions.find((r) => r.id === editingRubricId);
-        if (rubricToEdit) {
-          setActiveRubric(rubricToEdit);
-        }
-      } else {
-        createNewRubric(RubricType.Analytical);
+  const initializeRubric = useCallback(() => {
+    if (editingRubricId) {
+      const rubricToEdit = useRubricStore.getState().rubricOptions.find((r) => r.id === editingRubricId);
+      if (rubricToEdit) {
+        setActiveRubric(rubricToEdit);
       }
+    } else if (!activeRubric) {
+      createNewRubric(RubricType.Analytical);
     }
   }, [editingRubricId, activeRubric, setActiveRubric, createNewRubric]);
 
-  const handleClose = () => {
+  useEffect(() => {
+    initializeRubric();
+  }, [initializeRubric]);
+
+  const handleClose = useCallback(() => {
     clearActiveRubric();
     onClose();
-  };
+  }, [clearActiveRubric, onClose]);
 
-  const handleSaveOrUpdate = () => {
+  const handleSaveOrUpdate = useCallback(() => {
     if (!activeRubric) return;
 
     if (!activeRubric.name.trim() || !activeRubric.description?.trim()) {
@@ -67,19 +68,19 @@ export default function RubricBuilder({ onClose }: {
       toast.success('Rubric created successfully!');
     }
     setHasSaved(true);
-    onClose();
-  };
+    handleClose();
+  }, [activeRubric, editingRubricId, updateCustomRubric, addCustomRubric, handleClose]);
 
-  const handleRubricTypeChange = (type: RubricType) => {
+  const handleRubricTypeChange = useCallback((type: RubricType) => {
     createNewRubric(type);
-  };
+  }, [createNewRubric]);
 
-  const handleDelete = () => {
+  const handleDelete = useCallback(() => {
     if (activeRubric) {
       setRubricToDelete(activeRubric.id);
       setShowDeleteModal(true);
     }
-  };
+  }, [activeRubric, setRubricToDelete, setShowDeleteModal]);
 
   if (!activeRubric) return null;
 
@@ -111,12 +112,9 @@ export default function RubricBuilder({ onClose }: {
             onChange={(e) => handleRubricTypeChange(e.target.value as RubricType)}
             className="px-2 py-1 w-full rounded shadow-sm text-xs border border-primary-40"
           >
-            <option value={RubricType.Analytical}>Analytical</option>
-            <option value={RubricType.Holistic}>Holistic</option>
-            <option value={RubricType.SinglePoint}>Single Point</option>
-            <option value={RubricType.Checklist}>Checklist</option>
-            <option value={RubricType.ContentSpecific}>Content Specific</option>
-            <option value={RubricType.Developmental}>Developmental</option>
+            {Object.values(RubricType).map((type) => (
+              <option key={type} value={type}>{type}</option>
+            ))}
           </select>
         </div>
       )}
@@ -164,7 +162,7 @@ export default function RubricBuilder({ onClose }: {
         {editingRubricId && (
           <CustomButton onClick={() => {
             handleDelete();
-            onClose();
+            handleClose();
           }} className="btn btn-shiny btn-shiny-red">
             <DeleteIcon size={18} />
             <p>Delete Rubric</p>

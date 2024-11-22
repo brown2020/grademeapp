@@ -2,9 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
-import { navItems, MENU_ITEMS } from "@/constants/menuItems";
 import Image from "next/image";
-import { User2, Menu, XIcon } from "lucide-react";
+import { User2, Menu, XIcon, Bot, Handshake, GlobeLock, LifeBuoy } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import useProfileStore from "@/zustand/useProfileStore";
 import { useAuthStore } from "@/zustand/useAuthStore";
@@ -14,7 +13,10 @@ import CustomListbox from "@/components/ui/CustomListbox";
 import { userInputs } from "@/constants/userInputs";
 import { useMobileMenuStore } from "@/zustand/useMobileMenuStore";
 
-
+import school from "@/app/assets/school.svg";
+import grader from "@/app/assets/grader.svg";
+import rubric from "@/app/assets/rubric.svg";
+import grademe from "@/app/assets/grademe.svg";
 
 export default function Header() {
   const { isOpen, setIsOpen, toggleMenu } = useMobileMenuStore();
@@ -33,8 +35,6 @@ export default function Header() {
   const pathname = usePathname();
 
   useEffect(() => {
-    // console.log("profile", profile);
-
     if (uid && profile && profile.contactEmail && !profile.identity) {
       setIdentityModalOpen(true);
     }
@@ -44,29 +44,12 @@ export default function Header() {
     }
   }, [uid, profile, profile?.identity, profile?.identityLevel]);
 
-  // useEffect(() => {
-  //   // Close the dialog when clicking outside of it
-  //   function handleClickOutside(event: TouchEvent | MouseEvent) {
-  //     if (isOpen && menuRef.current && !menuRef.current.contains(event.target as Node)) {
-  //       closeMenu();
-  //     }
-  //   }
-
-  //   document.addEventListener("mousedown", handleClickOutside);
-  //   document.addEventListener("touchstart", handleClickOutside);
-  //   return () => {
-  //     document.removeEventListener("mousedown", handleClickOutside);
-  //     document.removeEventListener("touchstart", handleClickOutside);
-  //   };
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [menuRef, isOpen]);
-
   const closeMenu = () => {
     setIsOpen(false);
     setIsExiting(true);
     setTimeout(() => {
       setIsExiting(false);
-    }, 300); // Match the duration of your exit animation
+    }, 300);
   };
 
   const closeModal = () => {
@@ -74,7 +57,7 @@ export default function Header() {
     setModalClosing(true);
     setTimeout(() => {
       setModalClosing(false);
-    }, 300); // Match the duration of your exit animation
+    }, 300);
   };
 
   const handleSignOut = async () => {
@@ -89,55 +72,62 @@ export default function Header() {
     }
   };
 
-  // console.log(navItems)
-
   return (
     <>
-      {/* Header content */}
-      <div className="z-10 flex py-1 justify-between items-center h-16 md:h-24  px-2  text-primary-20 border-b border-primary-40">
+      <div className="z-10 flex py-1 justify-between items-center h-16 md:h-24 px-2 text-primary-20 border-b border-primary-40">
         <div className="flex h-full gap-4 items-center w-full">
-          {navItems.map((item, index) => (
-            item.label !== "Grade.me" ? (
-              null
-            ) : (
-              <div
-                key={index}
-                className={`flex gap-x-3  md:flex-col items-center md:justify-end px-2 h-full transition duration-300 cursor-pointer hover:text-primary-40 hover:opacity-100 ${item.desktop} ${pathname.slice(0, 5) === item.path.slice(0, 5) && pathname !== "/" ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
-                  }`}
-                onClick={() => {
-                  setTimeout(() => router.push(item.path), 100);
-                }}
-              >
-                <div className="flex size-12 aspect-square">
-                  <Image alt={item.label} src={item.image} width={50} height={50} className="" />
-                </div>
-                <div className="flex text-lg font-medium">{item.label}</div>
-              </div>
-            )
-          ))}
+          <div
+            className={`flex gap-x-3 md:flex-col items-center md:justify-end px-2 h-full transition duration-300 cursor-pointer hover:text-primary-40 hover:opacity-100 grademe-link-desktop ${pathname === "/" ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
+              }`}
+            onClick={() => {
+              setTimeout(() => router.push("/"), 100);
+            }}
+          >
+            <div className="flex size-12 aspect-square">
+              <Image alt="Grade.me" src={grademe} width={50} height={50} className="" />
+            </div>
+            <div className="flex text-lg font-medium">Grade.me</div>
+          </div>
         </div>
 
         <div className="flex gap-x-4">
           <div className="hidden md:flex h-full gap-x-4 items-center w-full">
-            {navItems.map((item, index) => (
-              item.label !== "Grade.me" ? (
-                <div
-                  key={index}
-                  className={`flex flex-col items-center justify-end px-2 h-full transition duration-300 cursor-pointer hover:text-primary-40 hover:opacity-100 ${item.desktop} ${pathname.slice(0, 5) === item.path.slice(0, 5) && pathname !== "/" ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
-                    }`}
-                  onClick={() => {
-                    setTimeout(() => router.push(item.path), 100);
-                  }}
-                >
-                  <div className="h-12 aspect-square">
-                    <Image alt={item.label} src={item.image} width={75} height={75} className="" />
-                  </div>
-                  <div className="text-lg font-medium">{item.label}</div>
-                </div>
-              ) : (
-                null
-              )
-            ))}
+            <div
+              className={`flex flex-col items-center justify-end px-2 h-full transition duration-300 cursor-pointer hover:text-primary-40 hover:opacity-100 rubrics-link-desktop ${pathname.startsWith("/rubrics") ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
+                }`}
+              onClick={() => {
+                setTimeout(() => router.push("/rubrics"), 100);
+              }}
+            >
+              <div className="h-12 aspect-square">
+                <Image alt="rubrics" src={rubric} width={75} height={75} className="" />
+              </div>
+              <div className="text-lg font-medium">rubrics</div>
+            </div>
+            <div
+              className={`flex flex-col items-center justify-end px-2 h-full transition duration-300 cursor-pointer hover:text-primary-40 hover:opacity-100 grader-link-desktop ${pathname.startsWith("/grader") ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
+                }`}
+              onClick={() => {
+                setTimeout(() => router.push("/grader"), 100);
+              }}
+            >
+              <div className="h-12 aspect-square">
+                <Image alt="grader" src={grader} width={75} height={75} className="" />
+              </div>
+              <div className="text-lg font-medium">grader</div>
+            </div>
+            <div
+              className={`flex flex-col items-center justify-end px-2 h-full transition duration-300 cursor-pointer hover:text-primary-40 hover:opacity-100 assignments-link-desktop ${pathname.startsWith("/assignments") ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
+                }`}
+              onClick={() => {
+                setTimeout(() => router.push("/assignments"), 100);
+              }}
+            >
+              <div className="h-12 aspect-square">
+                <Image alt="assignments" src={school} width={75} height={75} className="" />
+              </div>
+              <div className="text-lg font-medium">assignments</div>
+            </div>
           </div>
           <div
             className="cursor-pointer hidden md:flex justify-start items-center md:flex-col gap-x-2 md:gap-y-0 hover:text-primary-40 text-primary-10 profile-link-desktop"
@@ -164,27 +154,12 @@ export default function Header() {
           </div>
         </div>
 
-        <div
-          className="flex items-end cursor-pointer gap-2"
-          onClick={() => {
-            if (window.ReactNativeWebView) {
-              window.ReactNativeWebView.postMessage("refresh");
-            } else {
-              console.log("Not React Native WebView environment");
-            }
-            setTimeout(() => router.push("/"), 100);
-          }}
-        >
-        </div>
-
         <div className="mobile-menu flex md:hidden items-end">
           <Menu size={25} className="text-primary-30 cursor-pointer" onClick={toggleMenu} />
         </div>
       </div>
 
-      {/* Overlay */}
       <div className={`bg-black/30 absolute inset-0 w-full h-full z-10 ${isOpen ? 'overlay-open' : 'overlay-closed'}`} aria-hidden="true" />
-      {/* Mobile Menu */}
       <div
         ref={menuRef}
         className={`fixed right-0 top-16 h-auto max-w-56 w-full z-10 transition-all ${isOpen ? 'animate-enter' : isExiting ? 'animate-exit' : 'hidden'}`}
@@ -217,18 +192,42 @@ export default function Header() {
                 Profile
               </div>
             </li>
-            {MENU_ITEMS.map((item, index) => (
-              <li
-                key={index}
-                className={`cursor-pointer text-primary-30 hover:bg-gray-100 flex flex-row items-center gap-4 border-b border-primary-40 pb-2 ${item.mobile}`}
-                onClick={() => {
-                  closeMenu();
-                  setTimeout(() => router.push(item.href), 100);
-                }}
-              >
-                {item.icon && <item.icon />}{item.label}
-              </li>
-            ))}
+            <li
+              className="cursor-pointer text-primary-30 hover:bg-gray-100 flex flex-row items-center gap-4 border-b border-primary-40 pb-2 mobile-menu-about"
+              onClick={() => {
+                closeMenu();
+                setTimeout(() => router.push('/'), 100);
+              }}
+            >
+              <Bot />About
+            </li>
+            <li
+              className="cursor-pointer text-primary-30 hover:bg-gray-100 flex flex-row items-center gap-4 border-b border-primary-40 pb-2 mobile-menu-support"
+              onClick={() => {
+                closeMenu();
+                setTimeout(() => router.push('/support'), 100);
+              }}
+            >
+              <LifeBuoy />Support
+            </li>
+            <li
+              className="cursor-pointer text-primary-30 hover:bg-gray-100 flex flex-row items-center gap-4 border-b border-primary-40 pb-2 mobile-menu-terms"
+              onClick={() => {
+                closeMenu();
+                setTimeout(() => router.push('/terms'), 100);
+              }}
+            >
+              <Handshake />Terms
+            </li>
+            <li
+              className="cursor-pointer text-primary-30 hover:bg-gray-100 flex flex-row items-center gap-4 border-b border-primary-40 pb-2 mobile-menu-privacy"
+              onClick={() => {
+                closeMenu();
+                setTimeout(() => router.push('/privacy'), 100);
+              }}
+            >
+              <GlobeLock />Privacy
+            </li>
             <li>
               <button onClick={handleSignOut} className="btn-shiny btn-shiny-red mobile-menu-logout">
                 Sign Out
@@ -238,7 +237,6 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Identity Modal */}
       {uid && identityModalOpen && (
         <>
           <div ref={modalRef} className={`bg-black/30 absolute inset-0 w-full h-full z-0 ${identityModalOpen ? 'overlay-open' : 'overlay-closed'}`} aria-hidden="true" />
@@ -255,7 +253,6 @@ export default function Header() {
               <div className="flex flex-wrap items-baseline justify-center">
                 <span className="mr-2">I am a</span>
                 <div className="flex flex-row gap-x-2">
-                  {/* Identity Level */}
                   <CustomListbox
                     value={profile?.identityLevel ?? identityLevels[0]}
                     options={
@@ -272,16 +269,14 @@ export default function Header() {
                     buttonClassName="w-fit"
                     placeholder="Select Level"
                   />
-                  {/* Identity Selection */}
                   <CustomListbox
-                    value={profile?.identity ?? "student"} // Default to "student"
+                    value={profile?.identity ?? "student"}
                     options={userInputs?.identity?.options?.map((identity) => ({
                       label: identity,
                       value: identity,
-                    })) ?? []} // Fallback to an empty array
+                    })) ?? []}
                     onChange={(value) => {
                       if (profile?.identity !== value) {
-                        // Update identity and reset identityLevel to the first in the new array
                         const newIdentityLevels = userInputs?.identity?.identityLevels?.[value] ?? ["3rd grade"];
                         updateProfile({ identity: value, identityLevel: newIdentityLevels[0] });
                       }
@@ -296,8 +291,8 @@ export default function Header() {
             </div>
           </div>
         </>
-
       )}
     </>
   );
 }
+

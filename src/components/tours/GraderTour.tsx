@@ -105,19 +105,15 @@ export default function GraderTour() {
         return isVisible
       },
     }))
-
     stepsRef.current = newSteps
   }, [])
 
   useEffect(() => {
     updateSteps()
-
     const handleResize = () => {
       updateSteps()
     }
-
     window.addEventListener('resize', handleResize)
-
     return () => {
       window.removeEventListener('resize', handleResize)
     }
@@ -172,6 +168,9 @@ export default function GraderTour() {
             textAlign: 'left',
             padding: '5px'
           },
+        }}
+        floaterProps={{
+          disableAnimation: true,
         }}
       />
     </>
