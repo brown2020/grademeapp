@@ -14,7 +14,6 @@
     "identityLevel": "3rd grade",
     "textType": "narrative",
     "proseType": "personal narrative",
-    "rubricType": "",
     "tags": [
       "student",
       "3rd grade",
@@ -51,7 +50,6 @@
     "identityLevel": "3rd grade",
     "textType": "narrative",
     "proseType": "personal narrative",
-    "rubricType": "",
     "tags": [
       "student",
       "3rd grade",
@@ -74,7 +72,6 @@
     "identityLevel": "3rd grade",
     "textType": "narrative",
     "proseType": "short story",
-    "rubricType": "",
     "tags": [
       "student",
       "3rd grade",
@@ -117,7 +114,6 @@
     "identityLevel": "3rd grade",
     "textType": "descriptive",
     "proseType": "descriptive essay",
-    "rubricType": "",
     "tags": [
       "student",
       "3rd grade",
@@ -154,7 +150,6 @@
     "identityLevel": "3rd grade",
     "textType": "descriptive",
     "proseType": "character sketch",
-    "rubricType": "",
     "tags": [
       "student",
       "3rd grade",
@@ -191,7 +186,6 @@
     "identityLevel": "3rd grade",
     "textType": "descriptive",
     "proseType": "place description",
-    "rubricType": "",
     "tags": [
       "student",
       "3rd grade",
@@ -234,7 +228,6 @@
     "identityLevel": "3rd grade",
     "textType": "persuasive",
     "proseType": "opinion paragraph",
-    "rubricType": "",
     "tags": [
       "student",
       "3rd grade",
@@ -271,7 +264,6 @@
     "identityLevel": "3rd grade",
     "textType": "persuasive",
     "proseType": "persuasive essay",
-    "rubricType": "",
     "tags": [
       "student",
       "3rd grade",
@@ -314,7 +306,6 @@
     "identityLevel": "3rd grade",
     "textType": "expository",
     "proseType": "book report",
-    "rubricType": "",
     "tags": [
       "student",
       "3rd grade",
@@ -357,7 +348,6 @@
     "identityLevel": "3rd grade",
     "textType": "expository",
     "proseType": "simple research project",
-    "rubricType": "",
     "tags": [
       "student",
       "3rd grade",
@@ -394,7 +384,6 @@
     "identityLevel": "3rd grade",
     "textType": "expository",
     "proseType": "informational article",
-    "rubricType": "",
     "tags": [
       "student",
       "3rd grade",
@@ -431,7 +420,6 @@
     "identityLevel": "3rd grade",
     "textType": "expository",
     "proseType": "report",
-    "rubricType": "",
     "tags": [
       "student",
       "3rd grade",
@@ -454,7 +442,6 @@
     "identityLevel": "3rd grade",
     "textType": "reflective",
     "proseType": "journal entry",
-    "rubricType": "",
     "tags": [
       "student",
       "3rd grade",
@@ -491,7 +478,6 @@
     "identityLevel": "3rd grade",
     "textType": "instructional",
     "proseType": "how-to guide",
-    "rubricType": "",
     "tags": [
       "student",
       "3rd grade",
@@ -511,10 +497,9 @@
     },
     "type": "holistic",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "4th grade",
     "textType": "narrative",
     "proseType": "personal narrative",
-    "rubricType": "",
     "tags": [
       "student",
       "narrative",
@@ -547,10 +532,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "4th grade",
     "textType": "narrative",
     "proseType": "personal narrative",
-    "rubricType": "",
     "tags": [
       "student",
       "narrative",
@@ -569,10 +553,9 @@
     },
     "type": "holistic",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "4th grade",
     "textType": "narrative",
     "proseType": "short story",
-    "rubricType": "",
     "tags": [
       "student",
       "narrative",
@@ -591,10 +574,9 @@
     },
     "type": "holistic",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "4th grade",
     "textType": "narrative",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "fictional narrative",
     "tags": [
       "student",
       "narrative"
@@ -632,10 +614,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "4th grade",
     "textType": "descriptive",
     "proseType": "descriptive essay",
-    "rubricType": "",
     "tags": [
       "student",
       "descriptive",
@@ -674,10 +655,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "4th grade",
     "textType": "descriptive",
     "proseType": "character sketch",
-    "rubricType": "",
     "tags": [
       "student",
       "descriptive",
@@ -710,10 +690,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "4th grade",
     "textType": "descriptive",
     "proseType": "place description",
-    "rubricType": "",
     "tags": [
       "student",
       "descriptive",
@@ -752,12 +731,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
-    "textType": "",
-    "proseType": "",
-    "rubricType": "",
+    "identityLevel": "4th grade",
+    "textType": "opinion",
+    "proseType": "letter",
     "tags": [
-      "student"
+      "student",
+      "opinion",
+      "letter"
     ]
   },
   {
@@ -792,14 +772,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "4th grade",
     "textType": "persuasive",
-    "proseType": "persuasive essay",
-    "rubricType": "",
+    "proseType": "essay",
     "tags": [
       "student",
       "persuasive",
-      "persuasive essay"
+      "essay"
     ]
   },
   {
@@ -834,10 +813,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "4th grade",
     "textType": "persuasive",
     "proseType": "opinion paragraph",
-    "rubricType": "",
     "tags": [
       "student",
       "persuasive",
@@ -876,10 +854,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "4th grade",
     "textType": "expository",
     "proseType": "informational article",
-    "rubricType": "",
     "tags": [
       "student",
       "expository",
@@ -918,10 +895,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "4th grade",
     "textType": "expository",
     "proseType": "report",
-    "rubricType": "",
     "tags": [
       "student",
       "expository",
@@ -960,10 +936,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "4th grade",
     "textType": "expository",
     "proseType": "book report",
-    "rubricType": "",
     "tags": [
       "student",
       "expository",
@@ -1002,10 +977,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "4th grade",
     "textType": "expository",
     "proseType": "simple research project",
-    "rubricType": "",
     "tags": [
       "student",
       "expository",
@@ -1044,10 +1018,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "4th grade",
     "textType": "expository",
     "proseType": "",
-    "rubricType": "",
     "tags": [
       "student",
       "expository"
@@ -1085,10 +1058,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "4th grade",
     "textType": "expository",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "cause and effect essay",
     "tags": [
       "student",
       "expository"
@@ -1106,10 +1078,9 @@
     },
     "type": "holistic",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "4th grade",
     "textType": "reflective",
     "proseType": "journal entry",
-    "rubricType": "",
     "tags": [
       "student",
       "reflective",
@@ -1128,10 +1099,9 @@
     },
     "type": "holistic",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "4th grade",
     "textType": "reflective",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "reflective essay",
     "tags": [
       "student",
       "reflective"
@@ -1149,13 +1119,13 @@
     },
     "type": "holistic",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "4th grade",
     "textType": "reflective",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "diary entry",
     "tags": [
       "student",
-      "reflective"
+      "reflective",
+      "diary entry"
     ]
   },
   {
@@ -1190,10 +1160,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "4th grade",
     "textType": "instructional",
     "proseType": "how-to guide",
-    "rubricType": "",
     "tags": [
       "student",
       "instructional",
@@ -1212,10 +1181,9 @@
     },
     "type": "holistic",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "5th grade",
     "textType": "narrative",
     "proseType": "personal narrative",
-    "rubricType": "",
     "tags": [
       "student",
       "narrative",
@@ -1237,7 +1205,7 @@
     "identityLevel": "",
     "textType": "narrative",
     "proseType": "short story",
-    "rubricType": "",
+    "rubricType": "5th grade",
     "tags": [
       "student",
       "narrative",
@@ -1256,13 +1224,13 @@
     },
     "type": "holistic",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "5th grade",
     "textType": "narrative",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "fictional narrative",
     "tags": [
       "student",
-      "narrative"
+      "narrative",
+      "fictional narrative"
     ]
   },
   {
@@ -1297,10 +1265,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "5th grade",
     "textType": "descriptive",
     "proseType": "descriptive essay",
-    "rubricType": "",
     "tags": [
       "student",
       "descriptive",
@@ -1339,10 +1306,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "5th grade",
     "textType": "descriptive",
     "proseType": "character sketch",
-    "rubricType": "",
     "tags": [
       "student",
       "descriptive",
@@ -1375,10 +1341,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "5th grade",
     "textType": "descriptive",
     "proseType": "place description",
-    "rubricType": "",
     "tags": [
       "student",
       "descriptive",
@@ -1417,12 +1382,12 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
-    "textType": "",
+    "identityLevel": "5th grade",
+    "textType": "opinion",
     "proseType": "opinion paragraph",
-    "rubricType": "",
     "tags": [
       "student",
+      "opinion",
       "opinion paragraph"
     ]
   },
@@ -1458,10 +1423,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "5th grade",
     "textType": "persuasive",
     "proseType": "persuasive essay",
-    "rubricType": "",
     "tags": [
       "student",
       "persuasive",
@@ -1500,13 +1464,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "5th grade",
     "textType": "persuasive",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "persuasive letter",
     "tags": [
       "student",
-      "persuasive"
+      "persuasive",
+      "persuasive letter"
     ]
   },
   {
@@ -1541,10 +1505,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "5th grade",
     "textType": "expository",
     "proseType": "informational article",
-    "rubricType": "",
     "tags": [
       "student",
       "expository",
@@ -1583,10 +1546,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "5th grade",
     "textType": "expository",
     "proseType": "book report",
-    "rubricType": "",
     "tags": [
       "student",
       "expository",
@@ -1625,10 +1587,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "5th grade",
     "textType": "expository",
     "proseType": "simple research project",
-    "rubricType": "",
     "tags": [
       "student",
       "expository",
@@ -1667,13 +1628,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "5th grade",
     "textType": "expository",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "compare and contrast essay",
     "tags": [
       "student",
-      "expository"
+      "expository",
+      "compare and contrast essay"
     ]
   },
   {
@@ -1708,13 +1669,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "5th grade",
     "textType": "expository",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "cause and effect essay",
     "tags": [
       "student",
-      "expository"
+      "expository",
+      "cause and effect essay"
     ]
   },
   {
@@ -1729,10 +1690,9 @@
     },
     "type": "holistic",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "5th grade",
     "textType": "reflective",
     "proseType": "journal entry",
-    "rubricType": "",
     "tags": [
       "student",
       "reflective",
@@ -1751,13 +1711,13 @@
     },
     "type": "holistic",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "5th grade",
     "textType": "reflective",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "diary entry",
     "tags": [
       "student",
-      "reflective"
+      "reflective",
+      "diary entry"
     ]
   },
   {
@@ -1792,10 +1752,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "5th grade",
     "textType": "instructional",
     "proseType": "how-to guide",
-    "rubricType": "",
     "tags": [
       "student",
       "instructional",
@@ -1814,10 +1773,9 @@
     },
     "type": "holistic",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "6th grade",
     "textType": "narrative",
     "proseType": "personal narrative",
-    "rubricType": "",
     "tags": [
       "student",
       "narrative",
@@ -1856,10 +1814,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "6th grade",
     "textType": "narrative",
     "proseType": "personal narrative",
-    "rubricType": "",
     "tags": [
       "student",
       "narrative",
@@ -1878,10 +1835,9 @@
     },
     "type": "holistic",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "6th grade",
     "textType": "narrative",
     "proseType": "short story",
-    "rubricType": "",
     "tags": [
       "student",
       "narrative",
@@ -1920,10 +1876,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "6th grade",
     "textType": "descriptive",
     "proseType": "descriptive essay",
-    "rubricType": "",
     "tags": [
       "student",
       "descriptive",
@@ -1962,10 +1917,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "6th grade",
     "textType": "descriptive",
     "proseType": "character sketch",
-    "rubricType": "",
     "tags": [
       "student",
       "descriptive",
@@ -2004,12 +1958,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
-    "textType": "",
-    "proseType": "",
-    "rubricType": "",
+    "identityLevel": "6th grade",
+    "textType": "persuasive",
+    "proseType": "opinion essay",
     "tags": [
-      "student"
+      "student",
+      "persuasive",
+      "opinion essay"
     ]
   },
   {
@@ -2044,10 +1999,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "6th grade",
     "textType": "persuasive",
     "proseType": "persuasive essay",
-    "rubricType": "",
     "tags": [
       "student",
       "persuasive",
@@ -2086,13 +2040,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "6th grade",
     "textType": "persuasive",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "persuasive letter",
     "tags": [
       "student",
-      "persuasive"
+      "persuasive",
+      "persuasive letter"
     ]
   },
   {
@@ -2127,12 +2081,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
-    "textType": "",
-    "proseType": "",
-    "rubricType": "",
+    "identityLevel": "6th grade",
+    "textType": "argumentative",
+    "proseType": "argumentative essay",
     "tags": [
-      "student"
+      "student",
+      "argumentative",
+      "argumentative essay"
     ]
   },
   {
@@ -2167,13 +2122,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "6th grade",
     "textType": "expository",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "informational essay",
     "tags": [
       "student",
-      "expository"
+      "expository",
+      "informational essay"
     ]
   },
   {
@@ -2208,13 +2163,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "6th grade",
     "textType": "expository",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "compare and contrast essay",
     "tags": [
       "student",
-      "expository"
+      "expository",
+      "compare and contrast essay"
     ]
   },
   {
@@ -2249,13 +2204,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "6th grade",
     "textType": "expository",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "cause and effect essay",
     "tags": [
       "student",
-      "expository"
+      "expository",
+      "cause and effect essay"
     ]
   },
   {
@@ -2270,13 +2225,13 @@
     },
     "type": "holistic",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "6th grade",
     "textType": "reflective",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "reflective essay",
     "tags": [
       "student",
-      "reflective"
+      "reflective",
+      "reflective essay"
     ]
   },
   {
@@ -2291,10 +2246,9 @@
     },
     "type": "holistic",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "6th grade",
     "textType": "reflective",
     "proseType": "journal entry",
-    "rubricType": "",
     "tags": [
       "student",
       "reflective",
@@ -2333,10 +2287,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "6th grade",
     "textType": "instructional",
     "proseType": "how-to guide",
-    "rubricType": "",
     "tags": [
       "student",
       "instructional",
@@ -2387,12 +2340,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
-    "textType": "",
-    "proseType": "",
-    "rubricType": "",
+    "identityLevel": "6th grade",
+    "textType": "informational",
+    "proseType": "research paper",
     "tags": [
-      "student"
+      "student",
+      "informational",
+      "research paper"
     ]
   },
   {
@@ -2410,7 +2364,6 @@
     "identityLevel": "",
     "textType": "narrative",
     "proseType": "personal narrative",
-    "rubricType": "",
     "tags": [
       "student",
       "narrative",
@@ -2432,7 +2385,6 @@
     "identityLevel": "",
     "textType": "narrative",
     "proseType": "short story",
-    "rubricType": "",
     "tags": [
       "student",
       "narrative",
@@ -2454,7 +2406,6 @@
     "identityLevel": "",
     "textType": "narrative",
     "proseType": "",
-    "rubricType": "",
     "tags": [
       "student",
       "narrative"
@@ -2492,10 +2443,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "7th grade",
     "textType": "descriptive",
     "proseType": "descriptive essay",
-    "rubricType": "",
     "tags": [
       "student",
       "descriptive",
@@ -2534,12 +2484,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
-    "textType": "",
-    "proseType": "",
-    "rubricType": "",
+    "identityLevel": "7th grade",
+    "textType": "opinion",
+    "proseType": "opinion essay",
     "tags": [
-      "student"
+      "student",
+      "opinion",
+      "opinion essay"
     ]
   },
   {
@@ -2574,12 +2525,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
-    "textType": "",
-    "proseType": "",
-    "rubricType": "",
+    "identityLevel": "7th grade",
+    "textType": "argumentative",
+    "proseType": "argumentative essay",
     "tags": [
-      "student"
+      "student",
+      "argumentative",
+      "argumentative essay"
     ]
   },
   {
@@ -2614,10 +2566,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "7th grade",
     "textType": "persuasive",
     "proseType": "persuasive essay",
-    "rubricType": "",
     "tags": [
       "student",
       "persuasive",
@@ -2656,10 +2607,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "7th grade",
     "textType": "expository",
     "proseType": "informational article",
-    "rubricType": "",
     "tags": [
       "student",
       "expository",
@@ -2698,13 +2648,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "7th grade",
     "textType": "expository",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "compare and contrast essay",
     "tags": [
       "student",
-      "expository"
+      "expository",
+      "compare and contrast essay"
     ]
   },
   {
@@ -2739,13 +2689,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "7th grade",
     "textType": "expository",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "cause and effect essay",
     "tags": [
       "student",
-      "expository"
+      "expository",
+      "cause and effect essay"
     ]
   },
   {
@@ -2760,13 +2710,13 @@
     },
     "type": "holistic",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "7th grade",
     "textType": "reflective",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "reflective essay",
     "tags": [
       "student",
-      "reflective"
+      "reflective",
+      "reflective essay"
     ]
   },
   {
@@ -2801,10 +2751,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "7th grade",
     "textType": "instructional",
     "proseType": "how-to guide",
-    "rubricType": "",
     "tags": [
       "student",
       "instructional",
@@ -2855,12 +2804,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
-    "textType": "",
-    "proseType": "",
-    "rubricType": "",
+    "identityLevel": "7th grade",
+    "textType": "informational",
+    "proseType": "research paper",
     "tags": [
-      "student"
+      "student",
+      "informational",
+      "research paper"
     ]
   },
   {
@@ -2875,10 +2825,9 @@
     },
     "type": "holistic",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "7th grade",
     "textType": "narrative",
     "proseType": "personal narrative",
-    "rubricType": "",
     "tags": [
       "student",
       "narrative",
@@ -2897,10 +2846,9 @@
     },
     "type": "holistic",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "8th grade",
     "textType": "narrative",
     "proseType": "short story",
-    "rubricType": "",
     "tags": [
       "student",
       "narrative",
@@ -2939,10 +2887,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "8th grade",
     "textType": "descriptive",
     "proseType": "descriptive essay",
-    "rubricType": "",
     "tags": [
       "student",
       "descriptive",
@@ -2981,12 +2928,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
-    "textType": "",
-    "proseType": "",
-    "rubricType": "",
+    "identityLevel": "8th grade",
+    "textType": "argumentative",
+    "proseType": "argumentative essay",
     "tags": [
-      "student"
+      "student",
+      "argumentative",
+      "argumentative essay"
     ]
   },
   {
@@ -3021,12 +2969,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
-    "textType": "",
-    "proseType": "",
-    "rubricType": "",
+    "identityLevel": "8th grade",
+    "textType": "opinion",
+    "proseType": "opinion essay",
     "tags": [
-      "student"
+      "student",
+      "opinion",
+      "opinion essay"
     ]
   },
   {
@@ -3061,10 +3010,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "8th grade",
     "textType": "persuasive",
     "proseType": "persuasive essay",
-    "rubricType": "",
     "tags": [
       "student",
       "persuasive",
@@ -3103,10 +3051,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "8th grade",
     "textType": "expository",
     "proseType": "informational article",
-    "rubricType": "",
     "tags": [
       "student",
       "expository",
@@ -3145,13 +3092,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "8th grade",
     "textType": "expository",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "compare and contrast essay",
     "tags": [
       "student",
-      "expository"
+      "expository",
+      "compare and contrast essay"
     ]
   },
   {
@@ -3186,13 +3133,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "8th grade",
     "textType": "expository",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "cause and effect essay",
     "tags": [
       "student",
-      "expository"
+      "expository",
+      "cause and effect essay"
     ]
   },
   {
@@ -3207,13 +3154,13 @@
     },
     "type": "holistic",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "8th grade",
     "textType": "reflective",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "reflective essay",
     "tags": [
       "student",
-      "reflective"
+      "reflective",
+      "reflective essay"
     ]
   },
   {
@@ -3248,10 +3195,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "8th grade",
     "textType": "instructional",
     "proseType": "how-to guide",
-    "rubricType": "",
     "tags": [
       "student",
       "instructional",
@@ -3302,12 +3248,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
-    "textType": "",
-    "proseType": "",
-    "rubricType": "",
+    "identityLevel": "8th grade",
+    "textType": "informational",
+    "proseType": "research paper",
     "tags": [
-      "student"
+      "student",
+      "informational",
+      "research paper"
     ]
   },
   {
@@ -3322,10 +3269,9 @@
     },
     "type": "holistic",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "9th grade",
     "textType": "narrative",
     "proseType": "personal narrative",
-    "rubricType": "",
     "tags": [
       "student",
       "narrative",
@@ -3344,10 +3290,9 @@
     },
     "type": "holistic",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "9th grade",
     "textType": "narrative",
     "proseType": "short story",
-    "rubricType": "",
     "tags": [
       "student",
       "narrative",
@@ -3386,10 +3331,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "9th grade",
     "textType": "descriptive",
     "proseType": "descriptive essay",
-    "rubricType": "",
     "tags": [
       "student",
       "descriptive",
@@ -3434,12 +3378,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
-    "textType": "",
-    "proseType": "",
-    "rubricType": "",
+    "identityLevel": "9th grade",
+    "textType": "argumentative",
+    "proseType": "argumentative essay",
     "tags": [
-      "student"
+      "student",
+      "argumentative",
+      "argumentative essay"
     ]
   },
   {
@@ -3474,12 +3419,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
-    "textType": "",
-    "proseType": "",
-    "rubricType": "",
+    "identityLevel": "9th grade",
+    "textType": "opinion",
+    "proseType": "opinion essay",
     "tags": [
-      "student"
+      "student",
+      "opinion",
+      "opinion essay"
     ]
   },
   {
@@ -3514,10 +3460,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "9th grade",
     "textType": "persuasive",
     "proseType": "persuasive essay",
-    "rubricType": "",
     "tags": [
       "student",
       "persuasive",
@@ -3556,10 +3501,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "9th grade",
     "textType": "expository",
     "proseType": "informational article",
-    "rubricType": "",
     "tags": [
       "student",
       "expository",
@@ -3598,13 +3542,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "9th grade",
     "textType": "expository",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "compare and contrast essay",
     "tags": [
       "student",
-      "expository"
+      "expository",
+      "compare and contrast essay"
     ]
   },
   {
@@ -3639,13 +3583,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "9th grade",
     "textType": "expository",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "cause and effect essay",
     "tags": [
       "student",
-      "expository"
+      "expository",
+      "cause and effect essay"
     ]
   },
   {
@@ -3660,13 +3604,13 @@
     },
     "type": "holistic",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "9th grade",
     "textType": "reflective",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "reflective essay",
     "tags": [
       "student",
-      "reflective"
+      "reflective",
+      "reflective essay"
     ]
   },
   {
@@ -3701,10 +3645,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "9th grade",
     "textType": "instructional",
     "proseType": "how-to guide",
-    "rubricType": "",
     "tags": [
       "student",
       "instructional",
@@ -3755,12 +3698,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
-    "textType": "",
-    "proseType": "",
-    "rubricType": "",
+    "identityLevel": "9th grade",
+    "textType": "informational",
+    "proseType": "research paper",
     "tags": [
-      "student"
+      "student",
+      "informational",
+      "research paper"
     ]
   },
   {
@@ -3775,10 +3719,9 @@
     },
     "type": "holistic",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "10th grade",
     "textType": "narrative",
     "proseType": "personal narrative",
-    "rubricType": "",
     "tags": [
       "student",
       "narrative",
@@ -3797,10 +3740,9 @@
     },
     "type": "holistic",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "10th grade",
     "textType": "narrative",
     "proseType": "short story",
-    "rubricType": "",
     "tags": [
       "student",
       "narrative",
@@ -3839,10 +3781,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "10th grade",
     "textType": "descriptive",
     "proseType": "descriptive essay",
-    "rubricType": "",
     "tags": [
       "student",
       "descriptive",
@@ -3887,12 +3828,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
-    "textType": "",
-    "proseType": "",
-    "rubricType": "",
+    "identityLevel": "10th grade",
+    "textType": "argumentative",
+    "proseType": "argumentative essay",
     "tags": [
-      "student"
+      "student",
+      "argumentative",
+      "argumentative essay"
     ]
   },
   {
@@ -3927,12 +3869,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
-    "textType": "",
-    "proseType": "",
-    "rubricType": "",
+    "identityLevel": "10th grade",
+    "textType": "opinion",
+    "proseType": "opinion essay",
     "tags": [
-      "student"
+      "student",
+      "opinion",
+      "opinion essay"
     ]
   },
   {
@@ -3967,10 +3910,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "10th grade",
     "textType": "persuasive",
     "proseType": "persuasive essay",
-    "rubricType": "",
     "tags": [
       "student",
       "persuasive",
@@ -4009,10 +3951,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "10th grade",
     "textType": "expository",
     "proseType": "informational article",
-    "rubricType": "",
     "tags": [
       "student",
       "expository",
@@ -4051,13 +3992,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "10th grade",
     "textType": "expository",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "compare and contrast essay",
     "tags": [
       "student",
-      "expository"
+      "expository",
+      "compare and contrast essay"
     ]
   },
   {
@@ -4092,13 +4033,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "10th grade",
     "textType": "expository",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "cause and effect essay",
     "tags": [
       "student",
-      "expository"
+      "expository",
+      "cause and effect essay"
     ]
   },
   {
@@ -4113,13 +4054,13 @@
     },
     "type": "holistic",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "10th grade",
     "textType": "reflective",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "reflective essay",
     "tags": [
       "student",
-      "reflective"
+      "reflective",
+      "reflective essay"
     ]
   },
   {
@@ -4166,12 +4107,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
-    "textType": "",
-    "proseType": "",
-    "rubricType": "",
+    "identityLevel": "10th grade",
+    "textType": "informational",
+    "proseType": "research paper",
     "tags": [
-      "student"
+      "student",
+      "informational",
+      "research paper"
     ]
   },
   {
@@ -4206,10 +4148,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "10th grade",
     "textType": "instructional",
     "proseType": "how-to guide",
-    "rubricType": "",
     "tags": [
       "student",
       "instructional",
@@ -4228,10 +4169,9 @@
     },
     "type": "holistic",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "11th grade",
     "textType": "narrative",
     "proseType": "personal narrative",
-    "rubricType": "",
     "tags": [
       "student",
       "narrative",
@@ -4250,10 +4190,9 @@
     },
     "type": "holistic",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "11th grade",
     "textType": "narrative",
     "proseType": "short story",
-    "rubricType": "",
     "tags": [
       "student",
       "narrative",
@@ -4292,10 +4231,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "11th grade",
     "textType": "descriptive",
     "proseType": "descriptive essay",
-    "rubricType": "",
     "tags": [
       "student",
       "descriptive",
@@ -4340,12 +4278,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
-    "textType": "",
-    "proseType": "",
-    "rubricType": "",
+    "identityLevel": "11th grade",
+    "textType": "argumentative",
+    "proseType": "argumentative essay",
     "tags": [
-      "student"
+      "student",
+      "argumentative",
+      "argumentative essay"
     ]
   },
   {
@@ -4380,12 +4319,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
-    "textType": "",
-    "proseType": "",
-    "rubricType": "",
+    "identityLevel": "11th grade",
+    "textType": "opinion",
+    "proseType": "opinion essay",
     "tags": [
-      "student"
+      "student",
+      "opinion",
+      "opinion essay"
     ]
   },
   {
@@ -4420,10 +4360,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "11th grade",
     "textType": "persuasive",
     "proseType": "persuasive essay",
-    "rubricType": "",
     "tags": [
       "student",
       "persuasive",
@@ -4474,13 +4413,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "11th grade",
     "textType": "expository",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "research paper",
     "tags": [
       "student",
-      "expository"
+      "expository",
+      "research paper"
     ]
   },
   {
@@ -4515,13 +4454,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "11th grade",
     "textType": "expository",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "compare and contrast essay",
     "tags": [
       "student",
-      "expository"
+      "expository",
+      "compare and contrast essay"
     ]
   },
   {
@@ -4556,13 +4495,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "11th grade",
     "textType": "expository",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "cause and effect essay",
     "tags": [
       "student",
-      "expository"
+      "expository",
+      "cause and effect essay"
     ]
   },
   {
@@ -4577,13 +4516,13 @@
     },
     "type": "holistic",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "11th grade",
     "textType": "reflective",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "reflective essay",
     "tags": [
       "student",
-      "reflective"
+      "reflective",
+      "reflective essay"
     ]
   },
   {
@@ -4618,10 +4557,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "11th grade",
     "textType": "instructional",
     "proseType": "how-to guide",
-    "rubricType": "",
     "tags": [
       "student",
       "instructional",
@@ -4640,10 +4578,9 @@
     },
     "type": "holistic",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "12th grade",
     "textType": "narrative",
     "proseType": "personal narrative",
-    "rubricType": "",
     "tags": [
       "student",
       "narrative",
@@ -4662,10 +4599,9 @@
     },
     "type": "holistic",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "12th grade",
     "textType": "narrative",
     "proseType": "short story",
-    "rubricType": "",
     "tags": [
       "student",
       "narrative",
@@ -4704,10 +4640,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "12th grade",
     "textType": "descriptive",
     "proseType": "descriptive essay",
-    "rubricType": "",
     "tags": [
       "student",
       "descriptive",
@@ -4752,12 +4687,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
-    "textType": "",
-    "proseType": "",
-    "rubricType": "",
+    "identityLevel": "12th grade",
+    "textType": "argumentative",
+    "proseType": "argumentative essay",
     "tags": [
-      "student"
+      "student",
+      "argumentative",
+      "argumentative essay"
     ]
   },
   {
@@ -4792,12 +4728,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
-    "textType": "",
-    "proseType": "",
-    "rubricType": "",
+    "identityLevel": "12th grade",
+    "textType": "opinion",
+    "proseType": "opinion essay",
     "tags": [
-      "student"
+      "student",
+      "opinion",
+      "opinion essay"
     ]
   },
   {
@@ -4832,10 +4769,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "12th grade",
     "textType": "persuasive",
     "proseType": "persuasive essay",
-    "rubricType": "",
     "tags": [
       "student",
       "persuasive",
@@ -4880,13 +4816,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "12th grade",
     "textType": "expository",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "essay",
     "tags": [
       "student",
-      "expository"
+      "expository",
+      "essay"
     ]
   },
   {
@@ -4921,13 +4857,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "12th grade",
     "textType": "expository",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "compare and contrast essay",
     "tags": [
       "student",
-      "expository"
+      "expository",
+      "compare and contrast essay"
     ]
   },
   {
@@ -4962,13 +4898,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "12th grade",
     "textType": "expository",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "cause and effect essay",
     "tags": [
       "student",
-      "expository"
+      "expository",
+      "cause and effect essay"
     ]
   },
   {
@@ -4983,13 +4919,13 @@
     },
     "type": "holistic",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "12th grade",
     "textType": "reflective",
-    "proseType": "",
-    "rubricType": "",
+    "proseType": "reflective essay",
     "tags": [
       "student",
-      "reflective"
+      "reflective",
+      "reflective essay"
     ]
   },
   {
@@ -5036,12 +4972,13 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
-    "textType": "",
-    "proseType": "",
-    "rubricType": "",
+    "identityLevel": "12th grade",
+    "textType": " research",
+    "proseType": " research paper",
     "tags": [
-      "student"
+      "student",
+      "research",
+      "research paper"
     ]
   },
   {
@@ -5076,10 +5013,9 @@
     },
     "type": "analytical",
     "identity": "student",
-    "identityLevel": "",
+    "identityLevel": "12th grade",
     "textType": "instructional",
     "proseType": "how-to guide",
-    "rubricType": "",
     "tags": [
       "student",
       "instructional",
@@ -5101,7 +5037,6 @@
     "identityLevel": "",
     "textType": "",
     "proseType": "",
-    "rubricType": "",
     "tags": []
   },
   {
@@ -5139,7 +5074,6 @@
     "identityLevel": "",
     "textType": "",
     "proseType": "",
-    "rubricType": "",
     "tags": []
   },
   {
@@ -5154,7 +5088,6 @@
     "identityLevel": "",
     "textType": "",
     "proseType": "",
-    "rubricType": "",
     "tags": []
   },
   {
@@ -5173,7 +5106,6 @@
     "identityLevel": "",
     "textType": "",
     "proseType": "",
-    "rubricType": "",
     "tags": []
   },
   {

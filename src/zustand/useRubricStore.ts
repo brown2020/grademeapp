@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { useAuthStore } from '@/zustand/useAuthStore';
+import useProfileStore from '@/zustand/useProfileStore';
 import { RubricState, RubricType, GenericRubricCriteria } from '@/types/rubrics-types';
 import { getInitialRubricState } from '@/types/initialRubricStates';
 import { GradingData } from '@/types/grading-data';
@@ -38,6 +39,8 @@ interface RubricStoreState {
   addCustomRubric: (rubric: RubricState) => void;
   updateCustomRubric: (rubricId: string, updatedRubric: Partial<RubricState>) => void;
   deleteCustomRubric: (rubricId: string) => void;
+  sortAndGroupRubrics: (searchQuery: string, gradingData: GradingData) => void;
+  initializeStore: () => void;
 }
 
 // Type guard to ensure the object matches RubricState
@@ -56,230 +59,331 @@ const isValidRubricState = (rubric: unknown): rubric is RubricState => {
 };
 
 // Filter and map raw rubrics to ensure type safety
-const defaultRubrics: RubricState[] = rawRubrics
-  .filter(isValidRubricState)
-  .map((rubric) => ({
-    ...rubric,
-    type: RubricType[rubric.type as keyof typeof RubricType] ?? RubricType.Analytical,
-    tags: rubric.tags || [],
-    criteria: rubric.criteria as unknown as GenericRubricCriteria,
-  })) as RubricState[];
+const defaultRubrics: RubricState[] = rawRubrics.filter(isValidRubricState).map((rubric) => ({
+  ...rubric,
+  type: RubricType[rubric.type as keyof typeof RubricType] ?? RubricType.Analytical,
+  tags: rubric.tags || [],
+  criteria: rubric.criteria as unknown as GenericRubricCriteria,
+})) as RubricState[];
 
-export const useRubricStore = create<RubricStoreState>((set, get) => ({
-  rubricOptions: defaultRubrics,
-  filteredRubrics: defaultRubrics,
-  selectedRubric: defaultRubrics.length > 0 ? defaultRubrics[0] : null,
-  gradingData: {
-    assigner: '',
-    topic: '',
-    prose: '',
-    audience: '',
-    wordLimitType: 'less than',
-    wordLimit: '',
-    rubric: defaultRubrics.length > 0 ? defaultRubrics[0] : null,
-    customRubric: '',
-    textType: '',
-    title: '',
-    text: '',
-  },
-  useCustomRubrics: false,
-  customRubricsLoaded: false,
-  showRubricBuilder: false,
-  setShowRubricBuilder: (show) => set({ showRubricBuilder: show }),
-  editingRubricId: undefined,
-  setEditingRubricId: (id) => set({ editingRubricId: id }),
-  activeRubric: null,
-  setActiveRubric: (rubric) => set({ activeRubric: rubric }),
-  updateActiveRubric: (updates) =>
-    set((state) => ({
-      activeRubric: state.activeRubric ? { ...state.activeRubric, ...updates } as RubricState : null,
-    })),
-  createNewRubric: (type) => set({ activeRubric: getInitialRubricState(type) }),
-  clearActiveRubric: () => set({ activeRubric: null }),
-  showDeleteModal: false,
-  rubricToDelete: null,
-  setShowDeleteModal: (show) => set({ showDeleteModal: show }),
-  setRubricToDelete: (id) => set({ rubricToDelete: id }),
-  // Toggle between custom and default rubrics
-  setUseCustomRubrics: async (useCustomRubrics) => {
-    const { uid } = useAuthStore.getState();
-    if (!uid) {
-      console.warn('Cannot toggle custom rubrics without a valid user ID.');
-      return;
+
+
+export const useRubricStore = create<RubricStoreState>((set, get) => {
+  const sortAndGroupRubrics = (searchQuery: string, gradingData: GradingData) => {
+    const state = get();
+    const profile = useProfileStore.getState().profile;
+    let rubrics = state.rubricOptions;
+
+    const safeCompare = (a?: string, b?: string) =>
+      (a || '').toLowerCase() === (b || '').toLowerCase();
+
+    if (searchQuery) {
+      const lowerCaseQuery = searchQuery.toLowerCase();
+      rubrics = rubrics.filter((rubric) =>
+        rubric.name.toLowerCase().includes(lowerCaseQuery) ||
+        rubric.description?.toLowerCase().includes(lowerCaseQuery)
+      );
     }
 
-    set({ useCustomRubrics, customRubricsLoaded: false });
+    const favorites = rubrics.filter(rubric => profile.favoriteRubrics.includes(rubric.id));
+    // Remove favorites from the main rubrics array to prevent duplicates
+    rubrics = rubrics.filter(rubric => !profile.favoriteRubrics.includes(rubric.id));
 
-    if (useCustomRubrics) {
-      await get().fetchCustomRubrics(uid);
-    } else {
-      get().resetToDefaultRubrics();
-    }
-  },
+    const exactMatches = rubrics.filter(rubric =>
+      safeCompare(rubric.identity, profile.identity) &&
+      safeCompare(rubric.identityLevel, profile.identityLevel) &&
+      safeCompare(rubric.textType, gradingData.textType)
+    );
 
-  // Toggle custom rubric usage and fetch custom rubrics if enabled
-  fetchCustomRubrics: async (uid: string | null) => {
-    if (!uid) {
-      console.warn('User ID is required to fetch custom rubrics.');
-      return;
-    }
+    const gradeAndTypeMatches = rubrics.filter(rubric =>
+      safeCompare(rubric.identityLevel, profile.identityLevel) &&
+      safeCompare(rubric.textType, gradingData.textType) &&
+      !exactMatches.includes(rubric)
+    );
 
-    try {
-      const customRubricCollection = collection(db, "users", uid, "custom_rubrics");
-      const customRubricSnapshot = await getDocs(customRubricCollection);
-      const fetchedRubrics = customRubricSnapshot.docs.map((doc) => ({
-        ...doc.data(),
-        id: doc.id,
-      })) as RubricState[];
+    const gradeMatches = rubrics.filter(rubric =>
+      safeCompare(rubric.identityLevel, profile.identityLevel) &&
+      !exactMatches.includes(rubric) &&
+      !gradeAndTypeMatches.includes(rubric)
+    );
 
-      set({
-        rubricOptions: fetchedRubrics,
-        filteredRubrics: fetchedRubrics,
-        selectedRubric: fetchedRubrics[0] || null,
-        customRubricsLoaded: true,
-      });
-    } catch (error) {
-      console.error("Error fetching custom rubrics:", error);
-    }
-  },
+    const typeMatches = rubrics.filter(rubric =>
+      safeCompare(rubric.textType, gradingData.textType) &&
+      !exactMatches.includes(rubric) &&
+      !gradeAndTypeMatches.includes(rubric) &&
+      !gradeMatches.includes(rubric)
+    );
 
-  setRubricOptions: (options) => set({ rubricOptions: options }),
-  setFilteredRubrics: (filtered) => set({ filteredRubrics: filtered }),
-  setSelectedRubric: (rubric) => set((state) => ({ selectedRubric: rubric, gradingData: { ...state.gradingData, rubric } })),
-  setGradingData: (data) => set((state) => ({ gradingData: { ...state.gradingData, ...data } })),
+    const identityMatches = rubrics.filter(rubric =>
+      safeCompare(rubric.identity, profile.identity) &&
+      !exactMatches.includes(rubric) &&
+      !gradeAndTypeMatches.includes(rubric) &&
+      !gradeMatches.includes(rubric) &&
+      !typeMatches.includes(rubric)
+    );
 
-  resetToDefaultRubrics: () => {
-    set({
-      rubricOptions: defaultRubrics,
-      filteredRubrics: defaultRubrics,
-      selectedRubric: defaultRubrics.length > 0 ? defaultRubrics[0] : null,
-      gradingData: {
-        ...get().gradingData,
-        rubric: defaultRubrics.length > 0 ? defaultRubrics[0] : null,
-      },
-      customRubricsLoaded: false,
-    });
-  },
+    const remainingRubrics = rubrics.filter(rubric =>
+      !favorites.includes(rubric) &&
+      !exactMatches.includes(rubric) &&
+      !gradeAndTypeMatches.includes(rubric) &&
+      !gradeMatches.includes(rubric) &&
+      !typeMatches.includes(rubric) &&
+      !identityMatches.includes(rubric)
+    );
 
-  // Add a new custom rubric to both Firebase and local state
-  addCustomRubric: async (rubric) => {
-    const { uid } = useAuthStore.getState();
-    if (!uid) {
-      console.error("User ID is required to add a custom rubric.");
-      return;
-    }
+    const sortedRubrics = [
+      ...favorites,
+      ...exactMatches,
+      ...gradeAndTypeMatches,
+      ...gradeMatches,
+      ...typeMatches,
+      ...identityMatches,
+      ...remainingRubrics
+    ];
 
-    try {
-      // Create a new document reference with an auto-generated ID
-      const customRubricRef = doc(collection(db, "users", uid, "custom_rubrics"));
-      const generatedId = customRubricRef.id;
-      console.log("Generated ID:", generatedId);
+    set({ filteredRubrics: sortedRubrics });
 
-      // Add the generated ID to the rubric object
-      const rubricWithId = { ...rubric, id: generatedId, timestamp: Timestamp.now() };
+    const initialSelectedRubric = sortedRubrics.find(rubric =>
+      safeCompare(rubric.identity, profile.identity) &&
+      safeCompare(rubric.identityLevel, profile.identityLevel) &&
+      safeCompare(rubric.textType, gradingData.textType)
+    ) || sortedRubrics[0];
 
-      // Save the rubric to Firestore
-      await setDoc(customRubricRef, rubricWithId);
+    set({ selectedRubric: initialSelectedRubric });
+  };
 
-      // Update the local state
+  return {
+    rubricOptions: defaultRubrics,
+    filteredRubrics: defaultRubrics,
+    selectedRubric: null,
+    gradingData: {
+      assigner: '',
+      topic: '',
+      prose: '',
+      audience: '',
+      wordLimitType: 'less than',
+      wordLimit: '',
+      rubric: null,
+      customRubric: '',
+      textType: 'narrative',
+      title: '',
+      text: '',
+    },
+    useCustomRubrics: false,
+    customRubricsLoaded: false,
+    showRubricBuilder: false,
+    setShowRubricBuilder: (show: boolean) => set({ showRubricBuilder: show }),
+    editingRubricId: undefined,
+    setEditingRubricId: (id: string | undefined) => set({ editingRubricId: id }),
+    activeRubric: null,
+    setActiveRubric: (rubric: RubricState | null) => set({ activeRubric: rubric }),
+    updateActiveRubric: (updates: Partial<RubricState>) =>
       set((state) => ({
-        rubricOptions: [...state.rubricOptions, rubricWithId],
-        filteredRubrics: state.useCustomRubrics ? [...state.filteredRubrics, rubricWithId] : state.filteredRubrics,
-      }));
+        activeRubric: state.activeRubric ? { ...state.activeRubric, ...updates } as RubricState : null,
+      })),
+    createNewRubric: (type: RubricType) => set({ activeRubric: getInitialRubricState(type) }),
+    clearActiveRubric: () => set({ activeRubric: null }),
+    showDeleteModal: false,
+    rubricToDelete: null,
+    setShowDeleteModal: (show: boolean) => set({ showDeleteModal: show }),
+    setRubricToDelete: (id: string | null) => set({ rubricToDelete: id }),
+    setUseCustomRubrics: async (useCustomRubrics: boolean) => {
+      const { uid } = useAuthStore.getState();
+      if (!uid) {
+        console.warn('Cannot toggle custom rubrics without a valid user ID.');
+        return;
+      }
 
-      console.log("Rubric created successfully with ID:", generatedId);
-    } catch (error) {
-      console.error("Failed to add rubric to Firebase:", error);
-      throw error; // Rethrow if needed for error handling in components
-    }
-  },
+      set({ useCustomRubrics, customRubricsLoaded: false });
 
+      if (useCustomRubrics) {
+        await get().fetchCustomRubrics(uid);
+      } else {
+        get().resetToDefaultRubrics();
+      }
+    },
+    sortAndGroupRubrics,
+    setRubricOptions: (options: RubricState[]) => set({ rubricOptions: options }),
+    setFilteredRubrics: (filtered: RubricState[]) => set({ filteredRubrics: filtered }),
+    setSelectedRubric: (rubric: RubricState | null) => set((state) => ({ selectedRubric: rubric, gradingData: { ...state.gradingData, rubric } })),
+    setGradingData: (data: Partial<GradingData>) => set((state) => ({ gradingData: { ...state.gradingData, ...data } })),
+    // Toggle custom rubric usage and fetch custom rubrics if enabled
+    fetchCustomRubrics: async (uid: string | null) => {
+      if (!uid) {
+        console.warn('User ID is required to fetch custom rubrics.');
+        return;
+      }
 
-  // Update an existing custom rubric in Firebase and local state
-  updateCustomRubric: async (rubricId, updatedRubric) => {
-    const { uid } = useAuthStore.getState();
-    if (!uid) {
-      console.error("User ID is required to update a custom rubric.");
-      return;
-    }
+      try {
+        const customRubricCollection = collection(db, "users", uid, "custom_rubrics");
+        const customRubricSnapshot = await getDocs(customRubricCollection);
+        const fetchedRubrics = customRubricSnapshot.docs.map((doc) => ({
+          ...doc.data(),
+          id: doc.id,
+        })) as RubricState[];
 
-    try {
-      const customRubricRef = doc(db, "users", uid, "custom_rubrics", rubricId);
+        set({
+          rubricOptions: fetchedRubrics,
+          filteredRubrics: fetchedRubrics,
+          selectedRubric: fetchedRubrics[0] || null,
+          customRubricsLoaded: true,
+        });
+      } catch (error) {
+        console.error("Error fetching custom rubrics:", error);
+      }
+    },
 
-      // Ensure that the updatedRubric object has the correct structure
-      const sanitizedUpdatedRubric = {
-        name: updatedRubric.name,
-        description: updatedRubric.description,
-        type: updatedRubric.type,
-        criteria: updatedRubric.criteria,
-        // Add any other fields that should be updated
-      };
-
-      // Update the document in Firebase
-      await updateDoc(customRubricRef, sanitizedUpdatedRubric);
-
-      set((state) => {
-        const updateRubric = (rubric: RubricState) =>
-          rubric.id === rubricId ? { ...rubric, ...sanitizedUpdatedRubric } : rubric;
-
-        const updatedRubricOptions = state.rubricOptions.map(updateRubric);
-        const updatedFilteredRubrics = state.filteredRubrics.map(updateRubric);
-        const selectedRubric = state.selectedRubric?.id === rubricId
-          ? { ...state.selectedRubric, ...sanitizedUpdatedRubric }
-          : state.selectedRubric;
-
-        return {
-          rubricOptions: updatedRubricOptions,
-          filteredRubrics: updatedFilteredRubrics,
-          selectedRubric,
-          gradingData: {
-            ...state.gradingData,
-            rubric: selectedRubric,
-          },
-        } as Partial<RubricStoreState>;
+    resetToDefaultRubrics: () => {
+      set({
+        rubricOptions: defaultRubrics,
+        filteredRubrics: defaultRubrics,
+        selectedRubric: defaultRubrics.length > 0 ? defaultRubrics[0] : null,
+        gradingData: {
+          ...get().gradingData,
+          rubric: defaultRubrics.length > 0 ? defaultRubrics[0] : null,
+        },
+        customRubricsLoaded: false,
       });
-    } catch (error) {
-      console.error("Failed to update rubric in Firebase:", error);
-      throw error;
-    }
-  },
+    },
 
-  // Delete a custom rubric from Firebase and local state
-  deleteCustomRubric: async (rubricId) => {
-    const { uid } = useAuthStore.getState();
-    if (!uid) {
-      console.error("User ID is required to add a custom rubric.");
-      return;
-    }
+    // Add a new custom rubric to both Firebase and local state
+    addCustomRubric: async (rubric: RubricState) => {
+      const { uid } = useAuthStore.getState();
+      if (!uid) {
+        console.error("User ID is required to add a custom rubric.");
+        return;
+      }
 
-    if (!rubricId) {
-      console.error("Rubric ID is required to delete a custom rubric.");
-      return;
-    }
+      try {
+        // Create a new document reference with an auto-generated ID
+        const customRubricRef = doc(collection(db, "users", uid, "custom_rubrics"));
+        const generatedId = customRubricRef.id;
+        console.log("Generated ID:", generatedId);
 
-    try {
-      const customRubricRef = doc(db, "users", uid, "custom_rubrics", rubricId);
+        // Add the generated ID to the rubric object
+        const rubricWithId = { ...rubric, id: generatedId, timestamp: Timestamp.now() };
 
-      await deleteDoc(customRubricRef);
+        // Save the rubric to Firestore
+        await setDoc(customRubricRef, rubricWithId);
 
-      set((state) => {
-        const updatedRubricOptions = state.rubricOptions.filter((rubric) => rubric.id !== rubricId);
-        const updatedFilteredRubrics = state.filteredRubrics.filter((rubric) => rubric.id !== rubricId);
-        const selectedRubric = state.selectedRubric?.id === rubricId ? null : state.selectedRubric;
+        // Update the local state
+        set((state) => ({
+          rubricOptions: [...state.rubricOptions, rubricWithId],
+          filteredRubrics: state.useCustomRubrics ? [...state.filteredRubrics, rubricWithId] : state.filteredRubrics,
+        }));
 
-        return {
-          rubricOptions: updatedRubricOptions,
-          filteredRubrics: updatedFilteredRubrics,
-          selectedRubric,
-          gradingData: {
-            ...state.gradingData,
-            rubric: selectedRubric,
-          },
+        console.log("Rubric created successfully with ID:", generatedId);
+      } catch (error) {
+        console.error("Failed to add rubric to Firebase:", error);
+        throw error; // Rethrow if needed for error handling in components
+      }
+    },
+
+    // Update an existing custom rubric in Firebase and local state
+    updateCustomRubric: async (rubricId: string, updatedRubric: Partial<RubricState>) => {
+      const { uid } = useAuthStore.getState();
+      if (!uid) {
+        console.error("User ID is required to update a custom rubric.");
+        return;
+      }
+
+      try {
+        const customRubricRef = doc(db, "users", uid, "custom_rubrics", rubricId);
+
+        // Ensure that the updatedRubric object has the correct structure
+        const sanitizedUpdatedRubric: Partial<RubricState> = {
+          name: updatedRubric.name,
+          description: updatedRubric.description,
+          type: updatedRubric.type,
+          criteria: updatedRubric.criteria,
+          // Add any other fields that should be updated
         };
-      });
-    } catch (error) {
-      console.error("Failed to delete rubric from Firebase:", error);
-      throw error;
-    }
-  },
-}));
+        // Type guard to check if the rubric type is valid
+        const isValidRubricType = (type: RubricType): type is RubricState['type'] => {
+          return Object.values(RubricType).includes(type);
+        };
+
+        // Only include the type if it's valid
+        if (sanitizedUpdatedRubric.type && isValidRubricType(sanitizedUpdatedRubric.type)) {
+          (sanitizedUpdatedRubric as RubricState).type = sanitizedUpdatedRubric.type;
+        } else {
+          delete sanitizedUpdatedRubric.type;
+        }
+
+        // Update the document in Firebase
+        await updateDoc(customRubricRef, sanitizedUpdatedRubric);
+
+        set((state) => {
+          const updateRubric = (rubric: RubricState) =>
+            rubric.id === rubricId ? { ...rubric, ...sanitizedUpdatedRubric } : rubric;
+
+          const updatedRubricOptions = state.rubricOptions.map(updateRubric);
+          const updatedFilteredRubrics = state.filteredRubrics.map(updateRubric);
+          const selectedRubric = state.selectedRubric?.id === rubricId
+            ? { ...state.selectedRubric, ...sanitizedUpdatedRubric }
+            : state.selectedRubric;
+
+          return {
+            rubricOptions: updatedRubricOptions,
+            filteredRubrics: updatedFilteredRubrics,
+            selectedRubric,
+            gradingData: {
+              ...state.gradingData,
+              rubric: selectedRubric,
+            },
+          } as Partial<RubricStoreState>;
+        });
+      } catch (error) {
+        console.error("Failed to update rubric in Firebase:", error);
+        throw error;
+      }
+    },
+
+    // Delete a custom rubric from Firebase and local state
+    deleteCustomRubric: async (rubricId: string) => {
+      const { uid } = useAuthStore.getState();
+      if (!uid) {
+        console.error("User ID is required to add a custom rubric.");
+        return;
+      }
+
+      if (!rubricId) {
+        console.error("Rubric ID is required to delete a custom rubric.");
+        return;
+      }
+
+      try {
+        const customRubricRef = doc(db, "users", uid, "custom_rubrics", rubricId);
+
+        await deleteDoc(customRubricRef);
+
+        set((state) => {
+          const updatedRubricOptions = state.rubricOptions.filter((rubric) => rubric.id !== rubricId);
+          const updatedFilteredRubrics = state.filteredRubrics.filter((rubric) => rubric.id !== rubricId);
+          const selectedRubric = state.selectedRubric?.id === rubricId ? null : state.selectedRubric;
+
+          return {
+            rubricOptions: updatedRubricOptions,
+            filteredRubrics: updatedFilteredRubrics,
+            selectedRubric,
+            gradingData: {
+              ...state.gradingData,
+              rubric: selectedRubric,
+            },
+          };
+        });
+      } catch (error) {
+        console.error("Failed to delete rubric from Firebase:", error);
+        throw error;
+      }
+    },
+
+    // Initialize the store
+    initializeStore: () => {
+      const initialGradingData: GradingData = get().gradingData;
+      get().sortAndGroupRubrics('', initialGradingData);
+    },
+  };
+});
+// Call initializeStore after creating the store
+useRubricStore.getState().initializeStore();

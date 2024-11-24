@@ -115,8 +115,7 @@ export default function Rubrics() {
       <RubricSearch />
 
       {/* Custom Rubric Builder Modal */}
-      <div className={`bg-secondary p-2 absolute top-[54px] md:top-[90px] h-fit max-h-[84%] rounded-l-lg border-2 border-r-0 border-primary-40 left-2 right-0 scroll shadow-lg overflow-y-auto  
-                        ${showRubricBuilder ? 'animate-enter' : isExiting ? 'animate-exit' : 'hidden'}`}>
+      <div className={`bg-secondary p-2 absolute top-[54px] md:top-[90px] h-fit max-h-[84%] rounded-l-lg border-2 border-r-0 border-primary-40 left-2 right-0 scroll shadow-lg overflow-y-auto ${showRubricBuilder ? 'animate-enter' : isExiting ? 'animate-exit' : 'hidden'}`}>
         <RubricBuilder onClose={handleCloseRubricBuilder} />
       </div>
 

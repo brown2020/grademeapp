@@ -14,65 +14,26 @@ export default function RubricSearch() {
     selectedRubric,
     setSelectedRubric,
     filteredRubrics,
-    setFilteredRubrics,
     useCustomRubrics,
     customRubricsLoaded,
     setEditingRubricId,
     setShowRubricBuilder,
     setShowDeleteModal,
     setRubricToDelete,
+    sortAndGroupRubrics,
   } = useRubricStore();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const previousSelectedRubric = useRef<RubricState | null>(null); // Track previous selectedRubric
+  const previousSelectedRubric = useRef<RubricState | null>(null);
   const profile = useProfileStore((state) => state.profile);
   const addFavoriteRubric = useProfileStore((state) => state.addFavoriteRubric);
   const removeFavoriteRubric = useProfileStore((state) => state.removeFavoriteRubric);
 
   useEffect(() => {
-    let filtered = rubricOptions;
+    sortAndGroupRubrics(searchQuery, gradingData);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery, rubricOptions, gradingData.textType, profile.identity, profile.identityLevel, profile.favoriteRubrics]);
 
-    if (searchQuery) {
-      const lowerCaseQuery = searchQuery.toLowerCase();
-      filtered = rubricOptions.filter((rubric) =>
-        rubric.name.toLowerCase().includes(lowerCaseQuery) ||
-        rubric.description?.toLowerCase().includes(lowerCaseQuery)
-      );
-    }
-
-    // Sort according to favorites, identityLevel, textType, and then everything else
-    filtered = filtered.sort((a, b) => {
-      const aIsFavorite = profile.favoriteRubrics.includes(a.id);
-      const bIsFavorite = profile.favoriteRubrics.includes(b.id);
-
-      // Priority 1: Favorites
-      if (aIsFavorite !== bIsFavorite) return aIsFavorite ? -1 : 1;
-
-      // Priority 2: identityLevel match
-      const identityLevelMatchA = a.name.toLowerCase().includes((profile.identityLevel ?? '').toLowerCase());
-      const identityLevelMatchB = b.name.toLowerCase().includes((profile.identityLevel ?? '').toLowerCase());
-      if (identityLevelMatchA !== identityLevelMatchB) return identityLevelMatchA ? -1 : 1;
-
-      // Priority 3: textType match
-      const textTypeMatchA = a.name.toLowerCase().includes(gradingData.textType.toLowerCase());
-      const textTypeMatchB = b.name.toLowerCase().includes(gradingData.textType.toLowerCase());
-      if (textTypeMatchA !== textTypeMatchB) return textTypeMatchA ? -1 : 1;
-
-      // If all else is equal, keep the current order
-      return 0;
-    });
-
-    setFilteredRubrics(filtered);
-
-  }, [
-    gradingData,
-    rubricOptions,
-    searchQuery,
-    setFilteredRubrics,
-    useCustomRubrics,
-    profile.identityLevel,
-    profile.favoriteRubrics
-  ]);
 
   const handleRubricSelect = (rubric: RubricState) => {
     previousSelectedRubric.current = selectedRubric;
