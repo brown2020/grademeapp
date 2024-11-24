@@ -19,7 +19,7 @@ export default function BottomBar() {
   }
 
   return (
-    <div className="flex items-center z-20 h-16 px-4 border-t border-primary-40 justify-between md:hidden text-slate-900 absolute right-0 left-0 bottom-0">
+    <div className="flex items-center z-20 h-16 px-4 border-t border-primary-40 bg-secondary-97 justify-between md:hidden text-slate-900 absolute right-0 left-0 bottom-0">
       <div
         className="flex items-center cursor-pointer"
         onClick={() => {

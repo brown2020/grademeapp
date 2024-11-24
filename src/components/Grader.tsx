@@ -170,7 +170,7 @@ export default function Grader() {
   }, [response, flagged, thinking, uploading]);
 
   return (
-    <main className="flex flex-col gap-y-4">
+    <main className="flex flex-col gap-y-4 pb-10 md:pb-0">
       <div>
         <div className="flex gap-x-1 items-center">
           <GraderTour />
@@ -185,16 +185,10 @@ export default function Grader() {
         </div>
         <div
           onClick={() => router.push("/rubrics")}
-          className="jr-active-rubric text-sm font-semibold p-2 bg-primary-90 text-center shadow-sm rounded-lg cursor-pointer"
+          className="place-self-center md:place-self-start w-fit border border-primary-40 text-sm font-semibold p-2 bg-primary-90 text-center shadow-sm rounded-lg cursor-pointer"
         >
           {selectedRubric?.name ? selectedRubric.name : "Select a rubric"}
         </div>
-        {/* <div className="flex gap-x-4 justify-between md:justify-start ">
-          <CustomButton onClick={() => setTimeout(() => router.push("/rubrics"), 300)} className="btn btn-shiny btn-shiny-green w-fit jr-explore-rubrics">
-            <FileSearch />
-            <p>Explore Rubrics</p>
-          </CustomButton>
-        </div> */}
       </section>
       <section className="flex flex-col gap-y-4">
         <form className="flex flex-col gap-y-4" onSubmit={handleSubmit}>
