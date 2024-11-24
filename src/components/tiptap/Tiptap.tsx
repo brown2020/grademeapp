@@ -1,6 +1,7 @@
 'use client'
 import { useEditor, EditorContent, BubbleMenu } from '@tiptap/react'
 import { mergeAttributes } from '@tiptap/core'
+// import { Fragment, Node as ProseMirrorNode } from 'prosemirror-model'
 import HardBreak from "@tiptap/extension-hard-break"
 import Document from '@tiptap/extension-document'
 import Heading from '@tiptap/extension-heading'
@@ -81,15 +82,57 @@ const Tiptap = ({ wordLimit, wordLimitType, editorContent, onChange }: TiptapPro
     ],
     immediatelyRender: false,
     editorProps: {
-      handlePaste(view, event) {
-        const text = event.clipboardData?.getData("text/plain");
+      handlePaste: (view, event) => {
+        const text = event.clipboardData?.getData('text/plain')
         if (text) {
-          const formattedText = text.replace(/\n/g, "<br>");
-          view.dispatch(view.state.tr.insertText(formattedText));
-          event.preventDefault();
-          return true;
+          event.preventDefault()
+
+          const { tr, doc } = view.state
+          const { from, to, $from } = view.state.selection
+
+          // Corrected regex without capturing group
+          const paragraphs = text.split(/\r?\n{2,}/).filter(p => p.trim() !== '')
+
+          let insertPos = from
+
+          // Check if the document only contains an empty paragraph
+          const isEmptyDocument = doc.content.childCount === 1 &&
+            doc.content.firstChild?.type.name === 'paragraph' &&
+            doc.content.firstChild.content.size === 0
+
+          // Check if the selection is inside an empty paragraph
+          const isInEmptyParagraph = $from.parent.type.name === 'paragraph' && $from.parent.content.size === 0
+
+          if (isEmptyDocument) {
+            tr.delete(0, doc.content.size)
+            insertPos = 0
+          } else if (isInEmptyParagraph) {
+            tr.deleteRange($from.start(), $from.end())
+            insertPos = $from.start()
+          } else {
+            tr.deleteRange(from, to)
+            insertPos = from
+          }
+
+          paragraphs.forEach((paragraph) => {
+            // Trim leading/trailing whitespace but keep internal spaces and line breaks
+            const trimmedParagraph = paragraph.trim().replace(/\r?\n/g, ' ')
+
+            // Create a paragraph node with the text content
+            const node = view.state.schema.nodes.paragraph.create(
+              undefined,
+              view.state.schema.text(trimmedParagraph)
+            )
+
+            // Insert the paragraph node
+            tr.insert(insertPos, node)
+            insertPos += node.nodeSize
+          })
+
+          view.dispatch(tr)
+          return true
         }
-        return false;
+        return false
       },
       attributes: {
         class:
