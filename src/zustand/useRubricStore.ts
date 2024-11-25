@@ -294,9 +294,7 @@ export const useRubricStore = create<RubricStoreState>((set, get) => {
         const sanitizedUpdatedRubric: Partial<RubricState> = {
           name: updatedRubric.name,
           description: updatedRubric.description,
-          type: updatedRubric.type,
           criteria: updatedRubric.criteria,
-          // Add any other fields that should be updated
         };
         // Type guard to check if the rubric type is valid
         const isValidRubricType = (type: RubricType): type is RubricState['type'] => {

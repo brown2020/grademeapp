@@ -95,7 +95,12 @@ export enum RubricType {
 }
 
 // Union type for all possible rubric state types
-export type RubricState = BaseRubric;
+export type RubricState =
+  | HolisticRubric
+  | AnalyticalRubric
+  | SinglePointRubric
+  | ChecklistRubric
+  | OtherRubricType;
 
 
 /**

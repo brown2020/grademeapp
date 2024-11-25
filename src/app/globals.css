@@ -63,10 +63,6 @@
 
 @layer components {
 
-  /* .spellcheck-error {
-      @apply underline decoration-red-500 decoration-wavy;
-    } */
-
   .markdown p,
   li {
     margin: 0;
