@@ -165,5 +165,23 @@ const config: Config = {
     require('tailwindcss-animate'),
     require('@tailwindcss/typography'),
   ],
+  safelist: [
+    'underline',
+    'decoration-red-500',
+    'decoration-wavy',
+    'absolute',
+    'bg-white',
+    'border',
+    'border-gray-300',
+    'rounded',
+    'shadow-lg',
+    'z-50',
+    'p-2',
+    'cursor-pointer',
+    'hover:bg-gray-100',
+    'text-gray-500',
+    'text-xs',
+    'font-medium',
+  ],
 };
 export default config;

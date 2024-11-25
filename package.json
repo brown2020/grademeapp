@@ -46,6 +46,7 @@
     "mammoth": "^1.8.0",
     "next": "^14.2.13",
     "node-html-parser": "^6.1.13",
+    "nspell": "^2.1.5",
     "officeparser": "^5.0.0",
     "pdf2json": "^3.1.4",
     "react": "^18",
@@ -68,13 +69,16 @@
   "devDependencies": {
     "@types/lodash": "^4.17.9",
     "@types/node": "^22.7.4",
+    "@types/nspell": "^2.1.6",
     "@types/pdf-parse": "^1.1.4",
     "@types/react": "^18.3.10",
     "@types/react-dom": "^18",
+    "@types/typo-js": "^1.2.2",
     "@types/uuid": "^10.0.0",
     "eslint": "^8.57.1",
     "eslint-config-next": "^14.2.13",
     "postcss": "^8.4.47",
+    "raw-loader": "^4.0.2",
     "tailwindcss": "^3.4.13",
     "typescript": "^5.6.2"
   }

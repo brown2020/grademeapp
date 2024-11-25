@@ -1,7 +1,6 @@
 'use client'
 import { useEditor, EditorContent, BubbleMenu } from '@tiptap/react'
 import { mergeAttributes } from '@tiptap/core'
-// import { Fragment, Node as ProseMirrorNode } from 'prosemirror-model'
 import HardBreak from "@tiptap/extension-hard-break"
 import Document from '@tiptap/extension-document'
 import Heading from '@tiptap/extension-heading'
@@ -21,6 +20,8 @@ import { HeadingIcon, List, ListOrdered, AlignLeftIcon, AlignCenterIcon, AlignRi
 import { useEffect } from 'react'
 import { Popover, PopoverPanel, PopoverButton } from '@headlessui/react'
 import FontFamilyDropdown from '@/components/menus/TextMenu/components/FontFamilyDropdown'
+import BubbleMenuContent from './extensions/BubbleMenuContent'
+import { Spellcheck } from './extensions/Spellcheck'
 
 interface TiptapProps {
   wordLimit: string;
@@ -71,6 +72,7 @@ const Tiptap = ({ wordLimit, wordLimitType, editorContent, onChange }: TiptapPro
       }),
       TextStyle,
       FontFamily,
+      Spellcheck,
       CharacterCount.configure({
         wordCounter: (text) => text.split(/\s+/).filter((word) => word !== '').length,
       }),
@@ -295,39 +297,16 @@ const Tiptap = ({ wordLimit, wordLimitType, editorContent, onChange }: TiptapPro
         </Popover>
       </div>
 
-      <BubbleMenu editor={editor} tippyOptions={{ duration: 100 }}>
-        <div className="bubble-menu">
-          {/* Bold Button */}
-          <button
-            type="button"
-            onClick={() => editor.chain().focus().toggleBold().run()}
-            className={`size-8 rounded ${editor.isActive("bold") ? "is-active bg-gray-300" : ""
-              }`}
-            title="Bold (Ctrl+B)"
-          >
-            <b>b</b>
-          </button>
-          {/* Italic Button */}
-          <button
-            type="button"
-            onClick={() => editor.chain().focus().toggleItalic().run()}
-            className={`size-8 rounded ${editor.isActive("italic") ? "is-active bg-gray-300" : ""
-              }`}
-            title="Italic (Ctrl+I)"
-          >
-            <i>i</i>
-          </button>
-          {/* Underline Button */}
-          <button
-            type="button"
-            onClick={() => editor.chain().focus().toggleUnderline().run()}
-            className={`size-8 rounded ${editor.isActive("underline") ? "is-active bg-gray-300" : ""
-              }`}
-            title="Underline (Ctrl+U)"
-          >
-            <u>u</u>
-          </button>
-        </div>
+      <BubbleMenu
+        editor={editor}
+        tippyOptions={{ duration: 100 }}
+        shouldShow={({ state }) => {
+          const { from, to, empty } = state.selection
+          return !empty && from !== to
+        }}
+        className='bg-secondary-90 px-3 py-1 rounded-xl shadow-lg'
+      >
+        <BubbleMenuContent editor={editor} />
       </BubbleMenu>
       {/* Editor Content */}
       <EditorContent className='' editor={editor} />
