@@ -14,7 +14,6 @@ import { useParams } from "next/navigation";
 import { generateGrade } from "@/actions/generateResponse";
 import { readStreamableValue } from "ai/rsc";
 import ReactMarkdown from "react-markdown";
-import { PulseLoader } from "react-spinners";
 import { correctGrammarAndSpelling } from "@/actions/correctGrammarSpelling";
 import { extractGrade } from "@/utils/responseParser";
 import { updateDocument } from "@/utils/saveHistory";
@@ -358,16 +357,19 @@ const Document = () => {
 
           {thinking && !summary && !flagged && (
             <div id="thinking" className="p-5">
-              <PulseLoader color="orange" size={20} loading={thinking} />
+              <Image alt={"grademe logo"} src={grademe} width={100} height={100} className=" animate-bounce duration-1000 place-self-center" />
             </div>
           )}
 
           {flagged && <h3 id="flagged">{flagged}</h3>}
 
           {!flagged && summary && (
-            <div id="response" className="px-5 py-2 shadow-lg bg-secondary-95 rounded-md h-[33vh] overflow-y-scroll">
-              {/* Render Markdown content with custom styling */}
-              <ReactMarkdown className="markdown">{summary}</ReactMarkdown>
+            <div id="response" className="px-5 py-2 shadow-lg bg-secondary-90 rounded-md">
+              <div className="flex gap-x-2 items-center justify-center">
+                <Image alt={"grademe logo"} src={grademe} width={40} height={40} className="size-14" />
+                <h2 className="text-2xl text-center text-primary-10 font-medium">Grade.me Report</h2>
+              </div>
+              <ReactMarkdown>{summary}</ReactMarkdown>
             </div>
           )}
         </form>

@@ -11,12 +11,27 @@ import {
 } from '@/types/rubrics-types';
 
 
-export default function RubricDisplay({ rubric }: { rubric: RubricState }) {
+export default function RubricDisplay({ rubric }: { rubric: RubricState | null }) {
+  if (!rubric) {
+    return (
+      <div className="w-full h-52 max-h-52 bg-secondary-97 rounded-md border border-dashed border-primary-30 rubric-criteria">
+        <div className="flex flex-col p-1 rounded-md text-primary-20">
+          <h2 className="text-left font-medium pl-2 pb-1">Rubric Criteria</h2>
+          <div className="p-1 rounded-sm">
+            <div className="mt-2 p-1 text-xs border-l-2 border-primary-40 h-40 max-h-40 overflow-auto">
+              No rubric available
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full h-52 max-h-52 bg-secondary-97 rounded-md border border-dashed border-primary-30 rubric-criteria">
       <div className="flex flex-col p-1 rounded-md text-primary-20">
         <h2 className="text-left font-medium pl-2 pb-1">Rubric Criteria</h2>
-        <div className=" p-1 rounded-sm">
+        <div className="p-1 rounded-sm">
           <div className="mt-2 p-1 text-xs border-l-2 border-primary-40 h-40 max-h-40 overflow-auto">
             {renderRubricCriteria(rubric)}
           </div>

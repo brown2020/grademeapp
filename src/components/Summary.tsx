@@ -68,7 +68,7 @@ const Summary = () => {
     return <div>Summary not found</div>;
   }
 
-  // console.log(summary);
+  console.log(summary);
 
   return (
     <div className="flex flex-col gap-y-4 p-1 max-w-2xl mx-auto">

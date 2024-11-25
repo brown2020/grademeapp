@@ -4,7 +4,7 @@ import useProfileStore from "@/zustand/useProfileStore";
 import { useCallback, useEffect, useState } from "react";
 import { isIOSReactNativeWebView } from "@/utils/platform"; // Import the platform detection
 import { usePaymentsStore } from "@/zustand/usePaymentsStore";
-import DeleteConfirmModal from "./DeleteConfirmModal";
+import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import { signOut } from "firebase/auth";
 import { auth } from "@/firebase/firebaseClient";
@@ -201,10 +201,13 @@ export default function ProfileComponent() {
         </select>
       </div>
 
-      <DeleteConfirmModal
-        showDeleteModal={showDeleteModal}
-        onHideModal={() => setShowDeleteModal(false)}
-        onDeleteConfirm={onDeleteConfirm}
+      <DeleteConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={onDeleteConfirm}
+        title="Confirm Account Deletion"
+        description="Are you sure you want to delete your account? This action cannot be undone and will result in the permanent loss of all your data."
+        confirmText="DELETE ACCOUNT"
       />
     </div>
   );

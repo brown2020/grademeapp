@@ -12,7 +12,7 @@ import RubricBuilder from "@/components/rubrics/RubricBuilder";
 import RubricSearch from "@/components/rubrics/RubricSearch";
 import RubricHelper from "@/components/rubrics/RubricHelper";
 import CustomButton from "@/components/ui/CustomButton";
-import DeleteConfirmationModal from "@/components/rubrics/DeleteConfirmationModal";
+// import DeleteConfirmationModal from "@/components/rubrics/DeleteConfirmationModal";
 import RubricsTour from "@/components/tours/RubricsTour"
 
 export default function Rubrics() {
@@ -119,7 +119,7 @@ export default function Rubrics() {
         <RubricBuilder onClose={handleCloseRubricBuilder} />
       </div>
 
-      <DeleteConfirmationModal />
+      {/* <DeleteConfirmationModal /> */}
     </div>
   );
 }

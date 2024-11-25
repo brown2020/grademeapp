@@ -20,9 +20,9 @@ interface RubricStoreState {
   editingRubricId?: string;
   activeRubric: RubricState | null;
   showDeleteModal: boolean;
-  rubricToDelete: string | null;
+  rubricToDelete: RubricState | null;
   setShowDeleteModal: (show: boolean) => void;
-  setRubricToDelete: (id: string | null) => void;
+  setRubricToDelete: (type: RubricState | null) => void;
   createNewRubric: (type: RubricType) => void;
   clearActiveRubric: () => void;
   setActiveRubric: (rubric: RubricState | null) => void;
@@ -38,7 +38,7 @@ interface RubricStoreState {
   resetToDefaultRubrics: () => void;
   addCustomRubric: (rubric: RubricState) => void;
   updateCustomRubric: (rubricId: string, updatedRubric: Partial<RubricState>) => void;
-  deleteCustomRubric: (rubricId: string) => void;
+  deleteCustomRubric: () => void;
   sortAndGroupRubrics: (searchQuery: string, gradingData: GradingData) => void;
   initializeStore: () => void;
 }
@@ -186,7 +186,7 @@ export const useRubricStore = create<RubricStoreState>((set, get) => {
     showDeleteModal: false,
     rubricToDelete: null,
     setShowDeleteModal: (show: boolean) => set({ showDeleteModal: show }),
-    setRubricToDelete: (id: string | null) => set({ rubricToDelete: id }),
+    setRubricToDelete: (rubric: RubricState | null) => set({ rubricToDelete: rubric }),
     setUseCustomRubrics: async (useCustomRubrics: boolean) => {
       const { uid } = useAuthStore.getState();
       if (!uid) {
@@ -338,27 +338,30 @@ export const useRubricStore = create<RubricStoreState>((set, get) => {
     },
 
     // Delete a custom rubric from Firebase and local state
-    deleteCustomRubric: async (rubricId: string) => {
+    deleteCustomRubric: async () => {
       const { uid } = useAuthStore.getState();
       if (!uid) {
         console.error("User ID is required to add a custom rubric.");
         return;
       }
 
-      if (!rubricId) {
+      const rubricToDelete = get().rubricToDelete;
+      if (!rubricToDelete?.id) {
         console.error("Rubric ID is required to delete a custom rubric.");
         return;
       }
 
+      console.log("Deleting custom rubric with ID:", rubricToDelete.id);
+
       try {
-        const customRubricRef = doc(db, "users", uid, "custom_rubrics", rubricId);
+        const customRubricRef = doc(db, "users", uid, "custom_rubrics", rubricToDelete.id);
 
         await deleteDoc(customRubricRef);
 
         set((state) => {
-          const updatedRubricOptions = state.rubricOptions.filter((rubric) => rubric.id !== rubricId);
-          const updatedFilteredRubrics = state.filteredRubrics.filter((rubric) => rubric.id !== rubricId);
-          const selectedRubric = state.selectedRubric?.id === rubricId ? null : state.selectedRubric;
+          const updatedRubricOptions = state.rubricOptions.filter((rubric) => rubric.id !== rubricToDelete.id);
+          const updatedFilteredRubrics = state.filteredRubrics.filter((rubric) => rubric.id !== rubricToDelete.id);
+          const selectedRubric = state.selectedRubric?.id === rubricToDelete.id ? null : state.selectedRubric;
 
           return {
             rubricOptions: updatedRubricOptions,

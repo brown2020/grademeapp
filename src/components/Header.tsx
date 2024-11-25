@@ -69,6 +69,7 @@ export default function Header() {
       alert("An error occurred while signing out.");
     } finally {
       closeMenu();
+      router.push("/");
     }
   };
 
@@ -170,6 +171,7 @@ export default function Header() {
             <li
               className="profile-link-mobile flex justify-start items-end md:flex-col md:items-end gap-x-2 md:gap-y-1 border-b border-primary-40 pb-2"
               onClick={() => {
+                closeMenu();
                 setTimeout(() => router.push('/profile'), 100);
               }}
             >

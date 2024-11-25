@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useCallback, useState, useEffect, FormEvent } from "react";
@@ -7,7 +6,6 @@ import { storage } from "@/firebase/firebaseClient";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import useProfileStore from "@/zustand/useProfileStore";
-import { PulseLoader } from "react-spinners";
 import { generateGrade } from "@/actions/generateResponse";
 import { parseDocumentFromUrl } from "@/actions/parseDocumentFromUrl";
 import { readStreamableValue } from "ai/rsc";
@@ -15,7 +13,7 @@ import ReactMarkdown from "react-markdown";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
-import { FileSearch, Paperclip, RefreshCwIcon } from "lucide-react"
+import { Paperclip, RefreshCwIcon } from "lucide-react"
 import { extractGrade } from "@/utils/responseParser";
 import { saveDocument } from "@/utils/saveHistory";
 import { useRubricStore } from "@/zustand/useRubricStore";
@@ -100,7 +98,8 @@ export default function Grader() {
     setHasSaved(false);
 
     // convert rubric to string
-    const rubricString = JSON.stringify(gradingData.rubric);
+    const rubricString = JSON.stringify(selectedRubric);
+    setGradingData({ rubric: selectedRubric });
 
     try {
       const { result, creditsUsed } = await generateGrade(
@@ -227,9 +226,9 @@ export default function Grader() {
               id="grademe"
               onClick={handleSubmit}
               disabled={!active || uploading}
-              className={`btn btn-shiny border-2 border-primary-40 rounded-full size-16 p-1 grader-grademe-button ${!active ? "cursor-not-allowed" : ""}`}
+              className={`btn btn-shiny border-2 border-primary-40 rounded-full size-16 p-2 grader-grademe-button ${!active ? "cursor-not-allowed" : ""}`}
             >
-              <Image alt={"grademe logo"} src={grademe} width={50} height={50} className="bg-secondary-97 rounded-full p-1 size-16" />
+              <Image alt={"grademe logo"} src={grademe} width={40} height={40} className="bg-secondary-97 rounded-full p-1 size-14" />
             </button>
             {/* File Upload */}
             <div
@@ -264,10 +263,16 @@ export default function Grader() {
             </CustomButton>
           </section>
         </form>
-        {thinking && <PulseLoader id="thinking" color="orange" size={20} />}
+
+        {thinking && <Image alt={"grademe logo"} src={grademe} width={100} height={100} className=" animate-bounce duration-1000 place-self-center" />}
 
         {response && (
-          <div id="response" className="px-5 py-2 shadow-lg bg-blue-500/20 rounded-md">
+          <div id="response" className="px-5 py-2 shadow-lg bg-secondary-90 rounded-md">
+            <div className="flex gap-x-2 items-center justify-center">
+              <Image alt={"grademe logo"} src={grademe} width={40} height={40} className="size-14" />
+              <h2 className="text-2xl text-center text-primary-10 font-medium">Grade.me Report</h2>
+            </div>
+
             <ReactMarkdown>{response}</ReactMarkdown>
           </div>
         )}

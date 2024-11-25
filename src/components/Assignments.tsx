@@ -23,6 +23,7 @@ import { UserHistoryType } from "@/types/user-history";
 import { useRouter } from "next/navigation";
 import CustomButton from "./ui/CustomButton";
 import AssignmentsTour from "@/components/tours/AssignmentsTour";
+import DeleteConfirmationModal from "./DeleteConfirmationModal";
 
 interface DebounceFunction {
   (func: (value: string) => void, delay: number): (value: string) => void;
@@ -58,6 +59,8 @@ export default function Assignments() {
   const [search, setSearch] = useState<string>("");
   const [lastKey, setLastKey] = useState<Timestamp | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [assignmentToDelete, setAssignmentToDelete] = useState<{ id: string; title: string } | null>(null);
   const router = useRouter();
 
   const orderedSummaries = summaries
@@ -74,30 +77,27 @@ export default function Assignments() {
 
   const handleSearchChange = debounce((value: string) => setSearch(value), 300);
 
-  const handleDelete = async (e: React.MouseEvent<SVGElement>) => {
-    const summaryId = e.currentTarget.getAttribute("data-summary-id");
+  const handleDeleteClick = (summaryId: string, title: string) => {
+    setAssignmentToDelete({ id: summaryId, title });
+    setIsDeleteModalOpen(true);
+  };
 
-    if (!uid || !summaryId) {
-      throw new Error("User ID or summary ID is missing");
+  const handleDeleteConfirm = async () => {
+    if (!uid || !assignmentToDelete) {
+      throw new Error("User ID or assignment to delete is missing");
     }
 
     try {
-      // Get a reference to the specific document in the summaries subcollection
-      const summaryDocRef = doc(db, "users", uid, "summaries", summaryId);
-
-      // Delete the document
+      const summaryDocRef = doc(db, "users", uid, "summaries", assignmentToDelete.id);
       await deleteDoc(summaryDocRef);
-
-      // Update the state to remove the deleted summary
-      setSummaries((prev) =>
-        prev.filter((summary) => summary.id !== summaryId)
-      );
-      toast.success("Document deleted successfully");
-      return true;
+      setSummaries((prev) => prev.filter((summary) => summary.id !== assignmentToDelete.id));
+      toast.success("Assignment deleted successfully");
     } catch (error) {
-      toast.error("An error occurred while deleting the summary");
+      toast.error("An error occurred while deleting the assignment");
       console.error("Error deleting document:", error);
-      return false;
+    } finally {
+      setIsDeleteModalOpen(false);
+      setAssignmentToDelete(null);
     }
   };
 
@@ -219,7 +219,7 @@ export default function Assignments() {
                   <XCircle
                     size={20}
                     className="flex ml-auto text-red-600 cursor-pointer assignments-delete"
-                    onClick={handleDelete}
+                    onClick={() => handleDeleteClick(summary.id, summary.userInput?.title ?? "Untitled Assignment")}
                     data-summary-id={summary.id}
                   />
                 </div>
@@ -258,6 +258,15 @@ export default function Assignments() {
           Load More
         </button>
       )}
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        title="Confirm Assignment Deletion"
+        description="Are you sure you want to delete this assignment? This action cannot be undone."
+        confirmText="Delete assignment"
+        itemName={assignmentToDelete?.title}
+      />
     </div>
   );
 }
