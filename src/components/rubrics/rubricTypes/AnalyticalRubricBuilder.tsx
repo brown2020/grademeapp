@@ -51,9 +51,9 @@ const AnalyticalRubricBuilder: React.FC<AnalyticalRubricBuilderProps> = ({
 
   useEffect(() => {
     if (rubric && rubric.type === RubricType.Analytical) {
-      const criteriaArray = Object.entries(rubric.criteria).map(([key, criterion], index) => ({
+      const criteriaArray = Object.entries(rubric.criteria).map(([_key, criterion], index) => ({
         id: `criterion-${index + 1}`,
-        name: key,
+        name: _key,
         Excellent: typeof criterion === 'object' && 'Excellent' in criterion ? String(criterion.Excellent) : '',
         Proficient: typeof criterion === 'object' && 'Proficient' in criterion ? String(criterion.Proficient) : '',
         Developing: typeof criterion === 'object' && 'Developing' in criterion ? String(criterion.Developing) : '',
@@ -99,7 +99,7 @@ const AnalyticalRubricBuilder: React.FC<AnalyticalRubricBuilderProps> = ({
     }
 
     const updatedCriteria = updatedSavedCriteria.reduce((acc, criterion) => {
-      acc[criterion.id] = {
+      acc[criterion.name] = {
         Excellent: criterion.Excellent,
         Proficient: criterion.Proficient,
         Developing: criterion.Developing,
@@ -110,9 +110,6 @@ const AnalyticalRubricBuilder: React.FC<AnalyticalRubricBuilderProps> = ({
 
     onChange({ ...rubric, criteria: updatedCriteria });
     setSavedCriteria(updatedSavedCriteria);
-
-    console.log('Updated Criteria:', updatedSavedCriteria);
-
     setCurrentCriterion({ id: '', name: '', Excellent: '', Proficient: '', Developing: '', Beginning: '' });
     setIsEditing(false);
     toast.success(`Criterion ${isEditing ? 'updated' : 'added'} successfully.`);

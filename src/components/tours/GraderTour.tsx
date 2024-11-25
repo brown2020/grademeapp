@@ -69,21 +69,27 @@ export default function GraderTour() {
         placement: 'top' as Placement,
       },
       {
-        target: '.grader-file-upload',
-        content: 'If you prefer, you can upload your assignment as a file. Supported formats include docx, pdf, odt, rtf, and txt.',
-        title: 'File Upload',
-        placement: 'top' as Placement,
-      },
-      {
         target: '.grader-grademe-button',
         content: 'Once you\'ve entered your assignment, click here to submit it for grading.',
         title: 'Grade Me',
         placement: 'top' as Placement,
       },
       {
+        target: '.grader-file-upload',
+        content: 'If you prefer, you can upload your assignment as a file. Supported formats include docx, pdf, odt, rtf, and txt.',
+        title: 'File Upload',
+        placement: 'top' as Placement,
+      },
+      {
         target: '.grader-reset-button',
         content: 'Use this button to clear the title and text fields if you want to start over.',
         title: 'Reset',
+        placement: 'top' as Placement,
+      },
+      {
+        target: '.grader-settings',
+        content: 'You can set the topic, assigner, text type, prose type, audience and word limit here. While not required, these settings can help the grader provide more accurate feedback.',
+        title: 'Settings',
         placement: 'top' as Placement,
       },
     ].map((step, index) => ({

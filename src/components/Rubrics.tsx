@@ -12,7 +12,7 @@ import RubricBuilder from "@/components/rubrics/RubricBuilder";
 import RubricSearch from "@/components/rubrics/RubricSearch";
 import RubricHelper from "@/components/rubrics/RubricHelper";
 import CustomButton from "@/components/ui/CustomButton";
-// import DeleteConfirmationModal from "@/components/rubrics/DeleteConfirmationModal";
+import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 import RubricsTour from "@/components/tours/RubricsTour"
 
 export default function Rubrics() {
@@ -26,6 +26,11 @@ export default function Rubrics() {
     showRubricBuilder,
     setShowRubricBuilder,
     setEditingRubricId,
+    showDeleteModal,
+    setShowDeleteModal,
+    rubricToDelete,
+    setRubricToDelete,
+    deleteCustomRubric,
   } = useRubricStore();
   const [isExiting, setIsExiting] = useState<boolean>(false);
   const [showTooltip, setShowTooltip] = useState<boolean>(false);
@@ -53,6 +58,22 @@ export default function Rubrics() {
       setIsExiting(false);
       setEditingRubricId(undefined);
     }, 150);
+  };
+
+  const onDeleteConfirm = async () => {
+    if (rubricToDelete) {
+      console.log("onDeleteConfirm", rubricToDelete);
+      try {
+        await deleteCustomRubric();
+        toast.success("Rubric deleted successfully");
+      } catch (error) {
+        console.error("Error deleting rubric:", error);
+        toast.error("Failed to delete rubric. Please try again.");
+      } finally {
+        setShowDeleteModal(false);
+        setRubricToDelete(null);
+      }
+    }
   };
 
   return (
@@ -119,7 +140,15 @@ export default function Rubrics() {
         <RubricBuilder onClose={handleCloseRubricBuilder} />
       </div>
 
-      {/* <DeleteConfirmationModal /> */}
+      <DeleteConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={onDeleteConfirm}
+        title="Confirm Rubric Deletion"
+        description="Are you sure you want to delete this rubric? This action cannot be undone."
+        confirmText="Delete my rubric"
+        itemName={rubricToDelete?.name}
+      />
     </div>
   );
 }

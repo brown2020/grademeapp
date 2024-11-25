@@ -6,7 +6,6 @@ import { useRubricStore } from '@/zustand/useRubricStore';
 import useProfileStore from '@/zustand/useProfileStore';
 import { toast } from 'react-hot-toast';
 import { Star, Edit3Icon, DeleteIcon } from 'lucide-react';
-import DeleteConfirmationModal from '@/components/DeleteConfirmationModal';
 
 export default function RubricSearch() {
   const {
@@ -19,11 +18,8 @@ export default function RubricSearch() {
     customRubricsLoaded,
     setEditingRubricId,
     setShowRubricBuilder,
-    showDeleteModal,
     setShowDeleteModal,
-    rubricToDelete,
     setRubricToDelete,
-    deleteCustomRubric,
     sortAndGroupRubrics,
   } = useRubricStore();
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -76,21 +72,7 @@ export default function RubricSearch() {
     setShowDeleteModal(true);
   }
 
-  const onDeleteConfirm = async () => {
-    if (rubricToDelete) {
-      console.log("onDeleteConfirm", rubricToDelete);
-      try {
-        await deleteCustomRubric();
-        toast.success("Rubric deleted successfully");
-      } catch (error) {
-        console.error("Error deleting rubric:", error);
-        toast.error("Failed to delete rubric. Please try again.");
-      } finally {
-        setShowDeleteModal(false);
-        setRubricToDelete(null);
-      }
-    }
-  };
+
 
   return (
     <div ref={wrapperRef} className="relative w-full border border-secondary-30 rounded-lg">
@@ -147,15 +129,7 @@ export default function RubricSearch() {
           </div>
         )}
       </div>
-      <DeleteConfirmationModal
-        isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        onConfirm={onDeleteConfirm}
-        title="Confirm Rubric Deletion"
-        description="Are you sure you want to delete this rubric? This action cannot be undone."
-        confirmText="Delete my rubric"
-        itemName={rubricToDelete?.name}
-      />
+
     </div >
   );
 }

@@ -77,7 +77,7 @@ export default function RubricBuilder({ onClose }: {
 
   const handleDelete = useCallback(() => {
     if (activeRubric) {
-      setRubricToDelete(activeRubric.id);
+      setRubricToDelete(activeRubric);
       setShowDeleteModal(true);
     }
   }, [activeRubric, setRubricToDelete, setShowDeleteModal]);

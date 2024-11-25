@@ -22,6 +22,7 @@ import Tiptap from "@/components/tiptap/Tiptap";
 import Image from "next/image";
 import grademe from "@/app/assets/grademe.svg";
 import GraderTour from "@/components/tours/GraderTour";
+import GraderSettingsModal from "@/components/GraderSettingsModal";
 
 export default function Grader() {
   const { uid } = useAuthStore();
@@ -142,7 +143,7 @@ export default function Grader() {
         "No suggestions found. Servers might be overloaded right now."
       );
     }
-  }, [gradingData, profile.credits, minusCredits, profile.identity, profile.identityLevel]);
+  }, [gradingData, profile.credits, minusCredits, profile.identity, profile.identityLevel, selectedRubric, setGradingData]);
 
   // Effect to handle saving to history
   useEffect(() => {
@@ -228,7 +229,7 @@ export default function Grader() {
               disabled={!active || uploading}
               className={`btn btn-shiny border-2 border-primary-40 rounded-full size-16 p-2 grader-grademe-button ${!active ? "cursor-not-allowed" : ""}`}
             >
-              <Image alt={"grademe logo"} src={grademe} width={40} height={40} className="bg-secondary-97 rounded-full p-1 size-14" />
+              <Image alt={"grademe logo"} src={grademe} width={35} height={35} className="bg-secondary-97 rounded-full p-1 size-12" />
             </button>
             {/* File Upload */}
             <div
@@ -240,7 +241,7 @@ export default function Grader() {
                 className="cursor-pointer flex items-center justify-center peer"
                 onClick={(e) => e.stopPropagation()} // Prevent label click from propagating
               >
-                <Paperclip size={40} className="place-self-center place-items-center text-primary-30" />
+                <Paperclip size={35} className="place-self-center place-items-center text-primary-30" />
               </label>
               {/* Hidden file input */}
               <input
@@ -261,6 +262,7 @@ export default function Grader() {
               className="size-16 btn btn-shiny flex items-center bg-secondary-97 border-2 border-primary-40 rounded-full p-1.5 grader-reset-button">
               <RefreshCwIcon size={25} className="place-self-center place-items-center text-primary-30" />
             </CustomButton>
+            <GraderSettingsModal />
           </section>
         </form>
 
