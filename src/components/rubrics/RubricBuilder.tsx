@@ -42,13 +42,16 @@ export default function RubricBuilder({ onClose }: {
     initializeRubric();
   }, [initializeRubric]);
 
+
   const handleClose = useCallback(() => {
     clearActiveRubric();
     onClose();
-  }, [clearActiveRubric, onClose]);
+  }, [clearActiveRubric, onClose])
 
   const handleSaveOrUpdate = useCallback(() => {
-    if (!activeRubric) return;
+    if (!activeRubric) {
+      return;
+    }
 
     if (!activeRubric.name.trim() || !activeRubric.description?.trim()) {
       toast.error('Please provide a name and description for the rubric.');
@@ -67,9 +70,11 @@ export default function RubricBuilder({ onClose }: {
       addCustomRubric(activeRubric);
       toast.success('Rubric created successfully!');
     }
+
     setHasSaved(true);
+
     handleClose();
-  }, [activeRubric, editingRubricId, updateCustomRubric, addCustomRubric, handleClose]);
+  }, [activeRubric, editingRubricId, updateCustomRubric, addCustomRubric, handleClose])
 
   const handleRubricTypeChange = useCallback((type: RubricType) => {
     createNewRubric(type);
@@ -81,6 +86,11 @@ export default function RubricBuilder({ onClose }: {
       setShowDeleteModal(true);
     }
   }, [activeRubric, setRubricToDelete, setShowDeleteModal]);
+
+  const formatRubricType = (type: string) => {
+    // first replace underscore with a space, then replace the first char of each with its uppercase version
+    return type.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+  }
 
   if (!activeRubric) return null;
 
@@ -113,7 +123,7 @@ export default function RubricBuilder({ onClose }: {
             className="px-2 py-1 w-full rounded shadow-sm text-xs border border-primary-40"
           >
             {Object.values(RubricType).map((type) => (
-              <option key={type} value={type}>{type}</option>
+              <option key={type} value={type}>{formatRubricType(type)}</option>
             ))}
           </select>
         </div>
