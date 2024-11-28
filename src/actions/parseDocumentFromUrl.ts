@@ -4,7 +4,7 @@
 import mammoth from "mammoth";
 import PDFParser from "pdf2json";
 import { Buffer } from "buffer";
-import { extractTextFromPDF } from "@/utils/pdfFormatter";
+import { extractTextFromPDF } from "@/lib/utils/pdfFormatter";
 import rtfToHTML from "@iarna/rtf-to-html";
 import officeParser from "officeparser";
 

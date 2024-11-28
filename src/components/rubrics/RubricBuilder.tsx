@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import RubricTypeSelector from '@/components/rubrics/rubricTypes/RubricTypeSelector';
 import RubricTypeExplanation from '@/components/rubrics/rubricTypes/RubricTypeExplanation';
-import { RubricType } from '@/types/rubrics-types';
+import { RubricType } from '@/lib/types/rubrics-types';
 import { toast } from "react-hot-toast";
 import { Ban, Blocks, Save, XCircleIcon, DeleteIcon } from 'lucide-react';
 import CustomButton from '@/components/ui/CustomButton';

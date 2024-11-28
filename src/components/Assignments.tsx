@@ -19,7 +19,7 @@ import { toast } from "react-hot-toast";
 import { db } from "@/firebase/firebaseClient";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import { PlusCircle, Search, XCircle } from "lucide-react";
-import { UserHistoryType } from "@/types/user-history";
+import { UserHistoryType } from "@/lib/types/user-history";
 import { useRouter } from "next/navigation";
 import CustomButton from "./ui/CustomButton";
 import AssignmentsTour from "@/components/tours/AssignmentsTour";

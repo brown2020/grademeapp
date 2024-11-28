@@ -18,7 +18,7 @@ import { LockIcon, MailIcon, XIcon } from "lucide-react";
 import { PulseLoader } from "react-spinners";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import { auth } from "@/firebase/firebaseClient";
-import { isIOSReactNativeWebView } from "@/utils/platform";
+import { isIOSReactNativeWebView } from "@/lib/utils/platform";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 

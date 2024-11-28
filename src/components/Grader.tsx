@@ -14,17 +14,26 @@ import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
 import { Paperclip, RefreshCwIcon } from "lucide-react"
-import { extractGrade } from "@/utils/responseParser";
-import { saveDocument } from "@/utils/saveHistory";
+import { extractGrade } from "@/lib/utils/responseParser";
+import { saveDocument } from "@/lib/utils/saveHistory";
 import { useRubricStore } from "@/zustand/useRubricStore";
 import CustomButton from "@/components/ui/CustomButton";
 import Tiptap from "@/components/tiptap/Tiptap";
 import Image from "next/image";
+import grader from "@/app/assets/grader_2.svg";
 import grademe from "@/app/assets/grademe.svg";
 import GraderTour from "@/components/tours/GraderTour";
 import GraderSettingsModal from "@/components/GraderSettingsModal";
+import { ModelSelector } from "./ModelSelector";
+import { getDefaultModelId } from '@/lib/utils'
+import { models } from '@/lib/types/models';
+import { useLocalStorage } from '@/lib/hooks/use-local-storage';
 
-export default function Grader() {
+interface GraderProps {
+  onModelChange?: (id: string) => void
+}
+
+export default function Grader({ onModelChange }: GraderProps) {
   const { uid } = useAuthStore();
   const { selectedRubric, gradingData, setGradingData } = useRubricStore();
   const { profile, minusCredits } = useProfileStore();
@@ -38,6 +47,10 @@ export default function Grader() {
   const [hasSaved, setHasSaved] = useState<boolean>(false);
   const [uploading, setUploading] = useState<boolean>(false);
   const [fileUrl, setFileUrl] = useState<string>("");
+  const [selectedModelId, setSelectedModelId] = useLocalStorage<string>(
+    'selectedModel',
+    getDefaultModelId(models)
+  )
   const router = useRouter();
 
   // Handle file upload
@@ -104,6 +117,7 @@ export default function Grader() {
 
     try {
       const { result, creditsUsed } = await generateGrade(
+        selectedModelId,
         profile.identity || "",
         profile.identityLevel || "",
         gradingData.assigner,
@@ -143,12 +157,11 @@ export default function Grader() {
         "No suggestions found. Servers might be overloaded right now."
       );
     }
-  }, [gradingData, profile.credits, minusCredits, profile.identity, profile.identityLevel, selectedRubric, setGradingData]);
+  }, [gradingData, profile.credits, minusCredits, profile.identity, profile.identityLevel, selectedRubric, setGradingData, selectedModelId]);
 
   // Effect to handle saving to history
   useEffect(() => {
     if (isStreamingComplete && !hasSaved && response) {
-      console.log(fileUrl)
       saveDocument(uid, gradingData, [{ text: gradingData.text, response: response, grade, timestamp: Timestamp.now() }], fileUrl).then(() => {
         setHasSaved(true);
       });
@@ -209,7 +222,14 @@ export default function Grader() {
           {/* Text Editor and File Upload */}
           <section>
             <div className="relative grader-text">
-              <label className="block font-medium text-primary-30" htmlFor="text">Text</label>
+              <ModelSelector
+                selectedModelId={selectedModelId}
+                onModelChange={id => {
+                  setSelectedModelId(id)
+                  onModelChange?.(id)
+                }}
+              />
+              <label className="block font-medium text-primary-30 mt-2" htmlFor="text">Text</label>
               <hr />
               <Tiptap
                 wordLimit={gradingData.wordLimit}
@@ -227,9 +247,9 @@ export default function Grader() {
               id="grademe"
               onClick={handleSubmit}
               disabled={!active || uploading}
-              className={`btn btn-shiny border-2 border-primary-40 rounded-full size-16 p-2 grader-grademe-button ${!active ? "cursor-not-allowed" : ""}`}
+              className={`grader-grademe-button ${!active ? "cursor-not-allowed" : ""}`}
             >
-              <Image alt={"grademe logo"} src={grademe} width={35} height={35} className="bg-secondary-97 rounded-full p-1 size-12" />
+              <Image alt={"grader icon"} src={grader} width={50} height={50} className="btn btn-shiny bg-secondary-97 border-2 border-primary-40 rounded-full size-16 p-0" />
             </button>
             {/* File Upload */}
             <div
@@ -266,7 +286,7 @@ export default function Grader() {
           </section>
         </form>
 
-        {thinking && <Image alt={"grademe logo"} src={grademe} width={100} height={100} className=" animate-bounce duration-1000 place-self-center" />}
+        {thinking && <Image id="thinking" alt={"grademe logo"} src={grademe} width={100} height={100} className="mt-10 animate-bounce duration-1000 place-self-center" />}
 
         {response && (
           <div id="response" className="px-5 py-2 shadow-lg bg-secondary-90 rounded-md">
@@ -274,7 +294,6 @@ export default function Grader() {
               <Image alt={"grademe logo"} src={grademe} width={40} height={40} className="size-14" />
               <h2 className="text-2xl text-center text-primary-10 font-medium">Grade.me Report</h2>
             </div>
-
             <ReactMarkdown>{response}</ReactMarkdown>
           </div>
         )}

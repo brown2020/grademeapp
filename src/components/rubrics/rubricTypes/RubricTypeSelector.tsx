@@ -8,7 +8,7 @@ import HolisticRubricBuilder from '@/components/rubrics/rubricTypes/HolisticRubr
 import SinglePointRubricBuilder from '@/components/rubrics/rubricTypes/SinglePointRubricBuilder';
 import ContentSpecificRubricBuilder from './ContentSpecificRubricBuilder';
 import DevelopmentalRubricBuilder from './DevelopmentalRubricBuilder';
-import { RubricType, AnalyticalRubric, HolisticRubric, SinglePointRubric, ChecklistRubric, OtherRubricType } from '@/types/rubrics-types';
+import { RubricType, AnalyticalRubric, HolisticRubric, SinglePointRubric, ChecklistRubric, OtherRubricType } from '@/lib/types/rubrics-types';
 
 
 interface RubricTypeSelectorProps {

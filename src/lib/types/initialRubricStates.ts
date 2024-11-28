@@ -1,5 +1,5 @@
 // initialRubricStates.ts
-import { RubricType, AnalyticalRubric, HolisticRubric, SinglePointRubric, ChecklistRubric, OtherRubricType } from '@/types/rubrics-types';
+import { RubricType, AnalyticalRubric, HolisticRubric, SinglePointRubric, ChecklistRubric, OtherRubricType } from '@/lib/types/rubrics-types';
 
 export const initialAnalyticalRubric: AnalyticalRubric = {
   id: '',

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from 'react';
-import { RubricState } from '@/types/rubrics-types';
+import { RubricState } from '@/lib/types/rubrics-types';
 import { useRubricStore } from '@/zustand/useRubricStore';
 import useProfileStore from '@/zustand/useProfileStore';
 import { toast } from 'react-hot-toast';

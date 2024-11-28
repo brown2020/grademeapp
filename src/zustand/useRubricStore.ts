@@ -1,12 +1,12 @@
 import { create } from 'zustand';
 import { useAuthStore } from '@/zustand/useAuthStore';
 import useProfileStore from '@/zustand/useProfileStore';
-import { RubricState, RubricType, GenericRubricCriteria } from '@/types/rubrics-types';
-import { getInitialRubricState } from '@/types/initialRubricStates';
-import { GradingData } from '@/types/grading-data';
+import { RubricState, RubricType, GenericRubricCriteria } from '@/lib/types/rubrics-types';
+import { getInitialRubricState } from '@/lib/types/initialRubricStates';
+import { GradingData } from '@/lib/types/grading-data';
 import { db } from '@/firebase/firebaseClient';
 import { collection, doc, setDoc, updateDoc, deleteDoc, getDocs, Timestamp } from 'firebase/firestore';
-import rawRubrics from '@/constants/rubrics.json';
+import rawRubrics from '@/lib/constants/rubrics.json';
 
 
 interface RubricStoreState {
@@ -95,38 +95,52 @@ export const useRubricStore = create<RubricStoreState>((set, get) => {
       safeCompare(rubric.textType, gradingData.textType)
     );
 
-    const gradeAndTypeMatches = rubrics.filter(rubric =>
+    const levelAndTypeMatches = rubrics.filter(rubric =>
+      rubric.identityLevel && // Ensure identityLevel exists
       safeCompare(rubric.identityLevel, profile.identityLevel) &&
       safeCompare(rubric.textType, gradingData.textType) &&
       !exactMatches.includes(rubric)
     );
 
-    const gradeMatches = rubrics.filter(rubric =>
+    const levelMatches = rubrics.filter(rubric =>
+      rubric.identityLevel && // Ensure identityLevel exists
       safeCompare(rubric.identityLevel, profile.identityLevel) &&
       !exactMatches.includes(rubric) &&
-      !gradeAndTypeMatches.includes(rubric)
+      !levelAndTypeMatches.includes(rubric)
+    );
+
+    const typeAndIdentityMatches = rubrics.filter(rubric =>
+      safeCompare(rubric.textType, gradingData.textType) &&
+      safeCompare(rubric.identity, profile.identity) &&
+      !exactMatches.includes(rubric) &&
+      !levelAndTypeMatches.includes(rubric) &&
+      !levelMatches.includes(rubric)
     );
 
     const typeMatches = rubrics.filter(rubric =>
       safeCompare(rubric.textType, gradingData.textType) &&
+      !safeCompare(rubric.identity, profile.identity) && // Ensure it doesn't match identity
       !exactMatches.includes(rubric) &&
-      !gradeAndTypeMatches.includes(rubric) &&
-      !gradeMatches.includes(rubric)
+      !levelAndTypeMatches.includes(rubric) &&
+      !levelMatches.includes(rubric) &&
+      !typeAndIdentityMatches.includes(rubric)
     );
 
     const identityMatches = rubrics.filter(rubric =>
       safeCompare(rubric.identity, profile.identity) &&
       !exactMatches.includes(rubric) &&
-      !gradeAndTypeMatches.includes(rubric) &&
-      !gradeMatches.includes(rubric) &&
+      !levelAndTypeMatches.includes(rubric) &&
+      !levelMatches.includes(rubric) &&
+      !typeAndIdentityMatches.includes(rubric) &&
       !typeMatches.includes(rubric)
     );
 
     const remainingRubrics = rubrics.filter(rubric =>
       !favorites.includes(rubric) &&
       !exactMatches.includes(rubric) &&
-      !gradeAndTypeMatches.includes(rubric) &&
-      !gradeMatches.includes(rubric) &&
+      !levelAndTypeMatches.includes(rubric) &&
+      !levelMatches.includes(rubric) &&
+      !typeAndIdentityMatches.includes(rubric) &&
       !typeMatches.includes(rubric) &&
       !identityMatches.includes(rubric)
     );
@@ -134,10 +148,11 @@ export const useRubricStore = create<RubricStoreState>((set, get) => {
     const sortedRubrics = [
       ...favorites,
       ...exactMatches,
-      ...gradeAndTypeMatches,
-      ...gradeMatches,
-      ...typeMatches,
+      ...levelAndTypeMatches,
+      ...levelMatches,
+      ...typeAndIdentityMatches,
       ...identityMatches,
+      ...typeMatches,
       ...remainingRubrics
     ];
 

@@ -8,7 +8,7 @@ import {
   SinglePointRubric,
   ChecklistRubric,
   OtherRubricType,
-} from '@/types/rubrics-types';
+} from '@/lib/types/rubrics-types';
 
 
 export default function RubricDisplay({ rubric }: { rubric: RubricState | null }) {

@@ -8,13 +8,13 @@ import { toast } from "react-hot-toast";
 import { db } from "@/firebase/firebaseClient";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import { useParams } from "next/navigation";
-import { UserHistoryType, Submission } from "@/types/user-history";
+import { UserHistoryType, Submission } from "@/lib/types/user-history";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import RubricDisplay from "@/components/rubrics/RubricDisplay";
 import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/react";
 import { ChevronDown, Download } from "lucide-react";
-import { RubricState, BaseRubric } from "@/types/rubrics-types";
+import { RubricState, BaseRubric } from "@/lib/types/rubrics-types";
 import SummaryTour from "@/components/tours/SummaryTour";
 
 // Fetch summary by ID

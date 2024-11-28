@@ -6933,5 +6933,1200 @@
       "document",
       "holistic"
     ]
+  },
+  {
+    "id": "graduate-research-paper-analytical-rubric",
+    "name": "Graduate Analytical Research Paper Rubric",
+    "description": "Evaluates research question, literature review, methodology, data analysis, results, discussion, conclusion, and writing quality in a research paper.",
+    "criteria": {
+      "Research Question": {
+        "Excellent": "Formulates a highly original and significant research question.",
+        "Proficient": "Formulates a clear and relevant research question.",
+        "Developing": "Formulates a basic research question but lacks originality.",
+        "Beginning": "Fails to formulate a clear or relevant research question."
+      },
+      "Literature Review": {
+        "Excellent": "Critically evaluates a wide range of scholarly sources, synthesizes diverse perspectives, and identifies gaps in the literature.",
+        "Proficient": "Conducts a thorough literature review, synthesizes key findings, and identifies relevant gaps.",
+        "Developing": "Conducts a basic literature review but lacks depth or critical analysis.",
+        "Beginning": "Fails to conduct a thorough literature review or demonstrate understanding of the literature."
+      },
+      "Methodology": {
+        "Excellent": "Employs a rigorous and appropriate methodology, justifying the chosen approach.",
+        "Proficient": "Employs a sound methodology, justifying the chosen approach.",
+        "Developing": "Employs a basic methodology but lacks clarity or justification.",
+        "Beginning": "Fails to employ a suitable methodology or justify the chosen approach."
+      },
+      "Data Analysis": {
+        "Excellent": "Conducts a sophisticated and insightful analysis of the data, drawing meaningful conclusions.",
+        "Proficient": "Conducts a thorough and accurate analysis of the data, drawing relevant conclusions.",
+        "Developing": "Conducts a basic analysis of the data but lacks depth or clarity.",
+        "Beginning": "Fails to conduct a meaningful analysis of the data or draw valid conclusions."
+      },
+      "Results": {
+        "Excellent": "Clearly and effectively presents the findings, highlighting key results and implications.",
+        "Proficient": "Presents the findings clearly but lacks depth or clarity in interpretation.",
+        "Developing": "Presents some findings but lacks clarity or organization.",
+        "Beginning": "Fails to present clear or relevant findings."
+      },
+      "Discussion": {
+        "Excellent": "Provides a comprehensive and insightful discussion of the findings, relating them to the literature and addressing limitations.",
+        "Proficient": "Provides a clear discussion of the findings, but lacks depth or critical analysis.",
+        "Developing": "Attempts to discuss the findings but lacks clarity or relevance.",
+        "Beginning": "Fails to provide a meaningful discussion of the findings."
+      },
+      "Conclusion": {
+        "Excellent": "Provides a strong conclusion that summarizes key findings, addresses the research question, and offers implications for future research.",
+        "Proficient": "Provides a clear conclusion that summarizes key findings but lacks depth or significance.",
+        "Developing": "Provides a basic conclusion but lacks clarity or coherence.",
+        "Beginning": "Fails to provide a clear or meaningful conclusion."
+      },
+      "Writing Quality": {
+        "Excellent": "Demonstrates exceptional writing skills, including clarity, coherence, and effective use of language.",
+        "Proficient": "Demonstrates strong writing skills, with minor errors in grammar or style.",
+        "Developing": "Demonstrates adequate writing skills but lacks clarity or coherence.",
+        "Beginning": "Demonstrates poor writing skills, with significant errors in grammar, punctuation, and organization."
+      }
+    },
+    "type": "analytical",
+    "identity": "student",
+    "identityLevel": "graduate",
+    "textType": "research",
+    "proseType": "paper",
+    "tags": [
+      "student",
+      "graduate",
+      "research",
+      "paper",
+      "analytical"
+    ]
+  },
+  {
+    "id": "graduate-research-paper-holistic-rubric",
+    "name": "Graduate Holistic Research Paper Rubric",
+    "description": "Evaluates the overall quality of the research paper, considering research question, literature review, methodology, data analysis, results, discussion, conclusion, and writing quality.",
+    "criteria": {
+      "Excellent": "The research paper demonstrates exceptional quality in all aspects, including a clear and significant research question, a comprehensive literature review, a rigorous methodology, a sophisticated data analysis, well-presented results, a thoughtful discussion, a strong conclusion, and excellent writing quality.",
+      "Proficient": "The research paper demonstrates strong quality in most aspects, with minor flaws in areas such as clarity, organization, or depth of analysis.",
+      "Developing": "The research paper demonstrates some strengths but has significant weaknesses in areas such as research question, literature review, methodology, data analysis, or writing quality.",
+      "Beginning": "The research paper demonstrates significant weaknesses in multiple areas, including a poorly defined research question, inadequate literature review, flawed methodology, or poor writing quality."
+    },
+    "type": "holistic",
+    "identity": "student",
+    "identityLevel": "graduate",
+    "textType": "research",
+    "proseType": "paper",
+    "tags": [
+      "student",
+      "graduate",
+      "research",
+      "paper",
+      "holistic"
+    ]
+  },
+  {
+    "id": "graduate-literature-review-analytical-rubric",
+    "name": "Graduate Analytical Literature Review Rubric",
+    "description": "Evaluates the comprehensiveness, critical analysis, synthesis, and organization of a literature review.",
+    "criteria": {
+      "Comprehensiveness": {
+        "Excellent": "Covers a comprehensive range of relevant scholarly sources, including recent and seminal works.",
+        "Proficient": "Covers a sufficient range of relevant scholarly sources, but may lack some depth or breadth.",
+        "Developing": "Covers a limited range of sources, with noticeable gaps in the literature.",
+        "Beginning": "Fails to cover a sufficient range of relevant sources or demonstrates a lack of understanding of the literature."
+      },
+      "Critical Analysis": {
+        "Excellent": "Critically evaluates sources, identifying strengths, weaknesses, and limitations, and synthesizes findings in a nuanced way.",
+        "Proficient": "Critically evaluates sources, identifying strengths and weaknesses, but may lack depth or clarity in the analysis.",
+        "Developing": "Attempts to critically evaluate sources, but lacks depth or focus in the analysis.",
+        "Beginning": "Fails to critically evaluate sources or demonstrates a superficial understanding of the literature."
+      },
+      "Synthesis": {
+        "Excellent": "Seamlessly integrates diverse perspectives, identifies patterns, and develops a coherent argument based on the literature.",
+        "Proficient": "Integrates sources effectively, but may lack coherence or depth in the synthesis.",
+        "Developing": "Attempts to integrate sources, but lacks clarity or organization in the synthesis.",
+        "Beginning": "Fails to integrate sources effectively or demonstrates a lack of understanding of the literature."
+      },
+      "Organization": {
+        "Excellent": "Well-organized with a clear introduction, body, and conclusion, with logical flow and effective transitions.",
+        "Proficient": "Well-organized with a clear structure, but may lack some clarity or coherence in the organization.",
+        "Developing": "Somewhat organized, but lacks a clear structure or logical flow.",
+        "Beginning": "Poorly organized, with a lack of clarity and coherence."
+      },
+      "Writing Quality": {
+        "Excellent": "Demonstrates excellent writing skills, including clarity, coherence, and effective use of language.",
+        "Proficient": "Demonstrates strong writing skills, with minor errors in grammar or style.",
+        "Developing": "Demonstrates adequate writing skills, but lacks clarity or coherence.",
+        "Beginning": "Demonstrates poor writing skills, with significant errors in grammar, punctuation, and organization."
+      }
+    },
+    "type": "analytical",
+    "identity": "student",
+    "identityLevel": "graduate",
+    "textType": "literature",
+    "proseType": "review",
+    "tags": [
+      "student",
+      "graduate",
+      "literature",
+      "review",
+      "analytical"
+    ]
+  },
+  {
+    "id": "graduate-literature-review-holistic-rubric",
+    "name": "Graduate Holistic Literature Review Rubric",
+    "description": "Evaluates the overall quality of the literature review, considering comprehensiveness, critical analysis, synthesis, organization, and writing quality.",
+    "criteria": {
+      "Excellent": "The literature review demonstrates exceptional quality in all aspects, including a comprehensive coverage of the literature, a deep critical analysis, a strong synthesis of findings, a clear and logical organization, and excellent writing skills.",
+      "Proficient": "The literature review demonstrates strong quality in most aspects, with minor flaws in areas such as depth of analysis, clarity of organization, or writing quality.",
+      "Developing": "The literature review demonstrates some strengths but has significant weaknesses in areas such as coverage of the literature, critical analysis, or organization.",
+      "Beginning": "The literature review demonstrates significant weaknesses in multiple areas, including a lack of comprehensiveness, poor critical analysis, or weak writing quality."
+    },
+    "type": "holistic",
+    "identity": "student",
+    "identityLevel": "graduate",
+    "textType": "literature",
+    "proseType": "review",
+    "tags": [
+      "student",
+      "graduate",
+      "literature",
+      "review",
+      "holistic"
+    ]
+  },
+  {
+    "id": "graduate-case-study-analytical-rubric",
+    "name": "Graduate Analytical Case Study Rubric",
+    "description": "Evaluates the problem identification, analysis, application of theory, recommendations, and writing quality in a case study.",
+    "criteria": {
+      "Problem Identification": {
+        "Excellent": "Accurately identifies the central problem, provides a clear and concise problem statement, and demonstrates a deep understanding of the case context.",
+        "Proficient": "Identifies the central problem, but may lack clarity or depth in the problem statement.",
+        "Developing": "Identifies a problem, but it may be unclear or incomplete.",
+        "Beginning": "Fails to identify a clear or relevant problem."
+      },
+      "Analysis": {
+        "Excellent": "Conducts a rigorous and insightful analysis of the case, using relevant theories and frameworks to explain the underlying causes and implications of the problem.",
+        "Proficient": "Conducts a sound analysis of the case, but may lack depth or critical thinking.",
+        "Developing": "Attempts to analyze the case, but lacks depth or clarity in the analysis.",
+        "Beginning": "Fails to conduct a meaningful analysis of the case."
+      },
+      "Application of Theory": {
+        "Excellent": "Applies relevant theories and frameworks effectively to the case, demonstrating a deep understanding of the theoretical concepts.",
+        "Proficient": "Applies relevant theories and frameworks, but may lack depth or clarity in the application.",
+        "Developing": "Attempts to apply theories and frameworks, but lacks depth or relevance.",
+        "Beginning": "Fails to apply relevant theories and frameworks to the case."
+      },
+      "Recommendations": {
+        "Excellent": "Provides clear, actionable, and evidence-based recommendations that address the identified problem and offer innovative solutions.",
+        "Proficient": "Provides reasonable recommendations, but may lack clarity or feasibility.",
+        "Developing": "Provides some recommendations, but they may be unclear or impractical.",
+        "Beginning": "Fails to provide clear or relevant recommendations."
+      },
+      "Writing Quality": {
+        "Excellent": "Demonstrates exceptional writing skills, including clarity, coherence, and effective use of language.",
+        "Proficient": "Demonstrates strong writing skills, with minor errors in grammar or style.",
+        "Developing": "Demonstrates adequate writing skills, but lacks clarity or coherence.",
+        "Beginning": "Demonstrates poor writing skills, with significant errors in grammar, punctuation, and organization."
+      }
+    },
+    "type": "analytical",
+    "identity": "student",
+    "identityLevel": "graduate",
+    "textType": "case",
+    "proseType": "study",
+    "tags": [
+      "student",
+      "graduate",
+      "case",
+      "study",
+      "analytical"
+    ]
+  },
+  {
+    "id": "graduate-case-study-holistic-rubric",
+    "name": "Graduate Holistic Case Study Rubric",
+    "description": "Evaluates the overall quality of the case study, considering problem identification, analysis, application of theory, recommendations, and writing quality.",
+    "criteria": {
+      "Excellent": "The case study demonstrates exceptional quality in all aspects, including a clear problem identification, a rigorous analysis, effective application of theory, innovative recommendations, and excellent writing quality.",
+      "Proficient": "The case study demonstrates strong quality in most aspects, with minor flaws in areas such as analysis, recommendations, or writing quality.",
+      "Developing": "The case study demonstrates some strengths but has significant weaknesses in areas such as problem identification, analysis, or recommendations.",
+      "Beginning": "The case study demonstrates significant weaknesses in multiple areas, including a poorly defined problem, inadequate analysis, or weak writing quality."
+    },
+    "type": "holistic",
+    "identity": "student",
+    "identityLevel": "graduate",
+    "textType": "case",
+    "proseType": "study",
+    "tags": [
+      "student",
+      "graduate",
+      "case",
+      "study",
+      "holistic"
+    ]
+  },
+  {
+    "id": "graduate-thesis-dissertation-analytical-rubric",
+    "name": "Graduate Analytical Thesis/Dissertation Rubric",
+    "description": "Evaluates the research question, literature review, methodology, data analysis, results, discussion, conclusion, and writing quality of a thesis or dissertation.",
+    "criteria": {
+      "Research Question": {
+        "Excellent": "Formulates a highly original and significant research question that advances knowledge in the field.",
+        "Proficient": "Formulates a clear and relevant research question.",
+        "Developing": "Formulates a basic research question but lacks originality or significance.",
+        "Beginning": "Fails to formulate a clear or relevant research question."
+      },
+      "Literature Review": {
+        "Excellent": "Critically evaluates a comprehensive range of scholarly sources, synthesizes diverse perspectives, and identifies significant gaps in the literature. Demonstrates a deep understanding of the theoretical and empirical foundations of the research.",
+        "Proficient": "Conducts a thorough literature review, synthesizes key findings, and identifies relevant gaps. Demonstrates a solid understanding of the literature.",
+        "Developing": "Conducts a basic literature review but lacks depth or critical analysis. Demonstrates a limited understanding of the literature.",
+        "Beginning": "Fails to conduct a thorough literature review or demonstrate understanding of the literature."
+      },
+      "Methodology": {
+        "Excellent": "Employs a rigorous and innovative methodology that is appropriate to the research question and contributes to the advancement of knowledge. Provides a clear and detailed justification for the chosen methodology.",
+        "Proficient": "Employs a sound methodology that is appropriate to the research question. Provides a clear justification for the chosen methodology.",
+        "Developing": "Employs a basic methodology but lacks clarity or justification. The methodology may have limitations that impact the validity and reliability of the research.",
+        "Beginning": "Fails to employ a suitable methodology or justify the chosen approach. The methodology is flawed or inappropriate for the research question."
+      },
+      "Data Collection and Analysis": {
+        "Excellent": "Employs rigorous data collection methods and conducts a sophisticated and insightful analysis of the data, drawing meaningful conclusions and contributing to the field of study.",
+        "Proficient": "Conducts a thorough and accurate analysis of the data, drawing relevant conclusions. The data collection methods are sound, but may have some limitations.",
+        "Developing": "Conducts a basic analysis of the data but lacks depth or clarity. The data collection methods may be flawed or inadequate.",
+        "Beginning": "Fails to conduct a meaningful analysis of the data or draw valid conclusions. The data collection methods are seriously flawed or inappropriate."
+      },
+      "Results": {
+        "Excellent": "Clearly and effectively presents the findings, highlighting key results and implications. The results are well-organized, easy to understand, and contribute to the overall understanding of the research question.",
+        "Proficient": "Presents the findings clearly but may lack depth or clarity in interpretation. The results are generally well-organized and easy to understand.",
+        "Developing": "Presents some findings but lacks clarity or organization. The results may be incomplete or unclear.",
+        "Beginning": "Fails to present clear or relevant findings. The results are poorly organized and difficult to understand."
+      },
+      "Discussion": {
+        "Excellent": "Provides a comprehensive and insightful discussion of the findings, relating them to the literature and addressing limitations. Offers original insights and contributes to the advancement of knowledge.",
+        "Proficient": "Provides a clear discussion of the findings, but may lack depth or critical analysis. The discussion relates the findings to the literature but may not offer significant new insights.",
+        "Developing": "Attempts to discuss the findings but lacks clarity or relevance. The discussion may be superficial or poorly organized.",
+        "Beginning": "Fails to provide a meaningful discussion of the findings. The discussion is irrelevant or does not address the research question."
+      },
+      "Conclusion": {
+        "Excellent": "Provides a strong conclusion that summarizes key findings, addresses the research question, and offers significant implications for future research. The conclusion is well-written, concise, and impactful.",
+        "Proficient": "Provides a clear conclusion that summarizes key findings but may lack depth or significance. The conclusion is well-written but may be somewhat repetitive.",
+        "Developing": "Provides a basic conclusion but lacks clarity or coherence. The conclusion may be incomplete or fail to address the research question.",
+        "Beginning": "Fails to provide a clear or meaningful conclusion. The conclusion is poorly written and does not address the research question."
+      },
+      "Writing Quality": {
+        "Excellent": "Demonstrates exceptional writing skills, including clarity, coherence, and effective use of language. The writing is engaging, well-organized, and free of grammatical errors.",
+        "Proficient": "Demonstrates strong writing skills, with minor errors in grammar or style. The writing is clear and concise, but may lack some sophistication.",
+        "Developing": "Demonstrates adequate writing skills but lacks clarity or coherence. The writing may be disorganized or difficult to follow.",
+        "Beginning": "Demonstrates poor writing skills, with significant errors in grammar, punctuation, and organization. The writing is unclear and difficult to understand."
+      }
+    },
+    "type": "analytical",
+    "identity": "student",
+    "identityLevel": "graduate",
+    "textType": "thesis/dissertation",
+    "proseType": "academic",
+    "tags": [
+      "student",
+      "graduate",
+      "thesis",
+      "dissertation",
+      "analytical"
+    ]
+  },
+  {
+    "id": "graduate-thesis-dissertation-holistic-rubric",
+    "name": "Graduate Holistic Thesis/Dissertation Rubric",
+    "description": "Evaluates the overall quality of the thesis or dissertation, considering research question, literature review, methodology, data analysis, results, discussion, conclusion, and writing quality.",
+    "criteria": {
+      "Excellent": "The thesis/dissertation demonstrates exceptional quality in all aspects, including a clear and significant research question, a comprehensive literature review, a rigorous methodology, a sophisticated data analysis, well-presented results, a thoughtful discussion, a strong conclusion, and excellent writing quality.",
+      "Proficient": "The thesis/dissertation demonstrates strong quality in most aspects, with minor flaws in areas such as clarity, organization, or depth of analysis.",
+      "Developing": "The thesis/dissertation demonstrates some strengths but has significant weaknesses in areas such as research question, literature review, methodology, data analysis, or writing quality.",
+      "Beginning": "The thesis/dissertation demonstrates significant weaknesses in multiple areas, including a poorly defined research question, inadequate literature review, flawed methodology, or poor writing quality."
+    },
+    "type": "holistic",
+    "identity": "student",
+    "identityLevel": "graduate",
+    "textType": "thesis/dissertation",
+    "proseType": "academic",
+    "tags": [
+      "student",
+      "graduate",
+      "thesis",
+      "dissertation",
+      "holistic"
+    ]
+  },
+  {
+    "id": "graduate-policy-brief-analytical-rubric",
+    "name": "Graduate Analytical Policy Brief Rubric",
+    "description": "Evaluates the problem statement, policy analysis, recommendations, and writing quality of a policy brief.",
+    "criteria": {
+      "Problem Statement": {
+        "Excellent": "Clearly and concisely defines a significant policy problem, providing evidence of its impact and urgency.",
+        "Proficient": "Defines a relevant policy problem, but may lack clarity or depth in the problem statement.",
+        "Developing": "Identifies a policy problem, but it may be unclear or incomplete.",
+        "Beginning": "Fails to identify a clear or relevant policy problem."
+      },
+      "Policy Analysis": {
+        "Excellent": "Conducts a rigorous and comprehensive analysis of the policy problem, considering various perspectives and potential solutions. Identifies the strengths and weaknesses of current policies and highlights the need for new or improved policies.",
+        "Proficient": "Conducts a sound analysis of the policy problem, but may lack depth or critical thinking. Identifies some of the strengths and weaknesses of current policies.",
+        "Developing": "Attempts to analyze the policy problem, but lacks depth or clarity in the analysis. May identify some relevant issues but fails to provide a comprehensive analysis.",
+        "Beginning": "Fails to conduct a meaningful analysis of the policy problem. Does not identify relevant issues or provide a clear understanding of the problem."
+      },
+      "Policy Recommendations": {
+        "Excellent": "Provides clear, actionable, and evidence-based policy recommendations that address the identified problem and offer innovative solutions. The recommendations are feasible, practical, and likely to have a positive impact.",
+        "Proficient": "Provides reasonable policy recommendations, but may lack clarity or feasibility. The recommendations may not be fully supported by the analysis.",
+        "Developing": "Provides some policy recommendations, but they may be unclear or impractical. The recommendations may not address the root causes of the problem.",
+        "Beginning": "Fails to provide clear or relevant policy recommendations. The recommendations are not feasible or do not address the identified problem."
+      },
+      "Writing Quality": {
+        "Excellent": "Demonstrates exceptional writing skills, including clarity, coherence, and effective use of language. The writing is concise, engaging, and free of grammatical errors.",
+        "Proficient": "Demonstrates strong writing skills, with minor errors in grammar or style. The writing is clear and concise, but may lack some sophistication.",
+        "Developing": "Demonstrates adequate writing skills, but lacks clarity or coherence. The writing may be disorganized or difficult to follow.",
+        "Beginning": "Demonstrates poor writing skills, with significant errors in grammar, punctuation, and organization. The writing is unclear and difficult to understand."
+      }
+    },
+    "type": "analytical",
+    "identity": "student",
+    "identityLevel": "graduate",
+    "textType": "policy",
+    "proseType": "brief",
+    "tags": [
+      "student",
+      "graduate",
+      "policy",
+      "brief",
+      "analytical"
+    ]
+  },
+  {
+    "id": "graduate-policy-brief-holistic-rubric",
+    "name": "Graduate Holistic Policy Brief Rubric",
+    "description": "Evaluates the overall quality of the policy brief, considering problem statement, policy analysis, recommendations, and writing quality.",
+    "criteria": {
+      "Excellent": "The policy brief demonstrates exceptional quality in all aspects, including a clear and significant problem statement, a rigorous and comprehensive policy analysis, innovative and feasible policy recommendations, and excellent writing quality.",
+      "Proficient": "The policy brief demonstrates strong quality in most aspects, with minor flaws in areas such as analysis, recommendations, or writing quality.",
+      "Developing": "The policy brief demonstrates some strengths but has significant weaknesses in areas such as problem identification, analysis, or recommendations.",
+      "Beginning": "The policy brief demonstrates significant weaknesses in multiple areas, including a poorly defined problem, inadequate analysis, or weak writing quality."
+    },
+    "type": "holistic",
+    "identity": "student",
+    "identityLevel": "graduate",
+    "textType": "policy",
+    "proseType": "brief",
+    "tags": [
+      "student",
+      "graduate",
+      "policy",
+      "brief",
+      "holistic"
+    ]
+  },
+  {
+    "id": "graduate-grant-proposal-analytical-rubric",
+    "name": "Graduate Analytical Grant Proposal Rubric",
+    "description": "Evaluates the clarity of the research question, significance of the project, feasibility of the proposed research, budget justification, and writing quality of a grant proposal.",
+    "criteria": {
+      "Research Question": {
+        "Excellent": "Formulates a highly original and significant research question that addresses a critical gap in the field.",
+        "Proficient": "Formulates a clear and relevant research question.",
+        "Developing": "Formulates a basic research question but lacks originality or significance.",
+        "Beginning": "Fails to formulate a clear or relevant research question."
+      },
+      "Significance of the Project": {
+        "Excellent": "Clearly articulates the significance of the proposed research, highlighting its potential impact on the field and society.",
+        "Proficient": "Identifies the significance of the proposed research, but may lack depth or clarity in the explanation.",
+        "Developing": "Attempts to justify the significance of the research, but the justification is weak or unclear.",
+        "Beginning": "Fails to justify the significance of the proposed research."
+      },
+      "Feasibility of the Project": {
+        "Excellent": "Demonstrates a clear understanding of the feasibility of the proposed research, including a realistic timeline, adequate resources, and appropriate methodology.",
+        "Proficient": "Demonstrates a reasonable understanding of the feasibility of the proposed research, but may lack detail or clarity in the project plan.",
+        "Developing": "Attempts to address feasibility, but the project plan is unclear or unrealistic.",
+        "Beginning": "Fails to address the feasibility of the proposed research or provides an unrealistic project plan."
+      },
+      "Budget Justification": {
+        "Excellent": "Provides a detailed and well-justified budget, explaining the costs associated with each item and demonstrating a clear understanding of budget constraints.",
+        "Proficient": "Provides a reasonable budget, but may lack clarity or justification for some items.",
+        "Developing": "Provides a basic budget, but it may be incomplete or unrealistic.",
+        "Beginning": "Fails to provide a clear or justified budget."
+      },
+      "Writing Quality": {
+        "Excellent": "Demonstrates exceptional writing skills, including clarity, coherence, and effective use of language. The proposal is well-organized, concise, and free of grammatical errors.",
+        "Proficient": "Demonstrates strong writing skills, with minor errors in grammar or style. The writing is clear and concise, but may lack some sophistication.",
+        "Developing": "Demonstrates adequate writing skills, but lacks clarity or coherence. The writing may be disorganized or difficult to follow.",
+        "Beginning": "Demonstrates poor writing skills, with significant errors in grammar, punctuation, and organization. The writing is unclear and difficult to understand."
+      }
+    },
+    "type": "analytical",
+    "identity": "student",
+    "identityLevel": "graduate",
+    "textType": "grant",
+    "proseType": "proposal",
+    "tags": [
+      "student",
+      "graduate",
+      "grant",
+      "proposal",
+      "analytical"
+    ]
+  },
+  {
+    "id": "graduate-grant-proposal-holistic-rubric",
+    "name": "Graduate Holistic Grant Proposal Rubric",
+    "description": "Evaluates the overall quality of the grant proposal, considering the research question, significance, feasibility, budget justification, and writing quality.",
+    "criteria": {
+      "Excellent": "The grant proposal demonstrates exceptional quality in all aspects, including a clear and significant research question, a well-developed project plan, a realistic budget, and excellent writing quality.",
+      "Proficient": "The grant proposal demonstrates strong quality in most aspects, with minor flaws in areas such as the clarity of the research question, the feasibility of the project plan, or the budget justification.",
+      "Developing": "The grant proposal demonstrates some strengths but has significant weaknesses in areas such as the research question, project plan, or budget justification.",
+      "Beginning": "The grant proposal demonstrates significant weaknesses in multiple areas, including a poorly defined research question, an unrealistic project plan, or a weak budget justification."
+    },
+    "type": "holistic",
+    "identity": "student",
+    "identityLevel": "graduate",
+    "textType": "grant",
+    "proseType": "proposal",
+    "tags": [
+      "student",
+      "graduate",
+      "grant",
+      "proposal",
+      "holistic"
+    ]
+  },
+  {
+    "id": "graduate-report-analytical-rubric",
+    "name": "Graduate Analytical Report Rubric",
+    "description": "Evaluates the clarity of the purpose, the depth of the analysis, the quality of the findings, the effectiveness of the recommendations, and the overall writing quality of the report.",
+    "criteria": {
+      "Purpose and Scope": {
+        "Excellent": "Clearly and concisely states the purpose and scope of the report, demonstrating a strong understanding of the problem or issue.",
+        "Proficient": "States the purpose and scope of the report, but may lack clarity or focus.",
+        "Developing": "Attempts to state the purpose and scope of the report, but it is unclear or incomplete.",
+        "Beginning": "Fails to clearly state the purpose and scope of the report."
+      },
+      "Analysis": {
+        "Excellent": "Conducts a rigorous and insightful analysis of the problem or issue, using relevant data and evidence to support conclusions. Demonstrates critical thinking and problem-solving skills.",
+        "Proficient": "Conducts a sound analysis of the problem or issue, but may lack depth or critical thinking. Identifies some key issues and provides supporting evidence.",
+        "Developing": "Attempts to analyze the problem or issue, but lacks depth or clarity in the analysis. May identify some relevant issues but fails to provide sufficient evidence.",
+        "Beginning": "Fails to conduct a meaningful analysis of the problem or issue. Does not identify relevant issues or provide supporting evidence."
+      },
+      "Findings": {
+        "Excellent": "Presents clear and concise findings that are well-supported by the analysis. The findings are relevant to the purpose of the report and are presented in a logical and organized manner.",
+        "Proficient": "Presents relevant findings, but may lack clarity or depth in the presentation. The findings may not be fully supported by the analysis.",
+        "Developing": "Presents some findings, but they may be unclear or incomplete. The findings may not be directly related to the purpose of the report.",
+        "Beginning": "Fails to present clear or relevant findings. The findings are inaccurate or misleading."
+      },
+      "Recommendations": {
+        "Excellent": "Provides clear, actionable, and evidence-based recommendations that address the identified problem or issue. The recommendations are feasible, practical, and likely to have a positive impact.",
+        "Proficient": "Provides reasonable recommendations, but may lack clarity or feasibility. The recommendations may not be fully supported by the analysis.",
+        "Developing": "Provides some recommendations, but they may be unclear or impractical. The recommendations may not address the root causes of the problem.",
+        "Beginning": "Fails to provide clear or relevant recommendations. The recommendations are not feasible or do not address the identified problem."
+      },
+      "Writing Quality": {
+        "Excellent": "Demonstrates exceptional writing skills, including clarity, coherence, and effective use of language. The report is well-organized, concise, and free of grammatical errors.",
+        "Proficient": "Demonstrates strong writing skills, with minor errors in grammar or style. The writing is clear and concise, but may lack some sophistication.",
+        "Developing": "Demonstrates adequate writing skills, but lacks clarity or coherence. The writing may be disorganized or difficult to follow.",
+        "Beginning": "Demonstrates poor writing skills, with significant errors in grammar, punctuation, and organization. The writing is unclear and difficult to understand."
+      }
+    },
+    "type": "analytical",
+    "identity": "student",
+    "identityLevel": "graduate",
+    "textType": "report",
+    "proseType": "expository",
+    "tags": [
+      "student",
+      "graduate",
+      "report",
+      "expository",
+      "analytical"
+    ]
+  },
+  {
+    "id": "graduate-report-holistic-rubric",
+    "name": "Graduate Holistic Report Rubric",
+    "description": "Evaluates the overall quality of the report, considering the clarity of the purpose, the depth of the analysis, the quality of the findings, the effectiveness of the recommendations, and the overall writing quality.",
+    "criteria": {
+      "Excellent": "The report demonstrates exceptional quality in all aspects, including a clear and concise purpose, a rigorous and comprehensive analysis, well-supported findings, innovative and feasible recommendations, and excellent writing quality.",
+      "Proficient": "The report demonstrates strong quality in most aspects, with minor flaws in areas such as analysis, recommendations, or writing quality.",
+      "Developing": "The report demonstrates some strengths but has significant weaknesses in areas such as purpose, analysis, or recommendations.",
+      "Beginning": "The report demonstrates significant weaknesses in multiple areas, including a poorly defined purpose, inadequate analysis, or weak writing quality."
+    },
+    "type": "holistic",
+    "identity": "student",
+    "identityLevel": "graduate",
+    "textType": "report",
+    "proseType": "expository",
+    "tags": [
+      "student",
+      "graduate",
+      "report",
+      "expository",
+      "holistic"
+    ]
+  },
+  {
+    "id": "graduate-essay-analytical-rubric",
+    "name": "Graduate Analytical Essay Rubric",
+    "description": "Evaluates the thesis statement, argumentation, evidence, analysis, organization, and writing quality of an essay.",
+    "criteria": {
+      "Thesis Statement": {
+        "Excellent": "Presents a clear, concise, and arguable thesis statement that effectively addresses the prompt.",
+        "Proficient": "Presents a clear thesis statement but may lack originality or depth.",
+        "Developing": "Attempts to present a thesis statement but it is unclear or underdeveloped.",
+        "Beginning": "Fails to present a clear or relevant thesis statement."
+      },
+      "Argumentation": {
+        "Excellent": "Develops a strong and well-supported argument, using logical reasoning and evidence to persuade the reader.",
+        "Proficient": "Develops a reasonable argument, but may lack depth or clarity in the reasoning.",
+        "Developing": "Attempts to develop an argument, but the argument is weak or unsupported.",
+        "Beginning": "Fails to develop a coherent or persuasive argument."
+      },
+      "Evidence": {
+        "Excellent": "Uses strong and relevant evidence to support the argument, citing sources appropriately and accurately.",
+        "Proficient": "Uses relevant evidence, but may lack depth or variety in the sources.",
+        "Developing": "Attempts to use evidence, but the evidence is weak or irrelevant.",
+        "Beginning": "Fails to use sufficient or relevant evidence to support the argument."
+      },
+      "Analysis": {
+        "Excellent": "Provides a thorough and insightful analysis of the evidence, demonstrating a deep understanding of the topic.",
+        "Proficient": "Provides a sound analysis of the evidence, but may lack depth or critical thinking.",
+        "Developing": "Attempts to analyze the evidence, but the analysis is superficial or unclear.",
+        "Beginning": "Fails to provide a meaningful analysis of the evidence."
+      },
+      "Organization": {
+        "Excellent": "Well-organized with a clear introduction, body paragraphs, and conclusion. The essay flows smoothly and transitions are effective.",
+        "Proficient": "Well-organized, but may lack some clarity or coherence in the organization.",
+        "Developing": "Somewhat organized, but lacks a clear structure or logical flow.",
+        "Beginning": "Poorly organized, with a lack of clarity and coherence."
+      },
+      "Writing Quality": {
+        "Excellent": "Demonstrates exceptional writing skills, including clarity, coherence, and effective use of language. The writing is engaging, well-organized, and free of grammatical errors.",
+        "Proficient": "Demonstrates strong writing skills, with minor errors in grammar or style. The writing is clear and concise, but may lack some sophistication.",
+        "Developing": "Demonstrates adequate writing skills, but lacks clarity or coherence. The writing may be disorganized or difficult to follow.",
+        "Beginning": "Demonstrates poor writing skills, with significant errors in grammar, punctuation, and organization. The writing is unclear and difficult to understand."
+      }
+    },
+    "type": "analytical",
+    "identity": "student",
+    "identityLevel": "graduate",
+    "textType": "essay",
+    "proseType": "argumentative/expository/reflective",
+    "tags": [
+      "student",
+      "graduate",
+      "essay",
+      "argumentative",
+      "expository",
+      "reflective",
+      "analytical"
+    ]
+  },
+  {
+    "id": "graduate-essay-holistic-rubric",
+    "name": "Graduate Holistic Essay Rubric",
+    "description": "Evaluates the overall quality of the essay, considering the thesis statement, argumentation, evidence, analysis, organization, and writing quality.",
+    "criteria": {
+      "Excellent": "The essay demonstrates exceptional quality in all aspects, including a clear and compelling thesis statement, a strong and well-supported argument, insightful analysis, effective organization, and excellent writing quality.",
+      "Proficient": "The essay demonstrates strong quality in most aspects, with minor flaws in areas such as argumentation, analysis, or writing quality.",
+      "Developing": "The essay demonstrates some strengths but has significant weaknesses in areas such as thesis statement, argumentation, or organization.",
+      "Beginning": "The essay demonstrates significant weaknesses in multiple areas, including a weak thesis statement, poor argumentation, or inadequate analysis."
+    },
+    "type": "holistic",
+    "identity": "student",
+    "identityLevel": "graduate",
+    "textType": "essay",
+    "proseType": "argumentative/expository/reflective",
+    "tags": [
+      "student",
+      "graduate",
+      "essay",
+      "argumentative",
+      "expository",
+      "reflective",
+      "holistic"
+    ]
+  },
+  {
+    "id": "graduate-reflective-writing-holistic-rubric",
+    "name": "Graduate Holistic Reflective Writing Rubric",
+    "description": "Evaluates the overall quality of the reflective writing, considering self-awareness, critical reflection, clarity of thought, and writing quality.",
+    "criteria": {
+      "Excellent": "The reflective writing demonstrates exceptional self-awareness, critical reflection, and clear and insightful thinking. The writing is well-organized, coherent, and engaging.",
+      "Proficient": "The reflective writing demonstrates strong self-awareness, critical reflection, and clear thinking. The writing is generally well-organized and coherent, with minor flaws in clarity or organization.",
+      "Developing": "The reflective writing demonstrates some self-awareness and critical reflection, but lacks depth or clarity in the analysis. The writing may be disorganized or difficult to follow.",
+      "Beginning": "The reflective writing demonstrates limited self-awareness and critical reflection. The writing is poorly organized and lacks clarity."
+    },
+    "type": "holistic",
+    "identity": "student",
+    "identityLevel": "graduate",
+    "textType": "reflective",
+    "proseType": "writing",
+    "tags": [
+      "student",
+      "graduate",
+      "reflective",
+      "writing",
+      "holistic"
+    ]
+  },
+  {
+    "id": "graduate-reflective-writing-developmental-rubric",
+    "name": "Graduate Developmental Reflective Writing Rubric",
+    "description": "Tracks the progress of the student's reflective writing skills over time, considering self-awareness, critical reflection, clarity of thought, and writing quality.",
+    "criteria": {
+      "Self-Awareness": {
+        "Beginning": "Demonstrates limited self-awareness and struggles to identify personal strengths and weaknesses.",
+        "Developing": "Begins to demonstrate self-awareness, identifying some personal strengths and weaknesses.",
+        "Proficient": "Demonstrates strong self-awareness, identifying personal strengths and weaknesses and recognizing their impact on learning.",
+        "Mastery": "Demonstrates exceptional self-awareness, using insights into personal strengths and weaknesses to inform future learning."
+      },
+      "Critical Reflection": {
+        "Beginning": "Struggles to engage in critical reflection, often relying on surface-level observations.",
+        "Developing": "Begins to engage in critical reflection, identifying some key issues and questions.",
+        "Proficient": "Demonstrates strong critical reflection skills, analyzing experiences, identifying patterns, and drawing insightful conclusions.",
+        "Mastery": "Consistently engages in deep and insightful critical reflection, challenging assumptions and considering alternative perspectives."
+      },
+      "Clarity of Thought": {
+        "Beginning": "Struggles to articulate thoughts clearly and concisely. Writing may be disorganized or lack coherence.",
+        "Developing": "Begins to articulate thoughts more clearly, but may still lack organization or focus.",
+        "Proficient": "Demonstrates strong clarity of thought, organizing ideas effectively and using clear and concise language.",
+        "Mastery": "Demonstrates exceptional clarity of thought, using sophisticated language and complex sentence structures to convey ideas effectively."
+      },
+      "Writing Quality": {
+        "Beginning": "Demonstrates poor writing skills, with significant errors in grammar, punctuation, and mechanics.",
+        "Developing": "Begins to demonstrate improved writing skills, but still makes frequent errors in grammar and punctuation.",
+        "Proficient": "Demonstrates strong writing skills, with few errors in grammar or punctuation. The writing is clear, concise, and well-organized.",
+        "Mastery": "Demonstrates exceptional writing skills, using a variety of rhetorical devices and stylistic techniques to enhance the writing."
+      }
+    },
+    "type": "developmental",
+    "identity": "student",
+    "identityLevel": "graduate",
+    "textType": "reflective",
+    "proseType": "writing",
+    "tags": [
+      "student",
+      "graduate",
+      "reflective",
+      "writing",
+      "developmental"
+    ]
+  },
+  {
+    "id": "graduate-creative-writing-holistic-rubric",
+    "name": "Graduate Holistic Creative Writing Rubric",
+    "description": "Evaluates the overall quality of the creative writing piece, considering originality, creativity, coherence, style, and impact.",
+    "criteria": {
+      "Excellent": "The creative writing piece demonstrates exceptional originality, creativity, and coherence. The writing is engaging, evocative, and impactful, and the style is sophisticated and effective. The piece demonstrates a deep understanding of the craft of writing and a unique voice.",
+      "Proficient": "The creative writing piece demonstrates strong creativity and coherence. The writing is engaging and effective, but may lack some originality or sophistication in style. The piece demonstrates a solid understanding of the craft of writing.",
+      "Developing": "The creative writing piece demonstrates some creativity but lacks coherence or focus. The writing may be uneven in quality or lack originality. The piece demonstrates a basic understanding of the craft of writing.",
+      "Beginning": "The creative writing piece lacks creativity and coherence. The writing is poorly organized, lacks clarity, and fails to engage the reader. The piece demonstrates a limited understanding of the craft of writing."
+    },
+    "type": "holistic",
+    "identity": "student",
+    "identityLevel": "graduate",
+    "textType": "creative",
+    "proseType": "writing",
+    "tags": [
+      "student",
+      "graduate",
+      "creative",
+      "writing",
+      "holistic"
+    ]
+  },
+  {
+    "id": "professional-business-report-analytical-rubric",
+    "name": "Professional Analytical Business Report Rubric",
+    "description": "Evaluates the clarity, analysis, data quality, recommendations, organization, and writing quality of a business report.",
+    "criteria": {
+      "Clarity and Conciseness": {
+        "Excellent": "Clearly and concisely conveys information, avoiding unnecessary jargon and technical terms.",
+        "Proficient": "Clearly conveys information, but may lack conciseness or clarity in some areas.",
+        "Developing": "Struggles to convey information clearly and concisely, with frequent instances of ambiguity or redundancy.",
+        "Beginning": "Fails to convey information clearly and concisely, with significant issues in clarity and organization."
+      },
+      "Depth of Analysis": {
+        "Excellent": "Provides a thorough and insightful analysis, supported by strong evidence and logical reasoning.",
+        "Proficient": "Provides a solid analysis, but may lack depth or critical thinking in some areas.",
+        "Developing": "Attempts to analyze the data, but the analysis is superficial or lacks depth.",
+        "Beginning": "Fails to provide a meaningful analysis of the data."
+      },
+      "Quality of Data": {
+        "Excellent": "Uses high-quality, reliable data sources to support the analysis.",
+        "Proficient": "Uses relevant data sources, but may lack diversity or depth.",
+        "Developing": "Uses limited data sources or relies on unreliable sources.",
+        "Beginning": "Fails to use relevant or reliable data sources."
+      },
+      "Strength of Recommendations": {
+        "Excellent": "Provides clear, actionable, and well-supported recommendations.",
+        "Proficient": "Provides reasonable recommendations, but may lack clarity or feasibility.",
+        "Developing": "Provides some recommendations, but they are vague or impractical.",
+        "Beginning": "Fails to provide clear or relevant recommendations."
+      },
+      "Organization and Structure": {
+        "Excellent": "Well-organized and logically structured, with clear headings and subheadings.",
+        "Proficient": "Well-organized, but may lack some clarity or coherence in the structure.",
+        "Developing": "Somewhat organized, but lacks a clear structure or logical flow.",
+        "Beginning": "Poorly organized, with a lack of clarity and coherence."
+      },
+      "Writing Quality": {
+        "Excellent": "Demonstrates excellent writing skills, including clarity, coherence, and effective use of language. The writing is free of grammatical errors and is engaging and persuasive.",
+        "Proficient": "Demonstrates strong writing skills, with minor errors in grammar or style. The writing is clear and concise, but may lack some sophistication.",
+        "Developing": "Demonstrates adequate writing skills, but lacks clarity or coherence. The writing may be disorganized or difficult to follow.",
+        "Beginning": "Demonstrates poor writing skills, with significant errors in grammar, punctuation, and organization. The writing is unclear and difficult to understand."
+      }
+    },
+    "type": "analytical",
+    "identity": "professional",
+    "textType": "report",
+    "proseType": "expository",
+    "tags": [
+      "professional",
+      "report",
+      "expository",
+      "analytical"
+    ]
+  },
+  {
+    "id": "business-report-holistic-rubric",
+    "name": "Professional Holistic Business Report Rubric",
+    "description": "Evaluates the overall effectiveness of the business report.",
+    "criteria": {
+      "Excellent": "The report is exceptional in all aspects, demonstrating a clear understanding of the problem, a rigorous analysis, well-supported conclusions, and effective recommendations. The writing is clear, concise, and engaging.",
+      "Proficient": "The report is generally well-written and expository, but may have minor flaws in analysis, recommendations, or writing quality.",
+      "Developing": "The report demonstrates some strengths but has significant weaknesses in areas such as analysis, recommendations, or writing quality.",
+      "Beginning": "The report is poorly written, lacks depth of analysis, and fails to provide clear or actionable recommendations."
+    },
+    "type": "holistic",
+    "identity": "professional",
+    "textType": "report",
+    "proseType": "expository",
+    "tags": [
+      "professional",
+      "report",
+      "expository",
+      "holistic"
+    ]
+  },
+  {
+    "id": "professional-business-proposal-analytical-rubric",
+    "name": "Professional Analytical Business Proposal Rubric",
+    "description": "Evaluates the clarity of the proposal's objectives, feasibility, methodology, significance, and persuasiveness.",
+    "criteria": {
+      "Problem Statement": {
+        "Excellent": "Clearly defines the problem with comprehensive context and significance.",
+        "Proficient": "Defines the problem with sufficient context and significance but lacks minor details.",
+        "Developing": "Attempts to define the problem but lacks context, clarity, or significance.",
+        "Beginning": "Fails to define the problem clearly or provide relevant context."
+      },
+      "Proposed Solution": {
+        "Excellent": "Proposes a well-developed solution that is logical, innovative, and thoroughly explained.",
+        "Proficient": "Proposes a logical solution with adequate explanation, though minor details are missing.",
+        "Developing": "Proposes a solution but lacks thorough explanation or logical consistency.",
+        "Beginning": "Fails to propose a clear or logical solution."
+      },
+      "Feasibility Analysis": {
+        "Excellent": "Provides a detailed analysis of the feasibility, including resources, timeline, and potential obstacles.",
+        "Proficient": "Provides a sufficient analysis of feasibility but lacks minor details or depth.",
+        "Developing": "Attempts feasibility analysis but lacks depth or key considerations.",
+        "Beginning": "Fails to provide a clear or convincing feasibility analysis."
+      },
+      "Justification of Impact": {
+        "Excellent": "Clearly justifies the significance and potential impact of the proposal with strong supporting evidence.",
+        "Proficient": "Justifies the significance and impact with adequate evidence, though minor gaps remain.",
+        "Developing": "Attempts to justify the significance and impact but lacks sufficient evidence or depth.",
+        "Beginning": "Fails to justify the significance or impact of the proposal."
+      },
+      "Persuasiveness": {
+        "Excellent": "Makes a compelling argument for approval, using strong evidence, logical reasoning, and a confident tone.",
+        "Proficient": "Makes a clear argument for approval but lacks minor elements of evidence or tone.",
+        "Developing": "Attempts to argue for approval but lacks logical reasoning, evidence, or confidence.",
+        "Beginning": "Fails to make a persuasive case for approval."
+      },
+      "Writing Quality": {
+        "Excellent": "Demonstrates exceptional writing skills, including clarity, coherence, and effective use of language.",
+        "Proficient": "Demonstrates strong writing skills, with minor errors in grammar or style.",
+        "Developing": "Demonstrates adequate writing skills, but lacks clarity or coherence.",
+        "Beginning": "Lacks clarity in communication, with poor structure and frequent language errors that hinder understanding."
+      }
+    },
+    "type": "analytical",
+    "identity": "professional",
+    "textType": "proposal",
+    "proseType": "persuasive",
+    "tags": [
+      "professional",
+      "proposal",
+      "persuasive",
+      "analytical"
+    ]
+  },
+  {
+    "id": "professional-business-proposal-holistic-rubric",
+    "name": "Professional Holistic Business Proposal Rubric",
+    "description": "Evaluates the overall quality of the proposal, considering the clarity of objectives, feasibility, methodology, significance, and persuasiveness.",
+    "criteria": {
+      "Excellent": "The proposal demonstrates exceptional quality in all aspects, including a clear and significant problem statement, a well-developed solution, a realistic feasibility analysis, a strong justification of impact, and a compelling persuasive argument. The writing is clear, concise, and persuasive.",
+      "Proficient": "The proposal demonstrates strong quality in most aspects, with minor flaws in areas such as clarity, feasibility, or persuasiveness.",
+      "Developing": "The proposal demonstrates some strengths but has significant weaknesses in areas such as problem statement, solution, or feasibility analysis.",
+      "Beginning": "The proposal demonstrates significant weaknesses in multiple areas, including a poorly defined problem, an unrealistic solution, or a weak persuasive argument."
+    },
+    "type": "holistic",
+    "identity": "professional",
+    "textType": "proposal",
+    "proseType": "persuasive",
+    "tags": [
+      "professional",
+      "proposal",
+      "persuasive",
+      "holistic"
+    ]
+  },
+  {
+    "id": "professional-analytical-white-paper-rubric",
+    "name": "Professional Analytical White Paper Rubric",
+    "description": "Evaluates the depth of research, clarity of argument, originality of thought, quality of evidence, organization and structure, and writing quality of a white paper.",
+    "criteria": {
+      "Depth of Research": {
+        "Excellent": "Conducts a comprehensive and in-depth review of the relevant literature, including primary and secondary sources.",
+        "Proficient": "Conducts a thorough review of the literature, but may lack some depth or breadth.",
+        "Developing": "Attempts to review the literature, but lacks depth or critical analysis.",
+        "Beginning": "Fails to conduct a thorough literature review or demonstrate understanding of the literature."
+      },
+      "Clarity of Argument": {
+        "Excellent": "Presents a clear, concise, and well-supported argument, with a strong thesis statement and logical reasoning.",
+        "Proficient": "Presents a clear argument, but may lack some clarity or depth in the reasoning.",
+        "Developing": "Attempts to present an argument, but the argument is unclear or poorly supported.",
+        "Beginning": "Fails to present a clear or coherent argument."
+      },
+      "Originality of Thought": {
+        "Excellent": "Offers original insights and innovative ideas, challenging conventional wisdom and contributing to the field.",
+        "Proficient": "Offers some original insights, but may rely heavily on existing research.",
+        "Developing": "Attempts to offer original insights, but lacks depth or originality.",
+        "Beginning": "Fails to offer original insights or demonstrate critical thinking."
+      },
+      "Quality of Evidence": {
+        "Excellent": "Uses high-quality evidence to support the argument, including empirical data, expert opinions, and credible sources.",
+        "Proficient": "Uses relevant evidence, but may lack diversity or depth.",
+        "Developing": "Uses limited evidence or relies on unreliable sources.",
+        "Beginning": "Fails to use relevant or credible evidence to support the argument."
+      },
+      "Organization and Structure": {
+        "Excellent": "Well-organized and logically structured, with a clear introduction, body, and conclusion. The writing is coherent and easy to follow.",
+        "Proficient": "Well-organized, but may lack some clarity or coherence in the structure.",
+        "Developing": "Somewhat organized, but lacks a clear structure or logical flow.",
+        "Beginning": "Poorly organized, with a lack of clarity and coherence."
+      },
+      "Writing Quality": {
+        "Excellent": "Demonstrates exceptional writing skills, including clarity, coherence, and effective use of language. The writing is engaging, well-organized, and free of grammatical errors.",
+        "Proficient": "Demonstrates strong writing skills, with minor errors in grammar or style. The writing is clear and concise, but may lack some sophistication.",
+        "Developing": "Demonstrates adequate writing skills, but lacks clarity or coherence. The writing may be disorganized or difficult to follow.",
+        "Beginning": "Demonstrates poor writing skills, with significant errors in grammar, punctuation, and organization. The writing is unclear and difficult to understand."
+      }
+    },
+    "type": "analytical",
+    "identity": "professional",
+    "textType": "white paper",
+    "proseType": "expository",
+    "tags": [
+      "professional",
+      "white paper",
+      "expository",
+      "analytical"
+    ]
+  },
+  {
+    "id": "professional-holistic-white-paper-rubric",
+    "name": "Professional Holistic White Paper Rubric",
+    "description": "Evaluates the overall quality of the white paper, considering depth of research, clarity of argument, originality of thought, quality of evidence, organization, and writing quality.",
+    "criteria": {
+      "Excellent": "The white paper demonstrates exceptional quality in all aspects, including a comprehensive literature review, a clear and compelling argument, original insights, strong evidence, and effective writing. The white paper is highly expository and persuasive.",
+      "Proficient": "The white paper demonstrates strong quality in most aspects, with minor flaws in areas such as analysis, argumentation, or writing quality.",
+      "Developing": "The white paper demonstrates some strengths but has significant weaknesses in areas such as research, analysis, or organization.",
+      "Beginning": "The white paper demonstrates significant weaknesses in multiple areas, including a lack of depth, a weak argument, or poor writing quality."
+    },
+    "type": "holistic",
+    "identity": "professional",
+    "textType": "white paper",
+    "proseType": "expository",
+    "tags": [
+      "professional",
+      "white paper",
+      "expository",
+      "holistic"
+    ]
+  },
+  {
+    "id": "professional-analytical-technical-document-rubric",
+    "name": "Professional Analytical Technical Document Rubric",
+    "description": "Evaluates the accuracy of technical information, clarity, organization, visual clarity, and writing quality of a technical document.",
+    "criteria": {
+      "Accuracy of Technical Information": {
+        "Excellent": "Demonstrates a deep understanding of the subject matter and provides accurate and up-to-date technical information.",
+        "Proficient": "Demonstrates a solid understanding of the subject matter, but may have minor inaccuracies or omissions.",
+        "Developing": "Demonstrates a basic understanding of the subject matter, but may have significant inaccuracies or misunderstandings.",
+        "Beginning": "Fails to demonstrate a basic understanding of the subject matter or provides inaccurate information."
+      },
+      "Clarity and Conciseness": {
+        "Excellent": "Clearly and concisely conveys complex technical information, avoiding unnecessary jargon and technical terms.",
+        "Proficient": "Clearly conveys information, but may lack conciseness or clarity in some areas.",
+        "Developing": "Struggles to convey information clearly and concisely, with frequent instances of ambiguity or redundancy.",
+        "Beginning": "Fails to convey information clearly and concisely, with significant issues in clarity and organization."
+      },
+      "Organization and Structure": {
+        "Excellent": "Well-organized and logically structured, with clear headings and subheadings. The document is easy to navigate and understand.",
+        "Proficient": "Well-organized, but may lack some clarity or coherence in the structure.",
+        "Developing": "Somewhat organized, but lacks a clear structure or logical flow.",
+        "Beginning": "Poorly organized, with a lack of clarity and coherence."
+      },
+      "Visual Clarity": {
+        "Excellent": "Uses clear and effective visuals, such as diagrams, charts, and graphs, to enhance understanding.",
+        "Proficient": "Uses visuals, but they may lack clarity or relevance.",
+        "Developing": "Attempts to use visuals, but they are poorly designed or ineffective.",
+        "Beginning": "Fails to use visuals effectively or uses inappropriate visuals."
+      },
+      "Writing Quality": {
+        "Excellent": "Demonstrates exceptional writing skills, including clarity, coherence, and effective use of language. The writing is free of grammatical errors and is engaging and persuasive.",
+        "Proficient": "Demonstrates strong writing skills, with minor errors in grammar or style. The writing is clear and concise, but may lack some sophistication.",
+        "Developing": "Demonstrates adequate writing skills, but lacks clarity or coherence. The writing may be disorganized or difficult to follow.",
+        "Beginning": "Demonstrates poor writing skills, with significant errors in grammar, punctuation, and organization. The writing is unclear and difficult to understand."
+      }
+    },
+    "type": "analytical",
+    "identity": "professional",
+    "textType": "technical document",
+    "proseType": "expository",
+    "tags": [
+      "professional",
+      "technical document",
+      "expository",
+      "analytical"
+    ]
+  },
+  {
+    "id": "professional-holistic-technical-document-rubric",
+    "name": "Professional Holistic Technical Document Rubric",
+    "description": "Evaluates the overall effectiveness of the technical document, considering accuracy, clarity, organization, visual clarity, and writing quality.",
+    "criteria": {
+      "Excellent": "The technical document is exceptional in all aspects, demonstrating a deep understanding of the subject matter, clear and concise writing, effective organization, and high-quality visuals. The document is expository, accurate, and easy to understand.",
+      "Proficient": "The technical document is generally well-written and expository, but may have minor flaws in areas such as accuracy, clarity, or organization.",
+      "Developing": "The technical document demonstrates some strengths but has significant weaknesses in areas such as accuracy, clarity, or organization.",
+      "Beginning": "The technical document is poorly written, lacks clarity, and contains significant inaccuracies."
+    },
+    "type": "holistic",
+    "identity": "professional",
+    "textType": "technical document",
+    "proseType": "expository",
+    "tags": [
+      "professional",
+      "technical document",
+      "expository",
+      "holistic"
+    ]
+  },
+  {
+    "id": "professional-analytical-email-rubric",
+    "name": "Professional Analytical Email Rubric",
+    "description": "Evaluates the clarity, conciseness, professionalism, and effectiveness of a professional email.",
+    "criteria": {
+      "Clarity and Conciseness": {
+        "Excellent": "Clearly and concisely conveys the message, avoiding unnecessary jargon and technical terms.",
+        "Proficient": "Clearly conveys the message, but may lack conciseness or clarity in some areas.",
+        "Developing": "Struggles to convey the message clearly and concisely, with frequent instances of ambiguity or redundancy.",
+        "Beginning": "Fails to convey the message clearly and concisely, with significant issues in clarity and organization."
+      },
+      "Professionalism": {
+        "Excellent": "Demonstrates a high level of professionalism, using appropriate tone, language, and formatting.",
+        "Proficient": "Demonstrates a reasonable level of professionalism, but may have minor errors in tone or formatting.",
+        "Developing": "Lacks professionalism, with significant errors in tone, language, or formatting.",
+        "Beginning": "Fails to demonstrate any level of professionalism."
+      },
+      "Effectiveness": {
+        "Excellent": "Effectively achieves the desired outcome, whether it is requesting information, persuading the reader, or providing updates.",
+        "Proficient": "Partially achieves the desired outcome, but may lack clarity or persuasiveness.",
+        "Developing": "Struggles to achieve the desired outcome, with unclear or ineffective communication.",
+        "Beginning": "Fails to achieve the desired outcome, with significant errors in communication."
+      },
+      "Grammar and Spelling": {
+        "Excellent": "Free of grammatical and spelling errors, demonstrating strong writing skills.",
+        "Proficient": "Contains minor grammatical or spelling errors that do not significantly impact the message.",
+        "Developing": "Contains frequent grammatical or spelling errors that hinder understanding.",
+        "Beginning": "Contains numerous grammatical and spelling errors that make the email difficult to understand."
+      }
+    },
+    "type": "analytical",
+    "identity": "professional",
+    "textType": "email",
+    "proseType": "expository",
+    "tags": [
+      "professional",
+      "email",
+      "expository",
+      "persuasive",
+      "analytical"
+    ]
+  },
+  {
+    "id": "professional-holistic-email-rubric",
+    "name": "Professional Holistic Email Rubric",
+    "description": "Evaluates the overall effectiveness of the email, considering clarity, conciseness, professionalism, and effectiveness.",
+    "criteria": {
+      "Excellent": "The email is exceptionally well-written, clear, concise, and professional. It effectively conveys the message and achieves its desired outcome.",
+      "Proficient": "The email is generally well-written and effective, but may have minor flaws in clarity, conciseness, or professionalism.",
+      "Developing": "The email demonstrates some strengths but has significant weaknesses in clarity, conciseness, or professionalism.",
+      "Beginning": "The email is poorly written, lacks clarity, and is unprofessional."
+    },
+    "type": "holistic",
+    "identity": "professional",
+    "textType": "email",
+    "proseType": "expository",
+    "tags": [
+      "professional",
+      "email",
+      "expository",
+      "persuasive",
+      "holistic"
+    ]
+  },
+  {
+    "id": "professional-analytical-sales-letter-rubric",
+    "name": "Professional Analytical Sales Letter Rubric",
+    "description": "Evaluates the clarity, persuasiveness, organization, and writing quality of a sales letter.",
+    "criteria": {
+      "Clarity and Conciseness": {
+        "Excellent": "Clearly and concisely conveys the message, avoiding unnecessary jargon and technical terms.",
+        "Proficient": "Clearly conveys the message, but may lack conciseness or clarity in some areas.",
+        "Developing": "Struggles to convey the message clearly and concisely, with frequent instances of ambiguity or redundancy.",
+        "Beginning": "Fails to convey the message clearly and concisely, with significant issues in clarity and organization."
+      },
+      "Persuasiveness": {
+        "Excellent": "Uses strong persuasive techniques, such as storytelling, emotional appeal, and social proof, to convince the reader.",
+        "Proficient": "Uses some persuasive techniques, but may lack strength or clarity in the argument.",
+        "Developing": "Attempts to use persuasive techniques, but they are weak or ineffective.",
+        "Beginning": "Fails to use persuasive techniques or to convince the reader."
+      },
+      "Organization and Structure": {
+        "Excellent": "Well-organized and logically structured, with a clear introduction, body, and conclusion. The letter flows smoothly and transitions are effective.",
+        "Proficient": "Well-organized, but may lack some clarity or coherence in the structure.",
+        "Developing": "Somewhat organized, but lacks a clear structure or logical flow.",
+        "Beginning": "Poorly organized, with a lack of clarity and coherence."
+      },
+      "Writing Quality": {
+        "Excellent": "Demonstrates exceptional writing skills, including clarity, coherence, and effective use of language. The writing is engaging, persuasive, and free of grammatical errors.",
+        "Proficient": "Demonstrates strong writing skills, with minor errors in grammar or style. The writing is clear and concise, but may lack some sophistication.",
+        "Developing": "Demonstrates adequate writing skills, but lacks clarity or coherence. The writing may be disorganized or difficult to follow.",
+        "Beginning": "Demonstrates poor writing skills, with significant errors in grammar, punctuation, and organization. The writing is unclear and difficult to understand."
+      },
+      "Call to Action": {
+        "Excellent": "Includes a clear and compelling call to action, encouraging the reader to take the desired action.",
+        "Proficient": "Includes a call to action, but it may lack clarity or persuasiveness.",
+        "Developing": "Attempts to include a call to action, but it is weak or unclear.",
+        "Beginning": "Fails to include a clear call to action."
+      }
+    },
+    "type": "analytical",
+    "identity": "professional",
+    "textType": "letter",
+    "proseType": "persuasive",
+    "tags": [
+      "professional",
+      "letter",
+      "persuasive",
+      "analytical"
+    ]
+  },
+  {
+    "id": "professional-holistic-sales-letter-rubric",
+    "name": "Professional Holistic Sales Letter Rubric",
+    "description": "Evaluates the overall effectiveness of the sales letter, considering clarity, persuasiveness, organization, and writing quality.",
+    "criteria": {
+      "Excellent": "The sales letter is exceptionally persuasive, clear, and well-organized. It effectively engages the reader and motivates them to take action.",
+      "Proficient": "The sales letter is generally effective, but may lack some persuasiveness or clarity.",
+      "Developing": "The sales letter attempts to persuade, but lacks clarity, organization, or persuasiveness.",
+      "Beginning": "The sales letter is ineffective and fails to persuade the reader."
+    },
+    "type": "holistic",
+    "identity": "professional",
+    "textType": "letter",
+    "proseType": "persuasive",
+    "tags": [
+      "professional",
+      "letter",
+      "persuasive",
+      "holistic"
+    ]
+  },
+  {
+    "id": "professional-analytical-sales-blog-rubric",
+    "name": "Professional Analytical Sales Blog Rubric",
+    "description": "Evaluates the clarity, persuasiveness, organization, and writing quality of a sales blog post.",
+    "criteria": {
+      "Clarity and Conciseness": {
+        "Excellent": "Clearly and concisely conveys the message, avoiding unnecessary jargon and technical terms.",
+        "Proficient": "Clearly conveys the message, but may lack conciseness or clarity in some areas.",
+        "Developing": "Struggles to convey the message clearly and concisely, with frequent instances of ambiguity or redundancy.",
+        "Beginning": "Fails to convey the message clearly and concisely, with significant issues in clarity and organization."
+      },
+      "Persuasiveness": {
+        "Excellent": "Uses strong persuasive techniques, such as storytelling, emotional appeal, and social proof, to convince the reader.",
+        "Proficient": "Uses some persuasive techniques, but may lack strength or clarity in the argument.",
+        "Developing": "Attempts to use persuasive techniques, but they are weak or ineffective.",
+        "Beginning": "Fails to use persuasive techniques or to convince the reader."
+      },
+      "Organization and Structure": {
+        "Excellent": "Well-organized and logically structured, with a clear introduction, body, and conclusion. The blog post flows smoothly and transitions are effective.",
+        "Proficient": "Well-organized, but may lack some clarity or coherence in the structure.",
+        "Developing": "Somewhat organized, but lacks a clear structure or logical flow.",
+        "Beginning": "Poorly organized, with a lack of clarity and coherence."
+      },
+      "Writing Quality": {
+        "Excellent": "Demonstrates exceptional writing skills, including clarity, coherence, and effective use of language. The writing is engaging, persuasive, and free of grammatical errors.",
+        "Proficient": "Demonstrates strong writing skills, with minor errors in grammar or style. The writing is clear and concise, but may lack some sophistication.",
+        "Developing": "Demonstrates adequate writing skills, but lacks clarity or coherence. The writing may be disorganized or difficult to follow.",
+        "Beginning": "Demonstrates poor writing skills, with significant errors in grammar, punctuation, and organization. The writing is unclear and difficult to understand."
+      },
+      "Call to Action": {
+        "Excellent": "Includes a clear and compelling call to action, encouraging the reader to take the desired action.",
+        "Proficient": "Includes a call to action, but it may lack clarity or persuasiveness.",
+        "Developing": "Attempts to include a call to action, but it is weak or unclear.",
+        "Beginning": "Fails to include a clear call to action."
+      }
+    },
+    "type": "analytical",
+    "identity": "professional",
+    "textType": "blog post",
+    "proseType": "persuasive",
+    "tags": [
+      "professional",
+      "blog post",
+      "persuasive",
+      "analytical"
+    ]
+  },
+  {
+    "id": "professional-holistic-sales-blog-rubric",
+    "name": "Professional Holistic Sales Blog Rubric",
+    "description": "Evaluates the overall effectiveness of the sales blog post, considering clarity, persuasiveness, organization, and writing quality.",
+    "criteria": {
+      "Excellent": "The blog post is exceptionally persuasive, clear, and well-organized. It effectively engages the reader and motivates them to take action.",
+      "Proficient": "The blog post is generally effective, but may lack some persuasiveness or clarity.",
+      "Developing": "The blog post attempts to persuade, but lacks clarity, organization, or persuasiveness.",
+      "Beginning": "The blog post is ineffective and fails to persuade the reader."
+    },
+    "type": "holistic",
+    "identity": "professional",
+    "textType": "blog post",
+    "proseType": "persuasive",
+    "tags": [
+      "professional",
+      "blog post",
+      "persuasive",
+      "holistic"
+    ]
   }
 ]

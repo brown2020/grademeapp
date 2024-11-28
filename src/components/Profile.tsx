@@ -6,7 +6,7 @@ import ProfileComponent from "./ProfileComponent";
 import useProfileStore from "@/zustand/useProfileStore";
 import Image from "next/image";
 import CustomListbox from "@/components/ui/CustomListbox";
-import { userInputs } from "@/constants/userInputs";
+import { userInputs } from "@/lib/constants/userInputs";
 import { User2 } from "lucide-react";
 import ProfileTour from "@/components/tours/ProfileTour";
 

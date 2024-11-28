@@ -2,7 +2,7 @@
 
 import useProfileStore from "@/zustand/useProfileStore";
 import { useCallback, useEffect, useState } from "react";
-import { isIOSReactNativeWebView } from "@/utils/platform"; // Import the platform detection
+import { isIOSReactNativeWebView } from "@/lib/utils/platform"; // Import the platform detection
 import { usePaymentsStore } from "@/zustand/usePaymentsStore";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 import { useAuthStore } from "@/zustand/useAuthStore";

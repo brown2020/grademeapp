@@ -1,5 +1,5 @@
 import React from 'react';
-import { SinglePointRubric, GenericRubricCriteria, RubricState } from '@/types/rubrics-types';
+import { SinglePointRubric, GenericRubricCriteria, RubricState } from '@/lib/types/rubrics-types';
 
 interface SinglePointRubricBuilderProps {
   rubric: SinglePointRubric;

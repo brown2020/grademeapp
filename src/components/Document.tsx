@@ -15,15 +15,20 @@ import { generateGrade } from "@/actions/generateResponse";
 import { readStreamableValue } from "ai/rsc";
 import ReactMarkdown from "react-markdown";
 import { correctGrammarAndSpelling } from "@/actions/correctGrammarSpelling";
-import { extractGrade } from "@/utils/responseParser";
-import { updateDocument } from "@/utils/saveHistory";
-import { UserHistoryType } from "@/types/user-history";
+import { extractGrade } from "@/lib/utils/responseParser";
+import { updateDocument } from "@/lib/utils/saveHistory";
+import { UserHistoryType } from "@/lib/types/user-history";
 import DownloadPopover from "@/components/ui/DownloadPopover";
 import { Wand2 } from "lucide-react";
 import Tiptap from "@/components/tiptap/Tiptap";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import grademe from "@/app/assets/grademe.svg";
+import grader from "@/app/assets/grader_2.svg";
+import { ModelSelector } from "./ModelSelector";
+import { getDefaultModelId } from '@/lib/utils'
+import { models } from '@/lib/types/models';
+import { useLocalStorage } from '@/lib/hooks/use-local-storage';
 
 
 const fetchDocumentById = async (uid: string, id: string) => {
@@ -33,7 +38,11 @@ const fetchDocumentById = async (uid: string, id: string) => {
   return docSnap.docs.filter((doc) => doc.id === id).map((doc) => doc.data());
 };
 
-const Document = () => {
+interface DocumentProps {
+  onModelChange?: (id: string) => void
+}
+
+const Document = ({ onModelChange }: DocumentProps) => {
   const { uid } = useAuthStore();
   const { profile, minusCredits } = useProfileStore();
   const { selectedRubric, gradingData, setGradingData } = useRubricStore();
@@ -50,6 +59,10 @@ const Document = () => {
   const [flagged, setFlagged] = useState<string>("");
   const [active, setActive] = useState<boolean>(false);
   const [fileUrl, setFileUrl] = useState<string>("");
+  const [selectedModelId, setSelectedModelId] = useLocalStorage<string>(
+    'selectedModel',
+    getDefaultModelId(models)
+  )
   const router = useRouter();
 
   // get timestamp from path /assignments/${summary.id}/${submission.timestamp}
@@ -149,6 +162,7 @@ const Document = () => {
       } = gradingData;
 
       const { result, creditsUsed } = await generateGrade(
+        selectedModelId || "",
         profile.identity || "",
         profile.identityLevel || "",
         assigner,
@@ -189,7 +203,7 @@ const Document = () => {
       );
     }
   },
-    [gradingData, minusCredits, profile.credits, profile.identity, profile.identityLevel]
+    [gradingData, minusCredits, profile.credits, profile.identity, profile.identityLevel, selectedModelId]
   );
 
   // Effect to handle saving to history
@@ -263,19 +277,14 @@ const Document = () => {
 
   // Scroll into view when content changes
   useEffect(() => {
-    // if (summary) {
-    //   document
-    //     .getElementById("response")
-    //     ?.scrollIntoView({ behavior: "smooth" });
-    // } else
-    if (thinking) {
+    if (!flagged && summary && isStreamingComplete) {
+      document.getElementById("response")?.scrollIntoView({ behavior: "smooth" });
+    } else if (thinking && !summary && !flagged) {
       document.getElementById("thinking")?.scrollIntoView({ behavior: "smooth" });
     } else if (flagged) {
-      document
-        .getElementById("flagged")
-        ?.scrollIntoView({ behavior: "smooth" });
+      document.getElementById("flagged")?.scrollIntoView({ behavior: "smooth" });
     }
-  }, [thinking, flagged]);
+  }, [thinking, flagged, isStreamingComplete, summary]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -317,7 +326,14 @@ const Document = () => {
           {/* Text Editor and File Upload */}
           <section>
             <div className="relative">
-              <label className="block font-medium text-primary-20" htmlFor="text">Text</label>
+              <ModelSelector
+                selectedModelId={selectedModelId}
+                onModelChange={id => {
+                  setSelectedModelId(id)
+                  onModelChange?.(id)
+                }}
+              />
+              <label className="block font-medium text-primary-20 mt-2" htmlFor="text">Text</label>
               <hr />
               <Tiptap
                 wordLimit={gradingData.wordLimit}
@@ -336,9 +352,9 @@ const Document = () => {
               id="grademe"
               onClick={handleSubmit}
               disabled={!active}
-              className={`btn btn-shiny border-2 border-primary-40 rounded-full size-16 p-1  ${!active ? "cursor-not-allowed" : ""}`}
+              className={`${!active ? "cursor-not-allowed" : ""}`}
             >
-              <Image alt={"grademe logo"} src={grademe} width={50} height={50} className="bg-secondary-97 rounded-full p-1 size-16" />
+              <Image alt={"grader icon"} src={grader} width={50} height={50} className="btn btn-shiny bg-secondary-97 border-2 border-primary-40 rounded-full size-16 p-0" />
             </button>
             <DownloadPopover content={gradingData.text} />
             <div
@@ -356,7 +372,7 @@ const Document = () => {
           )}
 
           {thinking && !summary && !flagged && (
-            <div id="thinking" className="p-5">
+            <div id="thinking" className="p-5 mt-5">
               <Image alt={"grademe logo"} src={grademe} width={100} height={100} className=" animate-bounce duration-1000 place-self-center" />
             </div>
           )}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChecklistRubric, GenericRubricCriteria, RubricState } from '@/types/rubrics-types';
+import { ChecklistRubric, GenericRubricCriteria, RubricState } from '@/lib/types/rubrics-types';
 import { BadgePlus, MinusCircleIcon } from 'lucide-react';
 import CustomButton from '@/components/ui/CustomButton';
 import { toast } from 'react-hot-toast';

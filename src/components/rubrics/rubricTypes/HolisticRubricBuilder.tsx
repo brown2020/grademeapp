@@ -1,5 +1,5 @@
 import React from 'react';
-import { HolisticRubric, GenericRubricCriteria } from '@/types/rubrics-types';
+import { HolisticRubric, GenericRubricCriteria } from '@/lib/types/rubrics-types';
 
 interface HolisticRubricBuilderProps {
   rubric: HolisticRubric;

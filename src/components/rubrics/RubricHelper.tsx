@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import CustomListbox from "@/components/ui/CustomListbox";
 import { Field } from "@headlessui/react";
 import TextareaAutosize from "react-textarea-autosize";
-import { getVerbsByValue, userInputs } from "@/constants/userInputs";
+import { getVerbsByValue, userInputs } from "@/lib/constants/userInputs";
 import { useRubricStore } from "@/zustand/useRubricStore";
 import useProfileStore from "@/zustand/useProfileStore";
 import { LifeBuoy } from "lucide-react";

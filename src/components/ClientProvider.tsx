@@ -5,7 +5,7 @@ import { Toaster } from "react-hot-toast";
 import { ClipLoader } from "react-spinners";
 import CookieConsent from "react-cookie-consent";
 
-import useAuthToken from "@/hooks/useAuthToken";
+import useAuthToken from "@/lib/hooks/useAuthToken";
 import { useInitializeStores } from "@/zustand/useInitializeStores";
 import ErrorBoundary from "./ErrorBoundary";
 

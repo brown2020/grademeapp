@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AnalyticalRubric, RubricType } from '@/types/rubrics-types';
+import { AnalyticalRubric, RubricType } from '@/lib/types/rubrics-types';
 import { toast } from 'react-hot-toast';
 import { BadgePlus, Save, Edit2Icon, Trash2 } from 'lucide-react';
 import CustomButton from '@/components/ui/CustomButton';

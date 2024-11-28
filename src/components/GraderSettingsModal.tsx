@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRubricStore } from '@/zustand/useRubricStore';
 import CustomListbox from '@/components/ui/CustomListbox';
-import userInputs from '@/constants/userInputs';
+import userInputs from '@/lib/constants/userInputs';
 import { Settings } from 'lucide-react';
 import CustomButton from '@/components/ui/CustomButton';
 

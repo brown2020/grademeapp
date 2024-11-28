@@ -3,8 +3,8 @@ import { Extension } from '@tiptap/core'
 import { Decoration, DecorationSet } from 'prosemirror-view'
 import { Plugin } from 'prosemirror-state'
 import nspell from 'nspell'
-import affData from '@/dictionaries/en_US.aff'
-import dicData from '@/dictionaries/en_US.dic'
+import affData from '@/lib/dictionaries/en_US.aff'
+import dicData from '@/lib/dictionaries/en_US.dic'
 
 type SpellcheckOptions = object;
 

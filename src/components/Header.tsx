@@ -10,7 +10,7 @@ import { useAuthStore } from "@/zustand/useAuthStore";
 import { signOut } from "firebase/auth";
 import { auth } from "@/firebase/firebaseClient";
 import CustomListbox from "@/components/ui/CustomListbox";
-import { userInputs } from "@/constants/userInputs";
+import { userInputs } from "@/lib/constants/userInputs";
 import { useMobileMenuStore } from "@/zustand/useMobileMenuStore";
 
 import school from "@/app/assets/school.svg";

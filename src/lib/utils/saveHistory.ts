@@ -1,8 +1,8 @@
 // src/utils/saveHistory.ts
 import { Timestamp, collection, doc, updateDoc, setDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebaseClient";
-import { GradingData } from "@/types/grading-data";
-import { Submission } from "@/types/user-history";
+import { GradingData } from "@/lib/types/grading-data";
+import { Submission } from "@/lib/types/user-history";
 
 // Define types for the saveHistory function
 export async function saveDocument(
