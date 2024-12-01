@@ -3,6 +3,8 @@
 import { createStreamableValue } from "ai/rsc";
 import { CoreMessage, streamText } from "ai";
 import { isProviderEnabled, getModel } from "@/lib/utils/registry";
+import { getApiKeys } from "@/lib/utils/user";
+
 
 // Function to validate input parameters
 function validateInputs(topic: string): { valid: boolean; error?: string } {
@@ -28,23 +30,39 @@ async function estimateTokens(messages: CoreMessage[], estimatedOutputTokens: nu
 }
 
 // Function to generate a deterministic response using OpenAI
-async function generateDeterministicResponse(selectedModelId: string, messages: CoreMessage[], estimatedOutputTokens: number, availableCredits: number) {
+async function generateDeterministicResponse(
+  selectedModelId: string,
+  messages: CoreMessage[],
+  estimatedOutputTokens: number,
+  availableCredits: number,
+  useCredits: boolean,
+  fireworks_api_key: string,
+  openai_api_key: string,
+) {
   const creditsPerDollar = Number(process.env.NEXT_PUBLIC_CREDITS_PER_DOLLAR) || 500 as number;
   const creditsPerInputToken = Number(process.env.NEXT_PUBLIC_CREDITS_PER_INPUT_TOKEN) || 0.000005 as number;
   const creditsPerOutputToken = Number(process.env.NEXT_PUBLIC_CREDITS_PER_OUTPUT_TOKEN) || 0.000015 as number;
 
-  // const modelId = selectedModelId || 'openai:gpt-4o-mini'
-
   const providerId = selectedModelId ? selectedModelId.split(':')[0] : 'openai'
+
   console.log(`Using model: ${selectedModelId}`)
-  // Check if provider is enabled
-  if (!isProviderEnabled(providerId)) {
-    console.log(
-      `Provider ${providerId} is not available (API key not configured or base URL not set)`
-    )
+  if (!isProviderEnabled(providerId) && useCredits) {
+    console.log(`Provider ${providerId} is not available (API key not configured or base URL not set)`)
   }
 
-  const model = !isProviderEnabled(providerId) ? getModel('openai:gpt-4o') : getModel(selectedModelId);
+  // Set the API key based on the provider
+  let apiKey = '';
+  if (!useCredits) {
+    if (providerId === 'fireworks') {
+      apiKey = fireworks_api_key;
+    } else if (providerId === 'openai') {
+      apiKey = openai_api_key;
+    }
+  }
+
+  const model = !isProviderEnabled(providerId) && useCredits
+    ? getModel('openai:gpt-4o')
+    : getModel(selectedModelId, apiKey);
 
   // Estimate token usage before making the request
   const { inputTokens, outputTokens } = await estimateTokens(messages, estimatedOutputTokens);
@@ -90,7 +108,7 @@ function createGradingMessages(
 ): CoreMessage[] {
 
   // Construct the system prompt based on user-provided inputs for enhanced accuracy
-  const systemPrompt = `You are a ${assigner} grading a ${prose}, in which a ${identityLevel} ${identity} is writing about ${topic} for his/her ${audience}. Grade the paper according this rubric: ${rubricString}. The word limit for this assignment is ${wordLimitType} ${wordLimit}. Provide a percentage grade, if the rubric has additional scoring metrics be sure to include your assessment according to those as well, and constructive feedback in the form of a detailed explanation. Please provide suggestions for improvement without directly giving the answers. Begin with positive feedback. Include specific quotes from the text to support your evaluation with ideas for improvement. Be careful not to give examples that the student can use directly in their work.`;
+  const systemPrompt = `You are a ${assigner} grading a ${prose}, in which a ${identityLevel} ${identity} is writing about ${topic} for his/her ${audience}. Grade the paper according this rubric: ${rubricString}. The word limit for this assignment is ${wordLimitType} ${wordLimit}. Assess whether the chosen topic, content and level of writing is appropriate for the age and expected skill level of the user. Provide a percentage grade. If the rubric has additional scoring metrics be sure to include your assessment according to those as well, and constructive feedback in the form of a detailed explanation. ALWAYS provide suggestions for improvement. Begin with positive feedback. Include specific quotes from the text to support your evaluation with ideas for improvement.`;
 
   // Provide the student's writing content to be graded
   const userPrompt = `Title: ${title} \n\nPlease review and grade the following essay based on the instructions above:\n\n${text}`;
@@ -115,12 +133,21 @@ export async function generateGrade(
   rubricString: string,
   title: string,
   text: string,
-  availableCredits: number
+  availableCredits: number,
+  useCredits: boolean,
+  userId: string,
 ) {
   const validation = validateInputs(text as string);
   if (!validation.valid) {
     throw new Error(validation.error);
   }
+
+  let apiKeys = null;
+  if (!useCredits) {
+    apiKeys = await getApiKeys(userId);
+  }
+
+  const { fireworks_api_key, openai_api_key } = apiKeys ?? {};
 
   // Estimate output tokens based on average response length (adjust this as needed)
   // TODO: Implement a more accurate way to estimate output tokens
@@ -139,5 +166,13 @@ export async function generateGrade(
     title,
     text,
   );
-  return await generateDeterministicResponse(selectedModelId, messages, estimatedOutputTokens, availableCredits);
+  return await generateDeterministicResponse(
+    selectedModelId,
+    messages,
+    estimatedOutputTokens,
+    availableCredits,
+    useCredits,
+    fireworks_api_key,
+    openai_api_key,
+  );
 }

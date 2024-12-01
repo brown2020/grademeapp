@@ -7,6 +7,10 @@ import { createOllama } from 'ollama-ai-provider'
 
 export const registry = createProviderRegistry({
   openai,
+  fireworks: createOpenAI({
+    apiKey: process.env.FIREWORKS_API_KEY,
+    baseURL: 'https://api.fireworks.ai/inference/v1',
+  }),
   anthropic,
   google,
   groq: createOpenAI({
@@ -26,7 +30,26 @@ export const registry = createProviderRegistry({
   })
 })
 
-export function getModel(model: string) {
+export function getModel(model: string, userApiKey?: string) {
+  const [provider, modelName] = model.split(':')
+
+  console.log("Use user API key", userApiKey)
+  console.log("Model", model)
+
+  if (userApiKey) {
+    switch (provider) {
+      case 'openai':
+        return createOpenAI({ apiKey: userApiKey })(modelName);
+      case 'fireworks':
+        return createOpenAI({
+          apiKey: userApiKey,
+          baseURL: 'https://api.fireworks.ai/inference/v1',
+        })(modelName);
+      default:
+        throw new Error(`Provider ${provider} does not support user API keys`);
+    }
+  }
+
   return registry.languageModel(model)
 }
 
@@ -34,6 +57,8 @@ export function isProviderEnabled(providerId: string): boolean {
   switch (providerId) {
     case 'openai':
       return !!process.env.OPENAI_API_KEY
+    case 'fireworks':
+      return !!process.env.FIREWORKS_API_KEY
     case 'anthropic':
       return !!process.env.ANTHROPIC_API_KEY
     case 'google':

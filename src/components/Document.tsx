@@ -1,10 +1,6 @@
 "use client";
 import { useEffect, useState, useCallback, FormEvent } from "react";
-import {
-  collection,
-  getDocs,
-  Timestamp,
-} from "firebase/firestore";
+import { collection, getDocs, Timestamp } from "firebase/firestore";
 import { toast } from "react-hot-toast";
 import { db } from "@/firebase/firebaseClient";
 import { useAuthStore } from "@/zustand/useAuthStore";
@@ -29,7 +25,6 @@ import { ModelSelector } from "./ModelSelector";
 import { getDefaultModelId } from '@/lib/utils'
 import { models } from '@/lib/types/models';
 import { useLocalStorage } from '@/lib/hooks/use-local-storage';
-
 
 const fetchDocumentById = async (uid: string, id: string) => {
   const docRef = collection(db, "users", uid, "summaries");
@@ -91,8 +86,6 @@ const Document = ({ onModelChange }: DocumentProps) => {
       toast.loading("Loading document...");
       getDocument();
     }
-
-    console.log(summaryID, submissionTimestamp);
   }, [uid, summaryID, submissionTimestamp]);
 
   // Find the matching submission
@@ -130,8 +123,8 @@ const Document = ({ onModelChange }: DocumentProps) => {
 
   // Effect to update the active state
   useEffect(() => {
-    setActive(gradingData.text.length > 1 && localCount > 0);
-  }, [localCount, gradingData.text]);
+    setActive(gradingData.text.length > 1 && localCount > 0 || !profile.useCredits && !thinking);
+  }, [localCount, gradingData.text, thinking, profile.useCredits]);
 
   // Get the current amount of credits from the profile
   useEffect(() => {
@@ -141,12 +134,12 @@ const Document = ({ onModelChange }: DocumentProps) => {
   // Handle form submission
   const handleSubmit = useCallback(async (e: FormEvent) => {
     e.preventDefault();
-    setActive(false);
+    setThinking(true);
     setSummary("");
     setFlagged("");
-    setThinking(true);
     setIsStreamingComplete(false);
     setHasSaved(false);
+    setActive(false);
 
     try {
       const {
@@ -174,7 +167,9 @@ const Document = ({ onModelChange }: DocumentProps) => {
         rubric,
         title,
         text,
-        profile.credits
+        profile.credits,
+        profile.useCredits,
+        uid
       );
 
       if (!result) throw new Error("No response");
@@ -192,8 +187,8 @@ const Document = ({ onModelChange }: DocumentProps) => {
         }
       }
 
-      setLocalCount((prev) => prev - creditsUsed);
       setThinking(false);
+      setLocalCount((prev) => prev - creditsUsed);
       setIsStreamingComplete(true);
     } catch (error) {
       console.error(error);
@@ -201,9 +196,11 @@ const Document = ({ onModelChange }: DocumentProps) => {
       setFlagged(
         "No suggestions found. Servers might be overloaded right now."
       );
+    } finally {
+      setThinking(false);
     }
   },
-    [gradingData, minusCredits, profile.credits, profile.identity, profile.identityLevel, selectedModelId]
+    [gradingData, minusCredits, profile.credits, profile.identity, profile.identityLevel, profile.useCredits, selectedModelId, uid]
   );
 
   // Effect to handle saving to history
@@ -249,7 +246,7 @@ const Document = ({ onModelChange }: DocumentProps) => {
     setHasSaved(false);
 
     try {
-      const { correctedTextArray, totalCreditsUsed } = await correctGrammarAndSpelling(gradingData.text, profile.credits);
+      const { correctedTextArray, totalCreditsUsed } = await correctGrammarAndSpelling(gradingData.text, profile.credits, profile.useCredits, uid, selectedModelId);
       const finalText = correctedTextArray.join("");
       console.log(finalText);
 
@@ -293,6 +290,8 @@ const Document = ({ onModelChange }: DocumentProps) => {
   if (!document) {
     return <div>Document not found</div>;
   }
+
+  console.log("Doc is ready to be graded: ", active)
 
   return (
     <div className="flex flex-col gap-y-3 mb-5">
@@ -354,7 +353,7 @@ const Document = ({ onModelChange }: DocumentProps) => {
               disabled={!active}
               className={`${!active ? "cursor-not-allowed" : ""}`}
             >
-              <Image alt={"grader icon"} src={grader} width={50} height={50} className="btn btn-shiny bg-secondary-97 border-2 border-primary-40 rounded-full size-16 p-0" />
+              <Image alt={"grader icon"} src={grader} width={50} height={50} className={`btn btn-shiny bg-secondary-97 border-2 border-primary-40 rounded-full size-16 p-0 ${!active ? "cursor-not-allowed opacity-50" : ""}`} />
             </button>
             <DownloadPopover content={gradingData.text} />
             <div

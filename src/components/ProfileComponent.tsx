@@ -112,7 +112,7 @@ export default function ProfileComponent() {
     }
   }, [deleteAccount, clearAuthDetails, router]);
 
-  const areApiKeysAvailable = fireworksApiKey && openaiApiKey;
+  const areApiKeysAvailable = fireworksApiKey || openaiApiKey;
 
   return (
     <div className="flex flex-col gap-4 profile-component">

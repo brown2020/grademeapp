@@ -19,6 +19,12 @@ export const models: Model[] = [
     providerId: 'openai'
   },
   {
+    id: 'accounts/fireworks/models/llama-v3p1-8b-instruct',
+    name: 'LLama v3p1 8B Instruct',
+    provider: 'Fireworks',
+    providerId: 'fireworks'
+  },
+  {
     id: 'claude-3-5-sonnet-latest',
     name: 'Claude 3.5 Sonnet',
     provider: 'Anthropic',

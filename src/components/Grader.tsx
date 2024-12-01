@@ -97,19 +97,20 @@ export default function Grader({ onModelChange }: GraderProps) {
 
   // Enable submit button if conditions are met
   useEffect(() => {
-    setActive(gradingData.text.length > 1 && localCount > 0 && !uploading);
-  }, [localCount, gradingData.text, uploading]);
-
+    setActive(gradingData.text.length > 1 && localCount > 0 || !profile.useCredits && !thinking);
+  }, [localCount, gradingData.text, thinking, profile.useCredits]);
 
   // Handle form submission
   const handleSubmit = useCallback(async (e: FormEvent) => {
     e.preventDefault();
-    setActive(false);
     setResponse("");
     setFlagged("");
     setThinking(true);
     setIsStreamingComplete(false);
     setHasSaved(false);
+    setActive(false);
+
+    console.log("Grading data:", gradingData);
 
     // convert rubric to string
     const rubricString = JSON.stringify(selectedRubric);
@@ -129,7 +130,9 @@ export default function Grader({ onModelChange }: GraderProps) {
         gradingData.title,
         gradingData.text,
         rubricString,
-        profile.credits
+        profile.credits,
+        profile.useCredits,
+        uid
       );
 
       if (!result) throw new Error("No response");
@@ -157,7 +160,7 @@ export default function Grader({ onModelChange }: GraderProps) {
         "No suggestions found. Servers might be overloaded right now."
       );
     }
-  }, [gradingData, profile.credits, minusCredits, profile.identity, profile.identityLevel, selectedRubric, setGradingData, selectedModelId]);
+  }, [gradingData, profile.credits, minusCredits, profile.identity, profile.identityLevel, profile.useCredits, selectedRubric, setGradingData, selectedModelId, uid]);
 
   // Effect to handle saving to history
   useEffect(() => {
@@ -181,6 +184,8 @@ export default function Grader({ onModelChange }: GraderProps) {
       document.getElementById("grademe")?.scrollIntoView({ behavior: "smooth" });
     }
   }, [response, flagged, thinking, uploading]);
+
+  console.log("Doc is ready to be graded: ", active)
 
   return (
     <main className="flex flex-col gap-y-4 pb-10 md:pb-0">
@@ -249,7 +254,7 @@ export default function Grader({ onModelChange }: GraderProps) {
               disabled={!active || uploading}
               className={`grader-grademe-button ${!active ? "cursor-not-allowed" : ""}`}
             >
-              <Image alt={"grader icon"} src={grader} width={50} height={50} className="btn btn-shiny bg-secondary-97 border-2 border-primary-40 rounded-full size-16 p-0" />
+              <Image alt={"grader icon"} src={grader} width={50} height={50} className={`btn btn-shiny bg-secondary-97 border-2 border-primary-40 rounded-full size-16 p-0 ${!active ? "cursor-not-allowed opacity-50" : ""}`} />
             </button>
             {/* File Upload */}
             <div

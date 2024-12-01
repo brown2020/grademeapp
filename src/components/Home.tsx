@@ -11,7 +11,7 @@ export default function Home() {
     <div className="flex flex-col my-7 px-2">
       {/* Logo and Title Section */}
       <div className="flex flex-col w-58 max-w-md size-56 items-center justify-center mx-auto shadow-2xl bg-secondary border-4 border-primary-40 rounded-full mb-3">
-        <Image src={grademe} alt="Grade.me" width={100} height={100} />
+        <Image src={grademe} alt="Grade.me" className="size-40" priority />
         <div className="text-2xl text-center text-primary-40 leading-6">Grade.me</div>
       </div>
 
