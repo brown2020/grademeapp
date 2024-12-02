@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import RubricTypeSelector from '@/components/rubrics/rubricTypes/RubricTypeSelector';
 import RubricTypeExplanation from '@/components/rubrics/rubricTypes/RubricTypeExplanation';
-import { RubricType } from '@/lib/types/rubrics-types';
+import { RubricState, RubricType } from '@/lib/types/rubrics-types';
 import { toast } from "react-hot-toast";
 import { Ban, Blocks, Save, XCircleIcon, DeleteIcon } from 'lucide-react';
 import CustomButton from '@/components/ui/CustomButton';
@@ -19,29 +19,37 @@ export default function RubricBuilder({ onClose }: {
     editingRubricId,
     activeRubric,
     setActiveRubric,
-    updateActiveRubric,
     createNewRubric,
     setShowDeleteModal,
     setRubricToDelete,
     clearActiveRubric,
+    rubricOptions,
   } = useRubricStore();
   const [hasSaved, setHasSaved] = useState(false);
+  const [localRubric, setLocalRubric] = useState<RubricState | null>(null);
 
   const initializeRubric = useCallback(() => {
     if (editingRubricId) {
-      const rubricToEdit = useRubricStore.getState().rubricOptions.find((r) => r.id === editingRubricId);
+      const rubricToEdit = rubricOptions.find((r) => r.id === editingRubricId);
       if (rubricToEdit) {
         setActiveRubric(rubricToEdit);
+        setLocalRubric(rubricToEdit);
       }
     } else if (!activeRubric) {
-      createNewRubric(RubricType.Analytical);
+      const newRubric = createNewRubric(RubricType.Analytical);
+      setLocalRubric(newRubric);
     }
-  }, [editingRubricId, activeRubric, setActiveRubric, createNewRubric]);
+  }, [editingRubricId, activeRubric, setActiveRubric, createNewRubric, rubricOptions]);
 
   useEffect(() => {
     initializeRubric();
   }, [initializeRubric]);
 
+  useEffect(() => {
+    if (activeRubric) {
+      setLocalRubric(activeRubric);
+    }
+  }, [activeRubric]);
 
   const handleClose = useCallback(() => {
     clearActiveRubric();
@@ -49,50 +57,53 @@ export default function RubricBuilder({ onClose }: {
   }, [clearActiveRubric, onClose])
 
   const handleSaveOrUpdate = useCallback(() => {
-    if (!activeRubric) {
+    if (!localRubric) {
       return;
     }
-
-    if (!activeRubric.name.trim() || !activeRubric.description?.trim()) {
+    if (!localRubric.name.trim() || !localRubric.description?.trim()) {
       toast.error('Please provide a name and description for the rubric.');
       return;
     }
-
-    if (!Object.keys(activeRubric.criteria).length) {
+    if (!Object.keys(localRubric.criteria).length) {
       toast.error('Please add at least one criterion.');
       return;
     }
-
     if (editingRubricId) {
-      updateCustomRubric(activeRubric.id, activeRubric);
+      updateCustomRubric(localRubric.id, localRubric);
       toast.success('Rubric updated successfully!');
     } else {
-      addCustomRubric(activeRubric);
+      addCustomRubric(localRubric);
       toast.success('Rubric created successfully!');
     }
-
     setHasSaved(true);
-
     handleClose();
-  }, [activeRubric, editingRubricId, updateCustomRubric, addCustomRubric, handleClose])
+  }, [localRubric, editingRubricId, updateCustomRubric, addCustomRubric, handleClose])
 
   const handleRubricTypeChange = useCallback((type: RubricType) => {
-    createNewRubric(type);
+    const newRubric = createNewRubric(type);
+    setLocalRubric(newRubric);
   }, [createNewRubric]);
 
   const handleDelete = useCallback(() => {
-    if (activeRubric) {
-      setRubricToDelete(activeRubric);
+    if (localRubric) {
+      setRubricToDelete(localRubric);
       setShowDeleteModal(true);
     }
-  }, [activeRubric, setRubricToDelete, setShowDeleteModal]);
+  }, [localRubric, setRubricToDelete, setShowDeleteModal]);
 
   const formatRubricType = (type: string) => {
     // first replace underscore with a space, then replace the first char of each with its uppercase version
     return type.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
   }
 
-  if (!activeRubric) return null;
+  const handleInputChange = (field: keyof RubricState, value: string) => {
+    setLocalRubric(prev => prev ? { ...prev, [field]: value } : null);
+    // updateActiveRubric({ [field]: value });
+  };
+
+  if (!localRubric) return null;
+
+  console.log('localRubric', localRubric);
 
   return (
     <div className="flex flex-col pb-1 z-50 rubric-builder">
@@ -112,13 +123,13 @@ export default function RubricBuilder({ onClose }: {
       {/* Rubric Type Selection */}
       {editingRubricId ? (
         <div className={`py-2`}>
-          <div className="block text-primary-20 font-semibold">Rubric Type: {activeRubric?.type}</div>
+          <div className="block text-primary-20 font-semibold">Rubric Type: {localRubric?.type}</div>
         </div>
       ) : (
         <div className={`text-sm mb-2 rubric-builder-type-selector`}>
           <label className="block text-primary-20 font-semibold">Rubric Type</label>
           <select
-            value={activeRubric?.type}
+            value={localRubric?.type}
             onChange={(e) => handleRubricTypeChange(e.target.value as RubricType)}
             className="px-2 py-1 w-full rounded shadow-sm text-xs border border-primary-40"
           >
@@ -129,7 +140,7 @@ export default function RubricBuilder({ onClose }: {
         </div>
       )}
 
-      {activeRubric && <RubricTypeExplanation selectedType={activeRubric.type} />}
+      {localRubric && <RubricTypeExplanation selectedType={localRubric.type} />}
 
       {/* Rubric Name */}
       <div className="w-full h-fit mb-1 rubric-builder-name">
@@ -137,8 +148,8 @@ export default function RubricBuilder({ onClose }: {
         <input
           type="text"
           name="name"
-          value={activeRubric?.name || ''}
-          onChange={(e) => updateActiveRubric({ name: e.target.value })}
+          value={localRubric?.name}
+          onChange={(e) => handleInputChange('name', e.target.value)}
           className="px-1 w-full py-0.5 rounded shadow-sm border border-primary-40"
         />
       </div>
@@ -148,14 +159,19 @@ export default function RubricBuilder({ onClose }: {
         <label className="block text-sm text-primary-20 font-semibold">Rubric Description</label>
         <textarea
           name="description"
-          value={activeRubric?.description ?? ''}
-          onChange={(e) => updateActiveRubric({ description: e.target.value })}
+          value={localRubric?.description ?? ''}
+          onChange={(e) => handleInputChange('description', e.target.value)}
           className="px-1 w-full py-0.5 rounded shadow-sm border border-primary-40"
           rows={2}
         />
       </div>
 
-      <RubricTypeSelector hasSaved={hasSaved} setHasSaved={setHasSaved} />
+      <RubricTypeSelector
+        rubric={localRubric}
+        onChange={setLocalRubric}
+        hasSaved={hasSaved}
+        setHasSaved={setHasSaved}
+      />
 
       {/* Save and Cancel Buttons */}
       <div className='flex flex-row justify-between'>

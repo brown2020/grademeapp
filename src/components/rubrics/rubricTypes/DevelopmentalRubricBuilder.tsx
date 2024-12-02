@@ -39,6 +39,49 @@ const DevelopmentalRubricBuilder: React.FC<DevelopmentalRubricBuilderProps> = ({
   const [savedCriteria, setSavedCriteria] = useState<DevelopmentalCriterionState[]>([]);
 
   useEffect(() => {
+    const initialSavedCriteria: DevelopmentalCriterionState[] = Object.entries(rubric.criteria).map(
+      ([criterionName, criterionValue]) => {
+        if (typeof criterionValue === 'object' && criterionValue !== null) {
+          // Check if criterionValue has 'stages' and 'description' properties
+          if ('stages' in criterionValue && 'description' in criterionValue) {
+            // criterionValue has expected structure
+            const stagesObj = criterionValue.stages as Record<string, string>;
+            const stagesArray = Object.entries(stagesObj).map(([stageName, stageDescription]) => ({
+              name: stageName,
+              description: stageDescription,
+            }));
+            return {
+              id: criterionName, // Use criterionName as ID
+              name: criterionName,
+              description: criterionValue.description as string,
+              stages: stagesArray,
+            };
+          } else {
+            // criterionValue is an object mapping stage names to descriptions
+            const stagesArray = Object.entries(criterionValue as Record<string, string>).map(
+              ([stageName, stageDescription]) => ({
+                name: stageName,
+                description: stageDescription,
+              })
+            );
+            return {
+              id: criterionName,
+              name: criterionName,
+              description: '', // No description provided
+              stages: stagesArray,
+            };
+          }
+        } else {
+          // criterionValue is not an object, skip
+          return null;
+        }
+      }
+    ).filter(Boolean) as DevelopmentalCriterionState[];
+
+    setSavedCriteria(initialSavedCriteria);
+  }, [rubric.criteria]);
+
+  useEffect(() => {
     if (hasSaved) {
       setSavedCriteria([]);
       setCurrentCriterion({

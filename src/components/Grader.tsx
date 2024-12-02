@@ -110,8 +110,6 @@ export default function Grader({ onModelChange }: GraderProps) {
     setHasSaved(false);
     setActive(false);
 
-    console.log("Grading data:", gradingData);
-
     // convert rubric to string
     const rubricString = JSON.stringify(selectedRubric);
     setGradingData({ rubric: selectedRubric });

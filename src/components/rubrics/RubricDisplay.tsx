@@ -177,7 +177,7 @@ function renderChecklistCriteria(rubric: ChecklistRubric) {
       {Object.entries(rubric.criteria).map(([requirement, response]) => (
         <div key={requirement} className="mb-2">
           <p className=" font-semibold">{requirement}</p>
-          <p className=" text-gray-600">{response}</p>
+          <p className=" text-gray-600">{renderContent(response)}</p>
         </div>
       ))}
     </div>

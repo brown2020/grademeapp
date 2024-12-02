@@ -1,15 +1,19 @@
+import { Timestamp } from 'firebase/firestore';
+
 // Base interface for all rubric types
 export interface BaseRubric {
   id: string;
   name: string;
   description?: string;
-  type: RubricType; // Specifies the type of rubric
+  type: RubricType;
   tags?: string[];
   identity?: string;
   identityLevel?: string;
   textType?: string;
   proseType?: string;
-  criteria: GenericRubricCriteria; // Use a more flexible type for criteria
+  criteria: GenericRubricCriteria;
+  timestamp?: Timestamp;
+  isCustom?: boolean;
 }
 
 // A more flexible approach to represent nested criteria for rubrics with varying depth.
@@ -58,9 +62,7 @@ export interface SinglePointRubric extends BaseRubric {
 
 export interface ChecklistRubric extends BaseRubric {
   type: RubricType.Checklist;
-  criteria: {
-    [requirement: string]: string;
-  };
+  criteria: GenericRubricCriteria;
 }
 
 // General interface for other types of rubrics if needed in the future
@@ -73,8 +75,10 @@ export interface OtherRubricType extends BaseRubric {
   | RubricType.MultiTrait
   | RubricType.TaskSpecific
   | RubricType.StandardsBased
-  | RubricType.SinglePoint
-  | RubricType.Checklist;
+  // | RubricType.SinglePoint
+  // | RubricType.Checklist
+  // | RubricType.Analytical
+  // | RubricType.Holistic;
   criteria: GenericRubricCriteria;
 }
 

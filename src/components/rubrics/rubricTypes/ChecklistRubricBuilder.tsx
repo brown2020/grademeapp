@@ -56,7 +56,12 @@ const ChecklistRubricBuilder: React.FC<ChecklistRubricBuilderProps> = ({ rubric,
   };
 
   const removeChecklistCriterion = (criterion: string) => {
-    const updatedCriteria: { [requirement: string]: string } = { ...rubric.criteria };
+    const updatedCriteria: { [requirement: string]: string } = Object.keys(rubric.criteria).reduce((acc, key) => {
+      if (typeof rubric.criteria[key] === 'string') {
+        acc[key] = rubric.criteria[key] as string;
+      }
+      return acc;
+    }, {} as { [requirement: string]: string });
     delete updatedCriteria[criterion];
     onChange({
       criteria: updatedCriteria,

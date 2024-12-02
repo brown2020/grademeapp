@@ -5,7 +5,8 @@ import { RubricState } from '@/lib/types/rubrics-types';
 import { useRubricStore } from '@/zustand/useRubricStore';
 import useProfileStore from '@/zustand/useProfileStore';
 import { toast } from 'react-hot-toast';
-import { Star, Edit3Icon, DeleteIcon } from 'lucide-react';
+import { Star, Edit3Icon, DeleteIcon, Copy } from 'lucide-react';
+import CustomButton from '@/components/ui/CustomButton';
 
 export default function RubricSearch() {
   const {
@@ -21,6 +22,7 @@ export default function RubricSearch() {
     setShowDeleteModal,
     setRubricToDelete,
     sortAndGroupRubrics,
+    copyDefaultRubric,
   } = useRubricStore();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -34,6 +36,7 @@ export default function RubricSearch() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery, rubricOptions, gradingData.textType, profile.identity, profile.identityLevel, profile.favoriteRubrics]);
 
+  // console.log(filteredRubrics);
 
   const handleRubricSelect = (rubric: RubricState) => {
     previousSelectedRubric.current = selectedRubric;
@@ -72,7 +75,16 @@ export default function RubricSearch() {
     setShowDeleteModal(true);
   }
 
-
+  const handleCopyRubric = (rubric: RubricState) => {
+    try {
+      copyDefaultRubric(rubric);
+      sortAndGroupRubrics(searchQuery, gradingData);
+      toast.success(`Rubric "${rubric.name}" copied successfully!`);
+    } catch (error) {
+      console.error('Failed to copy rubric:', error);
+      toast.error('Failed to copy rubric. Please try again.');
+    }
+  };
 
   return (
     <div ref={wrapperRef} className="relative w-full border border-secondary-30 rounded-lg">
@@ -105,6 +117,7 @@ export default function RubricSearch() {
                     strokeWidth={1}
                     className={`flex-none cursor-pointer mt-1 ${isFavorite ? "fill-yellow-300" : "fill-none"}`}
                   />
+
                   <div
                     key={rubric.name}
                     onClick={() => handleRubricSelect(rubric)}
@@ -114,6 +127,13 @@ export default function RubricSearch() {
                     <span className="block text-xs text-gray-800">{rubric.description}</span>
                   </div>
                 </div>
+                {!useCustomRubrics &&
+                  <CustomButton
+                    onClick={() => handleCopyRubric(rubric)}
+                    className="cursor-pointer"
+                  >
+                    <Copy className="size-4" />
+                  </CustomButton>}
                 {useCustomRubrics && customRubricsLoaded &&
                   <div className='flex gap-x-4'>
                     <Edit3Icon onClick={() => openRubricBuilder && openRubricBuilder(rubric.id)} className={`text-secondary-30 cursor-pointer`} />

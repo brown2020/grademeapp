@@ -23,7 +23,7 @@ interface RubricStoreState {
   rubricToDelete: RubricState | null;
   setShowDeleteModal: (show: boolean) => void;
   setRubricToDelete: (type: RubricState | null) => void;
-  createNewRubric: (type: RubricType) => void;
+  createNewRubric: (type: RubricType) => RubricState;
   clearActiveRubric: () => void;
   setActiveRubric: (rubric: RubricState | null) => void;
   updateActiveRubric: (updates: Partial<RubricState>) => void;
@@ -36,10 +36,11 @@ interface RubricStoreState {
   setSelectedRubric: (rubric: RubricState | null) => void;
   setGradingData: (data: Partial<GradingData>) => void;
   resetToDefaultRubrics: () => void;
-  addCustomRubric: (rubric: RubricState) => void;
-  updateCustomRubric: (rubricId: string, updatedRubric: Partial<RubricState>) => void;
+  addCustomRubric: (rubric: RubricState) => Promise<void>;
+  updateCustomRubric: (rubricId: string, updatedRubric: Partial<RubricState>) => Promise<void>;
   deleteCustomRubric: () => void;
   sortAndGroupRubrics: (searchQuery: string, gradingData: GradingData) => void;
+  copyDefaultRubric: (rubric: RubricState) => Promise<RubricState>;
   initializeStore: () => void;
 }
 
@@ -61,7 +62,7 @@ const isValidRubricState = (rubric: unknown): rubric is RubricState => {
 // Filter and map raw rubrics to ensure type safety
 const defaultRubrics: RubricState[] = rawRubrics.filter(isValidRubricState).map((rubric) => ({
   ...rubric,
-  type: RubricType[rubric.type as keyof typeof RubricType] ?? RubricType.Analytical,
+  type: rubric.type as RubricType,
   tags: rubric.tags || [],
   criteria: rubric.criteria as unknown as GenericRubricCriteria,
 })) as RubricState[];
@@ -192,11 +193,17 @@ export const useRubricStore = create<RubricStoreState>((set, get) => {
     setEditingRubricId: (id: string | undefined) => set({ editingRubricId: id }),
     activeRubric: null,
     setActiveRubric: (rubric: RubricState | null) => set({ activeRubric: rubric }),
-    updateActiveRubric: (updates: Partial<RubricState>) =>
-      set((state) => ({
-        activeRubric: state.activeRubric ? { ...state.activeRubric, ...updates } as RubricState : null,
-      })),
-    createNewRubric: (type: RubricType) => set({ activeRubric: getInitialRubricState(type) }),
+    updateActiveRubric: (updates: Partial<Omit<RubricState, 'type'>>) =>
+      set((state) => {
+        if (!state.activeRubric) return {};
+        const updatedRubric = { ...state.activeRubric, ...updates };
+        return { activeRubric: updatedRubric };
+      }),
+    createNewRubric: (type: RubricType) => {
+      const newRubric = getInitialRubricState(type);
+      set({ activeRubric: newRubric });
+      return newRubric;
+    },
     clearActiveRubric: () => set({ activeRubric: null }),
     showDeleteModal: false,
     rubricToDelete: null,
@@ -232,10 +239,15 @@ export const useRubricStore = create<RubricStoreState>((set, get) => {
       try {
         const customRubricCollection = collection(db, "users", uid, "custom_rubrics");
         const customRubricSnapshot = await getDocs(customRubricCollection);
-        const fetchedRubrics = customRubricSnapshot.docs.map((doc) => ({
-          ...doc.data(),
-          id: doc.id,
-        })) as RubricState[];
+        const fetchedRubrics = customRubricSnapshot.docs.map((doc) => {
+          const data = doc.data();
+          const type = data.type as RubricType;
+          return {
+            ...data,
+            id: doc.id,
+            type,
+          };
+        }) as RubricState[];
 
         set({
           rubricOptions: fetchedRubrics,
@@ -276,7 +288,7 @@ export const useRubricStore = create<RubricStoreState>((set, get) => {
         console.log("Generated ID:", generatedId);
 
         // Add the generated ID to the rubric object
-        const rubricWithId = { ...rubric, id: generatedId, timestamp: Timestamp.now() };
+        const rubricWithId = { ...rubric, id: generatedId, timestamp: Timestamp.now(), isCustom: true };
 
         // Save the rubric to Firestore
         await setDoc(customRubricRef, rubricWithId);
@@ -391,6 +403,46 @@ export const useRubricStore = create<RubricStoreState>((set, get) => {
       } catch (error) {
         console.error("Failed to delete rubric from Firebase:", error);
         throw error;
+      }
+    },
+
+    // Copy default rubric to custom rubrics
+    copyDefaultRubric: async (rubric: RubricState): Promise<RubricState> => {
+      const { uid } = useAuthStore.getState();
+      if (!uid) {
+        console.error("User ID is required to copy a default rubric.");
+        throw new Error("User ID is required to copy a default rubric.");
+      }
+
+      try {
+        // Create a new document reference with an auto-generated ID
+        const customRubricRef = doc(collection(db, "users", uid, "custom_rubrics"));
+        const generatedId = customRubricRef.id;
+        console.log("Generated ID:", generatedId);
+
+        // Add the generated ID to the rubric object and rename it
+        const rubricWithId: RubricState = {
+          ...rubric,
+          id: generatedId,
+          name: `Copy of ${rubric.name}`,
+          timestamp: Timestamp.now(),
+          isCustom: true // Add a flag to identify it as a custom rubric
+        };
+
+        // Save the rubric to Firestore
+        await setDoc(customRubricRef, rubricWithId);
+
+        // Update the local state
+        set((state) => ({
+          rubricOptions: [...state.rubricOptions, rubricWithId],
+          filteredRubrics: state.useCustomRubrics ? [...state.filteredRubrics, rubricWithId] : state.filteredRubrics,
+        }));
+
+        console.log("Rubric created successfully with ID:", generatedId);
+        return rubricWithId;
+      } catch (error) {
+        console.error("Failed to add rubric to Firebase:", error);
+        throw error; // Rethrow if needed for error handling in components
       }
     },
 

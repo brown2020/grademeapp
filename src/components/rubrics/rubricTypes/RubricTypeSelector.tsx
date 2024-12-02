@@ -1,48 +1,64 @@
 // RubricTypeSelector.tsx
 
 import React from 'react';
-import { useRubricStore } from '@/zustand/useRubricStore';
 import AnalyticalRubricBuilder from '@/components/rubrics/rubricTypes/AnalyticalRubricBuilder';
 import ChecklistRubricBuilder from '@/components/rubrics/rubricTypes/ChecklistRubricBuilder';
 import HolisticRubricBuilder from '@/components/rubrics/rubricTypes/HolisticRubricBuilder';
 import SinglePointRubricBuilder from '@/components/rubrics/rubricTypes/SinglePointRubricBuilder';
 import ContentSpecificRubricBuilder from './ContentSpecificRubricBuilder';
 import DevelopmentalRubricBuilder from './DevelopmentalRubricBuilder';
-import { RubricType, AnalyticalRubric, HolisticRubric, SinglePointRubric, ChecklistRubric, OtherRubricType } from '@/lib/types/rubrics-types';
+import { RubricType, RubricState, SinglePointRubric, ChecklistRubric, AnalyticalRubric, HolisticRubric } from '@/lib/types/rubrics-types';
 
 
 interface RubricTypeSelectorProps {
+  rubric: RubricState;
+  onChange: (updatedRubric: RubricState) => void;
   setHasSaved: (hasSaved: boolean) => void;
   hasSaved: boolean;
 }
 
 const RubricTypeSelector: React.FC<RubricTypeSelectorProps> = ({
+  rubric,
+  onChange,
   hasSaved,
   setHasSaved,
 }) => {
-  const { activeRubric, updateActiveRubric } = useRubricStore();
-
-  if (!activeRubric) return null;
-
-  // console.log(activeRubric);
-
-  switch (activeRubric.type) {
+  switch (rubric.type) {
     case RubricType.Analytical:
       return (
-        <AnalyticalRubricBuilder rubric={activeRubric as AnalyticalRubric} onChange={updateActiveRubric} hasSaved={hasSaved} setHasSaved={setHasSaved} />
+        <AnalyticalRubricBuilder
+          rubric={rubric as AnalyticalRubric}
+          onChange={onChange}
+          hasSaved={hasSaved}
+          setHasSaved={setHasSaved}
+        />
       );
     case RubricType.Holistic:
-      return <HolisticRubricBuilder rubric={activeRubric as HolisticRubric} onChange={updateActiveRubric} />;
+      return <HolisticRubricBuilder rubric={rubric as HolisticRubric} onChange={onChange} />;
     case RubricType.SinglePoint:
-      return <SinglePointRubricBuilder rubric={activeRubric as SinglePointRubric} onChange={updateActiveRubric} />;
+      return <SinglePointRubricBuilder rubric={rubric as SinglePointRubric} onChange={(updatedRubric: Partial<RubricState>) => onChange(updatedRubric as RubricState)} />;
     case RubricType.Checklist:
-      return <ChecklistRubricBuilder rubric={activeRubric as ChecklistRubric} onChange={updateActiveRubric} />;
+      return <ChecklistRubricBuilder rubric={rubric as ChecklistRubric} onChange={(updatedRubric: Partial<RubricState>) => onChange(updatedRubric as RubricState)} />;
     case RubricType.ContentSpecific:
-      return <ContentSpecificRubricBuilder rubric={activeRubric as OtherRubricType} onChange={updateActiveRubric} hasSaved={hasSaved} setHasSaved={setHasSaved} />;
+      return (
+        <ContentSpecificRubricBuilder
+          rubric={rubric}
+          onChange={onChange}
+          hasSaved={hasSaved}
+          setHasSaved={setHasSaved}
+        />
+      );
     case RubricType.Developmental:
-      return <DevelopmentalRubricBuilder rubric={activeRubric as OtherRubricType} onChange={updateActiveRubric} hasSaved={hasSaved} setHasSaved={setHasSaved} />;
+      return (
+        <DevelopmentalRubricBuilder
+          rubric={rubric}
+          onChange={onChange}
+          hasSaved={hasSaved}
+          setHasSaved={setHasSaved}
+        />
+      );
     default:
-      return null; // Or a fallback component
+      return null;
   }
 };
 
