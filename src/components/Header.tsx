@@ -85,7 +85,7 @@ export default function Header() {
             }}
           >
             <div className="flex size-12 aspect-square">
-              <Image alt="Grade.me" src={grademe} width={50} height={50} className="" />
+              <Image alt="Grademe logo" src={grademe} loading="lazy" className="size-12" />
             </div>
             <div className="flex text-lg font-medium">Grade.me</div>
           </div>
@@ -101,7 +101,7 @@ export default function Header() {
               }}
             >
               <div className="h-12 aspect-square">
-                <Image alt="rubrics" src={rubric} width={75} height={75} className="" />
+                <Image alt="rubrics" src={rubric} width={75} height={75} loading="lazy" />
               </div>
               <div className="text-lg font-medium">rubrics</div>
             </div>
@@ -113,7 +113,7 @@ export default function Header() {
               }}
             >
               <div className="h-12 aspect-square">
-                <Image alt="grader" src={grader} width={75} height={75} className="" />
+                <Image alt="grader" src={grader} width={75} height={75} loading="lazy" />
               </div>
               <div className="text-lg font-medium">grader</div>
             </div>
@@ -125,7 +125,7 @@ export default function Header() {
               }}
             >
               <div className="h-12 aspect-square">
-                <Image alt="assignments" src={school} width={75} height={75} className="" />
+                <Image alt="assignments" src={school} width={75} height={75} loading="lazy" />
               </div>
               <div className="text-lg font-medium">assignments</div>
             </div>
@@ -144,6 +144,7 @@ export default function Header() {
                   width={50}
                   height={50}
                   className="rounded-full border-2 border-spacing-2 border-primary-40"
+                  loading="lazy"
                 />
               </div>
             ) : <div className="size-9 md:size-12 aspect-square">
@@ -183,6 +184,7 @@ export default function Header() {
                     width={50}
                     height={50}
                     className="rounded-full border-2 border-spacing-2 border-primary-40"
+                    loading="lazy"
                   />
                 </div>
               ) : uid ? (

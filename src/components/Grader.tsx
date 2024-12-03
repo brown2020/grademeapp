@@ -183,8 +183,6 @@ export default function Grader({ onModelChange }: GraderProps) {
     }
   }, [response, flagged, thinking, uploading]);
 
-  console.log("Doc is ready to be graded: ", active)
-
   return (
     <main className="flex flex-col gap-y-4 pb-10 md:pb-0">
       <div>

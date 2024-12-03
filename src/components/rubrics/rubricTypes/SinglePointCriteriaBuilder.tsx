@@ -1,12 +1,12 @@
 import React from 'react';
 import { SinglePointRubric, GenericRubricCriteria, RubricState } from '@/lib/types/rubrics-types';
 
-interface SinglePointRubricBuilderProps {
+interface SinglePointCriteriaBuilderProps {
   rubric: SinglePointRubric;
   onChange: (updatedRubric: Partial<RubricState>) => void;
 }
 
-const SinglePointRubricBuilder: React.FC<SinglePointRubricBuilderProps> = ({ rubric, onChange }) => {
+const SinglePointCriteriaBuilder: React.FC<SinglePointCriteriaBuilderProps> = ({ rubric, onChange }) => {
   const handleChange = (field: keyof SinglePointRubric['criteria'] | 'Strengths' | 'Areas for Improvement', value: string) => {
     const feedback = rubric.feedback || { Strengths: '', "Areas for Improvement": '' };
     if (field === 'Proficient') {
@@ -61,4 +61,4 @@ const SinglePointRubricBuilder: React.FC<SinglePointRubricBuilderProps> = ({ rub
   );
 };
 
-export default SinglePointRubricBuilder;
+export default SinglePointCriteriaBuilder;

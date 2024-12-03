@@ -14,14 +14,14 @@ interface AnalyticalCriterionState {
   Beginning: string;
 }
 
-interface AnalyticalRubricBuilderProps {
+interface AnalyticalCriteriaBuilderProps {
   rubric: AnalyticalRubric;
   onChange: (updatedRubric: AnalyticalRubric) => void;
   setHasSaved: (hasSaved: boolean) => void;
   hasSaved: boolean;
 }
 
-const AnalyticalRubricBuilder: React.FC<AnalyticalRubricBuilderProps> = ({
+const AnalyticalCriteriaBuilder: React.FC<AnalyticalCriteriaBuilderProps> = ({
   rubric,
   onChange,
   setHasSaved,
@@ -186,4 +186,4 @@ const AnalyticalRubricBuilder: React.FC<AnalyticalRubricBuilderProps> = ({
   );
 };
 
-export default AnalyticalRubricBuilder;
+export default AnalyticalCriteriaBuilder;

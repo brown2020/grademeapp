@@ -1,12 +1,12 @@
 import React from 'react';
 import { HolisticRubric, GenericRubricCriteria } from '@/lib/types/rubrics-types';
 
-interface HolisticRubricBuilderProps {
+interface HolisticCriteriaBuilderProps {
   rubric: HolisticRubric;
   onChange: (updatedRubric: HolisticRubric) => void;
 }
 
-const HolisticRubricBuilder: React.FC<HolisticRubricBuilderProps> = ({ rubric, onChange }) => {
+const HolisticCriteriaBuilder: React.FC<HolisticCriteriaBuilderProps> = ({ rubric, onChange }) => {
   const handleLevelChange = (level: keyof HolisticRubric['criteria'], value: string) => {
     const updatedCriteria = { ...rubric.criteria, [level]: value };
     onChange({ ...rubric, criteria: updatedCriteria });
@@ -31,4 +31,4 @@ const HolisticRubricBuilder: React.FC<HolisticRubricBuilderProps> = ({ rubric, o
   );
 };
 
-export default HolisticRubricBuilder;
+export default HolisticCriteriaBuilder;

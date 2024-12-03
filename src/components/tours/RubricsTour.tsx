@@ -96,7 +96,6 @@ export default function RubricsTour() {
 
         const isVisible = elements.some(el => el && isElementVisible(el))
 
-        // console.log(`Step ${index} (${step.title}) availability:`, isVisible, 'Elements:', elements)
         if (!isVisible) {
           console.log(`Step ${index} elements details:`, elements.map(el => ({
             classList: el?.classList,
@@ -132,7 +131,6 @@ export default function RubricsTour() {
     } else if (type === 'step:after') {
       const nextStepIndex = index + 1
       if (stepsRef.current[nextStepIndex] && !stepsRef.current[nextStepIndex].isAvailable?.()) {
-        console.log(`Step ${nextStepIndex} not available, waiting...`)
         return
       }
     }

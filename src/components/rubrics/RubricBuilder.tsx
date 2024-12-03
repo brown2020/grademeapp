@@ -80,6 +80,7 @@ export default function RubricBuilder({ onClose }: {
   }, [localRubric, editingRubricId, updateCustomRubric, addCustomRubric, handleClose])
 
   const handleRubricTypeChange = useCallback((type: RubricType) => {
+    console.log(type)
     const newRubric = createNewRubric(type);
     setLocalRubric(newRubric);
   }, [createNewRubric]);
@@ -98,12 +99,9 @@ export default function RubricBuilder({ onClose }: {
 
   const handleInputChange = (field: keyof RubricState, value: string) => {
     setLocalRubric(prev => prev ? { ...prev, [field]: value } : null);
-    // updateActiveRubric({ [field]: value });
   };
 
   if (!localRubric) return null;
-
-  console.log('localRubric', localRubric);
 
   return (
     <div className="flex flex-col pb-1 z-50 rubric-builder">
@@ -133,9 +131,11 @@ export default function RubricBuilder({ onClose }: {
             onChange={(e) => handleRubricTypeChange(e.target.value as RubricType)}
             className="px-2 py-1 w-full rounded shadow-sm text-xs border border-primary-40"
           >
-            {Object.values(RubricType).map((type) => (
-              <option key={type} value={type}>{formatRubricType(type)}</option>
-            ))}
+            {Object.values(RubricType)
+              .filter((type) => typeof type === 'string')
+              .map((type) => (
+                <option key={type} value={type}>{formatRubricType(type)}</option>
+              ))}
           </select>
         </div>
       )}

@@ -36,7 +36,7 @@ export default function BottomBar() {
         }}
       >
         <div className="h-10 aspect-square">
-          <Image alt="rubrics" src={rubric} width={75} height={75} />
+          <Image alt="rubrics" src={rubric} width={75} height={75} loading="lazy" />
         </div>
       </div>
       <div
@@ -47,7 +47,7 @@ export default function BottomBar() {
         }}
       >
         <div className="h-10 aspect-square">
-          <Image alt="grader" src={grader} width={75} height={75} />
+          <Image alt="grader" src={grader} width={75} height={75} loading="lazy" />
         </div>
       </div>
       <div
@@ -58,7 +58,7 @@ export default function BottomBar() {
         }}
       >
         <div className="h-10 aspect-square">
-          <Image alt="assignments" src={school} width={75} height={75} />
+          <Image alt="assignments" src={school} width={75} height={75} loading="lazy" />
         </div>
       </div>
       <div

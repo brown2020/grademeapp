@@ -16,14 +16,14 @@ interface ContentSpecificCriterionState {
   levels: PerformanceLevel[];
 }
 
-interface ContentSpecificRubricBuilderProps {
+interface ContentSpecificCriteriaBuilderProps {
   rubric: OtherRubricType;
   onChange: (updatedRubric: OtherRubricType) => void;
   hasSaved: boolean;
   setHasSaved: (hasSaved: boolean) => void;
 }
 
-const ContentSpecificRubricBuilder: React.FC<ContentSpecificRubricBuilderProps> = ({ rubric, onChange, hasSaved, setHasSaved }) => {
+const ContentSpecificCriteriaBuilder: React.FC<ContentSpecificCriteriaBuilderProps> = ({ rubric, onChange, hasSaved, setHasSaved }) => {
   const [currentCriterion, setCurrentCriterion] = useState<ContentSpecificCriterionState>({
     id: '',
     name: '',
@@ -228,4 +228,4 @@ const ContentSpecificRubricBuilder: React.FC<ContentSpecificRubricBuilderProps> 
   );
 };
 
-export default ContentSpecificRubricBuilder;
+export default ContentSpecificCriteriaBuilder;

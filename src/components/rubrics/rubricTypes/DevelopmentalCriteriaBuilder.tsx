@@ -16,14 +16,14 @@ interface DevelopmentalCriterionState {
   stages: DevelopmentalStage[];
 }
 
-interface DevelopmentalRubricBuilderProps {
+interface DevelopmentalCriteriaBuilderProps {
   rubric: OtherRubricType;
   onChange: (updatedRubric: OtherRubricType) => void;
   hasSaved: boolean;
   setHasSaved: (hasSaved: boolean) => void;
 }
 
-const DevelopmentalRubricBuilder: React.FC<DevelopmentalRubricBuilderProps> = ({ rubric, onChange, hasSaved, setHasSaved }) => {
+const DevelopmentalCriteriaBuilder: React.FC<DevelopmentalCriteriaBuilderProps> = ({ rubric, onChange, hasSaved, setHasSaved }) => {
   const [currentCriterion, setCurrentCriterion] = useState<DevelopmentalCriterionState>({
     id: '',
     name: '',
@@ -67,7 +67,7 @@ const DevelopmentalRubricBuilder: React.FC<DevelopmentalRubricBuilderProps> = ({
             return {
               id: criterionName,
               name: criterionName,
-              description: '', // No description provided
+              description: '',
               stages: stagesArray,
             };
           }
@@ -257,4 +257,4 @@ const DevelopmentalRubricBuilder: React.FC<DevelopmentalRubricBuilderProps> = ({
   );
 };
 
-export default DevelopmentalRubricBuilder;
+export default DevelopmentalCriteriaBuilder;

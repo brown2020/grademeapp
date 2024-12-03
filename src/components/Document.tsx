@@ -287,11 +287,9 @@ const Document = ({ onModelChange }: DocumentProps) => {
     return <div>Loading...</div>;
   }
 
-  if (!document) {
+  if (!userDoc) {
     return <div>Document not found</div>;
   }
-
-  console.log("Doc is ready to be graded: ", active)
 
   return (
     <div className="flex flex-col gap-y-3 mb-5">

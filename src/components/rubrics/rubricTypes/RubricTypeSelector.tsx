@@ -1,13 +1,14 @@
 // RubricTypeSelector.tsx
 
 import React from 'react';
-import AnalyticalRubricBuilder from '@/components/rubrics/rubricTypes/AnalyticalRubricBuilder';
-import ChecklistRubricBuilder from '@/components/rubrics/rubricTypes/ChecklistRubricBuilder';
-import HolisticRubricBuilder from '@/components/rubrics/rubricTypes/HolisticRubricBuilder';
-import SinglePointRubricBuilder from '@/components/rubrics/rubricTypes/SinglePointRubricBuilder';
-import ContentSpecificRubricBuilder from './ContentSpecificRubricBuilder';
-import DevelopmentalRubricBuilder from './DevelopmentalRubricBuilder';
-import { RubricType, RubricState, SinglePointRubric, ChecklistRubric, AnalyticalRubric, HolisticRubric } from '@/lib/types/rubrics-types';
+import AnalyticalCriteriaBuilder from '@/components/rubrics/rubricTypes/AnalyticalCriteriaBuilder';
+import ChecklistCriteriaBuilder from '@/components/rubrics/rubricTypes/ChecklistCriteriaBuilder';
+import HolisticCriteriaBuilder from '@/components/rubrics/rubricTypes/HolisticCriteriaBuilder';
+import SinglePointCriteriaBuilder from '@/components/rubrics/rubricTypes/SinglePointCriteriaBuilder';
+import ContentSpecificCriteriaBuilder from '@/components/rubrics/rubricTypes/ContentSpecificCriteriaBuilder';
+import DevelopmentalCriteriaBuilder from '@/components/rubrics/rubricTypes/DevelopmentalCriteriaBuilder';
+import MultiTraitCriteriaBuilder from '@/components/rubrics/rubricTypes/MultiTraitCriteriaBuilder';
+import { RubricType, RubricState, SinglePointRubric, ChecklistRubric, AnalyticalRubric, HolisticRubric, MultiTraitRubric, OtherRubricType } from '@/lib/types/rubrics-types';
 
 
 interface RubricTypeSelectorProps {
@@ -26,7 +27,7 @@ const RubricTypeSelector: React.FC<RubricTypeSelectorProps> = ({
   switch (rubric.type) {
     case RubricType.Analytical:
       return (
-        <AnalyticalRubricBuilder
+        <AnalyticalCriteriaBuilder
           rubric={rubric as AnalyticalRubric}
           onChange={onChange}
           hasSaved={hasSaved}
@@ -34,28 +35,22 @@ const RubricTypeSelector: React.FC<RubricTypeSelectorProps> = ({
         />
       );
     case RubricType.Holistic:
-      return <HolisticRubricBuilder rubric={rubric as HolisticRubric} onChange={onChange} />;
+      return <HolisticCriteriaBuilder rubric={rubric as HolisticRubric} onChange={onChange} />;
     case RubricType.SinglePoint:
-      return <SinglePointRubricBuilder rubric={rubric as SinglePointRubric} onChange={(updatedRubric: Partial<RubricState>) => onChange(updatedRubric as RubricState)} />;
+      return <SinglePointCriteriaBuilder rubric={rubric as SinglePointRubric} onChange={(updatedRubric: Partial<RubricState>) => onChange(updatedRubric as RubricState)} />;
     case RubricType.Checklist:
-      return <ChecklistRubricBuilder rubric={rubric as ChecklistRubric} onChange={(updatedRubric: Partial<RubricState>) => onChange(updatedRubric as RubricState)} />;
+      return <ChecklistCriteriaBuilder rubric={rubric as ChecklistRubric} onChange={(updatedRubric: Partial<RubricState>) => onChange(updatedRubric as RubricState)} />;
     case RubricType.ContentSpecific:
       return (
-        <ContentSpecificRubricBuilder
-          rubric={rubric}
-          onChange={onChange}
-          hasSaved={hasSaved}
-          setHasSaved={setHasSaved}
-        />
+        <ContentSpecificCriteriaBuilder rubric={rubric as OtherRubricType} onChange={onChange} hasSaved={hasSaved} setHasSaved={setHasSaved} />
       );
     case RubricType.Developmental:
       return (
-        <DevelopmentalRubricBuilder
-          rubric={rubric}
-          onChange={onChange}
-          hasSaved={hasSaved}
-          setHasSaved={setHasSaved}
-        />
+        <DevelopmentalCriteriaBuilder rubric={rubric as OtherRubricType} onChange={onChange} hasSaved={hasSaved} setHasSaved={setHasSaved} />
+      );
+    case RubricType.MultiTrait:
+      return (
+        <MultiTraitCriteriaBuilder rubric={rubric as MultiTraitRubric} onChange={onChange} hasSaved={hasSaved} setHasSaved={setHasSaved} />
       );
     default:
       return null;

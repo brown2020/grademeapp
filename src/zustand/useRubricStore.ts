@@ -38,7 +38,7 @@ interface RubricStoreState {
   resetToDefaultRubrics: () => void;
   addCustomRubric: (rubric: RubricState) => Promise<void>;
   updateCustomRubric: (rubricId: string, updatedRubric: Partial<RubricState>) => Promise<void>;
-  deleteCustomRubric: () => void;
+  deleteCustomRubric: () => Promise<void>;
   sortAndGroupRubrics: (searchQuery: string, gradingData: GradingData) => void;
   copyDefaultRubric: (rubric: RubricState) => Promise<RubricState>;
   initializeStore: () => void;
@@ -196,7 +196,7 @@ export const useRubricStore = create<RubricStoreState>((set, get) => {
     updateActiveRubric: (updates: Partial<Omit<RubricState, 'type'>>) =>
       set((state) => {
         if (!state.activeRubric) return {};
-        const updatedRubric = { ...state.activeRubric, ...updates };
+        const updatedRubric = { ...state.activeRubric, ...updates } as RubricState;
         return { activeRubric: updatedRubric };
       }),
     createNewRubric: (type: RubricType) => {
@@ -229,6 +229,7 @@ export const useRubricStore = create<RubricStoreState>((set, get) => {
     setFilteredRubrics: (filtered: RubricState[]) => set({ filteredRubrics: filtered }),
     setSelectedRubric: (rubric: RubricState | null) => set((state) => ({ selectedRubric: rubric, gradingData: { ...state.gradingData, rubric } })),
     setGradingData: (data: Partial<GradingData>) => set((state) => ({ gradingData: { ...state.gradingData, ...data } })),
+
     // Toggle custom rubric usage and fetch custom rubrics if enabled
     fetchCustomRubrics: async (uid: string | null) => {
       if (!uid) {
@@ -378,8 +379,6 @@ export const useRubricStore = create<RubricStoreState>((set, get) => {
         return;
       }
 
-      console.log("Deleting custom rubric with ID:", rubricToDelete.id);
-
       try {
         const customRubricRef = doc(db, "users", uid, "custom_rubrics", rubricToDelete.id);
 
@@ -418,7 +417,6 @@ export const useRubricStore = create<RubricStoreState>((set, get) => {
         // Create a new document reference with an auto-generated ID
         const customRubricRef = doc(collection(db, "users", uid, "custom_rubrics"));
         const generatedId = customRubricRef.id;
-        console.log("Generated ID:", generatedId);
 
         // Add the generated ID to the rubric object and rename it
         const rubricWithId: RubricState = {
@@ -438,7 +436,6 @@ export const useRubricStore = create<RubricStoreState>((set, get) => {
           filteredRubrics: state.useCustomRubrics ? [...state.filteredRubrics, rubricWithId] : state.filteredRubrics,
         }));
 
-        console.log("Rubric created successfully with ID:", generatedId);
         return rubricWithId;
       } catch (error) {
         console.error("Failed to add rubric to Firebase:", error);

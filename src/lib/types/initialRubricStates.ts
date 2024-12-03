@@ -1,5 +1,5 @@
 // initialRubricStates.ts
-import { RubricType, AnalyticalRubric, HolisticRubric, SinglePointRubric, ChecklistRubric, OtherRubricType } from '@/lib/types/rubrics-types';
+import { RubricType, AnalyticalRubric, HolisticRubric, SinglePointRubric, ChecklistRubric, MultiTraitRubric, OtherRubricType } from '@/lib/types/rubrics-types';
 
 export const initialAnalyticalRubric: AnalyticalRubric = {
   id: '',
@@ -48,6 +48,29 @@ export const initialChecklistRubric: ChecklistRubric = {
   }
 };
 
+export const initialMultiTraitRubric: MultiTraitRubric = {
+  id: '',
+  name: '',
+  description: '',
+  type: RubricType.MultiTrait,
+  criteria: {
+    "Trait 1": {
+      description: ' ',
+      subCriteria: {
+        "Sub-trait 1": {
+          description: '',
+          levels: {
+            "Level 1": '',
+            "Level 2": '',
+            "Level 3": '',
+            "Level 4": '',
+          }
+        }
+      }
+    }
+  }
+};
+
 export const initialContentSpecificRubric: OtherRubricType = {
   id: '',
   name: '',
@@ -64,6 +87,8 @@ export const initialDevelopmentalRubric: OtherRubricType = {
   criteria: {}
 };
 
+
+
 export const getInitialRubricState = (type: RubricType) => {
   switch (type) {
     case RubricType.Analytical:
@@ -78,6 +103,8 @@ export const getInitialRubricState = (type: RubricType) => {
       return initialContentSpecificRubric;
     case RubricType.Developmental:
       return initialDevelopmentalRubric;
+    case RubricType.MultiTrait:
+      return initialMultiTraitRubric;
     default:
       return initialAnalyticalRubric;
   }

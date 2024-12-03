@@ -1,7 +1,7 @@
 import { Timestamp } from 'firebase/firestore';
 
 // Base interface for all rubric types
-export interface BaseRubric {
+export interface BaseRubric<TCriteria = GenericRubricCriteria> {
   id: string;
   name: string;
   description?: string;
@@ -11,27 +11,20 @@ export interface BaseRubric {
   identityLevel?: string;
   textType?: string;
   proseType?: string;
-  criteria: GenericRubricCriteria;
+  criteria: TCriteria;
   timestamp?: Timestamp;
   isCustom?: boolean;
 }
 
 // A more flexible approach to represent nested criteria for rubrics with varying depth.
 export interface GenericRubricCriteria {
-  [criterion: string]: string | number | NestedRubricCriteria | (string | number)[] | Record<string, string | number | object>;
-}
-
-export interface AnalyticalRubric extends BaseRubric {
-  type: RubricType.Analytical;
-}
-
-export interface HolisticRubric extends BaseRubric {
-  type: RubricType.Holistic;
-}
-
-export interface HolisticAnalyticalRubric extends BaseRubric {
-  type: RubricType.HolisticAnalytical;
-  criteria: GenericRubricCriteria;
+  [criterion: string]:
+  | string
+  | number
+  | NestedRubricCriteria
+  | (string | number)[]
+  | Record<string, string | number | object>
+  | MultiTraitCriterion;
 }
 
 // Nested structure to support varying levels of depth in criteria
@@ -40,29 +33,44 @@ export interface NestedRubricCriteria {
 }
 
 // Analytical rubric: includes multiple specific categories for evaluation
-export interface AnalyticalRubric extends BaseRubric {
+export interface AnalyticalRubric extends BaseRubric<GenericRubricCriteria> {
   type: RubricType.Analytical;
-  criteria: GenericRubricCriteria;
 }
 
 // Holistic rubric: provides a general overall evaluation
-export interface HolisticRubric extends BaseRubric {
+export interface HolisticRubric extends BaseRubric<GenericRubricCriteria> {
   type: RubricType.Holistic;
-  criteria: GenericRubricCriteria;
 }
 
-export interface SinglePointRubric extends BaseRubric {
+export interface SinglePointRubric extends BaseRubric<GenericRubricCriteria> {
   type: RubricType.SinglePoint;
-  criteria: GenericRubricCriteria;
   feedback?: {
     Strengths: string;
     "Areas for Improvement": string;
   };
 }
 
-export interface ChecklistRubric extends BaseRubric {
+export interface ChecklistRubric extends BaseRubric<GenericRubricCriteria> {
   type: RubricType.Checklist;
-  criteria: GenericRubricCriteria;
+}
+
+// Define interfaces for MultiTraitRubric
+export interface MultiTraitRubric extends BaseRubric<Record<string, MultiTraitCriterion>> {
+  type: RubricType.MultiTrait;
+}
+
+export interface MultiTraitCriterion {
+  [key: string]: string | number | object | undefined;
+  name?: string;
+  description?: string;
+  subCriteria: Record<string, MultiTraitSubCriterion>;
+}
+
+export interface MultiTraitSubCriterion {
+  [key: string]: string | number | object | undefined;
+  name?: string;
+  description?: string;
+  levels: Record<string, string>; // Performance levels and their descriptions
 }
 
 // General interface for other types of rubrics if needed in the future
@@ -72,7 +80,7 @@ export interface OtherRubricType extends BaseRubric {
   | RubricType.SkillFocused
   | RubricType.Developmental
   | RubricType.PrimaryTrait
-  | RubricType.MultiTrait
+  // | RubricType.MultiTrait
   | RubricType.TaskSpecific
   | RubricType.StandardsBased
   // | RubricType.SinglePoint
@@ -86,12 +94,11 @@ export interface OtherRubricType extends BaseRubric {
 export enum RubricType {
   Analytical = 'analytical',
   Holistic = 'holistic',
-  HolisticAnalytical = 'holistic_analytical',
   ContentSpecific = 'content-specific',
   SkillFocused = 'skill-focused',
   Developmental = 'developmental',
   PrimaryTrait = 'primary_trait',
-  MultiTrait = 'multitrait',
+  MultiTrait = 'multi-trait',
   TaskSpecific = 'task_specific',
   StandardsBased = 'standards_based',
   SinglePoint = 'single_point',
@@ -104,6 +111,7 @@ export type RubricState =
   | AnalyticalRubric
   | SinglePointRubric
   | ChecklistRubric
+  | MultiTraitRubric
   | OtherRubricType;
 
 
@@ -130,11 +138,11 @@ export interface Rubrics {
 export type DefaultRubricKeys =
   | "holistic"
   | "analytical"
-  | "holistic_analytical"
+  // | "holistic_analytical"
   | "content-specific"
   | "developmental"
   | "primary_trait"
-  | "multitrait"
+  | "multi_trait"
   | "task_specific"
   | "standards_based"
   | "single_point"

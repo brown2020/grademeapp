@@ -4,12 +4,12 @@ import { BadgePlus, MinusCircleIcon } from 'lucide-react';
 import CustomButton from '@/components/ui/CustomButton';
 import { toast } from 'react-hot-toast';
 
-interface ChecklistRubricBuilderProps {
+interface ChecklistCriteriaBuilderProps {
   rubric: ChecklistRubric;
   onChange: (updatedRubric: Partial<RubricState>) => void;
 }
 
-const ChecklistRubricBuilder: React.FC<ChecklistRubricBuilderProps> = ({ rubric, onChange }) => {
+const ChecklistCriteriaBuilder: React.FC<ChecklistCriteriaBuilderProps> = ({ rubric, onChange }) => {
   const [newCriterion, setNewCriterion] = useState('');
   const [editedCriterion, setEditedCriterion] = useState<string | null>(null);
   const [tempValue, setTempValue] = useState('');
@@ -104,4 +104,4 @@ const ChecklistRubricBuilder: React.FC<ChecklistRubricBuilderProps> = ({ rubric,
   );
 };
 
-export default ChecklistRubricBuilder;
+export default ChecklistCriteriaBuilder;

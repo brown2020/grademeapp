@@ -190,7 +190,6 @@ export function HomeTour() {
 
   const handleJoyrideCallback = (data: CallBackProps) => {
     const { status, type, index, action } = data;
-    console.log('Joyride callback:', { status, type, index, action });
 
     if (([STATUS.FINISHED, STATUS.SKIPPED] as string[]).includes(status)) {
       console.log('Tour finished or skipped');
@@ -198,17 +197,14 @@ export function HomeTour() {
       setIsOpen(false);
       setStepIndex(0);
     } else if (type === 'step:before') {
-      console.log('Before step:', index);
       const currentStep = stepsRef.current[index];
       if (currentStep.action) {
         currentStep.action();
       }
     } else if (type === 'step:after') {
-      console.log('After step:', index);
       if (action === 'next' && index < stepsRef.current.length - 1) {
         setStepIndex(index + 1);
       } else if (index === stepsRef.current.length - 1) {
-        console.log('Last step completed');
         setRun(false);
         setIsOpen(false);
         setStepIndex(0);

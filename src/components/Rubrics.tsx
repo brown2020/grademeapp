@@ -62,7 +62,6 @@ export default function Rubrics() {
 
   const onDeleteConfirm = async () => {
     if (rubricToDelete) {
-      console.log("onDeleteConfirm", rubricToDelete);
       try {
         await deleteCustomRubric();
         toast.success("Rubric deleted successfully");

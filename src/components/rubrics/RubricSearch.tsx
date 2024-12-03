@@ -75,9 +75,9 @@ export default function RubricSearch() {
     setShowDeleteModal(true);
   }
 
-  const handleCopyRubric = (rubric: RubricState) => {
+  const handleCopyRubric = async (rubric: RubricState) => {
     try {
-      copyDefaultRubric(rubric);
+      await copyDefaultRubric(rubric);
       sortAndGroupRubrics(searchQuery, gradingData);
       toast.success(`Rubric "${rubric.name}" copied successfully!`);
     } catch (error) {

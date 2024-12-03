@@ -154,7 +154,6 @@ export default function RubricHelperTour() {
     } else if (type === 'step:after') {
       const nextStepIndex = index + 1
       if (stepsRef.current[nextStepIndex] && !stepsRef.current[nextStepIndex].isAvailable?.()) {
-        console.log(`Step ${nextStepIndex} not available, waiting...`)
         return
       }
     }
