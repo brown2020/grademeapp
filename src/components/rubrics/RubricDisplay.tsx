@@ -68,12 +68,12 @@ function renderGenericCriteria(rubric: OtherRubricType) {
     <div>
       {Object.entries(rubric.criteria).map(([criterion, levels], index) => (
         <div key={`criterion-${index}`} className="mb-4">
-          <h3 className=" font-semibold">{criterion}</h3>
+          <h3 className=" font-semibold">{criterion}: </h3>
           {/* Check if levels are an object (i.e., for Analytical/MultiTrait), otherwise treat it as a simple string */}
           {typeof levels === 'object' ? (
             Object.entries(levels as Record<string, string>).map(([levelName, description], index) => (
               <div key={`level-${index}`} className="ml-4">
-                <span className=" font-semibold">{levelName}</span>
+                <span className=" font-semibold">{levelName}: </span>
                 <span className=" text-text">{typeof description === 'string' ? description : ''}</span>
               </div>
             ))
@@ -204,15 +204,15 @@ function renderMultiTraitCriteria(rubric: MultiTraitRubric) {
     <div>
       {Object.entries(rubric.criteria).map(([criterionName, criterion]) => (
         <div key={criterionName} className="mb-4">
-          <h3 className="font-semibold">{criterionName}</h3>
+          <h3 className="font-semibold">{criterionName}: </h3>
           <span className="text-gray-600 ml-2">{criterion.description}</span>
           {Object.entries(criterion.subCriteria).map(([subCriterionId, subCriterion]) => (
             <div key={subCriterionId} className="ml-4 mt-2">
-              <h4 className="font-medium">{subCriterion.description}</h4>
+              <h4 className="font-medium">{subCriterion.description}: </h4>
               <div className="ml-2">
                 {Object.entries(subCriterion.levels).map(([levelName, description]) => (
                   <div key={levelName} className="flex flex-row gap-x-2">
-                    <span className="font-semibold">{levelName}:</span>
+                    <span className="font-semibold">{levelName}: </span>
                     <span className="text-gray-600">{description}</span>
                   </div>
                 ))}

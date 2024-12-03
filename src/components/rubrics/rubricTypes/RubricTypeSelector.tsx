@@ -9,6 +9,7 @@ import ContentSpecificCriteriaBuilder from '@/components/rubrics/rubricTypes/Con
 import DevelopmentalCriteriaBuilder from '@/components/rubrics/rubricTypes/DevelopmentalCriteriaBuilder';
 import MultiTraitCriteriaBuilder from '@/components/rubrics/rubricTypes/MultiTraitCriteriaBuilder';
 import PrimaryTraitCriteriaBuilder from '@/components/rubrics/rubricTypes/PrimaryTraitCriteriaBuilder';
+import SkillFocusedCriteriaBuilder from '@/components/rubrics/rubricTypes/SkillFocusedCriteriaBuilder';
 import { RubricType, RubricState, SinglePointRubric, ChecklistRubric, AnalyticalRubric, HolisticRubric, MultiTraitRubric, OtherRubricType } from '@/lib/types/rubrics-types';
 
 
@@ -56,6 +57,10 @@ const RubricTypeSelector: React.FC<RubricTypeSelectorProps> = ({
     case RubricType.PrimaryTrait:
       return (
         <PrimaryTraitCriteriaBuilder rubric={rubric as OtherRubricType} onChange={onChange} hasSaved={hasSaved} setHasSaved={setHasSaved} />
+      );
+    case RubricType.SkillFocused:
+      return (
+        <SkillFocusedCriteriaBuilder rubric={rubric as OtherRubricType} onChange={onChange} hasSaved={hasSaved} setHasSaved={setHasSaved} />
       );
     default:
       return null;

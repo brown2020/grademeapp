@@ -36,6 +36,14 @@ export const initialSinglePointRubric: SinglePointRubric = {
   }
 };
 
+export const initialSkillFocusedRubric: OtherRubricType = {
+  id: '',
+  name: '',
+  description: '',
+  type: RubricType.SkillFocused,
+  criteria: {}
+};
+
 export const initialChecklistRubric: ChecklistRubric = {
   id: '',
   name: '',
@@ -115,6 +123,8 @@ export const getInitialRubricState = (type: RubricType) => {
       return initialPrimaryTraitRubric;
     case RubricType.MultiTrait:
       return initialMultiTraitRubric;
+    case RubricType.SkillFocused:
+      return initialSkillFocusedRubric;
     default:
       return initialAnalyticalRubric;
   }
