@@ -48,6 +48,14 @@ export const initialChecklistRubric: ChecklistRubric = {
   }
 };
 
+export const initialPrimaryTraitRubric: OtherRubricType = {
+  id: '',
+  name: '',
+  description: '',
+  type: RubricType.PrimaryTrait,
+  criteria: {}
+};
+
 export const initialMultiTraitRubric: MultiTraitRubric = {
   id: '',
   name: '',
@@ -103,6 +111,8 @@ export const getInitialRubricState = (type: RubricType) => {
       return initialContentSpecificRubric;
     case RubricType.Developmental:
       return initialDevelopmentalRubric;
+    case RubricType.PrimaryTrait:
+      return initialPrimaryTraitRubric;
     case RubricType.MultiTrait:
       return initialMultiTraitRubric;
     default:

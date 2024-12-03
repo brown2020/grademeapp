@@ -8,6 +8,7 @@ import SinglePointCriteriaBuilder from '@/components/rubrics/rubricTypes/SingleP
 import ContentSpecificCriteriaBuilder from '@/components/rubrics/rubricTypes/ContentSpecificCriteriaBuilder';
 import DevelopmentalCriteriaBuilder from '@/components/rubrics/rubricTypes/DevelopmentalCriteriaBuilder';
 import MultiTraitCriteriaBuilder from '@/components/rubrics/rubricTypes/MultiTraitCriteriaBuilder';
+import PrimaryTraitCriteriaBuilder from '@/components/rubrics/rubricTypes/PrimaryTraitCriteriaBuilder';
 import { RubricType, RubricState, SinglePointRubric, ChecklistRubric, AnalyticalRubric, HolisticRubric, MultiTraitRubric, OtherRubricType } from '@/lib/types/rubrics-types';
 
 
@@ -51,6 +52,10 @@ const RubricTypeSelector: React.FC<RubricTypeSelectorProps> = ({
     case RubricType.MultiTrait:
       return (
         <MultiTraitCriteriaBuilder rubric={rubric as MultiTraitRubric} onChange={onChange} hasSaved={hasSaved} setHasSaved={setHasSaved} />
+      );
+    case RubricType.PrimaryTrait:
+      return (
+        <PrimaryTraitCriteriaBuilder rubric={rubric as OtherRubricType} onChange={onChange} hasSaved={hasSaved} setHasSaved={setHasSaved} />
       );
     default:
       return null;

@@ -97,7 +97,7 @@ export enum RubricType {
   ContentSpecific = 'content-specific',
   SkillFocused = 'skill-focused',
   Developmental = 'developmental',
-  PrimaryTrait = 'primary_trait',
+  PrimaryTrait = 'primary-trait',
   MultiTrait = 'multi-trait',
   TaskSpecific = 'task_specific',
   StandardsBased = 'standards_based',
