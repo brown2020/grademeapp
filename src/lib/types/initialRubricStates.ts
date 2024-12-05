@@ -103,6 +103,21 @@ export const initialDevelopmentalRubric: OtherRubricType = {
   criteria: {}
 };
 
+export const initialTaskSpecificRubric: OtherRubricType = {
+  id: '',
+  name: '',
+  description: '',
+  type: RubricType.TaskSpecific,
+  criteria: {}
+};
+
+export const initialStandardsBasedRubric: OtherRubricType = {
+  id: '',
+  name: '',
+  description: '',
+  type: RubricType.StandardsBased,
+  criteria: {}
+};
 
 
 export const getInitialRubricState = (type: RubricType) => {
@@ -125,6 +140,10 @@ export const getInitialRubricState = (type: RubricType) => {
       return initialMultiTraitRubric;
     case RubricType.SkillFocused:
       return initialSkillFocusedRubric;
+    case RubricType.TaskSpecific:
+      return initialTaskSpecificRubric;
+    case RubricType.StandardsBased:
+      return initialStandardsBasedRubric;
     default:
       return initialAnalyticalRubric;
   }

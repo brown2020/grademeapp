@@ -1,25 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { OtherRubricType, GenericRubricCriteria } from '@/lib/types/rubrics-types';
+import { SkillFocusedRubric, GenericRubricCriteria } from '@/lib/types/rubrics-types';
 import { toast } from 'react-hot-toast';
-import { BadgePlus, Save, Edit2Icon, Trash2 } from 'lucide-react';
+import { BadgePlus, Save, Edit2Icon, Trash2, PlusCircle } from 'lucide-react';
 import CustomButton from '@/components/ui/CustomButton';
 
 interface SkillFocusedCriteriaBuilderProps {
-  rubric: OtherRubricType;
-  onChange: (updatedRubric: OtherRubricType) => void;
+  rubric: SkillFocusedRubric;
+  onChange: (updatedRubric: SkillFocusedRubric) => void;
   hasSaved: boolean;
   setHasSaved: (hasSaved: boolean) => void;
+}
+
+interface PerformanceLevel {
+  name: string;
+  description: string;
 }
 
 interface SkillComponent {
   id: string;
   name: string;
-  levels: {
-    Exemplary: string;
-    Proficient: string;
-    Developing: string;
-    Emerging: string;
-  };
+  levels: PerformanceLevel[];
 }
 
 const SkillFocusedCriteriaBuilder: React.FC<SkillFocusedCriteriaBuilderProps> = ({
@@ -32,12 +32,12 @@ const SkillFocusedCriteriaBuilder: React.FC<SkillFocusedCriteriaBuilderProps> = 
   const [currentSkillComponent, setCurrentSkillComponent] = useState<SkillComponent>({
     id: '',
     name: '',
-    levels: {
-      Exemplary: '',
-      Proficient: '',
-      Developing: '',
-      Emerging: '',
-    },
+    levels: [
+      { name: 'Exemplary', description: '' },
+      { name: 'Proficient', description: '' },
+      { name: 'Developing', description: '' },
+      { name: 'Emerging', description: '' },
+    ],
   });
   const [isEditing, setIsEditing] = useState(false);
 
@@ -46,7 +46,10 @@ const SkillFocusedCriteriaBuilder: React.FC<SkillFocusedCriteriaBuilderProps> = 
       const initialSkillComponents = Object.entries(rubric.criteria).map(([name, criterion]) => ({
         id: name,
         name,
-        levels: (criterion as GenericRubricCriteria) as SkillComponent['levels'],
+        levels: Object.entries(criterion as GenericRubricCriteria).map(([levelName, description]) => ({
+          name: levelName,
+          description: String(description)
+        }))
       }));
       setSkillComponents(initialSkillComponents);
     }
@@ -58,12 +61,12 @@ const SkillFocusedCriteriaBuilder: React.FC<SkillFocusedCriteriaBuilderProps> = 
       setCurrentSkillComponent({
         id: '',
         name: '',
-        levels: {
-          Exemplary: '',
-          Proficient: '',
-          Developing: '',
-          Emerging: '',
-        },
+        levels: [
+          { name: 'Exemplary', description: '' },
+          { name: 'Proficient', description: '' },
+          { name: 'Developing', description: '' },
+          { name: 'Emerging', description: '' },
+        ],
       });
       setIsEditing(false);
       setHasSaved(false);
@@ -83,7 +86,10 @@ const SkillFocusedCriteriaBuilder: React.FC<SkillFocusedCriteriaBuilderProps> = 
     setSkillComponents(updatedSkillComponents);
 
     const updatedCriteria = updatedSkillComponents.reduce((acc, sc) => {
-      acc[sc.name] = sc.levels;
+      acc[sc.name] = sc.levels.reduce((levelAcc, level) => {
+        levelAcc[level.name] = level.description;
+        return levelAcc;
+      }, {} as Record<string, string>);
       return acc;
     }, {} as GenericRubricCriteria);
 
@@ -92,12 +98,12 @@ const SkillFocusedCriteriaBuilder: React.FC<SkillFocusedCriteriaBuilderProps> = 
     setCurrentSkillComponent({
       id: '',
       name: '',
-      levels: {
-        Exemplary: '',
-        Proficient: '',
-        Developing: '',
-        Emerging: '',
-      },
+      levels: [
+        { name: 'Exemplary', description: '' },
+        { name: 'Proficient', description: '' },
+        { name: 'Developing', description: '' },
+        { name: 'Emerging', description: '' },
+      ],
     });
     setIsEditing(false);
     setHasSaved(false);
@@ -113,7 +119,10 @@ const SkillFocusedCriteriaBuilder: React.FC<SkillFocusedCriteriaBuilderProps> = 
     setSkillComponents(updatedSkillComponents);
 
     const updatedCriteria = updatedSkillComponents.reduce((acc, sc) => {
-      acc[sc.name] = sc.levels;
+      acc[sc.name] = sc.levels.reduce((levelAcc, level) => {
+        levelAcc[level.name] = level.description;
+        return levelAcc;
+      }, {} as Record<string, string>);
       return acc;
     }, {} as GenericRubricCriteria);
 
@@ -124,16 +133,30 @@ const SkillFocusedCriteriaBuilder: React.FC<SkillFocusedCriteriaBuilderProps> = 
     setCurrentSkillComponent(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleLevelChange = (level: keyof SkillComponent['levels'], value: string) => {
+  const handleLevelChange = (index: number, field: keyof PerformanceLevel, value: string) => {
     setCurrentSkillComponent(prev => ({
       ...prev,
-      levels: { ...prev.levels, [level]: value },
+      levels: prev.levels.map((level, i) => i === index ? { ...level, [field]: value } : level),
+    }));
+  };
+
+  const addPerformanceLevel = () => {
+    setCurrentSkillComponent(prev => ({
+      ...prev,
+      levels: [...prev.levels, { name: '', description: '' }],
+    }));
+  };
+
+  const removePerformanceLevel = (index: number) => {
+    setCurrentSkillComponent(prev => ({
+      ...prev,
+      levels: prev.levels.filter((_, i) => i !== index),
     }));
   };
 
   return (
     <div className="mb-2 p-2 border border-primary-40 rounded-sm">
-      <h3 className="text-primary-30 text-center font-semibold">Create Skill-Focused Rubric</h3>
+      <h3 className="text-primary-30 text-center font-semibold">Create Skill-Focused Criterion</h3>
       <div>
         <label className="block text-sm font-semibold text-primary-10">Skill Component Name</label>
         <input
@@ -145,18 +168,33 @@ const SkillFocusedCriteriaBuilder: React.FC<SkillFocusedCriteriaBuilderProps> = 
       </div>
       <div className="mt-4">
         <h4 className="text-primary-20 font-semibold">Performance Levels</h4>
-        {(['Exemplary', 'Proficient', 'Developing', 'Emerging'] as const).map((level) => (
-          <div key={level} className="mt-2">
-            <label className="block text-sm font-semibold text-primary-10">{level}</label>
+        {currentSkillComponent.levels.map((level, index) => (
+          <div key={index} className="mt-2 p-2 border border-primary-20 rounded space-y-2">
+            <div className="flex justify-between items-center">
+              <input
+                type="text"
+                value={level.name}
+                onChange={(e) => handleLevelChange(index, 'name', e.target.value)}
+                className="px-1 w-1/2 py-0.5 rounded shadow-sm border border-primary-40"
+                placeholder="Level name"
+              />
+              <button onClick={() => removePerformanceLevel(index)} className="text-red-500 hover:text-red-700">
+                <Trash2 size={20} />
+              </button>
+            </div>
             <textarea
-              value={currentSkillComponent.levels[level]}
-              onChange={(e) => handleLevelChange(level, e.target.value)}
+              value={level.description}
+              onChange={(e) => handleLevelChange(index, 'description', e.target.value)}
               className="px-1 w-full py-0.5 rounded shadow-sm border border-primary-40"
               rows={2}
-              placeholder={`${level} level description`}
+              placeholder="Level Description"
             />
           </div>
         ))}
+        <CustomButton onClick={addPerformanceLevel} className="btn btn-shiny bg-primary-80 gap-x-2 w-fit text-primary-10 mt-2">
+          <PlusCircle size={18} />
+          <span>Add Performance Level</span>
+        </CustomButton>
       </div>
       <CustomButton onClick={addOrUpdateSkillComponent} className="btn btn-shiny bg-primary-80 gap-x-2 w-fit text-primary-10 mt-4">
         {isEditing ? <Save size={18} /> : <BadgePlus size={18} />}

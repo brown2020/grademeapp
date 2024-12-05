@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { OtherRubricType, GenericRubricCriteria } from '@/lib/types/rubrics-types';
+import { PrimaryTraitRubric, GenericRubricCriteria } from '@/lib/types/rubrics-types';
 import { toast } from 'react-hot-toast';
 import { BadgePlus, Save, Edit2Icon, Trash2 } from 'lucide-react';
 import CustomButton from '@/components/ui/CustomButton';
 
 interface PrimaryTraitCriteriaBuilderProps {
-  rubric: OtherRubricType;
-  onChange: (updatedRubric: OtherRubricType) => void;
+  rubric: PrimaryTraitRubric;
+  onChange: (updatedRubric: PrimaryTraitRubric) => void;
   hasSaved: boolean;
   setHasSaved: (hasSaved: boolean) => void;
 }
@@ -140,7 +140,7 @@ const PrimaryTraitCriteriaBuilder: React.FC<PrimaryTraitCriteriaBuilderProps> = 
 
   return (
     <div className="mb-2 p-2 border border-primary-40 rounded-sm">
-      <h3 className="text-primary-30 text-center font-semibold">Create Primary Trait Criterion</h3>
+      <h3 className="text-primary-30 text-center font-semibold">Create Primary-Trait Criterion</h3>
       <div>
         <label className="block text-sm font-semibold text-primary-10">Criterion Name</label>
         <input

@@ -73,21 +73,29 @@ export interface MultiTraitSubCriterion {
   levels: Record<string, string>; // Performance levels and their descriptions
 }
 
-// General interface for other types of rubrics if needed in the future
-export interface OtherRubricType extends BaseRubric {
-  type:
-  | RubricType.ContentSpecific
-  | RubricType.SkillFocused
-  | RubricType.Developmental
-  | RubricType.PrimaryTrait
-  // | RubricType.MultiTrait
-  | RubricType.TaskSpecific
-  | RubricType.StandardsBased
-  // | RubricType.SinglePoint
-  // | RubricType.Checklist
-  // | RubricType.Analytical
-  // | RubricType.Holistic;
-  criteria: GenericRubricCriteria;
+// New interfaces for the missing rubric types
+export interface ContentSpecificRubric extends BaseRubric<GenericRubricCriteria> {
+  type: RubricType.ContentSpecific;
+}
+
+export interface SkillFocusedRubric extends BaseRubric<GenericRubricCriteria> {
+  type: RubricType.SkillFocused;
+}
+
+export interface DevelopmentalRubric extends BaseRubric<GenericRubricCriteria> {
+  type: RubricType.Developmental;
+}
+
+export interface PrimaryTraitRubric extends BaseRubric<GenericRubricCriteria> {
+  type: RubricType.PrimaryTrait;
+}
+
+export interface TaskSpecificRubric extends BaseRubric<GenericRubricCriteria> {
+  type: RubricType.TaskSpecific;
+}
+
+export interface StandardsBasedRubric extends BaseRubric<GenericRubricCriteria> {
+  type: RubricType.StandardsBased;
 }
 
 // Enum for type safety across rubric types
@@ -99,9 +107,9 @@ export enum RubricType {
   Developmental = 'developmental',
   PrimaryTrait = 'primary-trait',
   MultiTrait = 'multi-trait',
-  TaskSpecific = 'task_specific',
-  StandardsBased = 'standards_based',
-  SinglePoint = 'single_point',
+  TaskSpecific = 'task-specific',
+  StandardsBased = 'standards-based',
+  SinglePoint = 'single-point',
   Checklist = 'checklist'
 }
 
@@ -112,8 +120,12 @@ export type RubricState =
   | SinglePointRubric
   | ChecklistRubric
   | MultiTraitRubric
-  | OtherRubricType;
-
+  | ContentSpecificRubric
+  | SkillFocusedRubric
+  | DevelopmentalRubric
+  | PrimaryTraitRubric
+  | TaskSpecificRubric
+  | StandardsBasedRubric;
 
 /**
  * Default Rubric Structure:
@@ -138,12 +150,12 @@ export interface Rubrics {
 export type DefaultRubricKeys =
   | "holistic"
   | "analytical"
-  // | "holistic_analytical"
   | "content-specific"
   | "developmental"
-  | "primary_trait"
-  | "multi_trait"
-  | "task_specific"
-  | "standards_based"
-  | "single_point"
+  | "primary-trait"
+  | "multi-trait"
+  | "task-specific"
+  | "standards-based"
+  | "single-point"
   | "checklist";
+

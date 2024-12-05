@@ -1,43 +1,85 @@
 import React, { useState, useEffect } from 'react';
-import { OtherRubricType, GenericRubricCriteria } from '@/lib/types/rubrics-types';
+import { DevelopmentalRubric, GenericRubricCriteria } from '@/lib/types/rubrics-types';
 import { toast } from 'react-hot-toast';
 import { BadgePlus, Save, Edit2Icon, Trash2, PlusCircle } from 'lucide-react';
 import CustomButton from '@/components/ui/CustomButton';
 
-interface PerformanceLevel {
+interface DevelopmentalStage {
   name: string;
   description: string;
 }
 
-interface ContentSpecificCriterionState {
+interface DevelopmentalCriterionState {
   id: string;
   name: string;
   description: string;
-  levels: PerformanceLevel[];
+  stages: DevelopmentalStage[];
 }
 
-interface ContentSpecificCriteriaBuilderProps {
-  rubric: OtherRubricType;
-  onChange: (updatedRubric: OtherRubricType) => void;
+interface DevelopmentalCriteriaBuilderProps {
+  rubric: DevelopmentalRubric;
+  onChange: (updatedRubric: DevelopmentalRubric) => void;
   hasSaved: boolean;
   setHasSaved: (hasSaved: boolean) => void;
 }
 
-const ContentSpecificCriteriaBuilder: React.FC<ContentSpecificCriteriaBuilderProps> = ({ rubric, onChange, hasSaved, setHasSaved }) => {
-  const [currentCriterion, setCurrentCriterion] = useState<ContentSpecificCriterionState>({
+const DevelopmentalCriteriaBuilder: React.FC<DevelopmentalCriteriaBuilderProps> = ({ rubric, onChange, hasSaved, setHasSaved }) => {
+  const [currentCriterion, setCurrentCriterion] = useState<DevelopmentalCriterionState>({
     id: '',
     name: '',
     description: '',
-    levels: [
-      { name: 'Excellent', description: '' },
-      { name: 'Proficient', description: '' },
+    stages: [
+      { name: 'Emerging', description: '' },
       { name: 'Developing', description: '' },
-      { name: 'Beginning', description: '' },
+      { name: 'Proficient', description: '' },
+      { name: 'Advanced', description: '' },
     ],
   });
   const [isEditing, setIsEditing] = useState(false);
-  const [savedCriteria, setSavedCriteria] = useState<ContentSpecificCriterionState[]>([]);
-  const [assignmentType, setAssignmentType] = useState('');
+  const [savedCriteria, setSavedCriteria] = useState<DevelopmentalCriterionState[]>([]);
+
+  useEffect(() => {
+    const initialSavedCriteria: DevelopmentalCriterionState[] = Object.entries(rubric.criteria).map(
+      ([criterionName, criterionValue]) => {
+        if (typeof criterionValue === 'object' && criterionValue !== null) {
+          // Check if criterionValue has 'stages' and 'description' properties
+          if ('stages' in criterionValue && 'description' in criterionValue) {
+            // criterionValue has expected structure
+            const stagesObj = criterionValue.stages as Record<string, string>;
+            const stagesArray = Object.entries(stagesObj).map(([stageName, stageDescription]) => ({
+              name: stageName,
+              description: stageDescription,
+            }));
+            return {
+              id: criterionName, // Use criterionName as ID
+              name: criterionName,
+              description: criterionValue.description as string,
+              stages: stagesArray,
+            };
+          } else {
+            // criterionValue is an object mapping stage names to descriptions
+            const stagesArray = Object.entries(criterionValue as Record<string, string>).map(
+              ([stageName, stageDescription]) => ({
+                name: stageName,
+                description: stageDescription,
+              })
+            );
+            return {
+              id: criterionName,
+              name: criterionName,
+              description: '',
+              stages: stagesArray,
+            };
+          }
+        } else {
+          // criterionValue is not an object, skip
+          return null;
+        }
+      }
+    ).filter(Boolean) as DevelopmentalCriterionState[];
+
+    setSavedCriteria(initialSavedCriteria);
+  }, [rubric.criteria]);
 
   useEffect(() => {
     if (hasSaved) {
@@ -46,11 +88,11 @@ const ContentSpecificCriteriaBuilder: React.FC<ContentSpecificCriteriaBuilderPro
         id: '',
         name: '',
         description: '',
-        levels: [
-          { name: 'Excellent', description: '' },
-          { name: 'Proficient', description: '' },
+        stages: [
+          { name: 'Emerging', description: '' },
           { name: 'Developing', description: '' },
-          { name: 'Beginning', description: '' },
+          { name: 'Proficient', description: '' },
+          { name: 'Advanced', description: '' },
         ],
       });
       setHasSaved(false);
@@ -67,17 +109,14 @@ const ContentSpecificCriteriaBuilder: React.FC<ContentSpecificCriteriaBuilderPro
       ...rubric.criteria,
       [currentCriterion.name]: {
         description: currentCriterion.description,
-        levels: currentCriterion.levels.reduce((acc, level) => {
-          acc[level.name] = level.description;
+        stages: currentCriterion.stages.reduce((acc, stage) => {
+          acc[stage.name] = stage.description;
           return acc;
         }, {} as Record<string, string>),
       },
     } as GenericRubricCriteria;
 
-    onChange({
-      ...rubric,
-      criteria: updatedCriteria,
-    });
+    onChange({ ...rubric, criteria: updatedCriteria });
 
     if (isEditing) {
       setSavedCriteria(savedCriteria.map(c => c.id === currentCriterion.id ? currentCriterion : c));
@@ -89,17 +128,17 @@ const ContentSpecificCriteriaBuilder: React.FC<ContentSpecificCriteriaBuilderPro
       id: '',
       name: '',
       description: '',
-      levels: [
-        { name: 'Excellent', description: '' },
-        { name: 'Proficient', description: '' },
+      stages: [
+        { name: 'Emerging', description: '' },
         { name: 'Developing', description: '' },
-        { name: 'Beginning', description: '' },
+        { name: 'Proficient', description: '' },
+        { name: 'Advanced', description: '' },
       ],
     });
     setIsEditing(false);
   };
 
-  const loadCriterion = (criterion: ContentSpecificCriterionState) => {
+  const loadCriterion = (criterion: DevelopmentalCriterionState) => {
     setCurrentCriterion(criterion);
     setIsEditing(true);
   };
@@ -114,42 +153,32 @@ const ContentSpecificCriteriaBuilder: React.FC<ContentSpecificCriteriaBuilderPro
     }
   };
 
-  const addPerformanceLevel = () => {
+  const addStage = () => {
     setCurrentCriterion(prev => ({
       ...prev,
-      levels: [...prev.levels, { name: '', description: '' }],
+      stages: [...prev.stages, { name: '', description: '' }],
     }));
   };
 
-  const updatePerformanceLevel = (index: number, field: keyof PerformanceLevel, value: string) => {
+  const updateStage = (index: number, field: keyof DevelopmentalStage, value: string) => {
     setCurrentCriterion(prev => ({
       ...prev,
-      levels: prev.levels.map((level, i) =>
-        i === index ? { ...level, [field]: value } : level
+      stages: prev.stages.map((stage, i) =>
+        i === index ? { ...stage, [field]: value } : stage
       ),
     }));
   };
 
-  const removePerformanceLevel = (index: number) => {
+  const removeStage = (index: number) => {
     setCurrentCriterion(prev => ({
       ...prev,
-      levels: prev.levels.filter((_, i) => i !== index),
+      stages: prev.stages.filter((_, i) => i !== index),
     }));
   };
 
   return (
     <div className="mb-2 p-2 border border-primary-40 rounded-sm">
-      <h3 className="text-primary-30 text-center font-semibold">Create Content-Specific Rubric</h3>
-      <div className="mb-4">
-        <label className="block text-sm font-semibold text-primary-10">Assignment Type</label>
-        <input
-          type="text"
-          value={assignmentType}
-          onChange={(e) => setAssignmentType(e.target.value)}
-          className="px-1 w-full py-0.5 rounded shadow-sm border border-primary-40"
-          placeholder="e.g., Science Lab Report, History Research Paper"
-        />
-      </div>
+      <h3 className="text-primary-30 text-center font-semibold">Create Developmental Criterion</h3>
       <div>
         <label className="block text-sm font-semibold text-primary-10">Criterion Name</label>
         <input
@@ -169,33 +198,33 @@ const ContentSpecificCriteriaBuilder: React.FC<ContentSpecificCriteriaBuilderPro
         />
       </div>
       <div className="mt-4">
-        <h4 className="text-primary-20 font-semibold">Performance Levels</h4>
-        {currentCriterion.levels.map((level, index) => (
+        <h4 className="text-primary-20 font-semibold">Developmental Stages</h4>
+        {currentCriterion.stages.map((stage, index) => (
           <div key={index} className="mt-2 p-2 border border-primary-20 rounded">
             <div className="flex justify-between items-center">
               <input
                 type="text"
-                value={level.name}
-                onChange={(e) => updatePerformanceLevel(index, 'name', e.target.value)}
+                value={stage.name}
+                onChange={(e) => updateStage(index, 'name', e.target.value)}
                 className="px-1 w-1/3 py-0.5 rounded shadow-sm border border-primary-40"
-                placeholder="Level Name"
+                placeholder="Stage Name"
               />
-              <button onClick={() => removePerformanceLevel(index)} className="text-red-500 hover:text-red-700">
+              <button onClick={() => removeStage(index)} className="text-red-500 hover:text-red-700">
                 <Trash2 size={18} />
               </button>
             </div>
             <textarea
-              value={level.description}
-              onChange={(e) => updatePerformanceLevel(index, 'description', e.target.value)}
+              value={stage.description}
+              onChange={(e) => updateStage(index, 'description', e.target.value)}
               className="px-1 w-full py-0.5 mt-1 rounded shadow-sm border border-primary-40"
               rows={2}
-              placeholder="Level Description"
+              placeholder="Stage Description"
             />
           </div>
         ))}
-        <CustomButton onClick={addPerformanceLevel} className="btn btn-shiny bg-primary-80 gap-x-2 w-fit text-primary-10 mt-2">
+        <CustomButton onClick={addStage} className="btn btn-shiny bg-primary-80 gap-x-2 w-fit text-primary-10 mt-2">
           <PlusCircle size={18} />
-          <p>Add Performance Level</p>
+          <p>Add Stage</p>
         </CustomButton>
       </div>
       <CustomButton onClick={addOrUpdateCriterion} className="btn btn-shiny bg-primary-80 gap-x-2 w-fit text-primary-10 mt-4">
@@ -228,4 +257,4 @@ const ContentSpecificCriteriaBuilder: React.FC<ContentSpecificCriteriaBuilderPro
   );
 };
 
-export default ContentSpecificCriteriaBuilder;
+export default DevelopmentalCriteriaBuilder;

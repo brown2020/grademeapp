@@ -5083,7 +5083,7 @@
     "criteria": {
       "Proficient": "The writing demonstrates clear, organized content, relevant ideas, and proper language use."
     },
-    "type": "single_point",
+    "type": "single-point",
     "identity": "",
     "identityLevel": "",
     "textType": "",

@@ -22,8 +22,10 @@
     --color-primary-s: 98%;
     --color-secondary-h: 120;
     --color-secondary-s: 100%;
-    /* --accent: 180, 20%, 96%;
-        --accent-foreground: 300 100% 0%; */
+    --scrollbar-primary: hsl(var(--color-primary-h), var(--color-primary-s), 50%);
+    --scrollbar-secondary: hsl(var(--color-secondary-h), var(--color-secondary-s), 40%);
+    --scrollbar-track: hsl(var(--color-primary-h), var(--color-primary-s), 90%);
+
     --border: 0 22% 14%;
     --input: 0 22% 14%;
     --ring: 216 92% 14%;
@@ -157,6 +159,30 @@
     height: 100vh;
     z-index: 100;
     background: rgba(0, 0, 0, 0.3);
+  }
+
+  .global-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-primary) var(--scrollbar-track);
+  }
+
+  .global-scrollbar::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  .global-scrollbar::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-primary);
+    border-radius: 10px;
+  }
+
+  .global-scrollbar::-webkit-scrollbar-track {
+    background-color: var(--scrollbar-track);
+    border-radius: 10px;
+  }
+
+  .global-scrollbar::-webkit-scrollbar-corner {
+    background-color: var(--scrollbar-secondary);
   }
 
   /* Bubble menu */
@@ -330,6 +356,32 @@
 
   .tooltip {
     @apply absolute left-0 w-32 px-2 py-1 bg-secondary-20 text-xs text-primary-90 rounded opacity-100 peer-hover:opacity-100 transition-opacity z-20;
+  }
+
+  /* Apply to all scrollable elements */
+  .global-scrollbar {
+    scrollbar-width: thin; /* For Firefox */
+    scrollbar-color: #888 #f1f1f1; /* Thumb and track color */
+  }
+
+  /* For WebKit browsers */
+  .global-scrollbar::-webkit-scrollbar {
+    width: 10px; /* Scrollbar width */
+    height: 10px; /* Scrollbar height */
+  }
+
+  .global-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #888; /* Thumb color */
+    border-radius: 10px; /* Rounded thumb */
+  }
+
+  .global-scrollbar::-webkit-scrollbar-track {
+    background-color: #f1f1f1; /* Track color */
+    border-radius: 10px; /* Rounded track */
+  }
+
+  .global-scrollbar::-webkit-scrollbar-corner {
+    background-color: #f1f1f1; /* Corner color */
   }
 }
 

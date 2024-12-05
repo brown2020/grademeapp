@@ -1,8 +1,8 @@
 "use client"
 
 import React, { useState, useEffect, useCallback } from 'react';
-import RubricTypeSelector from '@/components/rubrics/rubricTypes/RubricTypeSelector';
-import RubricTypeExplanation from '@/components/rubrics/rubricTypes/RubricTypeExplanation';
+import RubricTypeSelector from '@/components/rubrics/criteriaBuilders/RubricTypeSelector';
+import RubricTypeExplanation from '@/components/rubrics/criteriaBuilders/RubricTypeExplanation';
 import { RubricState, RubricType } from '@/lib/types/rubrics-types';
 import { toast } from "react-hot-toast";
 import { Ban, Blocks, Save, XCircleIcon, DeleteIcon } from 'lucide-react';
@@ -80,7 +80,6 @@ export default function RubricBuilder({ onClose }: {
   }, [localRubric, editingRubricId, updateCustomRubric, addCustomRubric, handleClose])
 
   const handleRubricTypeChange = useCallback((type: RubricType) => {
-    console.log(type)
     const newRubric = createNewRubric(type);
     setLocalRubric(newRubric);
   }, [createNewRubric]);
