@@ -24,7 +24,7 @@ export function PlagiarismChecker({ text }: PlagiarismCheckerProps) {
   const [isSuccess, setIsSuccess] = useState(false);
   const [reportLink, setReportLink] = useState("");
   const { uid } = useAuthStore();
-  const { profile } = useProfileStore();
+  const { profile, minusCredits } = useProfileStore();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleCheck = async () => {
@@ -53,7 +53,16 @@ export function PlagiarismChecker({ text }: PlagiarismCheckerProps) {
         throw new Error(errorData.error || "Submission failed.");
       }
 
-      const { docId } = await response.json();
+
+
+      const { docId, creditsUsed } = await response.json();
+
+      const creditsDeducted = await minusCredits(creditsUsed);
+
+      if (!creditsDeducted) {
+        throw new Error("Failed to deduct credits.");
+      }
+
       const reportPath = `/plagiarism-check/${uid}/${docId}`;
 
       setReportLink(reportPath);
