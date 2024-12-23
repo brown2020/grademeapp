@@ -3,6 +3,7 @@ import { openai, createOpenAI } from '@ai-sdk/openai'
 import { anthropic } from '@ai-sdk/anthropic'
 import { google } from '@ai-sdk/google'
 import { createAzure } from '@ai-sdk/azure'
+import { createXai } from '@ai-sdk/xai'
 import { createOllama } from 'ollama-ai-provider'
 
 export const registry = createProviderRegistry({
@@ -10,6 +11,10 @@ export const registry = createProviderRegistry({
   fireworks: createOpenAI({
     apiKey: process.env.FIREWORKS_API_KEY,
     baseURL: 'https://api.fireworks.ai/inference/v1',
+  }),
+  xai: createXai({
+    apiKey: process.env.XAI_API_KEY,
+    baseURL: process.env.XAI_BASE_URL
   }),
   anthropic,
   google,
@@ -33,7 +38,6 @@ export const registry = createProviderRegistry({
 export function getModel(model: string, userApiKey?: string) {
   const [provider, modelName] = model.split(':')
 
-  console.log("Use user API key", userApiKey)
   console.log("Model", model)
 
   if (userApiKey) {
@@ -59,6 +63,8 @@ export function isProviderEnabled(providerId: string): boolean {
       return !!process.env.OPENAI_API_KEY
     case 'fireworks':
       return !!process.env.FIREWORKS_API_KEY
+    case 'xai':
+      return !!process.env.XAI_API_KEY
     case 'anthropic':
       return !!process.env.ANTHROPIC_API_KEY
     case 'google':

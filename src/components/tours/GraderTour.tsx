@@ -174,9 +174,9 @@ export default function GraderTour() {
             padding: '5px'
           },
         }}
-        floaterProps={{
-          disableAnimation: true,
-        }}
+      // floaterProps={{
+      //   disableAnimation: true,
+      // }}
       />
     </>
   )

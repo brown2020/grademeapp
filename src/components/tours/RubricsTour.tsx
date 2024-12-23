@@ -174,9 +174,9 @@ export default function RubricsTour() {
             padding: '5px'
           },
         }}
-        floaterProps={{
-          disableAnimation: true,
-        }}
+      // floaterProps={{
+      //   disableAnimation: true,
+      // }}
       />
     </>
   )

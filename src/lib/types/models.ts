@@ -25,6 +25,12 @@ export const models: Model[] = [
     providerId: 'fireworks'
   },
   {
+    id: 'grok-beta',
+    name: 'Grok Beta',
+    provider: 'XAI',
+    providerId: 'xai'
+  },
+  {
     id: 'claude-3-5-sonnet-latest',
     name: 'Claude 3.5 Sonnet',
     provider: 'Anthropic',

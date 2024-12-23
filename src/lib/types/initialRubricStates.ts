@@ -1,5 +1,18 @@
 // initialRubricStates.ts
-import { RubricType, AnalyticalRubric, HolisticRubric, SinglePointRubric, ChecklistRubric, MultiTraitRubric, OtherRubricType } from '@/lib/types/rubrics-types';
+import {
+  RubricType,
+  AnalyticalRubric,
+  HolisticRubric,
+  SinglePointRubric,
+  ChecklistRubric,
+  MultiTraitRubric,
+  PrimaryTraitRubric,
+  SkillFocusedRubric,
+  ContentSpecificRubric,
+  DevelopmentalRubric,
+  TaskSpecificRubric,
+  StandardsBasedRubric,
+} from '@/lib/types/rubrics-types';
 
 export const initialAnalyticalRubric: AnalyticalRubric = {
   id: '',
@@ -36,7 +49,7 @@ export const initialSinglePointRubric: SinglePointRubric = {
   }
 };
 
-export const initialSkillFocusedRubric: OtherRubricType = {
+export const initialSkillFocusedRubric: SkillFocusedRubric = {
   id: '',
   name: '',
   description: '',
@@ -56,7 +69,7 @@ export const initialChecklistRubric: ChecklistRubric = {
   }
 };
 
-export const initialPrimaryTraitRubric: OtherRubricType = {
+export const initialPrimaryTraitRubric: PrimaryTraitRubric = {
   id: '',
   name: '',
   description: '',
@@ -87,7 +100,7 @@ export const initialMultiTraitRubric: MultiTraitRubric = {
   }
 };
 
-export const initialContentSpecificRubric: OtherRubricType = {
+export const initialContentSpecificRubric: ContentSpecificRubric = {
   id: '',
   name: '',
   description: '',
@@ -95,7 +108,7 @@ export const initialContentSpecificRubric: OtherRubricType = {
   criteria: {}
 };
 
-export const initialDevelopmentalRubric: OtherRubricType = {
+export const initialDevelopmentalRubric: DevelopmentalRubric = {
   id: '',
   name: '',
   description: '',
@@ -103,7 +116,7 @@ export const initialDevelopmentalRubric: OtherRubricType = {
   criteria: {}
 };
 
-export const initialTaskSpecificRubric: OtherRubricType = {
+export const initialTaskSpecificRubric: TaskSpecificRubric = {
   id: '',
   name: '',
   description: '',
@@ -111,7 +124,7 @@ export const initialTaskSpecificRubric: OtherRubricType = {
   criteria: {}
 };
 
-export const initialStandardsBasedRubric: OtherRubricType = {
+export const initialStandardsBasedRubric: StandardsBasedRubric = {
   id: '',
   name: '',
   description: '',

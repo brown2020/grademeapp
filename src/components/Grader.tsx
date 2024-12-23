@@ -28,6 +28,7 @@ import { ModelSelector } from "./ModelSelector";
 import { getDefaultModelId } from '@/lib/utils'
 import { models } from '@/lib/types/models';
 import { useLocalStorage } from '@/lib/hooks/use-local-storage';
+import { PlagiarismChecker } from '@/components/plagiarism/PlagiarismChecker';
 
 interface GraderProps {
   onModelChange?: (id: string) => void
@@ -252,6 +253,7 @@ export default function Grader({ onModelChange }: GraderProps) {
             >
               <Image alt={"grader icon"} src={grader} width={50} height={50} className={`btn btn-shiny bg-secondary-97 border-2 border-primary-40 rounded-full size-16 p-0 ${!active ? "cursor-not-allowed opacity-50" : ""}`} />
             </button>
+            <PlagiarismChecker text={gradingData.text} />
             {/* File Upload */}
             <div
               className="btn btn-shiny overflow-visible size-16 flex items-center bg-secondary-97 border-2 border-primary-40 rounded-full p-1.5 grader-file-upload"

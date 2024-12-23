@@ -25,6 +25,7 @@ import { ModelSelector } from "./ModelSelector";
 import { getDefaultModelId } from '@/lib/utils'
 import { models } from '@/lib/types/models';
 import { useLocalStorage } from '@/lib/hooks/use-local-storage';
+import { PlagiarismChecker } from "@/components/plagiarism/PlagiarismChecker";
 
 const fetchDocumentById = async (uid: string, id: string) => {
   const docRef = collection(db, "users", uid, "summaries");
@@ -218,12 +219,14 @@ const Document = ({ onModelChange }: DocumentProps) => {
         ? [...userDoc.submissions, newSubmission]
         : [newSubmission];
 
-      updateDocument(uid, Array.isArray(summaryID) ? summaryID[0] : summaryID, gradingData, updatedSubmissions, fileUrl || null).then(
-        () => {
-          setHasSaved(true);
-        }
-      );
-      toast.success("Document updated successfully");
+      if (Array.isArray(summaryID) && typeof summaryID[0] === "string") {
+        updateDocument(uid, summaryID[0], gradingData, updatedSubmissions, fileUrl || null).then(
+          () => {
+            setHasSaved(true);
+          }
+        );
+        toast.success("Document updated successfully");
+      }
     }
   }, [
     isStreamingComplete,
@@ -361,6 +364,7 @@ const Document = ({ onModelChange }: DocumentProps) => {
               <Wand2 size={30} />
               <p className="hidden sm:flex">Fix Grammar & Spelling</p>
             </div>
+            <PlagiarismChecker text={gradingData.text} />
           </div>
 
 
