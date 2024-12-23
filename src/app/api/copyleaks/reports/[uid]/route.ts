@@ -1,10 +1,12 @@
-import { NextRequest, NextResponse } from "next/server"; // Correct imports for Next.js API routes
-import { adminDb } from "@/firebase/firebaseAdmin"; // Ensure this points to your Firebase Admin SDK setup
+import { NextRequest, NextResponse } from "next/server";
+import { adminDb } from "@/firebase/firebaseAdmin";
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest, { params }: { params: { uid: string } }) {
   try {
     // Extract `uid` from the query parameters
-    const uid = request.nextUrl.searchParams.get("uid");
+    const { uid } = params
+
+    console.log("Query params:", { uid });
 
     if (!uid) {
       return NextResponse.json(

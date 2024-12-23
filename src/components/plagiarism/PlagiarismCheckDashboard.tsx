@@ -1,7 +1,8 @@
-"use client"
+"use client";
 
 import { useState, useEffect } from "react";
 import { useAuthStore } from "@/zustand/useAuthStore";
+import { Loader2 } from "lucide-react";
 
 interface Report {
   docId: string;
@@ -11,31 +12,81 @@ interface Report {
 export default function PlagiarismCheckDashboard() {
   const { uid } = useAuthStore();
   const [reports, setReports] = useState<Report[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  console.log("uid", uid);
 
   useEffect(() => {
-    // Fetch all reports for the current user
+    if (!uid) return;
+
     async function fetchReports() {
-      const response = await fetch(`/api/copyleaks/reports/?uid=${uid}`);
-      const data = await response.json();
-      setReports(data);
+      try {
+        const response = await fetch(`/api/copyleaks/reports/${uid}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch reports. Please try again later.");
+        }
+        const data = await response.json();
+        setReports(data);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("An unknown error occurred.");
+        }
+      } finally {
+        setIsLoading(false);
+      }
     }
+
     fetchReports();
   }, [uid]);
 
-  if (!reports.length) return <div>Loading...</div>;
+
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+        <p className="ml-4 text-lg text-gray-500">Loading reports...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] text-red-500">
+        <p className="text-lg font-medium">Error: {error}</p>
+      </div>
+    );
+  }
+
+  if (!reports.length) {
+    return (
+      <div className="text-center min-h-[50vh]">
+        <p className="text-lg text-gray-500">No reports found. Start a new plagiarism check.</p>
+      </div>
+    );
+  }
+
+  console.log("reports", reports);
 
   return (
-    <div>
-      <h1>Plagiarism Check Dashboard</h1>
-      <button onClick={() => window.location.href = "/plagiarism-check/submit"}>
-        Start New Check
-      </button>
-      <ul>
+    <div className="max-w-4xl mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-6">Plagiarism Check Dashboard</h1>
+      <ul className="space-y-4">
         {reports.map((report) => (
-          <li key={report.docId}>
-            <a href={`/plagiarism-check/${uid}/${report.docId}`}>
-              Document: {report.docId} - Status: {report.status}
+          <li
+            key={report.docId}
+            className="bg-gray-100 p-4 rounded-md shadow hover:bg-gray-200 transition"
+          >
+            <a
+              href={`/plagiarism-check/${uid}/${report.docId}`}
+              className="text-blue-600 hover:underline"
+            >
+              Document ID: {report.docId}
             </a>
+            <p className="text-gray-700 mt-1">Status: {report.status}</p>
           </li>
         ))}
       </ul>

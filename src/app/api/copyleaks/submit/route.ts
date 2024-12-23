@@ -125,14 +125,21 @@ export async function POST(request: NextRequest) {
         filename: `${uid}-${docId}.txt`,
         properties: {
           action: 0,
-          includeHtml: false,
+          includeHtml: true,
           sandbox: false,
           expiration: 480,
-          aiGeneratedText: { detect: true },
-          sensitivityLevel: 3,
+          aiGeneratedText: {
+            detect: true,
+            explain: {
+              enable: true
+            }
+          },
+          scanMethodAlgorithm: 0,
+          sensitivityLevel: 2,
           webhooks: {
             status: `https://c559-126-61-171-196.ngrok-free.app/api/copyleaks/webhook/{STATUS}`,
           },
+
         },
       }),
     });
