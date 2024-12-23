@@ -8,6 +8,7 @@ import Image from "next/image";
 import school from "@/app/assets/school.svg";
 import grader from "@/app/assets/grader.svg";
 import rubric from "@/app/assets/rubric.svg";
+import plagiarism from "@/app/assets/ai_detect.svg";
 
 export default function BottomBar() {
   const router = useRouter();
@@ -59,6 +60,17 @@ export default function BottomBar() {
       >
         <div className="h-10 aspect-square">
           <Image alt="assignments" src={school} width={75} height={75} loading="lazy" />
+        </div>
+      </div>
+      <div
+        className={`flex hover:animate-wiggle assignments-link-mobile ${pathname.startsWith("/plagiarism-check") ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
+          }`}
+        onClick={() => {
+          setTimeout(() => router.push("/plagiarism-check"), 100);
+        }}
+      >
+        <div className="h-10 aspect-square">
+          <Image alt="plagiarism" src={plagiarism} width={75} height={75} loading="lazy" />
         </div>
       </div>
       <div

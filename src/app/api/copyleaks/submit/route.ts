@@ -127,11 +127,9 @@ export async function POST(request: NextRequest) {
           webhooks: {
             status: `https://c559-126-61-171-196.ngrok-free.app/api/copyleaks/webhook/{STATUS}`,
           },
-
         },
       }),
     });
-
 
     if (!response.ok) {
       const error = await response.json();

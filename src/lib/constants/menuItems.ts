@@ -3,6 +3,7 @@ import school from "@/app/assets/school.svg";
 import grader from "@/app/assets/grader.svg";
 import rubric from "@/app/assets/rubric.svg";
 import grademe from "@/app/assets/grademe.svg";
+import plagiarism from "@/app/assets/ai_detect.svg";
 
 type MenuItem = {
   label: string;
@@ -96,4 +97,11 @@ export const navItems: navItemType[] = [
     desktop: "assignments-link-desktop",
     mobile: "assignments-link-mobile",
   },
+  {
+    label: "plagiarism",
+    image: plagiarism,
+    path: "/plagiarism-check",
+    desktop: "plagiarism-link-desktop",
+    mobile: "plagiarism-link-mobile",
+  }
 ];

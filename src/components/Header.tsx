@@ -17,6 +17,7 @@ import school from "@/app/assets/school.svg";
 import grader from "@/app/assets/grader.svg";
 import rubric from "@/app/assets/rubric.svg";
 import grademe from "@/app/assets/grademe.svg";
+import plagiarism from "@/app/assets/ai_detect.svg";
 
 export default function Header() {
   const { isOpen, setIsOpen, toggleMenu } = useMobileMenuStore();
@@ -130,6 +131,17 @@ export default function Header() {
               <div className="text-lg font-medium">assignments</div>
             </div>
           </div>
+          <div
+            className="cursor-pointer hidden md:flex justify-start items-center md:flex-col gap-x-2 md:gap-y-0 hover:text-primary-40 text-primary-10 profile-link-desktop"
+            onClick={() => {
+              setTimeout(() => router.push("/plagiarism-check"), 100);
+            }}>
+            <div className="h-12 aspect-square">
+              <Image alt="plagiarism" src={plagiarism} width={75} height={75} loading="lazy" />
+            </div>
+            <div className="text-lg font-medium">plagiarism</div>
+          </div>
+
           <div
             className="cursor-pointer hidden md:flex justify-start items-center md:flex-col gap-x-2 md:gap-y-0 hover:text-primary-40 text-primary-10 profile-link-desktop"
             onClick={() => {

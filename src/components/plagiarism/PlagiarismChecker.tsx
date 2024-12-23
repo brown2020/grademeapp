@@ -53,8 +53,6 @@ export function PlagiarismChecker({ text }: PlagiarismCheckerProps) {
         throw new Error(errorData.error || "Submission failed.");
       }
 
-
-
       const { docId, creditsUsed } = await response.json();
 
       const creditsDeducted = await minusCredits(creditsUsed);
