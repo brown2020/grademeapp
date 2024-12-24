@@ -58,6 +58,9 @@ async function saveDocument({ uid, text, wordCount, creditCost }: SaveDocumentPa
 }
 
 export async function POST(request: NextRequest) {
+
+  const BASE_URL = process.env.BASE_URL;
+
   try {
     const { uid, text } = await request.json();
 
@@ -125,7 +128,7 @@ export async function POST(request: NextRequest) {
           scanMethodAlgorithm: 0,
           sensitivityLevel: 2,
           webhooks: {
-            status: `https://c559-126-61-171-196.ngrok-free.app/api/copyleaks/webhook/{STATUS}`,
+            status: `${BASE_URL}/api/copyleaks/webhook/{STATUS}`,
           },
         },
       }),

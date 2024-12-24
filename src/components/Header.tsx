@@ -132,7 +132,7 @@ export default function Header() {
             </div>
           </div>
           <div
-            className="cursor-pointer hidden md:flex justify-start items-center md:flex-col gap-x-2 md:gap-y-0 hover:text-primary-40 text-primary-10 profile-link-desktop"
+            className="cursor-pointer hidden md:flex justify-start items-center md:flex-col gap-x-2 md:gap-y-0 hover:text-primary-40 text-primary-10 plagiarism-link-desktop"
             onClick={() => {
               setTimeout(() => router.push("/plagiarism-check"), 100);
             }}>

@@ -63,7 +63,7 @@ export default function BottomBar() {
         </div>
       </div>
       <div
-        className={`flex hover:animate-wiggle assignments-link-mobile ${pathname.startsWith("/plagiarism-check") ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
+        className={`flex hover:animate-wiggle plagiarism-link-mobile ${pathname.startsWith("/plagiarism-check") ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
           }`}
         onClick={() => {
           setTimeout(() => router.push("/plagiarism-check"), 100);
