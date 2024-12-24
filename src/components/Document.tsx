@@ -345,7 +345,7 @@ const Document = ({ onModelChange }: DocumentProps) => {
           </section>
 
 
-          <div className="flex flex-row gap-x-10 items-center justify-center md:justify-start">
+          <div className="flex flex-row gap-x-8 items-center justify-center md:justify-start mb-6">
             {/* Submit Button */}
             <button
               type="submit"
@@ -354,11 +354,11 @@ const Document = ({ onModelChange }: DocumentProps) => {
               disabled={!active}
               className={`${!active ? "cursor-not-allowed" : ""}`}
             >
-              <Image alt={"grader icon"} src={grader} width={50} height={50} className={`btn btn-shiny bg-secondary-97 border-2 border-primary-40 rounded-full size-16 p-0 ${!active ? "cursor-not-allowed opacity-50" : ""}`} />
+              <Image alt={"grader icon"} src={grader} width={50} height={50} className={`btn btn-shiny bg-secondary-97 border-2 border-primary-40 rounded-full size-12 sm:size-16 p-0 ${!active ? "cursor-not-allowed opacity-50" : ""}`} />
             </button>
             <DownloadPopover content={gradingData.text} />
             <div
-              className="btn btn-shiny btn-shiny-purple-blue rounded-full size-16 flex gap-x-2 md:rounded-lg md:size-fit p-3 items-center"
+              className="btn btn-shiny btn-shiny-purple-blue rounded-full size-12 sm:size-16 flex gap-x-2 md:rounded-lg md:size-fit p-3 items-center"
               onClick={handleFixGrammarSpelling}
             >
               <Wand2 size={30} />
@@ -381,7 +381,7 @@ const Document = ({ onModelChange }: DocumentProps) => {
           {flagged && <h3 id="flagged">{flagged}</h3>}
 
           {!flagged && summary && (
-            <div id="response" className="px-5 py-2 shadow-lg bg-secondary-90 rounded-md">
+            <div id="response" className="px-5 py-2 shadow-lg bg-secondary-97 border-secondary-30 border-2 rounded-md">
               <div className="flex gap-x-2 items-center justify-center">
                 <Image alt={"grademe logo"} src={grademe} width={40} height={40} className="size-14" />
                 <h2 className="text-2xl text-center text-primary-10 font-medium">Grade.me Report</h2>

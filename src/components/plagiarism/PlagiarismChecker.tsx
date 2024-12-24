@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { toast } from "react-hot-toast";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import useProfileStore from "@/zustand/useProfileStore";
 import { CheckCircle, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import CustomButton from "@/components/ui/CustomButton";
+import plagiarism from "@/app/assets/ai_detect.svg";
 import {
   Dialog,
   DialogContent,
@@ -82,18 +84,16 @@ export function PlagiarismChecker({ text }: PlagiarismCheckerProps) {
       }}
     >
       <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          className="flex items-center gap-2"
+        <CustomButton
+          className="size-12 sm:size-16 btn btn-shiny flex items-center bg-secondary-97 border-2 border-primary-40 rounded-full p-1.5"
           onClick={() => {
             setIsDialogOpen(true);
             handleCheck();
           }}
-          disabled={isChecking}
         >
           {isChecking ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle size={16} />}
-          {isChecking ? "Checking..." : "Check Plagiarism"}
-        </Button>
+          <Image src={plagiarism} alt="Plagiarism check" className="place-self-center place-items-center size-7 sm:size-10" />
+        </CustomButton>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[512px]">
         <DialogHeader>

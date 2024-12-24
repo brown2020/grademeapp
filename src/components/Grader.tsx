@@ -241,8 +241,8 @@ export default function Grader({ onModelChange }: GraderProps) {
               />
             </div>
           </section>
-          {/* Submit Button */}
-          <section className="flex flex-row items-center w-full gap-x-8 justify-center sm:justify-start">
+
+          <section className="flex flex-row items-center w-full gap-x-4 sm:gap-x-8 justify-center sm:justify-start">
             {/* Submit Button */}
             <button
               type="submit"
@@ -251,12 +251,12 @@ export default function Grader({ onModelChange }: GraderProps) {
               disabled={!active || uploading}
               className={`grader-grademe-button ${!active ? "cursor-not-allowed" : ""}`}
             >
-              <Image alt={"grader icon"} src={grader} width={50} height={50} className={`btn btn-shiny bg-secondary-97 border-2 border-primary-40 rounded-full size-16 p-0 ${!active ? "cursor-not-allowed opacity-50" : ""}`} />
+              <Image alt={"grader icon"} src={grader} width={50} height={50} className={`btn btn-shiny bg-secondary-97 border-2 border-primary-40 rounded-full size-12 sm:size-16 p-0 ${!active ? "cursor-not-allowed opacity-50" : ""}`} />
             </button>
             <PlagiarismChecker text={gradingData.text} />
             {/* File Upload */}
             <div
-              className="btn btn-shiny overflow-visible size-16 flex items-center bg-secondary-97 border-2 border-primary-40 rounded-full p-1.5 grader-file-upload"
+              className="btn btn-shiny overflow-visible size-12 sm:size-16 flex items-center bg-secondary-97 border-2 border-primary-40 rounded-full p-1.5 grader-file-upload"
               onClick={() => document.getElementById("file-upload")?.click()} // Trigger input click on div click
             >
               <label
@@ -264,7 +264,7 @@ export default function Grader({ onModelChange }: GraderProps) {
                 className="cursor-pointer flex items-center justify-center peer"
                 onClick={(e) => e.stopPropagation()} // Prevent label click from propagating
               >
-                <Paperclip size={35} className="place-self-center place-items-center text-primary-30" />
+                <Paperclip className="size-6 sm:size-10 place-self-center place-items-center text-primary-30" />
               </label>
               {/* Hidden file input */}
               <input
@@ -279,12 +279,14 @@ export default function Grader({ onModelChange }: GraderProps) {
                 Upload a file (docx, pdf, odt, rtf, txt)
               </div>
             </div>
+
             <CustomButton onClick={() => {
               setGradingData({ title: "", text: "" });
             }}
-              className="size-16 btn btn-shiny flex items-center bg-secondary-97 border-2 border-primary-40 rounded-full p-1.5 grader-reset-button">
+              className="size-12 sm:size-16 btn btn-shiny flex items-center bg-secondary-97 border-2 border-primary-40 rounded-full p-1.5 grader-reset-button">
               <RefreshCwIcon size={25} className="place-self-center place-items-center text-primary-30" />
             </CustomButton>
+
             <GraderSettingsModal />
           </section>
         </form>

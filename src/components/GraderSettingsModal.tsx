@@ -35,7 +35,7 @@ const GraderSettingsModal: React.FC = () => {
 
   return (
     <div className="grader-settings">
-      <CustomButton onClick={isOpen ? closeGraderSettings : () => setIsOpen(true)} className="size-16 btn btn-shiny flex items-center bg-secondary-97 border-2 border-primary-40 rounded-full p-1.5 grader-reset-button">
+      <CustomButton onClick={isOpen ? closeGraderSettings : () => setIsOpen(true)} className="size-12 sm:size-16 btn btn-shiny flex items-center bg-secondary-97 border-2 border-primary-40 rounded-full p-1.5 grader-reset-button">
         <Settings size={30} className="place-self-center place-items-center text-primary-30" />
       </CustomButton>
 
