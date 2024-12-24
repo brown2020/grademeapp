@@ -23,8 +23,6 @@ export async function GET(request: NextRequest, { params }: { params: { uid: str
       .doc(docId)
       .get();
 
-    console.log("Report document:", reportDoc.data());
-
     if (!reportDoc.exists) {
       console.error("Report document not found:", { uid, docId });
       return NextResponse.json(

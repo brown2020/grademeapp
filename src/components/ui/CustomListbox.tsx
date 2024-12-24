@@ -36,8 +36,6 @@ const CustomListbox = <T extends string | number | string[] | null>({
   isLoading = false,
 }: CustomListboxProps<T>) => {
 
-  // console.log(options);
-
   const MyCustomButton = forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement>>((props, ref) => {
     return <button className="..." ref={ref} {...props} />;
   });

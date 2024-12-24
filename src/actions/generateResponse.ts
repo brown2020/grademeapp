@@ -45,7 +45,6 @@ async function generateDeterministicResponse(
 
   const providerId = selectedModelId ? selectedModelId.split(':')[0] : 'openai'
 
-  console.log(`Using model: ${selectedModelId}`)
   if (!isProviderEnabled(providerId) && useCredits) {
     console.log(`Provider ${providerId} is not available (API key not configured or base URL not set)`)
   }

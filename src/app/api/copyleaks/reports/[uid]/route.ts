@@ -3,10 +3,7 @@ import { adminDb } from "@/firebase/firebaseAdmin";
 
 export async function GET(request: NextRequest, { params }: { params: { uid: string } }) {
   try {
-    // Extract `uid` from the query parameters
     const { uid } = params
-
-    console.log("Query params:", { uid });
 
     if (!uid) {
       return NextResponse.json(

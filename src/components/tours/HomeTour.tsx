@@ -73,6 +73,12 @@ export function HomeTour() {
       placement: 'auto',
     },
     {
+      target: '.plagiarism-link-mobile',
+      content: 'View reports on plagiarism and ai-content detection here.',
+      title: 'Plagiarism',
+      placement: 'auto',
+    },
+    {
       target: '.forward-button-mobile',
       content: 'Use this button to go to the next page you were just viewing.',
       title: 'Forward Button',
@@ -154,6 +160,12 @@ export function HomeTour() {
       content: 'View your graded assignments here.',
       title: 'Assignments',
       placement: 'bottom',
+    },
+    {
+      target: '.plagiarism-link-desktop',
+      content: 'View reports on plagiarism and ai-content detection here.',
+      title: 'Plagiarism',
+      placement: 'auto',
     },
     {
       target: '.profile-link-desktop',

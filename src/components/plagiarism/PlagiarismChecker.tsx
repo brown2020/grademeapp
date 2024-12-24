@@ -85,7 +85,7 @@ export function PlagiarismChecker({ text }: PlagiarismCheckerProps) {
     >
       <DialogTrigger asChild>
         <CustomButton
-          className="size-12 sm:size-16 btn btn-shiny flex items-center bg-secondary-97 border-2 border-primary-40 rounded-full p-1.5"
+          className="grader-plagiarism-button size-12 sm:size-16 btn btn-shiny flex items-center bg-secondary-97 border-2 border-primary-40 rounded-full p-1.5"
           onClick={() => {
             setIsDialogOpen(true);
             handleCheck();

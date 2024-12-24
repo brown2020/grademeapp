@@ -15,17 +15,12 @@ export default function PlagiarismCheckDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  console.log("uid", uid);
-
   useEffect(() => {
     if (!uid) return;
 
     async function fetchReports() {
       try {
         const response = await fetch(`/api/copyleaks/reports/${uid}`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch reports. Please try again later.");
-        }
         const data = await response.json();
         setReports(data);
       } catch (err: unknown) {
@@ -41,7 +36,6 @@ export default function PlagiarismCheckDashboard() {
 
     fetchReports();
   }, [uid]);
-
 
 
   if (isLoading) {
@@ -64,12 +58,10 @@ export default function PlagiarismCheckDashboard() {
   if (!reports.length) {
     return (
       <div className="text-center min-h-[50vh]">
-        <p className="text-lg text-gray-500">No reports found. Start a new plagiarism check.</p>
+        <p className="text-lg text-gray-500">No reports found.</p>
       </div>
     );
   }
-
-  console.log("reports", reports);
 
   return (
     <div className="max-w-4xl mx-auto p-6">

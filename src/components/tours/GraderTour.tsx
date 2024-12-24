@@ -75,6 +75,12 @@ export default function GraderTour() {
         placement: 'top' as Placement,
       },
       {
+        target: '.grader-plagiarism-button',
+        content: 'Use this button to check your assignment for plagiarism and ai-content.',
+        title: 'Plagiarism',
+        placement: 'top' as Placement,
+      },
+      {
         target: '.grader-file-upload',
         content: 'If you prefer, you can upload your assignment as a file. Supported formats include docx, pdf, odt, rtf, and txt.',
         title: 'File Upload',
