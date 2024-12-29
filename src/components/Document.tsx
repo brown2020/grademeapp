@@ -1,10 +1,6 @@
 "use client";
 import { useEffect, useState, useCallback, FormEvent } from "react";
-import {
-  collection,
-  getDocs,
-  Timestamp,
-} from "firebase/firestore";
+import { collection, getDocs, Timestamp } from "firebase/firestore";
 import { toast } from "react-hot-toast";
 import { db } from "@/firebase/firebaseClient";
 import { useAuthStore } from "@/zustand/useAuthStore";
@@ -14,18 +10,22 @@ import { useParams } from "next/navigation";
 import { generateGrade } from "@/actions/generateResponse";
 import { readStreamableValue } from "ai/rsc";
 import ReactMarkdown from "react-markdown";
-import { PulseLoader } from "react-spinners";
 import { correctGrammarAndSpelling } from "@/actions/correctGrammarSpelling";
-import { extractGrade } from "@/utils/responseParser";
-import { updateDocument } from "@/utils/saveHistory";
-import { UserHistoryType } from "@/types/user-history";
+import { extractGrade } from "@/lib/utils/responseParser";
+import { updateDocument } from "@/lib/utils/saveHistory";
+import { UserHistoryType } from "@/lib/types/user-history";
 import DownloadPopover from "@/components/ui/DownloadPopover";
 import { Wand2 } from "lucide-react";
 import Tiptap from "@/components/tiptap/Tiptap";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import grademe from "@/app/assets/grademe.svg";
-
+import grader from "@/app/assets/grader_2.svg";
+import { ModelSelector } from "./ModelSelector";
+import { getDefaultModelId } from '@/lib/utils'
+import { models } from '@/lib/types/models';
+import { useLocalStorage } from '@/lib/hooks/use-local-storage';
+import { PlagiarismChecker } from "@/components/plagiarism/PlagiarismChecker";
 
 const fetchDocumentById = async (uid: string, id: string) => {
   const docRef = collection(db, "users", uid, "summaries");
@@ -34,7 +34,11 @@ const fetchDocumentById = async (uid: string, id: string) => {
   return docSnap.docs.filter((doc) => doc.id === id).map((doc) => doc.data());
 };
 
-const Document = () => {
+interface DocumentProps {
+  onModelChange?: (id: string) => void
+}
+
+const Document = ({ onModelChange }: DocumentProps) => {
   const { uid } = useAuthStore();
   const { profile, minusCredits } = useProfileStore();
   const { selectedRubric, gradingData, setGradingData } = useRubricStore();
@@ -51,6 +55,10 @@ const Document = () => {
   const [flagged, setFlagged] = useState<string>("");
   const [active, setActive] = useState<boolean>(false);
   const [fileUrl, setFileUrl] = useState<string>("");
+  const [selectedModelId, setSelectedModelId] = useLocalStorage<string>(
+    'selectedModel',
+    getDefaultModelId(models)
+  )
   const router = useRouter();
 
   // get timestamp from path /assignments/${summary.id}/${submission.timestamp}
@@ -79,8 +87,6 @@ const Document = () => {
       toast.loading("Loading document...");
       getDocument();
     }
-
-    console.log(summaryID, submissionTimestamp);
   }, [uid, summaryID, submissionTimestamp]);
 
   // Find the matching submission
@@ -118,8 +124,8 @@ const Document = () => {
 
   // Effect to update the active state
   useEffect(() => {
-    setActive(gradingData.text.length > 1 && localCount > 0);
-  }, [localCount, gradingData.text]);
+    setActive(gradingData.text.length > 1 && localCount > 0 || !profile.useCredits && !thinking);
+  }, [localCount, gradingData.text, thinking, profile.useCredits]);
 
   // Get the current amount of credits from the profile
   useEffect(() => {
@@ -129,12 +135,12 @@ const Document = () => {
   // Handle form submission
   const handleSubmit = useCallback(async (e: FormEvent) => {
     e.preventDefault();
-    setActive(false);
+    setThinking(true);
     setSummary("");
     setFlagged("");
-    setThinking(true);
     setIsStreamingComplete(false);
     setHasSaved(false);
+    setActive(false);
 
     try {
       const {
@@ -150,6 +156,7 @@ const Document = () => {
       } = gradingData;
 
       const { result, creditsUsed } = await generateGrade(
+        selectedModelId || "",
         profile.identity || "",
         profile.identityLevel || "",
         assigner,
@@ -161,7 +168,9 @@ const Document = () => {
         rubric,
         title,
         text,
-        profile.credits
+        profile.credits,
+        profile.useCredits,
+        uid
       );
 
       if (!result) throw new Error("No response");
@@ -179,8 +188,8 @@ const Document = () => {
         }
       }
 
-      setLocalCount((prev) => prev - creditsUsed);
       setThinking(false);
+      setLocalCount((prev) => prev - creditsUsed);
       setIsStreamingComplete(true);
     } catch (error) {
       console.error(error);
@@ -188,9 +197,11 @@ const Document = () => {
       setFlagged(
         "No suggestions found. Servers might be overloaded right now."
       );
+    } finally {
+      setThinking(false);
     }
   },
-    [gradingData, minusCredits, profile.credits, profile.identity, profile.identityLevel]
+    [gradingData, minusCredits, profile.credits, profile.identity, profile.identityLevel, profile.useCredits, selectedModelId, uid]
   );
 
   // Effect to handle saving to history
@@ -208,12 +219,14 @@ const Document = () => {
         ? [...userDoc.submissions, newSubmission]
         : [newSubmission];
 
-      updateDocument(uid, Array.isArray(summaryID) ? summaryID[0] : summaryID, gradingData, updatedSubmissions, fileUrl || null).then(
-        () => {
-          setHasSaved(true);
-        }
-      );
-      toast.success("Document updated successfully");
+      if (Array.isArray(summaryID) && typeof summaryID[0] === "string") {
+        updateDocument(uid, summaryID[0], gradingData, updatedSubmissions, fileUrl || null).then(
+          () => {
+            setHasSaved(true);
+          }
+        );
+        toast.success("Document updated successfully");
+      }
     }
   }, [
     isStreamingComplete,
@@ -236,7 +249,7 @@ const Document = () => {
     setHasSaved(false);
 
     try {
-      const { correctedTextArray, totalCreditsUsed } = await correctGrammarAndSpelling(gradingData.text, profile.credits);
+      const { correctedTextArray, totalCreditsUsed } = await correctGrammarAndSpelling(gradingData.text, profile.credits, profile.useCredits, uid, selectedModelId);
       const finalText = correctedTextArray.join("");
       console.log(finalText);
 
@@ -264,24 +277,20 @@ const Document = () => {
 
   // Scroll into view when content changes
   useEffect(() => {
-    if (summary) {
-      document
-        .getElementById("response")
-        ?.scrollIntoView({ behavior: "smooth" });
-    } else if (thinking) {
+    if (!flagged && summary && isStreamingComplete) {
+      document.getElementById("response")?.scrollIntoView({ behavior: "smooth" });
+    } else if (thinking && !summary && !flagged) {
       document.getElementById("thinking")?.scrollIntoView({ behavior: "smooth" });
     } else if (flagged) {
-      document
-        .getElementById("flagged")
-        ?.scrollIntoView({ behavior: "smooth" });
+      document.getElementById("flagged")?.scrollIntoView({ behavior: "smooth" });
     }
-  }, [summary, thinking, flagged]);
+  }, [thinking, flagged, isStreamingComplete, summary]);
 
   if (loading) {
     return <div>Loading...</div>;
   }
 
-  if (!document) {
+  if (!userDoc) {
     return <div>Document not found</div>;
   }
 
@@ -317,7 +326,14 @@ const Document = () => {
           {/* Text Editor and File Upload */}
           <section>
             <div className="relative">
-              <label className="block font-medium text-primary-20" htmlFor="text">Text</label>
+              <ModelSelector
+                selectedModelId={selectedModelId}
+                onModelChange={id => {
+                  setSelectedModelId(id)
+                  onModelChange?.(id)
+                }}
+              />
+              <label className="block font-medium text-primary-20 mt-2" htmlFor="text">Text</label>
               <hr />
               <Tiptap
                 wordLimit={gradingData.wordLimit}
@@ -328,49 +344,49 @@ const Document = () => {
             </div>
           </section>
 
-          <div className="flex flex-row justify-between gap-10">
-            <div className="flex flex-row gap-x-4 items-center">
-              {/* Submit Button */}
-              <button
-                type="submit"
-                id="grademe"
-                onClick={handleSubmit}
-                disabled={!active}
-                className={`btn btn-shiny border-2 border-primary-40 rounded-full size-20 p-1  ${!active ? "cursor-not-allowed" : ""}`}
-              >
-                <Image alt={"grademe logo"} src={grademe} width={50} height={50} className="bg-secondary-97 rounded-full p-1 size-16" />
-              </button>
 
-              <DownloadPopover content={gradingData.text} />
-
-              <div
-                className="btn btn-shiny btn-shiny-purple-blue rounded-full size-20 flex gap-x-2 md:rounded-lg md:size-fit px-3 py-2 items-center"
-                onClick={handleFixGrammarSpelling}
-              >
-                <Wand2 size={35} />
-                <p className="hidden sm:flex">Fix Grammar & Spelling</p>
-              </div>
-
+          <div className="flex flex-row gap-x-8 items-center justify-center md:justify-start mb-6">
+            {/* Submit Button */}
+            <button
+              type="submit"
+              id="grademe"
+              onClick={handleSubmit}
+              disabled={!active}
+              className={`${!active ? "cursor-not-allowed" : ""}`}
+            >
+              <Image alt={"grader icon"} src={grader} width={50} height={50} className={`btn btn-shiny bg-secondary-97 border-2 border-primary-40 rounded-full size-12 sm:size-16 p-0 ${!active ? "cursor-not-allowed opacity-50" : ""}`} />
+            </button>
+            <DownloadPopover content={gradingData.text} />
+            <div
+              className="btn btn-shiny btn-shiny-purple-blue rounded-full size-12 sm:size-16 flex gap-x-2 md:rounded-lg md:size-fit p-3 items-center"
+              onClick={handleFixGrammarSpelling}
+            >
+              <Wand2 size={30} />
+              <p className="hidden sm:flex">Fix Grammar & Spelling</p>
             </div>
-
+            <PlagiarismChecker text={gradingData.text} />
           </div>
+
 
           {!thinking && profile.credits < 10 && (
             <h3>{`You don't have enough credits to grade.`}</h3>
           )}
 
           {thinking && !summary && !flagged && (
-            <div id="thinking" className="p-5">
-              <PulseLoader color="orange" size={20} loading={thinking} />
+            <div id="thinking" className="p-5 mt-5">
+              <Image alt={"grademe logo"} src={grademe} width={100} height={100} className=" animate-bounce duration-1000 place-self-center" />
             </div>
           )}
 
           {flagged && <h3 id="flagged">{flagged}</h3>}
 
           {!flagged && summary && (
-            <div id="response" className="px-5 py-2 shadow-lg bg-secondary-95 rounded-md h-[33vh] overflow-y-scroll">
-              {/* Render Markdown content with custom styling */}
-              <ReactMarkdown className="markdown">{summary}</ReactMarkdown>
+            <div id="response" className="px-5 py-2 shadow-lg bg-secondary-97 border-secondary-30 border-2 rounded-md">
+              <div className="flex gap-x-2 items-center justify-center">
+                <Image alt={"grademe logo"} src={grademe} width={40} height={40} className="size-14" />
+                <h2 className="text-2xl text-center text-primary-10 font-medium">Grade.me Report</h2>
+              </div>
+              <ReactMarkdown>{summary}</ReactMarkdown>
             </div>
           )}
         </form>

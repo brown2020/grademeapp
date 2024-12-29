@@ -52,12 +52,12 @@ const DownloadPopover: React.FC<DownloadPopoverProps> = ({ content }) => {
 
   return (
     <Popover className="relative">
-      <PopoverButton className="btn btn-shiny btn-shiny-teal gap-x-2 rounded-full md:rounded-lg size-20 md:size-fit">
+      <PopoverButton className="btn btn-shiny btn-shiny-teal gap-x-2 rounded-full md:rounded-lg size-12 sm:size-16 md:size-fit">
         <Download size={35} />
         <p className="hidden md:flex">Download</p>
       </PopoverButton>
 
-      <PopoverPanel className="absolute z-10 bg-white shadow-lg rounded-lg p-4 w-48 mt-2">
+      <PopoverPanel className="absolute z-10 bg-secondary-97 border border-secondary-40 shadow-lg rounded-lg p-4 w-48 mt-2">
         <h3 className="font-semibold text-lg mb-2">Download as</h3>
 
         <select

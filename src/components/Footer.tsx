@@ -1,6 +1,6 @@
 "use client";
 
-import { MENU_ITEMS } from "@/constants/menuItems";
+import { MENU_ITEMS } from "@/lib/constants/menuItems";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import Link from "next/link";
 

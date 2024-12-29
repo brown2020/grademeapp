@@ -19,9 +19,11 @@ import { toast } from "react-hot-toast";
 import { db } from "@/firebase/firebaseClient";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import { PlusCircle, Search, XCircle } from "lucide-react";
-import { UserHistoryType } from "@/types/user-history";
+import { UserHistoryType } from "@/lib/types/user-history";
 import { useRouter } from "next/navigation";
 import CustomButton from "./ui/CustomButton";
+import AssignmentsTour from "@/components/tours/AssignmentsTour";
+import DeleteConfirmationModal from "./DeleteConfirmationModal";
 
 interface DebounceFunction {
   (func: (value: string) => void, delay: number): (value: string) => void;
@@ -57,6 +59,8 @@ export default function Assignments() {
   const [search, setSearch] = useState<string>("");
   const [lastKey, setLastKey] = useState<Timestamp | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [assignmentToDelete, setAssignmentToDelete] = useState<{ id: string; title: string } | null>(null);
   const router = useRouter();
 
   const orderedSummaries = summaries
@@ -73,30 +77,27 @@ export default function Assignments() {
 
   const handleSearchChange = debounce((value: string) => setSearch(value), 300);
 
-  const handleDelete = async (e: React.MouseEvent<SVGElement>) => {
-    const summaryId = e.currentTarget.getAttribute("data-summary-id");
+  const handleDeleteClick = (summaryId: string, title: string) => {
+    setAssignmentToDelete({ id: summaryId, title });
+    setIsDeleteModalOpen(true);
+  };
 
-    if (!uid || !summaryId) {
-      throw new Error("User ID or summary ID is missing");
+  const handleDeleteConfirm = async () => {
+    if (!uid || !assignmentToDelete) {
+      throw new Error("User ID or assignment to delete is missing");
     }
 
     try {
-      // Get a reference to the specific document in the summaries subcollection
-      const summaryDocRef = doc(db, "users", uid, "summaries", summaryId);
-
-      // Delete the document
+      const summaryDocRef = doc(db, "users", uid, "summaries", assignmentToDelete.id);
       await deleteDoc(summaryDocRef);
-
-      // Update the state to remove the deleted summary
-      setSummaries((prev) =>
-        prev.filter((summary) => summary.id !== summaryId)
-      );
-      toast.success("Document deleted successfully");
-      return true;
+      setSummaries((prev) => prev.filter((summary) => summary.id !== assignmentToDelete.id));
+      toast.success("Assignment deleted successfully");
     } catch (error) {
-      toast.error("An error occurred while deleting the summary");
+      toast.error("An error occurred while deleting the assignment");
       console.error("Error deleting document:", error);
-      return false;
+    } finally {
+      setIsDeleteModalOpen(false);
+      setAssignmentToDelete(null);
     }
   };
 
@@ -168,16 +169,19 @@ export default function Assignments() {
   return (
     <div className="flex flex-col gap-y-4">
       <div>
-        <h1>Assignments</h1>
+        <div className="flex gap-x-1 items-center">
+          <AssignmentsTour />
+          <h1>Assignments</h1>
+        </div>
         <hr />
       </div>
 
-      <CustomButton onClick={() => setTimeout(() => router.push('/tools'), 300)} className="btn-shiny btn-shiny-green w-full md:w-fit">
+      <CustomButton onClick={() => setTimeout(() => router.push('/grader'), 300)} className="btn-shiny btn-shiny-green w-full md:w-fit assignments-new">
         <PlusCircle />
         <p>Grade New Assignment</p>
       </CustomButton>
 
-      <div className="flex flex-row items-center px-3 bg-secondary-95 focus-within:ring-1 ring-primary-30 rounded-full w-full ring-offset-4 shadow-sm">
+      <div className="flex flex-row items-center px-3 bg-secondary-95 focus-within:ring-1 ring-primary-30 rounded-full w-full ring-offset-4 shadow-sm assignments-search">
         <Search size={20} className="flex text-primary-40" />
         <input
           className="w-full px-3 h-8 outline-none bg-secondary-95 placeholder:text-primary-30"
@@ -202,7 +206,7 @@ export default function Assignments() {
           .map((summary, index) => (
             <div
               key={`${summary.id}-${summary.timestamp.seconds}-${index}`}
-              className="flex flex-col px-2 py-1 rounded-lg shadow-md bg-secondary-98"
+              className="flex flex-col px-2 py-1 rounded-lg shadow-md bg-secondary-98 assignments-card"
             >
               <div className="flex flex-col justify-between items-baseline w-full">
                 <div className="flex flex-row text-primary-10 w-full font-medium cursor-pointer">
@@ -214,8 +218,8 @@ export default function Assignments() {
                   </p>
                   <XCircle
                     size={20}
-                    className="flex ml-auto text-red-600 cursor-pointer"
-                    onClick={handleDelete}
+                    className="flex ml-auto text-red-600 cursor-pointer assignments-delete"
+                    onClick={() => handleDeleteClick(summary.id, summary.userInput?.title ?? "Untitled Assignment")}
                     data-summary-id={summary.id}
                   />
                 </div>
@@ -235,7 +239,7 @@ export default function Assignments() {
                       <p>Grade: {submission.grade}</p>
                       <p>{submission.timestamp.toDate().toLocaleDateString('en-US')}</p>
                       <p
-                        className="cursor-pointer underline font-medium"
+                        className="cursor-pointer underline font-medium assignments-feedback"
                         onClick={() => { router.push(`/assignments/${summary.id}/${submission.timestamp.toMillis()}`) }}
                       >View Feedback</p>
                     </div>
@@ -248,12 +252,21 @@ export default function Assignments() {
       </div>
       {lastKey && (
         <button
-          className="btn btn-shiny btn-shiny-blue w-full md:fit"
+          className="btn btn-shiny btn-shiny-blue w-full md:fit assignments-load-more"
           onClick={postsNextBatch}
         >
           Load More
         </button>
       )}
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        title="Confirm Assignment Deletion"
+        description="Are you sure you want to delete this assignment? This action cannot be undone."
+        confirmText="Delete assignment"
+        itemName={assignmentToDelete?.title}
+      />
     </div>
   );
 }

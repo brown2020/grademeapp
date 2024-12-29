@@ -1,14 +1,15 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useState, useRef } from "react";
 import CustomListbox from "@/components/ui/CustomListbox";
 import { Field } from "@headlessui/react";
 import TextareaAutosize from "react-textarea-autosize";
-import { getVerbsByValue, userInputs } from "@/constants/userInputs";
+import { getVerbsByValue, userInputs } from "@/lib/constants/userInputs";
 import { useRubricStore } from "@/zustand/useRubricStore";
 import useProfileStore from "@/zustand/useProfileStore";
 import { LifeBuoy } from "lucide-react";
 import CustomButton from "@/components/ui/CustomButton";
+import RubricHelperTour from "@/components/tours/RubricHelperTour";
 
 export default function RubricHelper() {
   const { gradingData, setGradingData } = useRubricStore();
@@ -36,30 +37,11 @@ export default function RubricHelper() {
       audience: "",
       wordLimitType: "less than",
       wordLimit: "",
-      textType: "",
+      textType: "narrative",
       title: "",
       text: "",
     });
   };
-
-  useEffect(() => {
-    // Close the dialog when clicking outside of it
-    function handleClickOutside(event: TouchEvent | MouseEvent) {
-      if (isOpen &&
-        rubricHelperRef.current &&
-        !rubricHelperRef.current.contains(event.target as Node) &&
-        !(event.target as HTMLElement).closest(".custom-listbox-options")) {
-        closeRubricHelper();
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("touchstart", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("touchstart", handleClickOutside);
-    };
-  }, [rubricHelperRef, isOpen]);
 
   const closeRubricHelper = () => {
     setIsOpen(false);
@@ -76,11 +58,11 @@ export default function RubricHelper() {
         <h2>Rubric Helper</h2>
       </CustomButton>
 
-      <div className={`bg-black/30 absolute inset-0 w-full h-full z-10 ${isOpen ? 'overlay-open' : 'overlay-closed'}`} aria-hidden="true" />
       <div
         ref={rubricHelperRef}
-        className={`flex  flex-col bg-background border-primary-40 border-t-2 border-l-2 border-b-2 p-2 rounded-l-lg fixed right-0 top-[8svh] h-fit max-w-xs w-full z-10 transition-all ${isOpen ? 'animate-enter' : isExiting ? 'animate-exit' : 'hidden'}`}
+        className={` flex flex-col gap-y-4 bg-background border-primary-40 border-t-2 border-l-2 border-b-2 p-2 rounded-l-lg fixed right-0 top-[16svh] h-fit max-w-sm w-full z-10 transition-all ${isOpen ? 'animate-enter rubric-helper-open' : isExiting ? 'animate-exit' : 'hidden'}`}
       >
+        <RubricHelperTour />
         <div className="flex flex-row gap-x-2 items-center justify-center mb-2">
           <LifeBuoy className="text-primary-40" />
           <h2 className="text-xl font-medium">Rubric Helper</h2>
@@ -102,7 +84,7 @@ export default function RubricHelper() {
                   updateProfile({ identityLevel: value });
                 }
               }}
-              buttonClassName="w-fit"
+              buttonClassName="w-fit rubric-helper-identity-level"
               placeholder="select..."
             />
             {/* Identity Selection */}
@@ -119,7 +101,7 @@ export default function RubricHelper() {
                   updateProfile({ identity: value, identityLevel: newIdentityLevels[0] });
                 }
               }}
-              buttonClassName="w-fit"
+              buttonClassName="w-fit rubric-helper-identity"
               placeholder="select..."
             />
           </div>
@@ -128,7 +110,7 @@ export default function RubricHelper() {
 
         {/* My [assigner] has asked me to [text_type][verb] [topic] in a(n) [prose] for [audience]. */}
 
-        <div className="flex flex-wrap items-center gap-y-2">
+        <div className="flex flex-wrap items-center gap-y-4">
           <hr />
           <div className="flex flex-row flex-wrap items-center">
             <span className="w-fit mr-2">My</span>
@@ -144,18 +126,19 @@ export default function RubricHelper() {
                     setGradingData({ ...gradingData, assigner: value });
                   }
                 }}
-                buttonClassName="w-[80px]"
+                buttonClassName="w-[80px] rubric-helper-assigner"
                 placeholder="Select..."
               />
             </div>
             <span className="w-fit mr-2">has asked </span>
           </div>
 
+          {/* Text Type */}
           <div className="flex flex-row flex-wrap items-center">
             <span className="w-fit mr-2">me to</span>
             <div className="w-fit mr-2">
               <CustomListbox
-                value={getVerbsByValue(gradingData.textType ?? "narrative").join(", ")}
+                value={gradingData.textType ? getVerbsByValue(gradingData.textType).join(", ") : getVerbsByValue("narrative").join(", ")}
                 options={userInputs.textType.map((textType) => ({
                   label: textType.verbs.join(", "),
                   value: textType.value || "",
@@ -166,12 +149,13 @@ export default function RubricHelper() {
                     setGradingData({ ...gradingData, textType: value, prose: userInputs.prose.details[value]?.options[0] });
                   }
                 }}
-                buttonClassName="w-fit"
+                buttonClassName="w-fit rubric-helper-action"
                 placeholder="Select..."
               />
             </div>
           </div>
 
+          {/* Topic */}
           <Field className="flex items-center w-full">
             <TextareaAutosize
               id="topic"
@@ -180,13 +164,14 @@ export default function RubricHelper() {
               onChange={handleInputChange}
               minRows={1}
               placeholder="Topic of the assignment"
-              className="border rounded-md w-full text-sm px-2 py-1"
+              className="border rounded-md w-full text-sm px-2 py-1 rubric-helper-assignment-topic"
             />
           </Field>
 
           <span className="w-fit mx-2">in a(n)</span>
 
-          {gradingData.textType && userInputs.prose.details[gradingData.textType ?? "narrative"] && (
+          {/* Prose */}
+          {userInputs.prose.details[gradingData.textType ?? "narrative"] && (
             <div className="w-fit mr-2">
               <CustomListbox
                 value={gradingData.prose}
@@ -199,12 +184,13 @@ export default function RubricHelper() {
                     setGradingData({ ...gradingData, prose: value });
                   }
                 }}
-                buttonClassName="w-fit"
+                buttonClassName="w-fit rubric-helper-text-type"
                 placeholder="Select..."
               />
             </div>
           )}
 
+          {/* Audience */}
           <span className="w-fit mr-2">for </span>
           <div className="w-fit mr-2 flex">
             <CustomListbox
@@ -218,7 +204,7 @@ export default function RubricHelper() {
                   setGradingData({ ...gradingData, audience: value });
                 }
               }}
-              buttonClassName="w-fit"
+              buttonClassName="w-fit rubric-helper-audience"
               placeholder="Select..."
             />
           </div>
@@ -227,7 +213,7 @@ export default function RubricHelper() {
 
           {/* Word Limit */}
           <div className="flex flex-row w-full">
-            <div className="flex flex-row gap-x-2 items-center">
+            <div className="flex flex-row gap-x-2 items-center rubric-helper-word-limit">
               <CustomListbox
                 value={gradingData.wordLimitType}
                 options={userInputs.wordCount.comparisonType.map((option) => ({
@@ -239,7 +225,7 @@ export default function RubricHelper() {
                     setGradingData({ ...gradingData, wordLimitType: value });
                   }
                 }}
-                buttonClassName="w-fit flex"
+                buttonClassName="w-fit flex "
                 placeholder="Select..."
               />
 
@@ -253,8 +239,8 @@ export default function RubricHelper() {
                     setGradingData({ ...gradingData, wordLimit: e.target.value });
                   }
                 }}
-                placeholder="Enter word limit"
-                className="flex h-8 w-24 text-center px-1 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs sm:text-lg"
+                placeholder={`${gradingData.wordLimitType === "less than" || gradingData.wordLimitType === "more than" ? "500" : gradingData.wordLimitType === "between" ? "500-1000" : "enter a number"} `}
+                className="flex h-8 w-28 border text-center placeholder:text-xs md:placeholder:text-sm px-1 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs md:text-lg"
               />
               <span className="w-fit">words.</span>
             </div>
@@ -263,11 +249,11 @@ export default function RubricHelper() {
 
         <div className="flex flex-row gap-x-4 justify-start mt-4">
           {/* Done button to close form */}
-          <div onClick={closeRubricHelper} className="btn btn-shiny btn-shiny-green">
+          <div onClick={closeRubricHelper} className="btn btn-shiny btn-shiny-green rubric-helper-done">
             Done
           </div>
           {/* Reset the form */}
-          <div onClick={handleReset} className="btn btn-shiny btn-shiny-red">
+          <div onClick={handleReset} className="btn btn-shiny btn-shiny-red rubric-helper-reset">
             Reset
           </div>
         </div>

@@ -20,6 +20,8 @@ import { HeadingIcon, List, ListOrdered, AlignLeftIcon, AlignCenterIcon, AlignRi
 import { useEffect } from 'react'
 import { Popover, PopoverPanel, PopoverButton } from '@headlessui/react'
 import FontFamilyDropdown from '@/components/menus/TextMenu/components/FontFamilyDropdown'
+import BubbleMenuContent from './extensions/BubbleMenuContent'
+import { Spellcheck } from './extensions/Spellcheck'
 
 interface TiptapProps {
   wordLimit: string;
@@ -70,6 +72,7 @@ const Tiptap = ({ wordLimit, wordLimitType, editorContent, onChange }: TiptapPro
       }),
       TextStyle,
       FontFamily,
+      Spellcheck,
       CharacterCount.configure({
         wordCounter: (text) => text.split(/\s+/).filter((word) => word !== '').length,
       }),
@@ -81,19 +84,61 @@ const Tiptap = ({ wordLimit, wordLimitType, editorContent, onChange }: TiptapPro
     ],
     immediatelyRender: false,
     editorProps: {
-      handlePaste(view, event) {
-        const text = event.clipboardData?.getData("text/plain");
+      handlePaste: (view, event) => {
+        const text = event.clipboardData?.getData('text/plain')
         if (text) {
-          const formattedText = text.replace(/\n/g, "<br>");
-          view.dispatch(view.state.tr.insertText(formattedText));
-          event.preventDefault();
-          return true;
+          event.preventDefault()
+
+          const { tr, doc } = view.state
+          const { from, to, $from } = view.state.selection
+
+          // Corrected regex without capturing group
+          const paragraphs = text.split(/\r?\n{2,}/).filter(p => p.trim() !== '')
+
+          let insertPos = from
+
+          // Check if the document only contains an empty paragraph
+          const isEmptyDocument = doc.content.childCount === 1 &&
+            doc.content.firstChild?.type.name === 'paragraph' &&
+            doc.content.firstChild.content.size === 0
+
+          // Check if the selection is inside an empty paragraph
+          const isInEmptyParagraph = $from.parent.type.name === 'paragraph' && $from.parent.content.size === 0
+
+          if (isEmptyDocument) {
+            tr.delete(0, doc.content.size)
+            insertPos = 0
+          } else if (isInEmptyParagraph) {
+            tr.deleteRange($from.start(), $from.end())
+            insertPos = $from.start()
+          } else {
+            tr.deleteRange(from, to)
+            insertPos = from
+          }
+
+          paragraphs.forEach((paragraph) => {
+            // Trim leading/trailing whitespace but keep internal spaces and line breaks
+            const trimmedParagraph = paragraph.trim().replace(/\r?\n/g, ' ')
+
+            // Create a paragraph node with the text content
+            const node = view.state.schema.nodes.paragraph.create(
+              undefined,
+              view.state.schema.text(trimmedParagraph)
+            )
+
+            // Insert the paragraph node
+            tr.insert(insertPos, node)
+            insertPos += node.nodeSize
+          })
+
+          view.dispatch(tr)
+          return true
         }
-        return false;
+        return false
       },
       attributes: {
         class:
-          "shadow appearance-none min-h-[150px] border rounded w-full p-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline",
+          "shadow appearance-none h-[300px] overflow-y-scroll border rounded w-full p-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline",
       },
     },
     content: editorContent,
@@ -173,9 +218,7 @@ const Tiptap = ({ wordLimit, wordLimitType, editorContent, onChange }: TiptapPro
           onClick={() =>
             editor.chain().focus().toggleHeading({ level: 2 }).run()
           }
-          className={`
-                        size-8 rounded place-items-center ${editor.isActive("heading", { level: 2 }) ? "is-active bg-gray-300" : ""
-            }`}
+          className={`size-8 rounded place-items-center ${editor.isActive("heading", { level: 2 }) ? "is-active bg-gray-300" : ""}`}
         >
           <HeadingIcon size={18} />
         </button>
@@ -254,42 +297,19 @@ const Tiptap = ({ wordLimit, wordLimitType, editorContent, onChange }: TiptapPro
         </Popover>
       </div>
 
-      <BubbleMenu editor={editor} tippyOptions={{ duration: 100 }}>
-        <div className="bubble-menu">
-          {/* Bold Button */}
-          <button
-            type="button"
-            onClick={() => editor.chain().focus().toggleBold().run()}
-            className={`size-8 rounded ${editor.isActive("bold") ? "is-active bg-gray-300" : ""
-              }`}
-            title="Bold (Ctrl+B)"
-          >
-            <b>b</b>
-          </button>
-          {/* Italic Button */}
-          <button
-            type="button"
-            onClick={() => editor.chain().focus().toggleItalic().run()}
-            className={`size-8 rounded ${editor.isActive("italic") ? "is-active bg-gray-300" : ""
-              }`}
-            title="Italic (Ctrl+I)"
-          >
-            <i>i</i>
-          </button>
-          {/* Underline Button */}
-          <button
-            type="button"
-            onClick={() => editor.chain().focus().toggleUnderline().run()}
-            className={`size-8 rounded ${editor.isActive("underline") ? "is-active bg-gray-300" : ""
-              }`}
-            title="Underline (Ctrl+U)"
-          >
-            <u>u</u>
-          </button>
-        </div>
+      <BubbleMenu
+        editor={editor}
+        tippyOptions={{ duration: 100 }}
+        shouldShow={({ state }) => {
+          const { from, to, empty } = state.selection
+          return !empty && from !== to
+        }}
+        className='bg-secondary-90 px-3 py-1 rounded-xl shadow-lg'
+      >
+        <BubbleMenuContent editor={editor} />
       </BubbleMenu>
       {/* Editor Content */}
-      <EditorContent editor={editor} />
+      <EditorContent className='' editor={editor} />
     </div>
   )
 }
