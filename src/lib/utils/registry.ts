@@ -1,87 +1,108 @@
-import { experimental_createProviderRegistry as createProviderRegistry } from 'ai'
-import { openai, createOpenAI } from '@ai-sdk/openai'
-import { anthropic } from '@ai-sdk/anthropic'
-import { google } from '@ai-sdk/google'
-import { createAzure } from '@ai-sdk/azure'
-import { createXai } from '@ai-sdk/xai'
-import { createOllama } from 'ollama-ai-provider'
+import { experimental_createProviderRegistry as createProviderRegistry } from "ai";
+import { openai, createOpenAI } from "@ai-sdk/openai";
+import { anthropic } from "@ai-sdk/anthropic";
+import { google } from "@ai-sdk/google";
+import { createAzure } from "@ai-sdk/azure";
+import { createXai } from "@ai-sdk/xai";
+import { createOllama } from "ollama-ai-provider";
 
 export const registry = createProviderRegistry({
   openai,
   fireworks: createOpenAI({
     apiKey: process.env.FIREWORKS_API_KEY,
-    baseURL: 'https://api.fireworks.ai/inference/v1',
+    baseURL: "https://api.fireworks.ai/inference/v1",
   }),
   xai: createXai({
     apiKey: process.env.XAI_API_KEY,
-    baseURL: process.env.XAI_BASE_URL
+    baseURL: process.env.XAI_BASE_URL,
   }),
   anthropic,
   google,
   groq: createOpenAI({
     apiKey: process.env.GROQ_API_KEY,
-    baseURL: 'https://api.groq.com/openai/v1'
+    baseURL: "https://api.groq.com/openai/v1",
   }),
   ollama: createOllama({
-    baseURL: `${process.env.OLLAMA_BASE_URL}/api`
+    baseURL: `${process.env.OLLAMA_BASE_URL}/api`,
   }),
   azure: createAzure({
     apiKey: process.env.AZURE_API_KEY,
-    resourceName: process.env.AZURE_RESOURCE_NAME
+    resourceName: process.env.AZURE_RESOURCE_NAME,
   }),
-  'openai-compatible': createOpenAI({
+  "openai-compatible": createOpenAI({
     apiKey: process.env.OPENAI_COMPATIBLE_API_KEY,
-    baseURL: process.env.OPENAI_COMPATIBLE_API_BASE_URL
-  })
-})
+    baseURL: process.env.OPENAI_COMPATIBLE_API_BASE_URL,
+  }),
+});
 
 export function getModel(model: string, userApiKey?: string) {
-  const [provider, modelName] = model.split(':')
+  const [provider, modelName] = model.split(":");
 
-  console.log("Model", model)
+  console.log("Model", model);
 
   if (userApiKey) {
     switch (provider) {
-      case 'openai':
+      case "openai":
         return createOpenAI({ apiKey: userApiKey })(modelName);
-      case 'fireworks':
+      case "fireworks":
         return createOpenAI({
           apiKey: userApiKey,
-          baseURL: 'https://api.fireworks.ai/inference/v1',
+          baseURL: "https://api.fireworks.ai/inference/v1",
         })(modelName);
       default:
         throw new Error(`Provider ${provider} does not support user API keys`);
     }
   }
 
-  return registry.languageModel(model)
+  // Cast the model string to one of the supported provider formats
+  if (provider === "openai") {
+    return registry.languageModel(model as `openai:${string}`);
+  } else if (provider === "fireworks") {
+    return registry.languageModel(model as `fireworks:${string}`);
+  } else if (provider === "xai") {
+    return registry.languageModel(model as `xai:${string}`);
+  } else if (provider === "anthropic") {
+    return registry.languageModel(model as `anthropic:${string}`);
+  } else if (provider === "google") {
+    return registry.languageModel(model as `google:${string}`);
+  } else if (provider === "groq") {
+    return registry.languageModel(model as `groq:${string}`);
+  } else if (provider === "ollama") {
+    return registry.languageModel(model as `ollama:${string}`);
+  } else if (provider === "azure") {
+    return registry.languageModel(model as `azure:${string}`);
+  } else if (provider === "openai-compatible") {
+    return registry.languageModel(model as `openai-compatible:${string}`);
+  }
+
+  throw new Error(`Unsupported provider: ${provider}`);
 }
 
 export function isProviderEnabled(providerId: string): boolean {
   switch (providerId) {
-    case 'openai':
-      return !!process.env.OPENAI_API_KEY
-    case 'fireworks':
-      return !!process.env.FIREWORKS_API_KEY
-    case 'xai':
-      return !!process.env.XAI_API_KEY
-    case 'anthropic':
-      return !!process.env.ANTHROPIC_API_KEY
-    case 'google':
-      return !!process.env.GOOGLE_GENERATIVE_AI_API_KEY
-    case 'groq':
-      return !!process.env.GROQ_API_KEY
-    case 'ollama':
-      return !!process.env.OLLAMA_BASE_URL
-    case 'azure':
-      return !!process.env.AZURE_API_KEY && !!process.env.AZURE_RESOURCE_NAME
-    case 'openai-compatible':
+    case "openai":
+      return !!process.env.OPENAI_API_KEY;
+    case "fireworks":
+      return !!process.env.FIREWORKS_API_KEY;
+    case "xai":
+      return !!process.env.XAI_API_KEY;
+    case "anthropic":
+      return !!process.env.ANTHROPIC_API_KEY;
+    case "google":
+      return !!process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+    case "groq":
+      return !!process.env.GROQ_API_KEY;
+    case "ollama":
+      return !!process.env.OLLAMA_BASE_URL;
+    case "azure":
+      return !!process.env.AZURE_API_KEY && !!process.env.AZURE_RESOURCE_NAME;
+    case "openai-compatible":
       return (
         !!process.env.OPENAI_COMPATIBLE_API_KEY &&
         !!process.env.OPENAI_COMPATIBLE_API_BASE_URL &&
         !!process.env.NEXT_PUBLIC_OPENAI_COMPATIBLE_MODEL
-      )
+      );
     default:
-      return false
+      return false;
   }
 }
