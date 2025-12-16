@@ -39,8 +39,10 @@ export async function parseDocumentFromUrl(fileUrl: string): Promise<string> {
 
       const rawText = await new Promise<string>((resolve, reject) => {
         pdfParser.on("pdfParser_dataError", (errMsg) => {
-          console.error("PDF parsing error:", errMsg.parserError);
-          reject(new Error(errMsg.parserError.message));
+          const parserError =
+            errMsg instanceof Error ? errMsg : ("parserError" in errMsg ? errMsg.parserError : undefined);
+          console.error("PDF parsing error:", parserError ?? errMsg);
+          reject(new Error(parserError?.message ?? "Failed to parse PDF content."));
         });
 
         pdfParser.on("pdfParser_dataReady", (pdfData) => {

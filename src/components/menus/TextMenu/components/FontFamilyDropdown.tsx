@@ -68,7 +68,7 @@ const FontFamilyDropdown: React.FC<FontFamilyDropdownProps> = ({ editor }) => {
                 <ComboboxInput
                     className={clsx(
                         'w-28 rounded-lg py-1.5 pr-6 pl-3 text-sm/6 bg-white/5 border border-white',
-                        'focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25'
+                        'focus:outline-none data-focus:outline-2 data-focus:-outline-offset-2 data-focus:outline-white/25'
                     )}
                     aria-label="Font Family"
                     displayValue={(font: FontOption | null) => font?.label || ''}
@@ -76,7 +76,7 @@ const FontFamilyDropdown: React.FC<FontFamilyDropdownProps> = ({ editor }) => {
                     placeholder="Choose font"
                 />
                 <ComboboxButton className="group absolute inset-y-0 right-0 px-2.5">
-                    <ChevronDown className="size-4 fill-white/60 group-data-[hover]:fill-white" />
+                    <ChevronDown className="size-4 fill-white/60 group-data-hover:fill-white" />
                 </ComboboxButton>
 
                 <ComboboxOptions
@@ -84,7 +84,7 @@ const FontFamilyDropdown: React.FC<FontFamilyDropdownProps> = ({ editor }) => {
                     anchor="bottom start"
                     className={clsx(
                         'bg-gray-200 w-fit rounded-lg p-1 [--anchor-gap:var(--spacing-1)] empty:invisible',
-                        'transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0'
+                        'transition duration-100 ease-in data-leave:data-closed:opacity-0'
                     )}
                 >
                     {filteredFonts.map((group) => (
@@ -96,9 +96,9 @@ const FontFamilyDropdown: React.FC<FontFamilyDropdownProps> = ({ editor }) => {
                                 <ComboboxOption
                                     key={font.label}
                                     value={font}
-                                    className=" text-primary-40 group flex cursor-default items-center rounded-lg py-1 px-1 gap-x-1 select-none data-[focus]:bg-white/10"
+                                    className=" text-primary-40 group flex cursor-default items-center rounded-lg py-1 px-1 gap-x-1 select-none data-focus:bg-white/10"
                                 >
-                                    <CheckIcon className="invisible size-4 group-data-[selected]:visible" />
+                                    <CheckIcon className="invisible size-4 group-data-selected:visible" />
                                     <div className="text-sm" style={{ fontFamily: font.value }}>
                                         {font.label}
                                     </div>

@@ -66,7 +66,7 @@ const CustomListbox = <T extends string | number | string[] | null>({
           <ListboxButton
             as={MyCustomButton}
             className={clsx(
-              "align-bottom pt-2 rounded-md text-sm ring-0 data-[focus]:ring-0 focus:outline-none data-[focus]:bg-secondary",
+              "align-bottom pt-2 rounded-md text-sm ring-0 data-focus:ring-0 focus:outline-none data-focus:bg-secondary",
               buttonClassName
             )}
           >
@@ -76,7 +76,7 @@ const CustomListbox = <T extends string | number | string[] | null>({
                 <ChevronDown
                   className={clsx(
                     "size-4 ml-1 duration-300 transform",
-                    open ? " -rotate-180" : "-rotate-0"
+                    open ? " -rotate-180" : "rotate-0"
                   )}
                 />
               </div>
@@ -91,7 +91,7 @@ const CustomListbox = <T extends string | number | string[] | null>({
                 as={MyCustomDiv}
                 // Apply alternating background color based on even/odd index
                 className={clsx(
-                  "group flex gap-2 px-2 py-1 data-[focus]:bg-secondary-50 text-sm",
+                  "group flex gap-2 px-2 py-1 data-focus:bg-secondary-50 text-sm",
                   index % 2 === 0 ? "bg-secondary-97" : "bg-secondary-93", // Alternating background colors
                   optionClassName
                 )}

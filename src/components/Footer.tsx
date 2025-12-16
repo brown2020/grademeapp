@@ -15,12 +15,12 @@ export default function Footer() {
   });
 
   return (
-    <div className="hidden md:flex flex-wrap space-x-2 w-full h-14 items-center px-5 justify-center flex-shrink-0">
+    <div className="hidden md:flex flex-wrap space-x-2 w-full h-14 items-center px-5 justify-center shrink-0">
       {menuItems.map((item) => (
         <Link
           key={item.label}
           href={item.href}
-          className="text-black/50 hover:text-black/100"
+          className="text-black/50 hover:text-black"
         >
           <div>{item.label}</div>
         </Link>

@@ -135,7 +135,7 @@ const Summary = () => {
                     <ChevronDown className={`${open ? "transform rotate-180" : ""} w-5 h-5 duration-300 ease-in-out transition`} />
                   </DisclosureButton>
 
-                  <DisclosurePanel transition className=" place-self-center bg-secondary-97 ring ring-primary-40 rounded-lg ring-inset p-2 text-sm origin-top transition duration-200 ease-out data-[closed]:-translate-y-6 data-[closed]:opacity-0 mb-2">
+                  <DisclosurePanel transition className=" place-self-center bg-secondary-97 ring ring-primary-40 rounded-lg ring-inset p-2 text-sm origin-top transition duration-200 ease-out data-closed:-translate-y-6 data-closed:opacity-0 mb-2">
                     {/* Submitted Text */}
                     <div className="flex flex-col mb-4">
                       <h4 className="font-semibold">Submitted Text</h4>
