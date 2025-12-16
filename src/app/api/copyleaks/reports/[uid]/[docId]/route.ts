@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse, } from "next/server";
 import { adminDb } from "@/firebase/firebaseAdmin";
 
-export async function GET(request: NextRequest, { params }: { params: { uid: string; docId: string } }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ uid: string; docId: string }> },
+) {
   try {
-    const { uid, docId } = params;
+    const { uid, docId } = await params;
 
     console.log("Query params:", { uid, docId });
 

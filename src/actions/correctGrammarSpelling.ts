@@ -80,8 +80,12 @@ async function generateGrammarCorrections(
     chunks.push(chunk);
   }
 
+  const usageResult = await usage;
+  const inputTokens = usageResult.inputTokens ?? 0;
+  const outputTokens = usageResult.outputTokens ?? 0;
+
   const creditsUsed = useCredits
-    ? ((await usage).promptTokens * creditsPerInputToken + (await usage).completionTokens * creditsPerOutputToken) * creditsPerDollar
+    ? (inputTokens * creditsPerInputToken + outputTokens * creditsPerOutputToken) * creditsPerDollar
     : 0;
 
   return {

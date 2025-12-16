@@ -8,7 +8,7 @@ import useProfileStore from "@/zustand/useProfileStore";
 import { useRubricStore } from "@/zustand/useRubricStore";
 import { useParams } from "next/navigation";
 import { generateGrade } from "@/actions/generateResponse";
-import { readStreamableValue } from "ai/rsc";
+import { readStreamableValue } from "@ai-sdk/rsc";
 import ReactMarkdown from "react-markdown";
 import { correctGrammarAndSpelling } from "@/actions/correctGrammarSpelling";
 import { extractGrade } from "@/lib/utils/responseParser";

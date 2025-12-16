@@ -1,7 +1,6 @@
 "use server";
 
 import { NextRequest } from "next/server";
-import fetch from "node-fetch";
 import { adminDb } from "@/firebase/firebaseAdmin";
 import { Buffer } from "buffer";
 

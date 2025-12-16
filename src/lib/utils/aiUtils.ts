@@ -1,9 +1,9 @@
-import { LanguageModelV1, streamText } from "ai";
-import { CoreMessage } from "ai";
+import type { CoreMessage, LanguageModel } from "ai";
+import { streamText } from "ai";
 
 interface StreamUsage {
-  promptTokens: number;
-  completionTokens: number;
+  inputTokens: number;
+  outputTokens: number;
 }
 
 interface OnFinishParams {
@@ -11,7 +11,7 @@ interface OnFinishParams {
 }
 
 interface StreamTextParams {
-  model: LanguageModelV1;
+  model: LanguageModel;
   messages: CoreMessage[];
   temperature: number;
   onFinish: (params: OnFinishParams) => Promise<void>;
@@ -34,8 +34,8 @@ export async function executeStreamText({
       temperature,
       onFinish: async (event) => {
         const usage = {
-          promptTokens: event.usage.promptTokens,
-          completionTokens: event.usage.completionTokens,
+          inputTokens: event.usage.inputTokens ?? 0,
+          outputTokens: event.usage.outputTokens ?? 0,
         };
 
         console.log("[executeStreamText] Stream completed with usage:", usage);

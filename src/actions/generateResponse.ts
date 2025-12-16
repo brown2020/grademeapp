@@ -1,6 +1,6 @@
 "use server";
 
-import { createStreamableValue } from "ai/rsc";
+import { createStreamableValue } from "@ai-sdk/rsc";
 import { CoreMessage, streamText } from "ai";
 import { isProviderEnabled, getModel } from "@/lib/utils/registry";
 import { getApiKeys } from "@/lib/utils/user";
@@ -82,7 +82,11 @@ async function generateDeterministicResponse(
   const stream = createStreamableValue(textStream);
 
   // Calculate the actual credits used based on the usage returned by the API
-  const creditsUsed = ((await usage).promptTokens * creditsPerInputToken + (await usage).completionTokens * creditsPerOutputToken) * creditsPerDollar;
+  const usageResult = await usage;
+  const usedInputTokens = usageResult.inputTokens ?? 0;
+  const usedOutputTokens = usageResult.outputTokens ?? 0;
+  const creditsUsed =
+    (usedInputTokens * creditsPerInputToken + usedOutputTokens * creditsPerOutputToken) * creditsPerDollar;
 
 
   return {

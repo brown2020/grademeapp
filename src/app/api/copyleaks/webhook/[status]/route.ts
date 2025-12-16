@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/firebase/firebaseAdmin";
 
-export async function POST(request: NextRequest, { params }: { params: { status: string } }) {
-  const { status } = params;
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ status: string }> },
+) {
+  const { status } = await params;
 
   try {
     const body = await request.json();

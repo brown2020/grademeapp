@@ -8,7 +8,7 @@ import { useAuthStore } from "@/zustand/useAuthStore";
 import useProfileStore from "@/zustand/useProfileStore";
 import { generateGrade } from "@/actions/generateResponse";
 import { parseDocumentFromUrl } from "@/actions/parseDocumentFromUrl";
-import { readStreamableValue } from "ai/rsc";
+import { readStreamableValue } from "@ai-sdk/rsc";
 import ReactMarkdown from "react-markdown";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";

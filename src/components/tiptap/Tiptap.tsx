@@ -1,5 +1,6 @@
 'use client'
-import { useEditor, EditorContent, BubbleMenu } from '@tiptap/react'
+import { useEditor, EditorContent } from '@tiptap/react'
+import { BubbleMenu } from '@tiptap/react/menus'
 import { mergeAttributes } from '@tiptap/core'
 import HardBreak from "@tiptap/extension-hard-break"
 import Document from '@tiptap/extension-document'
@@ -8,13 +9,13 @@ import Paragraph from '@tiptap/extension-paragraph'
 import Text from '@tiptap/extension-text'
 import Bold from '@tiptap/extension-bold'
 import Italic from '@tiptap/extension-italic'
-import { ListItem } from '@tiptap/extension-list-item'
-import { BulletList } from '@tiptap/extension-bullet-list'
-import { OrderedList } from '@tiptap/extension-ordered-list'
+import ListItem from '@tiptap/extension-list-item'
+import BulletList from '@tiptap/extension-bullet-list'
+import OrderedList from '@tiptap/extension-ordered-list'
 import CharacterCount from '@tiptap/extension-character-count'
 import Underline from '@tiptap/extension-underline'
 import TextAlign from '@tiptap/extension-text-align'
-import TextStyle from '@tiptap/extension-text-style'
+import { TextStyle } from '@tiptap/extension-text-style'
 import FontFamily from '@tiptap/extension-font-family'
 import { HeadingIcon, List, ListOrdered, AlignLeftIcon, AlignCenterIcon, AlignRightIcon, AlignJustifyIcon } from 'lucide-react'
 import { useEffect } from 'react'
@@ -299,7 +300,6 @@ const Tiptap = ({ wordLimit, wordLimitType, editorContent, onChange }: TiptapPro
 
       <BubbleMenu
         editor={editor}
-        tippyOptions={{ duration: 100 }}
         shouldShow={({ state }) => {
           const { from, to, empty } = state.selection
           return !empty && from !== to

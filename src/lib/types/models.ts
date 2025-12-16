@@ -55,12 +55,6 @@ export const models: Model[] = [
     providerId: 'groq'
   },
   {
-    id: 'qwen2.5',
-    name: 'Qwen 2.5',
-    provider: 'Ollama',
-    providerId: 'ollama'
-  },
-  {
     id: 'gpt-4o',
     name: 'GPT-4o',
     provider: 'Azure',
