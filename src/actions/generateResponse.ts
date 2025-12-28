@@ -1,7 +1,7 @@
 "use server";
 
 import { createStreamableValue } from "@ai-sdk/rsc";
-import { CoreMessage, streamText } from "ai";
+import { streamText, type ModelMessage } from "ai";
 import { isProviderEnabled, getModel } from "@/lib/utils/registry";
 import { getApiKeys } from "@/lib/utils/user";
 
@@ -12,11 +12,28 @@ function validateInputs(topic: string): { valid: boolean; error?: string } {
   return { valid: true };
 }
 
+function getMessageText(content: ModelMessage["content"]): string {
+  if (typeof content === "string") return content;
+  if (Array.isArray(content)) {
+    return content
+      .map((part) => {
+        if (typeof part === "string") return part;
+        if (part && typeof part === "object" && "text" in part && typeof (part as { text?: unknown }).text === "string") {
+          return (part as { text: string }).text;
+        }
+        return "";
+      })
+      .filter(Boolean)
+      .join(" ");
+  }
+  return "";
+}
+
 // Function to calculate token count for input and estimate for output
-async function estimateTokens(messages: CoreMessage[], estimatedOutputTokens: number) {
+async function estimateTokens(messages: ModelMessage[], estimatedOutputTokens: number) {
 
   // Concatenate all message contents into a single string
-  const text = messages.map(message => message.content).join(' ');
+  const text = messages.map((message) => getMessageText(message.content)).join(" ");
 
   // Calculate the token count for the input text
   const totalChars = text.length;
@@ -32,7 +49,7 @@ async function estimateTokens(messages: CoreMessage[], estimatedOutputTokens: nu
 // Function to generate a deterministic response using OpenAI
 async function generateDeterministicResponse(
   selectedModelId: string,
-  messages: CoreMessage[],
+  messages: ModelMessage[],
   estimatedOutputTokens: number,
   availableCredits: number,
   useCredits: boolean,
@@ -108,7 +125,7 @@ function createGradingMessages(
   rubricString: string,
   title: string,
   text: string,
-): CoreMessage[] {
+): ModelMessage[] {
 
   // Construct the system prompt based on user-provided inputs for enhanced accuracy
   const systemPrompt = `You are a ${assigner} grading a ${prose}, in which a ${identityLevel} ${identity} is writing about ${topic} for his/her ${audience}. Grade the paper according this rubric: ${rubricString}. The word limit for this assignment is ${wordLimitType} ${wordLimit}. Assess whether the chosen topic, content and level of writing is appropriate for the age and expected skill level of the user. Provide a percentage grade. If the rubric has additional scoring metrics be sure to include your assessment according to those as well, and constructive feedback in the form of a detailed explanation. ALWAYS provide suggestions for improvement. Begin with positive feedback. Include specific quotes from the text to support your evaluation with ideas for improvement.`;

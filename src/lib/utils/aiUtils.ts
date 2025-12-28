@@ -1,4 +1,4 @@
-import type { CoreMessage, LanguageModel } from "ai";
+import type { LanguageModel, ModelMessage } from "ai";
 import { streamText } from "ai";
 
 interface StreamUsage {
@@ -12,7 +12,7 @@ interface OnFinishParams {
 
 interface StreamTextParams {
   model: LanguageModel;
-  messages: CoreMessage[];
+  messages: ModelMessage[];
   temperature: number;
   onFinish: (params: OnFinishParams) => Promise<void>;
 }

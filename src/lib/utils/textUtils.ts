@@ -1,5 +1,5 @@
 // /lib/utils/textUtils.ts
-import { CoreMessage } from "ai";
+import type { ModelMessage } from "ai";
 
 
 export function validateInputs(text: string): { valid: boolean; error?: string } {
@@ -24,7 +24,7 @@ export function extractRawTitle(fullText: string): string {
 export function createPlagiarismCheckMessages(
   text: string,
   bestMatch?: { url: string; similarity: number }
-): CoreMessage[] {
+): ModelMessage[] {
   const bestMatchUrl = bestMatch && bestMatch.similarity >= 0.8 ? bestMatch.url : "No significant match found";
 
   const systemPrompt = `You are a friendly plagiarism checker. You have searched the web for similar content.

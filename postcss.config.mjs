@@ -1,4 +1,5 @@
-/** @type {import('postcss-load-config').Config} */
+/* SPDX-License-Identifier: AGPL-3.0-only */
+
 const config = {
   plugins: {
     '@tailwindcss/postcss': {},

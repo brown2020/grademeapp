@@ -1,6 +1,6 @@
 "use server";
 
-import { CoreMessage, streamText } from "ai";
+import { streamText, type ModelMessage } from "ai";
 import { getModel } from "@/lib/utils/registry";
 import { getApiKeys } from "@/lib/utils/user";
 
@@ -44,7 +44,7 @@ function splitTextIntoChunks(text: string, maxInputTokens: number): string[] {
 
 // Function to generate grammar and spelling corrections
 async function generateGrammarCorrections(
-  messages: CoreMessage[],
+  messages: ModelMessage[],
   inputTokenEstimate: number,
   estimatedOutputTokens: number,
   availableCredits: number,
@@ -95,7 +95,7 @@ async function generateGrammarCorrections(
 }
 
 // Create the system and user messages for correction
-function createCorrectionMessages(text: string): CoreMessage[] {
+function createCorrectionMessages(text: string): ModelMessage[] {
   const systemPrompt = `You are a highly accurate grammar and spelling checker. Please correct all grammar, spelling, and punctuation errors in the following text.`;
   const userPrompt = `Here is the text to correct: \n"${text}"`;
 
