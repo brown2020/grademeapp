@@ -79,7 +79,7 @@
     "stripe": "^20.1.0",
     "tailwind-merge": "3.4.0",
     "tailwindcss-animate": "^1.0.7",
-    "zod": "4.2.1",
+    "zod": "^4.3.4",
     "zustand": "^5.0.0"
   },
   "devDependencies": {
