@@ -59,26 +59,16 @@ export async function parseDocumentFromUrl(fileUrl: string): Promise<string> {
         .join("");
     } else if (
       contentType === "text/plain" ||
-      contentType === "application/vnd.oasis.opendocument.text" ||
       (contentType === "application/octet-stream" && fileExtension === "txt")
     ) {
       const rawText = new TextDecoder().decode(arrayBuffer);
       parsedHtml = rawText.replace(/\n/g, "<br>");
-    } else if (contentType === "application/octet-stream" && fileExtension === "odt") {
-
+    } else if (
+      contentType === "application/vnd.oasis.opendocument.text" ||
+      (contentType === "application/octet-stream" && fileExtension === "odt")
+    ) {
       const buffer = Buffer.from(arrayBuffer);
-      const rawText = await new Promise<string>((resolve, reject) => {
-        officeParser.parseOffice(buffer, (data: string, err: Error | null) => {
-          if (err) {
-            console.error('ODT parsing error:', err);
-            reject(new Error('Failed to parse ODT content.'));
-          } else if (data) {
-            resolve(data);
-          } else {
-            reject(new Error('No data returned from ODT parser.'));
-          }
-        });
-      });
+      const rawText = (await officeParser.parseOffice(buffer)).toText();
 
       parsedHtml = `<html><body><p>${rawText.replace(/\n/g, '</p><p>')}</p></body></html>`;
 
