@@ -30,7 +30,8 @@ export async function GET(
     }
 
     // Map Firestore documents to JSON
-    const reports = reportsSnapshot.docs.map((doc) => ({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const reports = reportsSnapshot.docs.map((doc: any) => ({
       docId: doc.id,
       ...doc.data(),
     }));

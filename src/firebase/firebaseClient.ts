@@ -13,9 +13,20 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENTID,
 };
 
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-const storage = getStorage(app);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let app: any, db: any, auth: any, storage: any;
+
+try {
+  app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+  db = getFirestore(app);
+  auth = getAuth(app);
+  storage = getStorage(app);
+} catch (e) {
+  console.warn("Firebase client initialization failed (expected in build):", e);
+  app = {};
+  db = {};
+  auth = {};
+  storage = {};
+}
 
 export { auth, db, storage };
