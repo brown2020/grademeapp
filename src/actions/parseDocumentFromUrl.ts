@@ -68,7 +68,7 @@ export async function parseDocumentFromUrl(fileUrl: string): Promise<string> {
       (contentType === "application/octet-stream" && fileExtension === "odt")
     ) {
       const buffer = Buffer.from(arrayBuffer);
-      const rawText = (await officeParser.parseOffice(buffer)).toText();
+      const rawText = await officeParser.parseOfficeAsync(buffer);
 
       parsedHtml = `<html><body><p>${rawText.replace(/\n/g, '</p><p>')}</p></body></html>`;
 

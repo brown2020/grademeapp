@@ -89,13 +89,15 @@ export async function searchEssayServices(correctedTitle: string): Promise<{ ser
       return [];
     }
 
-    const services = servicesSnapshot.docs.map(doc => doc.data().name);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const services = servicesSnapshot.docs.map((doc: any) => doc.data().name);
 
     // Optional rate limiting to prevent too many simultaneous requests
     const limit = pLimit(5); // Max 5 concurrent requests
 
     // Perform searches concurrently
-    const searchPromises = services.map(service =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const searchPromises = services.map((service: any) =>
       limit(async () => {
         const query = `${correctedTitle} ${service}`;
         console.log(`[searchEssayServices] Performing search for: ${query}`);
