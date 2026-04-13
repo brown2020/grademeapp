@@ -10,6 +10,7 @@ import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
 } from "firebase/auth";
+import { deleteCookie } from "cookies-next";
 import google_ctn from "@/app/assets/google_ctn.svg";
 
 import Image from "next/image";
@@ -68,8 +69,20 @@ export default function AuthComponent() {
 
   const handleSignOut = async () => {
     try {
+      // 1. Delete auth cookie BEFORE Firebase sign-out.
+      const cookieName = process.env.NEXT_PUBLIC_COOKIE_NAME || "authToken";
+      deleteCookie(cookieName, { path: "/" });
+
+      // 2. Sign out of Firebase.
       await signOut(auth);
+
+      // 3. Clear auth store.
       clearAuthDetails();
+
+      // 4. Clear browser storage.
+      if (typeof window !== "undefined") {
+        sessionStorage.clear();
+      }
     } catch (error) {
       console.error("Error signing out:", error);
       alert("An error occurred while signing out.");
