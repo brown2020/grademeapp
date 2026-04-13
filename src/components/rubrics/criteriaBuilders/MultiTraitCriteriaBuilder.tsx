@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   MultiTraitRubric,
   MultiTraitCriterion,
@@ -43,35 +43,39 @@ const MultiTraitCriteriaBuilder: React.FC<MultiTraitCriteriaBuilderProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [savedCriteria, setSavedCriteria] = useState<CriterionState[]>([]);
 
-  useEffect(() => {
-    if (rubric.criteria) {
-      setCriteria(rubric.criteria);
-      const initialSavedCriteria = Object.entries(rubric.criteria).map(([name, criterion]) => ({
-        id: name,
-        name,
-        description: criterion.description || '',
-        subCriteria: criterion.subCriteria,
-      }));
-      setSavedCriteria(initialSavedCriteria);
-    }
-  }, [rubric]);
+  // Sync criteria when rubric changes ("adjusting state during render" pattern)
+  const [prevRubricCriteria, setPrevRubricCriteria] = useState(rubric?.criteria);
+  if (rubric.criteria && rubric.criteria !== prevRubricCriteria) {
+    setPrevRubricCriteria(rubric.criteria);
+    setCriteria(rubric.criteria);
+    const initialSavedCriteria = Object.entries(rubric.criteria).map(([name, criterion]) => ({
+      id: name,
+      name,
+      description: criterion.description || '',
+      subCriteria: criterion.subCriteria,
+    }));
+    setSavedCriteria(initialSavedCriteria);
+  }
 
-  useEffect(() => {
-    if (hasSaved) {
-      setSavedCriteria([]);
-      setCurrentCriterion({
-        id: '',
-        name: '',
-        description: '',
-        subCriteria: {},
-      });
-      setCurrentSubCriterion({
-        description: '',
-        levels: {},
-      });
-      setHasSaved(false);
-    }
-  }, [hasSaved, setHasSaved]);
+  // Reset when parent signals save completed ("adjusting state during render" pattern)
+  const [prevHasSaved, setPrevHasSaved] = useState(hasSaved);
+  if (hasSaved && !prevHasSaved) {
+    setPrevHasSaved(hasSaved);
+    setSavedCriteria([]);
+    setCurrentCriterion({
+      id: '',
+      name: '',
+      description: '',
+      subCriteria: {},
+    });
+    setCurrentSubCriterion({
+      description: '',
+      levels: {},
+    });
+    setHasSaved(false);
+  } else if (hasSaved !== prevHasSaved) {
+    setPrevHasSaved(hasSaved);
+  }
 
   const handleCriterionChange = (field: keyof CriterionState, value: string) => {
     setCurrentCriterion((prev) => ({ ...prev, [field]: value }));

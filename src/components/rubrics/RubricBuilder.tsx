@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import RubricTypeSelector from '@/components/rubrics/criteriaBuilders/RubricTypeSelector';
 import RubricTypeExplanation from '@/components/rubrics/criteriaBuilders/RubricTypeExplanation';
 import { RubricState, RubricType } from '@/lib/types/rubrics-types';
@@ -26,30 +26,29 @@ export default function RubricBuilder({ onClose }: {
     rubricOptions,
   } = useRubricStore();
   const [hasSaved, setHasSaved] = useState(false);
-  const [localRubric, setLocalRubric] = useState<RubricState | null>(null);
 
-  const initializeRubric = useCallback(() => {
+  // Initialize localRubric via lazy initializer (runs once on mount)
+  const [localRubric, setLocalRubric] = useState<RubricState | null>(() => {
     if (editingRubricId) {
       const rubricToEdit = rubricOptions.find((r) => r.id === editingRubricId);
       if (rubricToEdit) {
-        setActiveRubric(rubricToEdit);
-        setLocalRubric(rubricToEdit);
+        // Side effect: also set activeRubric in store (deferred to avoid render-time store mutation)
+        queueMicrotask(() => setActiveRubric(rubricToEdit));
+        return rubricToEdit;
       }
-    } else if (!activeRubric) {
-      const newRubric = createNewRubric(RubricType.Analytical);
-      setLocalRubric(newRubric);
     }
-  }, [editingRubricId, activeRubric, setActiveRubric, createNewRubric, rubricOptions]);
-
-  useEffect(() => {
-    initializeRubric();
-  }, [initializeRubric]);
-
-  useEffect(() => {
     if (activeRubric) {
-      setLocalRubric(activeRubric);
+      return activeRubric;
     }
-  }, [activeRubric]);
+    return createNewRubric(RubricType.Analytical);
+  });
+
+  // Sync localRubric when activeRubric changes ("adjusting state during render" pattern)
+  const [prevActiveRubric, setPrevActiveRubric] = useState(activeRubric);
+  if (activeRubric && activeRubric !== prevActiveRubric) {
+    setPrevActiveRubric(activeRubric);
+    setLocalRubric(activeRubric);
+  }
 
   const handleClose = useCallback(() => {
     clearActiveRubric();

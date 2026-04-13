@@ -27,7 +27,7 @@
       ]
     },
     "target": "ES2017",
-    "types": []
+    "types": ["node"]
   },
   "include": [
     "next-env.d.ts",

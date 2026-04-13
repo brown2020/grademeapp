@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { TaskSpecificRubric, GenericRubricCriteria } from '@/lib/types/rubrics-types';
 import { toast } from 'react-hot-toast';
 import { BadgePlus, Save, Edit2Icon, Trash2 } from 'lucide-react';
@@ -43,32 +43,36 @@ const TaskSpecificCriteriaBuilder: React.FC<TaskSpecificCriteriaBuilderProps> = 
   const [isEditing, setIsEditing] = useState(false);
   const [taskDescription, setTaskDescription] = useState(rubric.description || '');
 
-  useEffect(() => {
-    if (rubric.criteria) {
-      const initialCriteria = Object.entries(rubric.criteria).map(([name, criterion]) => ({
-        id: name,
-        name,
-        description: (criterion as GenericRubricCriteria).description as string || '',
-        levels: (criterion as GenericRubricCriteria).levels as Criterion['levels'],
-      }));
-      setCriteria(initialCriteria);
-    }
-  }, [rubric.criteria]);
+  // Sync criteria when rubric.criteria changes ("adjusting state during render" pattern)
+  const [prevRubricCriteria, setPrevRubricCriteria] = useState(rubric?.criteria);
+  if (rubric.criteria && rubric.criteria !== prevRubricCriteria) {
+    setPrevRubricCriteria(rubric.criteria);
+    const initialCriteria = Object.entries(rubric.criteria).map(([name, criterion]) => ({
+      id: name,
+      name,
+      description: (criterion as GenericRubricCriteria).description as string || '',
+      levels: (criterion as GenericRubricCriteria).levels as Criterion['levels'],
+    }));
+    setCriteria(initialCriteria);
+  }
 
-  useEffect(() => {
-    if (hasSaved) {
-      setCriteria([]);
-      setCurrentCriterion({
-        id: '',
-        name: '',
-        description: '',
-        levels: { ...DEFAULT_LEVELS },
-      });
-      setIsEditing(false);
-      setTaskDescription('');
-      setHasSaved(false);
-    }
-  }, [hasSaved, setHasSaved]);
+  // Reset when parent signals save completed ("adjusting state during render" pattern)
+  const [prevHasSaved, setPrevHasSaved] = useState(hasSaved);
+  if (hasSaved && !prevHasSaved) {
+    setPrevHasSaved(hasSaved);
+    setCriteria([]);
+    setCurrentCriterion({
+      id: '',
+      name: '',
+      description: '',
+      levels: { ...DEFAULT_LEVELS },
+    });
+    setIsEditing(false);
+    setTaskDescription('');
+    setHasSaved(false);
+  } else if (hasSaved !== prevHasSaved) {
+    setPrevHasSaved(hasSaved);
+  }
 
   const addOrUpdateCriterion = () => {
     if (!currentCriterion.name.trim()) {
