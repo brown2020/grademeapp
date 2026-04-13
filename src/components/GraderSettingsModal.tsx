@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useRubricStore } from '@/zustand/useRubricStore';
 import CustomListbox from '@/components/ui/CustomListbox';
 import userInputs from '@/lib/constants/userInputs';
@@ -9,17 +9,14 @@ import CustomButton from '@/components/ui/CustomButton';
 
 const GraderSettingsModal: React.FC = () => {
   const { gradingData, setGradingData } = useRubricStore();
-  const [proseOptions, setProseOptions] = useState<string[]>(userInputs.prose.options);
+  const proseOptions = useMemo(() => {
+    if (gradingData.textType && userInputs.prose.details[gradingData.textType]) {
+      return userInputs.prose.details[gradingData.textType].options;
+    }
+    return userInputs.prose.options;
+  }, [gradingData.textType]);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isExiting, setIsExiting] = useState(false);
-
-  useEffect(() => {
-    if (gradingData.textType && userInputs.prose.details[gradingData.textType]) {
-      setProseOptions(userInputs.prose.details[gradingData.textType].options);
-    } else {
-      setProseOptions(userInputs.prose.options);
-    }
-  }, [gradingData.textType]);
 
   const handleChange = (name: string, value: string) => {
     setGradingData({ ...gradingData, [name]: value });
