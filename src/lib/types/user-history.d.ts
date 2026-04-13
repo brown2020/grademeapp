@@ -1,6 +1,7 @@
-type Timestamp = Timestamp;
+import { Timestamp } from "firebase/firestore";
+import { RubricState } from "@/lib/types/rubrics-types";
 
-interface Submission {
+export interface Submission {
     text: string;
     response: string;
     grade: string;
@@ -14,7 +15,7 @@ interface UserInput {
     identity: string;
     identityLevel: string;
     prose: string;
-    rubric: string;
+    rubric: RubricState | null;
     textType: string;
     title: string;
     topic: string;

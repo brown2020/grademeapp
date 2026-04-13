@@ -19,8 +19,6 @@ import {
 
 
 export default function RubricDisplay({ rubric }: { rubric: RubricState | null }) {
-  console.log(rubric);
-
   if (!rubric) {
     return (
       <div className="w-full h-52 max-h-52 bg-secondary-97 rounded-md border border-dashed border-primary-30 rubric-criteria">

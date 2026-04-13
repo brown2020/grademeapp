@@ -1,4 +1,4 @@
-import { Rubric } from "@/constants/rubrics_new";
+import { RubricState } from "@/lib/types/rubrics-types";
 
 export type GradingData = {
     title: string;
@@ -11,5 +11,5 @@ export type GradingData = {
     wordLimitType: "less than" | "more than" | "between"; // Word limit condition (less or more)
     wordLimit: string; // Word limit value
     customRubric: string; // Optional custom rubric
-    rubric: Rubric; // Specific rubric
+    rubric: RubricState | null; // Specific rubric
 };

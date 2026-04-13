@@ -65,7 +65,6 @@ export default function RubricSearch() {
   };
 
   const openRubricBuilder = (rubricId?: string) => {
-    console.log("openRubricBuilder", rubricId);
     setEditingRubricId(rubricId || undefined);
     setShowRubricBuilder(true);
   };

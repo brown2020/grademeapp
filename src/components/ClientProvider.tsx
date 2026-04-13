@@ -60,7 +60,7 @@ export function ClientProvider({ children }: { children: React.ReactNode }) {
     <ErrorBoundary>
       <div className="flex flex-col h-full">
         {children}
-        {!window.ReactNativeWebView && (
+        {typeof window !== 'undefined' && !window.ReactNativeWebView && (
           <CookieConsent>
             This app uses cookies to enhance the user experience.
           </CookieConsent>

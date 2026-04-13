@@ -31,7 +31,6 @@ export function PlagiarismChecker({ text }: PlagiarismCheckerProps) {
 
   const handleCheck = async () => {
     if (!text.trim()) {
-      console.log("No text provided, returning early");
       return;
     }
 

@@ -1,5 +1,3 @@
-"use server";
-
 import { NextRequest } from "next/server";
 import { adminDb } from "@/firebase/firebaseAdmin";
 import { Buffer } from "buffer";
@@ -135,7 +133,6 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       const error = await response.json();
-      console.log("Error submitting scan:", error);
       throw new Error(error.message || "Failed to submit scan.");
     }
 

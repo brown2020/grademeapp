@@ -59,7 +59,7 @@ const mergeProfileWithDefaults = (
 ): ProfileType => ({
   ...defaultProfile,
   ...profile,
-  credits: profile.credits && profile.credits >= 100 ? profile.credits : 1000,
+  credits: profile.credits ?? 0,
   email: authState.authEmail || profile.email || "",
   contactEmail: profile.contactEmail || authState.authEmail || "",
   displayName: profile.displayName || authState.authDisplayName || "",
@@ -115,7 +115,6 @@ const useProfileStore = create<ProfileState>((set, get) => ({
 
       set({ profile: updatedProfile });
       await updateDoc(userRef, updatedProfile);
-      console.log("Profile updated successfully");
     } catch (error) {
       handleProfileError("updating profile", error);
     }
@@ -136,7 +135,6 @@ const useProfileStore = create<ProfileState>((set, get) => ({
       //Delete the user from Firebase Authentication
       await deleteUser(currentUser);
 
-      console.log("Account deleted successfully");
     } catch (error) {
       handleProfileError("deleting account", error);
     }

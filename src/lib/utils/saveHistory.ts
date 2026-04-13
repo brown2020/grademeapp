@@ -21,7 +21,6 @@ export async function saveDocument(
     fileUrl,
     timestamp: Timestamp.now(),
   });
-  console.log("Document saved successfully.");
 }
 
 export async function updateDocument(
@@ -41,5 +40,4 @@ export async function updateDocument(
     fileUrl,
     timestamp: Timestamp.now(),
   });
-  console.log("Document updated successfully.");
 }

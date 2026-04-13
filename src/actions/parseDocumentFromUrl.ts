@@ -8,8 +8,38 @@ import rtfToHTML from "@iarna/rtf-to-html";
 import officeParser from "officeparser";
 
 
+function isAllowedUrl(urlString: string): boolean {
+  let parsed: URL;
+  try {
+    parsed = new URL(urlString);
+  } catch {
+    return false;
+  }
+
+  if (parsed.protocol !== "https:") {
+    return false;
+  }
+
+  const hostname = parsed.hostname.toLowerCase();
+  const blockedPatterns = [
+    /^localhost$/,
+    /^127\./,
+    /^10\./,
+    /^192\.168\./,
+    /^169\.254\./,
+    /^172\.(1[6-9]|2\d|3[01])\./,
+    /^\[::1\]$/,
+  ];
+
+  return !blockedPatterns.some((pattern) => pattern.test(hostname));
+}
+
 export async function parseDocumentFromUrl(fileUrl: string): Promise<string> {
   try {
+    if (!isAllowedUrl(fileUrl)) {
+      throw new Error("URL is not allowed. Only public HTTPS URLs are permitted.");
+    }
+
     const response = await fetch(fileUrl);
     if (!response.ok) {
       throw new Error(`Failed to fetch file from URL: ${fileUrl}`);

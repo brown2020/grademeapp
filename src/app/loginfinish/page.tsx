@@ -23,7 +23,6 @@ export default function LoginFinishPage() {
         let email = window.localStorage.getItem("grademeEmail");
         const name = window.localStorage.getItem("grademeName") || "";
 
-        console.log("User signed in successfully:", email, name);
         if (!email) {
           email = window.prompt("Please confirm your email");
           if (!email) {
@@ -42,18 +41,9 @@ export default function LoginFinishPage() {
         const uid = user?.uid;
         const selectedName = name || user?.displayName || "";
 
-        console.log("User auth data:", authEmail, uid, selectedName);
-
         if (!uid || !authEmail) {
           throw new Error("No user found");
         }
-
-        console.log(
-          "User signed in successfully:",
-          authEmail,
-          uid,
-          selectedName
-        );
 
         setAuthDetails({
           uid,
@@ -69,7 +59,6 @@ export default function LoginFinishPage() {
           errorMessage = error.message;
         }
 
-        console.log("ERROR", errorMessage);
         alert(errorMessage);
       } finally {
         window.localStorage.removeItem("grademeEmail");
@@ -80,4 +69,10 @@ export default function LoginFinishPage() {
 
     attemptSignIn();
   }, [router, setAuthDetails, updateProfile]);
+
+  return (
+    <div className="flex items-center justify-center h-full">
+      <p>Completing sign-in...</p>
+    </div>
+  );
 }

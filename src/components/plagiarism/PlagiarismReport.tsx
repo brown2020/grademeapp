@@ -47,8 +47,6 @@ export default function PlagiarismReport() {
     fetchReport();
   }, [uid, docId]);
 
-  console.log("report", report);
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
