@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { PrimaryTraitRubric, GenericRubricCriteria } from '@/lib/types/rubrics-types';
 import { toast } from 'react-hot-toast';
 import { BadgePlus, Save, Edit2Icon, Trash2 } from 'lucide-react';
@@ -41,38 +41,42 @@ const PrimaryTraitCriteriaBuilder: React.FC<PrimaryTraitCriteriaBuilderProps> = 
   const [isEditing, setIsEditing] = useState(false);
   const [savedCriteria, setSavedCriteria] = useState<PrimaryTraitCriterionState[]>([]);
 
-  useEffect(() => {
-    if (rubric.criteria) {
-      const initialSavedCriteria = Object.entries(rubric.criteria).map(([name, criterion]) => ({
-        id: name,
-        name,
-        description: (criterion as GenericRubricCriteria).description as string || '',
-        levels: Object.entries((criterion as GenericRubricCriteria).levels as Record<string, string>).map(([score, description]) => ({
-          score: parseInt(score),
-          description,
-        })),
-      }));
-      setSavedCriteria(initialSavedCriteria);
-    }
-  }, [rubric.criteria]);
+  // Sync savedCriteria when rubric.criteria changes ("adjusting state during render" pattern)
+  const [prevRubricCriteria, setPrevRubricCriteria] = useState(rubric?.criteria);
+  if (rubric.criteria && rubric.criteria !== prevRubricCriteria) {
+    setPrevRubricCriteria(rubric.criteria);
+    const initialSavedCriteria = Object.entries(rubric.criteria).map(([name, criterion]) => ({
+      id: name,
+      name,
+      description: (criterion as GenericRubricCriteria).description as string || '',
+      levels: Object.entries((criterion as GenericRubricCriteria).levels as Record<string, string>).map(([score, description]) => ({
+        score: parseInt(score),
+        description,
+      })),
+    }));
+    setSavedCriteria(initialSavedCriteria);
+  }
 
-  useEffect(() => {
-    if (hasSaved) {
-      setSavedCriteria([]);
-      setCurrentCriterion({
-        id: '',
-        name: '',
-        description: '',
-        levels: [
-          { score: 4, description: '' },
-          { score: 3, description: '' },
-          { score: 2, description: '' },
-          { score: 1, description: '' },
-        ],
-      });
-      setHasSaved(false);
-    }
-  }, [hasSaved, setHasSaved]);
+  // Reset when parent signals save completed ("adjusting state during render" pattern)
+  const [prevHasSaved, setPrevHasSaved] = useState(hasSaved);
+  if (hasSaved && !prevHasSaved) {
+    setPrevHasSaved(hasSaved);
+    setSavedCriteria([]);
+    setCurrentCriterion({
+      id: '',
+      name: '',
+      description: '',
+      levels: [
+        { score: 4, description: '' },
+        { score: 3, description: '' },
+        { score: 2, description: '' },
+        { score: 1, description: '' },
+      ],
+    });
+    setHasSaved(false);
+  } else if (hasSaved !== prevHasSaved) {
+    setPrevHasSaved(hasSaved);
+  }
 
   const addOrUpdateCriterion = () => {
     if (!currentCriterion.name.trim()) {

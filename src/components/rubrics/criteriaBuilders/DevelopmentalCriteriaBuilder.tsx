@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { DevelopmentalRubric, GenericRubricCriteria } from '@/lib/types/rubrics-types';
 import { toast } from 'react-hot-toast';
 import { BadgePlus, Save, Edit2Icon, Trash2, PlusCircle } from 'lucide-react';
@@ -38,26 +38,26 @@ const DevelopmentalCriteriaBuilder: React.FC<DevelopmentalCriteriaBuilderProps> 
   const [isEditing, setIsEditing] = useState(false);
   const [savedCriteria, setSavedCriteria] = useState<DevelopmentalCriterionState[]>([]);
 
-  useEffect(() => {
+  // Sync savedCriteria when rubric.criteria changes ("adjusting state during render" pattern)
+  const [prevRubricCriteria, setPrevRubricCriteria] = useState(rubric.criteria);
+  if (rubric.criteria !== prevRubricCriteria) {
+    setPrevRubricCriteria(rubric.criteria);
     const initialSavedCriteria: DevelopmentalCriterionState[] = Object.entries(rubric.criteria).map(
       ([criterionName, criterionValue]) => {
         if (typeof criterionValue === 'object' && criterionValue !== null) {
-          // Check if criterionValue has 'stages' and 'description' properties
           if ('stages' in criterionValue && 'description' in criterionValue) {
-            // criterionValue has expected structure
             const stagesObj = criterionValue.stages as Record<string, string>;
             const stagesArray = Object.entries(stagesObj).map(([stageName, stageDescription]) => ({
               name: stageName,
               description: stageDescription,
             }));
             return {
-              id: criterionName, // Use criterionName as ID
+              id: criterionName,
               name: criterionName,
               description: criterionValue.description as string,
               stages: stagesArray,
             };
           } else {
-            // criterionValue is an object mapping stage names to descriptions
             const stagesArray = Object.entries(criterionValue as Record<string, string>).map(
               ([stageName, stageDescription]) => ({
                 name: stageName,
@@ -72,32 +72,33 @@ const DevelopmentalCriteriaBuilder: React.FC<DevelopmentalCriteriaBuilderProps> 
             };
           }
         } else {
-          // criterionValue is not an object, skip
           return null;
         }
       }
     ).filter(Boolean) as DevelopmentalCriterionState[];
-
     setSavedCriteria(initialSavedCriteria);
-  }, [rubric.criteria]);
+  }
 
-  useEffect(() => {
-    if (hasSaved) {
-      setSavedCriteria([]);
-      setCurrentCriterion({
-        id: '',
-        name: '',
-        description: '',
-        stages: [
-          { name: 'Emerging', description: '' },
-          { name: 'Developing', description: '' },
-          { name: 'Proficient', description: '' },
-          { name: 'Advanced', description: '' },
-        ],
-      });
-      setHasSaved(false);
-    }
-  }, [hasSaved, setHasSaved]);
+  // Reset when parent signals save completed ("adjusting state during render" pattern)
+  const [prevHasSaved, setPrevHasSaved] = useState(hasSaved);
+  if (hasSaved && !prevHasSaved) {
+    setPrevHasSaved(hasSaved);
+    setSavedCriteria([]);
+    setCurrentCriterion({
+      id: '',
+      name: '',
+      description: '',
+      stages: [
+        { name: 'Emerging', description: '' },
+        { name: 'Developing', description: '' },
+        { name: 'Proficient', description: '' },
+        { name: 'Advanced', description: '' },
+      ],
+    });
+    setHasSaved(false);
+  } else if (hasSaved !== prevHasSaved) {
+    setPrevHasSaved(hasSaved);
+  }
 
   const addOrUpdateCriterion = () => {
     if (!currentCriterion.name.trim()) {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { GenericRubricCriteria, ContentSpecificRubric } from '@/lib/types/rubrics-types';
 import { toast } from 'react-hot-toast';
 import { BadgePlus, Save, Edit2Icon, Trash2, PlusCircle } from 'lucide-react';
@@ -39,23 +39,26 @@ const ContentSpecificCriteriaBuilder: React.FC<ContentSpecificCriteriaBuilderPro
   const [savedCriteria, setSavedCriteria] = useState<ContentSpecificCriterionState[]>([]);
   const [assignmentType, setAssignmentType] = useState('');
 
-  useEffect(() => {
-    if (hasSaved) {
-      setSavedCriteria([]);
-      setCurrentCriterion({
-        id: '',
-        name: '',
-        description: '',
-        levels: [
-          { name: 'Excellent', description: '' },
-          { name: 'Proficient', description: '' },
-          { name: 'Developing', description: '' },
-          { name: 'Beginning', description: '' },
-        ],
-      });
-      setHasSaved(false);
-    }
-  }, [hasSaved, setHasSaved]);
+  // Reset when parent signals save completed ("adjusting state during render" pattern)
+  const [prevHasSaved, setPrevHasSaved] = useState(hasSaved);
+  if (hasSaved && !prevHasSaved) {
+    setPrevHasSaved(hasSaved);
+    setSavedCriteria([]);
+    setCurrentCriterion({
+      id: '',
+      name: '',
+      description: '',
+      levels: [
+        { name: 'Excellent', description: '' },
+        { name: 'Proficient', description: '' },
+        { name: 'Developing', description: '' },
+        { name: 'Beginning', description: '' },
+      ],
+    });
+    setHasSaved(false);
+  } else if (hasSaved !== prevHasSaved) {
+    setPrevHasSaved(hasSaved);
+  }
 
   const addOrUpdateCriterion = () => {
     if (!currentCriterion.name.trim()) {

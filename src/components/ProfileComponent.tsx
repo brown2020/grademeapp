@@ -1,7 +1,7 @@
 "use client";
 
 import useProfileStore from "@/zustand/useProfileStore";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { isIOSReactNativeWebView } from "@/lib/utils/platform"; // Import the platform detection
 import { usePaymentsStore } from "@/zustand/usePaymentsStore";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
@@ -20,12 +20,31 @@ export default function ProfileComponent() {
   );
   const [openaiApiKey, setOpenaiApiKey] = useState(profile.openai_api_key);
   const [useCredits, setUseCredits] = useState(profile.useCredits);
-  const [showCreditsSection, setShowCreditsSection] = useState(true); // State to control visibility
+  // Compute iOS WebView status once (never changes during component lifecycle)
+  const showCreditsSection = useMemo(() => !isIOSReactNativeWebView(), []);
   const addCredits = useProfileStore((state) => state.addCredits);
   const addPayment = usePaymentsStore((state) => state.addPayment);
   const deleteAccount = useProfileStore((state) => state.deleteAccount);
   const clearAuthDetails = useAuthStore((s) => s.clearAuthDetails);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  // Sync local API key inputs when store values change externally
+  // ("Adjusting state during render" pattern from React docs)
+  const [prevStoreKeys, setPrevStoreKeys] = useState({
+    fireworks: profile.fireworks_api_key,
+    openai: profile.openai_api_key,
+  });
+  if (
+    profile.fireworks_api_key !== prevStoreKeys.fireworks ||
+    profile.openai_api_key !== prevStoreKeys.openai
+  ) {
+    setPrevStoreKeys({
+      fireworks: profile.fireworks_api_key,
+      openai: profile.openai_api_key,
+    });
+    setFireworksApiKey(profile.fireworks_api_key);
+    setOpenaiApiKey(profile.openai_api_key);
+  }
 
   useEffect(() => {
     const handleMessageFromRN = async (event: MessageEvent) => {
@@ -52,16 +71,6 @@ export default function ProfileComponent() {
       window.removeEventListener("message", handleMessageFromRN);
     };
   }, [addCredits, addPayment]);
-
-  useEffect(() => {
-    setFireworksApiKey(profile.fireworks_api_key);
-    setOpenaiApiKey(profile.openai_api_key);
-  }, [profile.fireworks_api_key, profile.openai_api_key]);
-
-  useEffect(() => {
-    // Conditionally hide the credits purchase section if in a React Native WebView on iOS
-    setShowCreditsSection(!isIOSReactNativeWebView());
-  }, []);
 
   const handleApiKeyChange = async () => {
     if (

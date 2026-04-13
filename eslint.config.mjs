@@ -6,12 +6,9 @@ const config = [
   ...nextCoreWebVitals,
   ...nextTypescript,
   {
-    // Downgrade set-state-in-effect to warn for legitimate prop-sync patterns
-    // (syncing external store values into local controlled-input state).
-    // These will be refactored to useSyncExternalStore or key-based reset
-    // in a future pass. Keeping as warn so they remain visible.
+    // All set-state-in-effect patterns converted to adjusting-state-during-render.
     rules: {
-      "react-hooks/set-state-in-effect": "warn",
+      "react-hooks/set-state-in-effect": "error",
     },
   },
 ];

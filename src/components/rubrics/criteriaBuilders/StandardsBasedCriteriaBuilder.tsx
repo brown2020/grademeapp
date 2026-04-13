@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { StandardsBasedRubric, GenericRubricCriteria } from '@/lib/types/rubrics-types';
 import { toast } from 'react-hot-toast';
 import { BadgePlus, Save, Edit2Icon, Trash2 } from 'lucide-react';
@@ -42,31 +42,35 @@ const StandardsBasedCriteriaBuilder: React.FC<StandardsBasedCriteriaBuilderProps
   });
   const [isEditing, setIsEditing] = useState(false);
 
-  useEffect(() => {
-    if (rubric.criteria) {
-      const initialStandards = Object.entries(rubric.criteria).map(([name, criterion]) => ({
-        id: name,
-        name,
-        description: (criterion as GenericRubricCriteria).description as string || '',
-        levels: (criterion as GenericRubricCriteria).levels as Standard['levels'],
-      }));
-      setStandards(initialStandards);
-    }
-  }, [rubric.criteria]);
+  // Sync standards when rubric.criteria changes ("adjusting state during render" pattern)
+  const [prevRubricCriteria, setPrevRubricCriteria] = useState(rubric?.criteria);
+  if (rubric.criteria && rubric.criteria !== prevRubricCriteria) {
+    setPrevRubricCriteria(rubric.criteria);
+    const initialStandards = Object.entries(rubric.criteria).map(([name, criterion]) => ({
+      id: name,
+      name,
+      description: (criterion as GenericRubricCriteria).description as string || '',
+      levels: (criterion as GenericRubricCriteria).levels as Standard['levels'],
+    }));
+    setStandards(initialStandards);
+  }
 
-  useEffect(() => {
-    if (hasSaved) {
-      setStandards([]);
-      setCurrentStandard({
-        id: '',
-        name: '',
-        description: '',
-        levels: { ...DEFAULT_LEVELS },
-      });
-      setIsEditing(false);
-      setHasSaved(false);
-    }
-  }, [hasSaved, setHasSaved]);
+  // Reset when parent signals save completed ("adjusting state during render" pattern)
+  const [prevHasSaved, setPrevHasSaved] = useState(hasSaved);
+  if (hasSaved && !prevHasSaved) {
+    setPrevHasSaved(hasSaved);
+    setStandards([]);
+    setCurrentStandard({
+      id: '',
+      name: '',
+      description: '',
+      levels: { ...DEFAULT_LEVELS },
+    });
+    setIsEditing(false);
+    setHasSaved(false);
+  } else if (hasSaved !== prevHasSaved) {
+    setPrevHasSaved(hasSaved);
+  }
 
   const addOrUpdateStandard = () => {
     if (!currentStandard.name.trim()) {
