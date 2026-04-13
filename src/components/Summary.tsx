@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import {
-  collection,
-  getDocs,
+  doc,
+  getDoc,
 } from "firebase/firestore";
 import { toast } from "react-hot-toast";
 import { db } from "@/firebase/firebaseClient";
@@ -19,10 +19,9 @@ import SummaryTour from "@/components/tours/SummaryTour";
 
 // Fetch summary by ID
 const fetchSummaryById = async (uid: string, id: string) => {
-  const docRef = collection(db, "users", uid, "summaries");
-  const docSnap = await getDocs(docRef);
-  const summaryDoc = docSnap.docs.find((doc) => doc.id === id);
-  return summaryDoc ? (summaryDoc.data() as UserHistoryType) : undefined;
+  const docRef = doc(db, "users", uid, "summaries", id);
+  const docSnap = await getDoc(docRef);
+  return docSnap.exists() ? (docSnap.data() as UserHistoryType) : undefined;
 };
 
 const Summary = () => {

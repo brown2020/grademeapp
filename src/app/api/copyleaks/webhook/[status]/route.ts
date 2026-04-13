@@ -10,9 +10,6 @@ export async function POST(
   try {
     const body = await request.json();
 
-    console.log(`Webhook Received - Status: ${status}`);
-    console.log("Payload:", body);
-
     // Handle different webhook statuses
     switch (status) {
       case "completed":
@@ -69,5 +66,4 @@ async function handleCompletedWebhook(body: WebhookBody) {
       updatedAt: new Date().toISOString(),
     });
 
-  console.log(`Updated report for uid: ${uid}, docId: ${docId}`);
 }

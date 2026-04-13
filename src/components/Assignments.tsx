@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import {
   collection,
   getDocs,
@@ -25,8 +25,12 @@ import CustomButton from "./ui/CustomButton";
 import AssignmentsTour from "@/components/tours/AssignmentsTour";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 
-interface DebounceFunction {
-  (func: (value: string) => void, delay: number): (value: string) => void;
+function debounce(func: (value: string) => void, delay: number): (value: string) => void {
+  let timeout: NodeJS.Timeout;
+  return (value: string) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(value), delay);
+  };
 }
 
 // Function to handle document migration
@@ -67,15 +71,7 @@ export default function Assignments() {
     .slice()
     .sort((a, b) => b.timestamp.seconds - a.timestamp.seconds);
 
-  const debounce: DebounceFunction = (func, delay) => {
-    let timeout: NodeJS.Timeout;
-    return (value: string) => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func(value), delay);
-    };
-  };
-
-  const handleSearchChange = debounce((value: string) => setSearch(value), 300);
+  const handleSearchChange = useMemo(() => debounce((value: string) => setSearch(value), 300), []);
 
   const handleDeleteClick = (summaryId: string, title: string) => {
     setAssignmentToDelete({ id: summaryId, title });

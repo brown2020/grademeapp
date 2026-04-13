@@ -286,8 +286,6 @@ export const useRubricStore = create<RubricStoreState>((set, get) => {
         // Create a new document reference with an auto-generated ID
         const customRubricRef = doc(collection(db, "users", uid, "custom_rubrics"));
         const generatedId = customRubricRef.id;
-        console.log("Generated ID:", generatedId);
-
         // Add the generated ID to the rubric object
         const rubricWithId = { ...rubric, id: generatedId, timestamp: Timestamp.now(), isCustom: true };
 
@@ -300,7 +298,6 @@ export const useRubricStore = create<RubricStoreState>((set, get) => {
           filteredRubrics: state.useCustomRubrics ? [...state.filteredRubrics, rubricWithId] : state.filteredRubrics,
         }));
 
-        console.log("Rubric created successfully with ID:", generatedId);
       } catch (error) {
         console.error("Failed to add rubric to Firebase:", error);
         throw error; // Rethrow if needed for error handling in components

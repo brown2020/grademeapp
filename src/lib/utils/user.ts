@@ -1,16 +1,5 @@
 import { adminDb } from "@/firebase/firebaseAdmin";
 
-export async function getUserProfile(userId: string) {
-  const userRef = adminDb.doc(`users/${userId}`);
-  const userSnap = await userRef.get();
-
-  if (userSnap.exists) {
-    return userSnap.data();
-  } else {
-    return null;
-  }
-}
-
 // Function to retrieve API keys from Firestore
 export async function getApiKeys(userId: string) {
   try {

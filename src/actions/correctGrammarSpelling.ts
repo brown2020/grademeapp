@@ -3,18 +3,7 @@
 import { streamText, type ModelMessage } from "ai";
 import { getModel } from "@/lib/utils/registry";
 import { getApiKeys } from "@/lib/utils/user";
-
-// Function to validate input parameters
-function validateInputs(text: string): { valid: boolean; error?: string } {
-  if (!text.trim()) return { valid: false, error: "Input text cannot be empty." };
-  return { valid: true };
-}
-
-// Function to estimate token usage for the input text
-function estimateTokens(text: string): number {
-  const totalChars = text.length;
-  return Math.ceil(totalChars / 4); // Rough estimate: 1 token per 4 characters
-}
+import { validateInputs, estimateTokens } from "@/lib/utils/textUtils";
 
 // Function to split text into chunks based on max input tokens
 function splitTextIntoChunks(text: string, maxInputTokens: number): string[] {

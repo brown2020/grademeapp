@@ -40,10 +40,10 @@ export default function Grader({ onModelChange }: GraderProps) {
   const { profile, minusCredits } = useProfileStore();
   const [response, setResponse] = useState<string>("");
   const [flagged, setFlagged] = useState<string>("");
-  const [active, setActive] = useState<boolean>(false);
   const [grade, setGrade] = useState<string>("");
   const [thinking, setThinking] = useState<boolean>(false);
   const [localCount, setLocalCount] = useState<number>(profile.credits);
+  const active = (gradingData.text.length > 1) && (localCount > 0 || !profile.useCredits) && !thinking;
   const [isStreamingComplete, setIsStreamingComplete] = useState<boolean>(false);
   const [hasSaved, setHasSaved] = useState<boolean>(false);
   const [uploading, setUploading] = useState<boolean>(false);
@@ -61,9 +61,6 @@ export default function Grader({ onModelChange }: GraderProps) {
     if (selectedFile && uid) {
       setUploading(true);
       toast.loading("Uploading file...");
-
-      // Log file information for debugging
-      console.log('Uploading file:', selectedFile.name, 'of type:', selectedFile.type, 'and size:', selectedFile.size);
 
       try {
         const { setGradingData } = useRubricStore.getState();
@@ -96,11 +93,6 @@ export default function Grader({ onModelChange }: GraderProps) {
     }
   };
 
-  // Enable submit button if conditions are met
-  useEffect(() => {
-    setActive(gradingData.text.length > 1 && localCount > 0 || !profile.useCredits && !thinking);
-  }, [localCount, gradingData.text, thinking, profile.useCredits]);
-
   // Handle form submission
   const handleSubmit = useCallback(async (e: FormEvent) => {
     e.preventDefault();
@@ -109,7 +101,6 @@ export default function Grader({ onModelChange }: GraderProps) {
     setThinking(true);
     setIsStreamingComplete(false);
     setHasSaved(false);
-    setActive(false);
 
     // convert rubric to string
     const rubricString = JSON.stringify(selectedRubric);
@@ -126,9 +117,9 @@ export default function Grader({ onModelChange }: GraderProps) {
         gradingData.audience,
         gradingData.wordLimitType,
         gradingData.wordLimit,
+        rubricString,
         gradingData.title,
         gradingData.text,
-        rubricString,
         profile.credits,
         profile.useCredits,
         uid

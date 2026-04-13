@@ -1,4 +1,4 @@
-import { experimental_createProviderRegistry as createProviderRegistry } from "ai";
+import { createProviderRegistry } from "ai";
 import { openai, createOpenAI } from "@ai-sdk/openai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { google } from "@ai-sdk/google";
@@ -33,8 +33,6 @@ export const registry = createProviderRegistry({
 
 export function getModel(model: string, userApiKey?: string) {
   const [provider, modelName] = model.split(":");
-
-  console.log("Model", model);
 
   if (userApiKey) {
     switch (provider) {

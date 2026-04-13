@@ -82,7 +82,6 @@ export default function ProfileComponent() {
           fireworks_api_key: fireworksApiKey,
           openai_api_key: openaiApiKey,
         });
-        console.log("API keys updated successfully!");
       } catch (error) {
         console.error("Error updating API keys:", error);
       }

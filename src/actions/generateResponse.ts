@@ -4,13 +4,7 @@ import { createStreamableValue } from "@ai-sdk/rsc";
 import { streamText, type ModelMessage } from "ai";
 import { isProviderEnabled, getModel } from "@/lib/utils/registry";
 import { getApiKeys } from "@/lib/utils/user";
-
-
-// Function to validate input parameters
-function validateInputs(topic: string): { valid: boolean; error?: string } {
-  if (!topic.trim()) return { valid: false, error: "Topic cannot be empty." };
-  return { valid: true };
-}
+import { validateInputs } from "@/lib/utils/textUtils";
 
 function getMessageText(content: ModelMessage["content"]): string {
   if (typeof content === "string") return content;
@@ -63,7 +57,6 @@ async function generateDeterministicResponse(
   const providerId = selectedModelId ? selectedModelId.split(':')[0] : 'openai'
 
   if (!isProviderEnabled(providerId) && useCredits) {
-    console.log(`Provider ${providerId} is not available (API key not configured or base URL not set)`)
   }
 
   // Set the API key based on the provider
@@ -82,7 +75,7 @@ async function generateDeterministicResponse(
 
   // Estimate token usage before making the request
   const { inputTokens, outputTokens } = await estimateTokens(messages, estimatedOutputTokens);
-  const estimatedCreditCost = (inputTokens * 0.000005) + (outputTokens * 0.000015) * creditsPerDollar * 1.5; // Add 50% buffer
+  const estimatedCreditCost = ((inputTokens * 0.000005) + (outputTokens * 0.000015)) * creditsPerDollar * 1.5; // Add 50% buffer
 
   // If the user does not have enough credits, throw an error
   if (availableCredits < estimatedCreditCost) {

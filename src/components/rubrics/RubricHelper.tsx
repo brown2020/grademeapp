@@ -144,7 +144,6 @@ export default function RubricHelper() {
                   value: textType.value || "",
                 }))}
                 onChange={(value) => {
-                  console.log("value", value);
                   if (gradingData.textType !== value) {
                     setGradingData({ ...gradingData, textType: value, prose: userInputs.prose.details[value]?.options[0] });
                   }

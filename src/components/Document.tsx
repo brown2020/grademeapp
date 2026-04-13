@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useCallback, FormEvent } from "react";
-import { collection, getDocs, Timestamp } from "firebase/firestore";
+import { doc as firestoreDoc, getDoc, Timestamp } from "firebase/firestore";
 import { toast } from "react-hot-toast";
 import { db } from "@/firebase/firebaseClient";
 import { useAuthStore } from "@/zustand/useAuthStore";
@@ -28,10 +28,9 @@ import { useLocalStorage } from '@/lib/hooks/use-local-storage';
 import { PlagiarismChecker } from "@/components/plagiarism/PlagiarismChecker";
 
 const fetchDocumentById = async (uid: string, id: string) => {
-  const docRef = collection(db, "users", uid, "summaries");
-  const docSnap = await getDocs(docRef);
-  // Return the document with the given id
-  return docSnap.docs.filter((doc) => doc.id === id).map((doc) => doc.data());
+  const docRef = firestoreDoc(db, "users", uid, "summaries", id);
+  const docSnap = await getDoc(docRef);
+  return docSnap.exists() ? [docSnap.data()] : [];
 };
 
 interface DocumentProps {
@@ -53,7 +52,7 @@ const Document = ({ onModelChange }: DocumentProps) => {
   const [hasSaved, setHasSaved] = useState<boolean>(false);
   const [summary, setSummary] = useState<string>("");
   const [flagged, setFlagged] = useState<string>("");
-  const [active, setActive] = useState<boolean>(false);
+  const active = (gradingData.text.length > 1) && (localCount > 0 || !profile.useCredits) && !thinking;
   const [fileUrl, setFileUrl] = useState<string>("");
   const [selectedModelId, setSelectedModelId] = useLocalStorage<string>(
     'selectedModel',
@@ -122,11 +121,6 @@ const Document = ({ onModelChange }: DocumentProps) => {
     }
   }, [userDoc, submissionTimestamp, setGradingData]);
 
-  // Effect to update the active state
-  useEffect(() => {
-    setActive(gradingData.text.length > 1 && localCount > 0 || !profile.useCredits && !thinking);
-  }, [localCount, gradingData.text, thinking, profile.useCredits]);
-
   // Get the current amount of credits from the profile
   useEffect(() => {
     setLocalCount(profile.credits);
@@ -140,7 +134,6 @@ const Document = ({ onModelChange }: DocumentProps) => {
     setFlagged("");
     setIsStreamingComplete(false);
     setHasSaved(false);
-    setActive(false);
 
     try {
       const {
@@ -155,6 +148,8 @@ const Document = ({ onModelChange }: DocumentProps) => {
         text,
       } = gradingData;
 
+      const rubricString = JSON.stringify(rubric);
+
       const { result, creditsUsed } = await generateGrade(
         selectedModelId || "",
         profile.identity || "",
@@ -165,7 +160,7 @@ const Document = ({ onModelChange }: DocumentProps) => {
         audience,
         wordLimitType,
         wordLimit,
-        rubric,
+        rubricString,
         title,
         text,
         profile.credits,
@@ -242,7 +237,6 @@ const Document = ({ onModelChange }: DocumentProps) => {
 
   // Handle fixing grammar and spelling
   const handleFixGrammarSpelling = async () => {
-    setActive(false);
     setFlagged("");
     setThinking(true);
     setIsStreamingComplete(false);
@@ -251,8 +245,6 @@ const Document = ({ onModelChange }: DocumentProps) => {
     try {
       const { correctedTextArray, totalCreditsUsed } = await correctGrammarAndSpelling(gradingData.text, profile.credits, profile.useCredits, uid, selectedModelId);
       const finalText = correctedTextArray.join("");
-      console.log(finalText);
-
       if (!finalText) throw new Error("No response");
 
       const creditsDeducted = await minusCredits(totalCreditsUsed);

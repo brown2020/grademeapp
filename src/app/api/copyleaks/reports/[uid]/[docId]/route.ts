@@ -8,8 +8,6 @@ export async function GET(
   try {
     const { uid, docId } = await params;
 
-    console.log("Query params:", { uid, docId });
-
     // Validate required parameters
     if (!uid || !docId) {
       return NextResponse.json(
