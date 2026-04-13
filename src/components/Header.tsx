@@ -8,6 +8,7 @@ import { useState, useRef, useEffect } from "react";
 import useProfileStore from "@/zustand/useProfileStore";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import { signOut } from "firebase/auth";
+import { deleteCookie } from "cookies-next";
 import { auth } from "@/firebase/firebaseClient";
 import CustomListbox from "@/components/ui/CustomListbox";
 import { userInputs } from "@/lib/constants/userInputs";
@@ -63,8 +64,20 @@ export default function Header() {
 
   const handleSignOut = async () => {
     try {
+      // 1. Delete auth cookie BEFORE Firebase sign-out.
+      const cookieName = process.env.NEXT_PUBLIC_COOKIE_NAME || "authToken";
+      deleteCookie(cookieName, { path: "/" });
+
+      // 2. Sign out of Firebase.
       await signOut(auth);
+
+      // 3. Clear auth store.
       clearAuthDetails();
+
+      // 4. Clear browser storage.
+      if (typeof window !== "undefined") {
+        sessionStorage.clear();
+      }
     } catch (error) {
       console.error("Error signing out:", error);
       alert("An error occurred while signing out.");

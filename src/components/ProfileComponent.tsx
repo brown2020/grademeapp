@@ -7,6 +7,7 @@ import { usePaymentsStore } from "@/zustand/usePaymentsStore";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import { signOut } from "firebase/auth";
+import { deleteCookie } from "cookies-next";
 import { auth } from "@/firebase/firebaseClient";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -111,8 +112,18 @@ export default function ProfileComponent() {
     setShowDeleteModal(false);
     try {
       await deleteAccount();
+
+      // Delete auth cookie BEFORE Firebase sign-out.
+      const cookieName = process.env.NEXT_PUBLIC_COOKIE_NAME || "authToken";
+      deleteCookie(cookieName, { path: "/" });
+
       await signOut(auth);
       clearAuthDetails();
+
+      if (typeof window !== "undefined") {
+        sessionStorage.clear();
+      }
+
       toast.success("Account deleted successfully.");
       router.replace("/");
     } catch (error) {

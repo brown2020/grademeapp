@@ -26,6 +26,7 @@ const useAuthToken = (cookieName = "authToken") => {
       setCookie(cookieName, idTokenResult, {
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
+        path: "/",
       });
       if (!window.ReactNativeWebView) {
         window.localStorage.setItem(lastTokenRefresh, Date.now().toString());
@@ -36,7 +37,7 @@ const useAuthToken = (cookieName = "authToken") => {
       } else {
         console.error("Error refreshing token");
       }
-      deleteCookie(cookieName);
+      deleteCookie(cookieName, { path: "/" });
     }
   };
 
@@ -83,7 +84,7 @@ const useAuthToken = (cookieName = "authToken") => {
       });
     } else {
       clearAuthDetails();
-      deleteCookie(cookieName);
+      deleteCookie(cookieName, { path: "/" });
     }
   }, [clearAuthDetails, cookieName, setAuthDetails, user]);
 
