@@ -30,7 +30,7 @@ export default function BottomBar() {
         <ChevronLeft size={30} className="text-primary-30 back-button-mobile" />
       </div>
       <div
-        className={`flex hover:animate-wiggle rubrics-link-mobile ${pathname.startsWith("/rubrics") ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
+        className={`flex hover:animate-wiggle rubrics-link-mobile ${pathname?.startsWith("/rubrics") ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
           }`}
         onClick={() => {
           setTimeout(() => router.push("/rubrics"), 100);
@@ -41,7 +41,7 @@ export default function BottomBar() {
         </div>
       </div>
       <div
-        className={`flex hover:animate-wiggle grader-link-mobile ${pathname.startsWith("/grader") ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
+        className={`flex hover:animate-wiggle grader-link-mobile ${pathname?.startsWith("/grader") ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
           }`}
         onClick={() => {
           setTimeout(() => router.push("/grader"), 100);
@@ -52,7 +52,7 @@ export default function BottomBar() {
         </div>
       </div>
       <div
-        className={`flex hover:animate-wiggle assignments-link-mobile ${pathname.startsWith("/assignments") ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
+        className={`flex hover:animate-wiggle assignments-link-mobile ${pathname?.startsWith("/assignments") ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
           }`}
         onClick={() => {
           setTimeout(() => router.push("/assignments"), 100);
@@ -63,7 +63,7 @@ export default function BottomBar() {
         </div>
       </div>
       <div
-        className={`flex hover:animate-wiggle plagiarism-link-mobile ${pathname.startsWith("/plagiarism-check") ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
+        className={`flex hover:animate-wiggle plagiarism-link-mobile ${pathname?.startsWith("/plagiarism-check") ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
           }`}
         onClick={() => {
           setTimeout(() => router.push("/plagiarism-check"), 100);

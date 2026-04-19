@@ -1,3 +1,4 @@
+import type { StaticImageData } from "next/image";
 import { Bot, Handshake, GlobeLock, LifeBuoy } from "lucide-react";
 import school from "@/app/assets/school.svg";
 import grader from "@/app/assets/grader.svg";
@@ -61,7 +62,7 @@ export const MENU_ITEMS: MenuItem[] = [
 
 type navItemType = {
   label: string;
-  image: string;
+  image: StaticImageData | string;
   path: string;
   desktop: string;
   mobile: string;

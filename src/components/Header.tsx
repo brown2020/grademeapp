@@ -108,7 +108,7 @@ export default function Header() {
         <div className="flex gap-x-4">
           <div className="hidden md:flex h-full gap-x-4 items-center w-full">
             <div
-              className={`flex flex-col items-center justify-end px-2 h-full transition duration-300 cursor-pointer hover:text-primary-40 hover:opacity-100 rubrics-link-desktop ${pathname.startsWith("/rubrics") ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
+              className={`flex flex-col items-center justify-end px-2 h-full transition duration-300 cursor-pointer hover:text-primary-40 hover:opacity-100 rubrics-link-desktop ${pathname?.startsWith("/rubrics") ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
                 }`}
               onClick={() => {
                 setTimeout(() => router.push("/rubrics"), 100);
@@ -120,7 +120,7 @@ export default function Header() {
               <div className="text-lg font-medium">rubrics</div>
             </div>
             <div
-              className={`flex flex-col items-center justify-end px-2 h-full transition duration-300 cursor-pointer hover:text-primary-40 hover:opacity-100 grader-link-desktop ${pathname.startsWith("/grader") ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
+              className={`flex flex-col items-center justify-end px-2 h-full transition duration-300 cursor-pointer hover:text-primary-40 hover:opacity-100 grader-link-desktop ${pathname?.startsWith("/grader") ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
                 }`}
               onClick={() => {
                 setTimeout(() => router.push("/grader"), 100);
@@ -132,7 +132,7 @@ export default function Header() {
               <div className="text-lg font-medium">grader</div>
             </div>
             <div
-              className={`flex flex-col items-center justify-end px-2 h-full transition duration-300 cursor-pointer hover:text-primary-40 hover:opacity-100 assignments-link-desktop ${pathname.startsWith("/assignments") ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
+              className={`flex flex-col items-center justify-end px-2 h-full transition duration-300 cursor-pointer hover:text-primary-40 hover:opacity-100 assignments-link-desktop ${pathname?.startsWith("/assignments") ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
                 }`}
               onClick={() => {
                 setTimeout(() => router.push("/assignments"), 100);
