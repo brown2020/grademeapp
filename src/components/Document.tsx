@@ -41,7 +41,9 @@ const Document = ({ onModelChange }: DocumentProps) => {
   const { uid } = useAuthStore();
   const { profile, minusCredits } = useProfileStore();
   const { selectedRubric, gradingData, setGradingData } = useRubricStore();
-  const { summaryID, timestamp } = useParams();
+  const params = useParams();
+  const summaryID = params?.summaryID as string;
+  const timestamp = params?.timestamp as string;
   const [submissionTimestamp, setSubmissionTimestamp] = useState<Timestamp>();
   const [userDoc, setUserDoc] = useState<UserHistoryType>();
   const [loading, setLoading] = useState<boolean>(true);

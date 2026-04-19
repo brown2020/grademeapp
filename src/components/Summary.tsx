@@ -26,7 +26,8 @@ const fetchSummaryById = async (uid: string, id: string) => {
 
 const Summary = () => {
   const { uid } = useAuthStore();
-  const { summaryID } = useParams();
+  const params = useParams();
+  const summaryID = params?.summaryID as string;
   const [summary, setSummary] = useState<UserHistoryType | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [rubric, setRubric] = useState<BaseRubric | null>(null);

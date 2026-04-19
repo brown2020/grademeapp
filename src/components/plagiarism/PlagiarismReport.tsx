@@ -20,7 +20,9 @@ interface Report {
 }
 
 export default function PlagiarismReport() {
-  const { uid, docId } = useParams();
+  const params = useParams();
+  const uid = params?.uid as string;
+  const docId = params?.docId as string;
   const [report, setReport] = useState<Report | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
