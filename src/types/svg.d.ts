@@ -1,6 +1,5 @@
-import type { StaticImageData } from "next/image";
-
 declare module "*.svg" {
+  import type { StaticImageData } from "next/image";
   const content: StaticImageData;
   export default content;
 }
