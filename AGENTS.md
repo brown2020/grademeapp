@@ -134,6 +134,7 @@ npm run dev            # local dev server (Next + webpack)
 npm run build          # production build — the primary correctness gate
 npm run start          # serve a production build
 npm run lint           # ESLint (flat config, eslint.config.mjs)
+npm test               # Vitest unit tests, run-once (vitest run) — CI-safe
 npx tsc --noEmit       # standalone typecheck (see caveat below)
 ```
 
@@ -142,11 +143,12 @@ npx tsc --noEmit       # standalone typecheck (see caveat below)
 Run this before considering any change done:
 
 ```bash
-npm run lint && npm run build
+npm run lint && npm test && npm run build
 ```
 
 `npm run build` runs the TypeScript compiler as part of the build and regenerates
-`.next/types`, so it is the authoritative typecheck + correctness gate.
+`.next/types`, so it is the authoritative typecheck + correctness gate. `npm test`
+runs the Vitest unit suite once (no watch mode), which is CI-safe.
 
 > Caveat: a bare `npx tsc --noEmit` can report false errors from **stale**
 > `.next/types/*` files (e.g. missing `PrefetchForTypeCheckInternal`) when `.next`
@@ -158,10 +160,14 @@ npm run lint && npm run build
 
 - Everything must run non-interactively and CI-safe. Never use watch mode, never
   start a headed browser, never rely on manual login or a running dev server.
-- There is **no automated test suite** and no test runner configured. Do not
-  invent a `npm test`; it does not exist. Validate with lint + build.
-- If a change genuinely needs runtime verification you cannot do non-interactively,
-  document the manual steps in your report instead of attempting them.
+- Unit tests run via **Vitest** with `npm test` (`vitest run`, run-once). Coverage
+  is currently limited to pure utility logic under `src/lib/utils`
+  (`responseParser`, `textUtils`, model-id helpers). Add unit tests alongside the
+  code you change when the logic is pure and bug-prone.
+- There is **no component/e2e test setup** (no jsdom, React Testing Library, or
+  Playwright). Don't assume one exists. If a change needs browser/runtime
+  verification you cannot do with a Vitest unit test, document the manual steps in
+  your report instead of attempting them.
 
 ## Development conventions
 
@@ -230,11 +236,17 @@ npm run lint && npm run build
 
 ## Testing expectations
 
-- No test framework is installed. Do not add one as part of an unrelated change.
-- The expected verification for every change is: `npm run lint && npm run build`
-  passes, plus a clear manual-verification note in the report when relevant.
-- If a roadmap item explicitly calls for tests, that is the only time to introduce
-  a runner, and it should be its own focused change.
+- Vitest is the unit-test runner (`npm test` → `vitest run`). Keep tests pure and
+  fast; the config uses the `node` environment and the `@/*` alias
+  (`vitest.config.ts`). Co-locate tests as `*.test.ts` next to the code.
+- Add/extend unit tests for pure, bug-prone logic you touch (parsing, credit math,
+  id/string helpers). Avoid importing modules with heavy import-time side effects
+  (e.g. `registry.ts` instantiates AI providers from env at module load).
+- The expected verification for every change is the canonical command:
+  `npm run lint && npm test && npm run build` passes, plus a clear
+  manual-verification note in the report when relevant.
+- Introducing a component/e2e harness (jsdom/RTL/Playwright) is a larger,
+  separate focused change — don't bolt it onto an unrelated fix.
 
 ## Files and systems requiring extra caution
 

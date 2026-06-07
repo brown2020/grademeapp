@@ -56,9 +56,6 @@ async function generateDeterministicResponse(
 
   const providerId = selectedModelId ? selectedModelId.split(':')[0] : 'openai'
 
-  if (!isProviderEnabled(providerId) && useCredits) {
-  }
-
   // Set the API key based on the provider
   let apiKey = '';
   if (!useCredits) {
