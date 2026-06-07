@@ -216,13 +216,13 @@ const Document = ({ onModelChange }: DocumentProps) => {
         ? [...userDoc.submissions, newSubmission]
         : [newSubmission];
 
-      if (Array.isArray(summaryID) && typeof summaryID[0] === "string") {
-        updateDocument(uid, summaryID[0], gradingData, updatedSubmissions, fileUrl || null).then(
+      if (uid && summaryID) {
+        updateDocument(uid, summaryID, gradingData, updatedSubmissions, fileUrl || null).then(
           () => {
             setHasSaved(true);
+            toast.success("Document updated successfully");
           }
         );
-        toast.success("Document updated successfully");
       }
     }
   }, [

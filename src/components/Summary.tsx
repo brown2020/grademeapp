@@ -45,13 +45,18 @@ const Summary = () => {
         const summaryData = await fetchSummaryById(uid as string, summaryID as string);
         setSummary(summaryData || null);
         setRubric(summaryData?.userInput?.rubric as unknown as BaseRubric || null);
+        toast.dismiss();
+        if (summaryData) {
+          toast.success("Summary loaded successfully");
+        } else {
+          toast.error("Summary not found.");
+        }
       } catch (error) {
         console.error("Error in getSummary", error);
-        toast.error("Failed to load the summary.", { id: "loading" });
+        toast.dismiss();
+        toast.error("Failed to load the summary.");
       } finally {
         setLoading(false);
-        toast.dismiss();
-        toast.success("Summary loaded successfully", { id: "loading" });
       }
     };
 

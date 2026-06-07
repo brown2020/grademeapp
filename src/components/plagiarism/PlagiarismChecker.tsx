@@ -30,6 +30,12 @@ export function PlagiarismChecker({ text }: PlagiarismCheckerProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleCheck = async () => {
+    // Guard against double-submit: a second click while a scan is in flight
+    // would submit (and charge for) another Copyleaks scan.
+    if (isChecking) {
+      return;
+    }
+
     if (!text.trim()) {
       return;
     }
