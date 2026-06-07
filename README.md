@@ -2,6 +2,13 @@
 
 Welcome to **GRADE.ME**, an AI-powered essay grading platform that provides instant feedback and personalized recommendations to help users improve their writing skills. GRADE.ME leverages state-of-the-art language models to evaluate and grade essays, providing insights to enhance writing quality.
 
+> **Documentation map**
+> - [`spec.md`](./spec.md) — authoritative product spec, current-state inventory, and roadmap.
+> - [`AGENTS.md`](./AGENTS.md) — engineering conventions and the workflow for AI agents/contributors.
+> - This `README.md` — setup, environment, and integration how-tos.
+>
+> For the current feature set and architecture, treat [`spec.md`](./spec.md) as the source of truth; the summaries below are a quick orientation.
+
 ## Table of Contents
 
 - [About the Project](#about-the-project)
@@ -24,23 +31,33 @@ GRADE.ME is an innovative platform that uses AI to grade essays, helping users i
 
 ## Features
 
-- **AI-Powered Grading**: Instantly grade essays using the OpenAI GPT-4 model via Vercel AI SDK and server actions.
-- **Personalized Feedback**: Get a letter grade and a detailed explanation of your essay's strengths and areas for improvement.
-- **User Profile Management**: Manage user profiles with Firebase Authentication and Firestore.
-- **Credit-Based Grading System**: Users can earn and spend credits to grade their essays.
-- **Payment Integration**: Integrated with Stripe for secure payments and credit purchasing.
-- **History Management**: Track and review the history of submitted essays and grades.
-- **Responsive Design**: Optimized for both desktop and mobile devices.
-- **Markdown Rendering**: Feedback is rendered in Markdown format, providing clear, readable output with customized styling for consistent spacing.
+- **AI-Powered Grading**: Stream rubric-aligned feedback and a percentage grade using the Vercel AI SDK through a multi-provider registry (OpenAI, Fireworks, xAI, Anthropic, Google, Groq, Azure, and OpenAI-compatible endpoints).
+- **Rubric System**: ~13 built-in rubric types plus a custom rubric builder, favorites, and relevance-based sorting.
+- **Grammar & Spelling Correction**: Clean up drafts in a TipTap editor (chunked for long inputs).
+- **Document Upload & Parsing**: Grade uploaded DOCX, PDF, ODT, RTF, and TXT files.
+- **Plagiarism / AI-Content Detection**: Copyleaks-backed scans with asynchronous webhook results.
+- **Personalized Feedback**: A grade plus a detailed, evidence-quoted explanation of strengths and improvements.
+- **User Profile Management**: Firebase Authentication (Google, email/password, email link) and Firestore.
+- **Credit-Based System**: Spend credits to grade, or bring your own OpenAI/Fireworks API key.
+- **Payment Integration**: Stripe for secure credit purchases.
+- **History Management**: Review past gradings ("assignments") and per-submission detail.
+- **Export**: Download feedback/documents as `.docx`.
+- **Responsive & WebView-ready**: Optimized for desktop, mobile, and the React Native WebView wrapper.
+
+See [`spec.md`](./spec.md) for the full, current feature inventory and status.
 
 ## Tech Stack
 
-- **Frontend**: Next.js 14, React 18, TypeScript, Tailwind CSS
-- **Backend**: Firebase Firestore, Firebase Authentication, Firebase Storage
-- **AI Integration**: Vercel AI SDK (`@ai-sdk/openai`) with Server Actions for OpenAI API calls
+- **Frontend**: Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4
+- **Backend**: Firebase Firestore, Firebase Authentication, Firebase Storage (client SDK + `firebase-admin`)
+- **AI Integration**: Vercel AI SDK (`ai`, `@ai-sdk/*`) via a multi-provider registry, using Server Actions and streamed responses (`@ai-sdk/rsc`)
+- **Plagiarism**: Copyleaks REST API via Next.js route handlers
+- **Editor**: TipTap with `nspell`-based spellcheck
 - **State Management**: Zustand
 - **Payment Processing**: Stripe
-- **Utilities**: `react-hot-toast` for notifications, `react-spinners` for loading indicators, `lodash` for utility functions, `react-markdown` for rendering Markdown content
+- **Utilities**: `react-hot-toast` for notifications, `react-spinners` for loading indicators, `lodash`, and `react-markdown` for rendering feedback
+
+> Note: the build uses Webpack (`next ... --webpack`), and the package manager is npm with `legacy-peer-deps=true`.
 
 ## Getting Started
 
