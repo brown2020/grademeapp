@@ -51,6 +51,7 @@ package managers. `.npmrc` sets `legacy-peer-deps=true`; keep it.
 
 ```
 src/
+  proxy.ts                 # Next 16 proxy (middleware): server-side route protection
   app/                     # App Router routes (pages, layouts, API route handlers)
     api/copyleaks/         # Plagiarism: submit, webhook/[status], reports/[uid]/[docId]
     grader/ rubrics/ assignments/ dashboard/ profile/ plagiarism-check/
@@ -209,16 +210,27 @@ runs the Vitest unit suite once (no watch mode), which is CI-safe.
 
 ## Route-protection guidance
 
-- Protection is **client-side only** via `ProtectUsers`
-  (`src/components/ProtectUsers.tsx`), applied in the layouts for `grader`,
-  `rubrics`, `assignments`, `dashboard`, and `profile`. It redirects to `/` when
-  there is no `uid`.
-- There is **no Next.js middleware** and **no Firestore security rules file in this
-  repo**. Real authorization is enforced (or must be enforced) by Firestore rules
-  configured in the Firebase console. When adding any data path, assume the client
-  guard is cosmetic and that server/rules-level checks are what actually protect
-  data. Add server-side `uid` checks in route handlers/actions for sensitive
-  operations.
+- Protection is **server-side** via the Next.js proxy convention in `src/proxy.ts`
+  (Next 16's renamed `middleware`; the file must `export function proxy`). Its
+  `config.matcher` covers the authenticated areas — `/grader`, `/rubrics`,
+  `/assignments`, `/dashboard`, `/profile` (and subpaths). Unauthenticated
+  requests are redirected to `/` (where sign-in lives) and the stale cookie is
+  cleared.
+- Auth state is read from the Firebase **ID-token session cookie**
+  (`NEXT_PUBLIC_COOKIE_NAME`, default `grademeAuthToken`), which `useAuthToken`
+  sets on sign-in and refreshes on a timer. The proxy validates the token's
+  structure and `exp` via `isSessionTokenActive` (`src/lib/utils/authToken.ts`) —
+  an Edge-safe, signature-less check. Keep that helper pure and Edge-safe (no Node
+  APIs, no network); it is unit-tested.
+- The proxy does **not** cryptographically verify the token signature (that would
+  need Google's public keys / a Node runtime). It is a server-side gate, not full
+  authorization. There is still **no Firestore security rules file in this repo**;
+  authoritative authorization must come from Firestore rules (Firebase console)
+  plus server-side token verification in route handlers/actions. When adding any
+  data path or sensitive operation, verify the user server-side
+  (`adminAuth.verifyIdToken`) rather than trusting a client-supplied `uid`.
+- To change which routes are protected, edit the `matcher` in `src/proxy.ts`. Keep
+  API routes, Next internals, static assets, and public pages out of the matcher.
 
 ## State-management guidance
 

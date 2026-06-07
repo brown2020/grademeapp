@@ -82,6 +82,23 @@ const useAuthToken = (cookieName = "authToken") => {
         authReady: true,
         authPending: false,
       });
+
+      // Establish the session cookie immediately on sign-in so server-side
+      // route protection (proxy.ts) can gate protected routes. Without this the
+      // cookie would only be written on the periodic refresh timer.
+      getIdToken(user)
+        .then((idToken) => {
+          setCookie(cookieName, idToken, {
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            path: "/",
+          });
+        })
+        .catch((error: unknown) => {
+          console.error(
+            error instanceof Error ? error.message : "Error setting auth cookie"
+          );
+        });
     } else {
       clearAuthDetails();
       deleteCookie(cookieName, { path: "/" });

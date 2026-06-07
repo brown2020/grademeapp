@@ -142,15 +142,16 @@ Firestore is the database, keyed under `users/{uid}` with `profile`, `summaries`
   deduct; the client calls `minusCredits` afterward, so the debit can be skipped.
 - **[inferred] No Copyleaks webhook authentication.** `webhook/[status]` trusts any
   POST and writes to Firestore based on the filename-encoded `uid/docId`.
-- **[inferred] Route protection is cosmetic.** `ProtectUsers` is client-only; there
-  is no middleware and no Firestore rules file in the repo. Data safety depends
-  entirely on console-configured rules.
+- **Route protection is server-side but not full authorization.** `src/proxy.ts`
+  gates the authenticated routes by validating the session cookie's structure and
+  expiry, but does not verify the token signature, and there is still no Firestore
+  rules file in the repo. Data safety for direct Firestore/API access depends on
+  console-configured rules plus server-side token verification in handlers/actions
+  (which still trust a client-supplied `uid` in places).
 - **[inferred] Model list is stale.** `src/lib/types/models.ts` lists older models
   (gpt-4o, claude-3-5, gemini-1.5, grok-beta) despite current AI SDKs.
 - **[inferred] Inconsistent starter-credit defaults** across `useAuthStore` (1000),
   `useProfileStore` default (0), and `createNewProfile` (1000).
-- **[inferred] Dead branch** in `generateResponse.ts` (empty
-  `if (!isProviderEnabled(...) && useCredits) {}`).
 - **[inferred] Output-token cost estimate is a fixed guess** (1000 tokens; see the
   in-code `TODO`), so pre-flight credit checks are rough.
 - Tours are disabled; no onboarding currently runs.
