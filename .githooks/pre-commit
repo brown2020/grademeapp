@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+#
+# Pre-commit hook: block commits that introduce EtherHiding / blockchain-C2
+# malware IOCs. Activate once with:
+#
+#   git config core.hooksPath .githooks
+#
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+
+if [ -f "$repo_root/scripts/malware-scan.sh" ]; then
+  bash "$repo_root/scripts/malware-scan.sh"
+else
+  echo "pre-commit: scripts/malware-scan.sh not found; skipping malware scan." >&2
+fi
