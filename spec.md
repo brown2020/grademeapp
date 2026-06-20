@@ -80,7 +80,7 @@ export results to `.docx`.
 | Multi-method auth | ✅ Working | Google, email/password, email link. |
 | `.docx` export | ✅ Working | `htmlToDocx` + `DownloadPopover`. |
 | In-app guided tours | ⛔ Disabled **[inferred]** | All tour components return `null`; `react-joyride` not React 19 compatible. |
-| Automated tests | ❌ None | No test runner or test files. |
+| Automated tests | 🟡 Limited | Vitest covers pure utility logic under `src/lib/utils`; no component/e2e harness. |
 | OpenAI-compatible provider | 🟡 Partial | Registered, but commented out in the model list. |
 
 ### Current user flows (as implemented)
@@ -155,8 +155,8 @@ Firestore is the database, keyed under `users/{uid}` with `profile`, `summaries`
 - **[inferred] Output-token cost estimate is a fixed guess** (1000 tokens; see the
   in-code `TODO`), so pre-flight credit checks are rough.
 - Tours are disabled; no onboarding currently runs.
-- No automated tests; only lint + build gate changes.
-- `parsed_output.txt` in the repo root is a leftover `pdf2json` debug artifact.
+- Automated coverage is limited to pure utility modules; there is no component or
+  end-to-end test harness.
 
 ---
 
@@ -165,7 +165,7 @@ Firestore is the database, keyed under `users/{uid}` with `profile`, `summaries`
 Ordered by product impact and dependency order. Each item is sized for a single
 focused, PR-sized change (one clean commit sequence) and is product-oriented, not a
 QA backlog. Acceptance criteria assume the canonical gate (`npm run lint &&
-npm run build`) passes.
+npm test && npm run build`) passes.
 
 ### M1 — Trustworthy, server-authoritative credit metering
 

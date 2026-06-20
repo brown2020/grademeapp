@@ -163,8 +163,8 @@ runs the Vitest unit suite once (no watch mode), which is CI-safe.
   start a headed browser, never rely on manual login or a running dev server.
 - Unit tests run via **Vitest** with `npm test` (`vitest run`, run-once). Coverage
   is currently limited to pure utility logic under `src/lib/utils`
-  (`responseParser`, `textUtils`, model-id helpers). Add unit tests alongside the
-  code you change when the logic is pure and bug-prone.
+  (`authToken`, `responseParser`, `textUtils`, model-id helpers). Add unit tests
+  alongside the code you change when the logic is pure and bug-prone.
 - There is **no component/e2e test setup** (no jsdom, React Testing Library, or
   Playwright). Don't assume one exists. If a change needs browser/runtime
   verification you cannot do with a Vitest unit test, document the manual steps in
@@ -298,7 +298,8 @@ runs the Vitest unit suite once (no watch mode), which is CI-safe.
 A change is done when all of the following hold:
 
 1. The stated task is fully implemented (no half-built feature left active).
-2. `npm run lint && npm run build` passes with no new errors or warnings.
+2. `npm run lint && npm test && npm run build` passes with no new errors or
+   warnings.
 3. No secrets, generated artifacts, or unrelated files are committed.
 4. Server/client boundaries and the route-protection model are respected.
 5. Docs are updated when behavior changes: [`spec.md`](./spec.md) for product/
