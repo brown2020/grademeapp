@@ -143,11 +143,12 @@ Firestore is the database, keyed under `users/{uid}` with `profile`, `summaries`
 - **[inferred] No Copyleaks webhook authentication.** `webhook/[status]` trusts any
   POST and writes to Firestore based on the filename-encoded `uid/docId`.
 - **Route protection is server-side but not full authorization.** `src/proxy.ts`
-  gates the authenticated routes by validating the session cookie's structure and
-  expiry, but does not verify the token signature, and there is still no Firestore
-  rules file in the repo. Data safety for direct Firestore/API access depends on
-  console-configured rules plus server-side token verification in handlers/actions
-  (which still trust a client-supplied `uid` in places).
+  gates the authenticated routes, including plagiarism-check pages, by validating
+  the session cookie's structure and expiry, but does not verify the token
+  signature. There is still no Firestore rules file in the repo. Copyleaks
+  submit/report route handlers verify the Firebase ID-token cookie before using a
+  `uid`, but data safety elsewhere still depends on console-configured rules plus
+  server-side token verification in sensitive handlers/actions.
 - **[inferred] Model list is stale.** `src/lib/types/models.ts` lists older models
   (gpt-4o, claude-3-5, gemini-1.5, grok-beta) despite current AI SDKs.
 - **[inferred] Inconsistent starter-credit defaults** across `useAuthStore` (1000),

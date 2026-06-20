@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse, } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/firebase/firebaseAdmin";
+import { requireMatchingUid } from "@/lib/server/requestAuth";
 
 export async function GET(
   request: NextRequest,
@@ -14,6 +15,11 @@ export async function GET(
         { error: "User ID (uid) and Document ID (docId) are required." },
         { status: 400 }
       );
+    }
+
+    const authResult = await requireMatchingUid(request, uid);
+    if (!authResult.ok) {
+      return authResult.response;
     }
 
     // Fetch the report document from Firestore

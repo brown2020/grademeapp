@@ -25,7 +25,7 @@ export function proxy(request: NextRequest) {
 }
 
 // Only run on the authenticated areas of the app. Public routes (/, terms,
-// privacy, support, loginfinish, payment-*, plagiarism-check), API routes,
+// privacy, support, loginfinish, payment-*), API routes,
 // Next.js internals, and static assets are intentionally not matched.
 export const config = {
   matcher: [
@@ -39,5 +39,7 @@ export const config = {
     "/dashboard/:path*",
     "/profile",
     "/profile/:path*",
+    "/plagiarism-check",
+    "/plagiarism-check/:path*",
   ],
 };

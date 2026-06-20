@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/firebase/firebaseAdmin";
+import { requireMatchingUid } from "@/lib/server/requestAuth";
+
+type ReportDocument = {
+  id: string;
+  data: () => Record<string, unknown>;
+};
 
 export async function GET(
   request: NextRequest,
@@ -13,6 +19,11 @@ export async function GET(
         { error: "User ID (uid) is required." },
         { status: 400 }
       );
+    }
+
+    const authResult = await requireMatchingUid(request, uid);
+    if (!authResult.ok) {
+      return authResult.response;
     }
 
     // Fetch plagiarism reports for the user from Firestore
@@ -30,10 +41,9 @@ export async function GET(
     }
 
     // Map Firestore documents to JSON
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const reports = reportsSnapshot.docs.map((doc: any) => ({
-      docId: doc.id,
-      ...doc.data(),
+    const reports = reportsSnapshot.docs.map((reportDoc: ReportDocument) => ({
+      docId: reportDoc.id,
+      ...reportDoc.data(),
     }));
 
     return NextResponse.json(reports, { status: 200 });

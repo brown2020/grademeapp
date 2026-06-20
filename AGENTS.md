@@ -213,9 +213,9 @@ runs the Vitest unit suite once (no watch mode), which is CI-safe.
 - Protection is **server-side** via the Next.js proxy convention in `src/proxy.ts`
   (Next 16's renamed `middleware`; the file must `export function proxy`). Its
   `config.matcher` covers the authenticated areas — `/grader`, `/rubrics`,
-  `/assignments`, `/dashboard`, `/profile` (and subpaths). Unauthenticated
-  requests are redirected to `/` (where sign-in lives) and the stale cookie is
-  cleared.
+  `/assignments`, `/dashboard`, `/profile`, `/plagiarism-check` (and subpaths).
+  Unauthenticated requests are redirected to `/` (where sign-in lives) and the
+  stale cookie is cleared.
 - Auth state is read from the Firebase **ID-token session cookie**
   (`NEXT_PUBLIC_COOKIE_NAME`, default `grademeAuthToken`), which `useAuthToken`
   sets on sign-in and refreshes on a timer. The proxy validates the token's
@@ -229,6 +229,8 @@ runs the Vitest unit suite once (no watch mode), which is CI-safe.
   plus server-side token verification in route handlers/actions. When adding any
   data path or sensitive operation, verify the user server-side
   (`adminAuth.verifyIdToken`) rather than trusting a client-supplied `uid`.
+- Copyleaks submit/report route handlers verify the Firebase ID-token cookie with
+  `adminAuth.verifyIdToken` before reading or writing user-owned report data.
 - To change which routes are protected, edit the `matcher` in `src/proxy.ts`. Keep
   API routes, Next internals, static assets, and public pages out of the matcher.
 

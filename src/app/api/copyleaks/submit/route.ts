@@ -1,5 +1,6 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/firebase/firebaseAdmin";
+import { requireMatchingUid } from "@/lib/server/requestAuth";
 import { Buffer } from "buffer";
 
 const COPYLEAKS_API_KEY = process.env.COPYLEAKS_API_KEY;
@@ -59,35 +60,53 @@ export async function POST(request: NextRequest) {
   const BASE_URL = process.env.BASE_URL;
 
   try {
-    const { uid, text } = await request.json();
+    const body = (await request.json()) as { uid?: unknown; text?: unknown };
+    const { uid, text } = body;
 
-    if (!text.trim()) {
-      return new Response(JSON.stringify({ error: "Text cannot be empty." }), {
-        status: 400,
-      });
+    if (typeof uid !== "string" || !uid) {
+      return NextResponse.json(
+        { error: "User ID (uid) is required." },
+        { status: 400 }
+      );
+    }
+
+    const authResult = await requireMatchingUid(request, uid);
+    if (!authResult.ok) {
+      return authResult.response;
+    }
+
+    if (typeof text !== "string" || !text.trim()) {
+      return NextResponse.json(
+        { error: "Text cannot be empty." },
+        { status: 400 }
+      );
     }
 
     const wordCount = Number(text.split(/\s+/).length); // Count words in the text
     const creditCost = calculateWordCost(wordCount);
 
     // Fetch user credits
-    const userDocRef = adminDb.collection("users").doc(uid);
-    const userDoc = await userDocRef.get();
-    if (!userDoc.exists) {
-      return new Response(
-        JSON.stringify({ error: "User not found." }),
+    const profileDocRef = adminDb
+      .collection("users")
+      .doc(uid)
+      .collection("profile")
+      .doc("userData");
+    const profileDoc = await profileDocRef.get();
+    if (!profileDoc.exists) {
+      return NextResponse.json(
+        { error: "User profile not found." },
         { status: 404 }
       );
     }
 
-    const userData = userDoc.data();
-    const availableCredits = userData?.credits || 0;
+    const profileData = profileDoc.data();
+    const availableCredits = Number(profileData?.credits ?? 0);
 
-    if (availableCredits < creditCost) {
-      return new Response(
-        JSON.stringify({
+    if (!Number.isFinite(availableCredits) || availableCredits < creditCost) {
+      return NextResponse.json(
+        {
           error: "Insufficient credits. Please purchase more credits.",
-        }),
+        },
         { status: 402 } // HTTP 402 Payment Required
       );
     }
@@ -136,15 +155,13 @@ export async function POST(request: NextRequest) {
       throw new Error(error.message || "Failed to submit scan.");
     }
 
-    return new Response(
-      JSON.stringify({ message: "Scan submitted successfully", docId, creditsUsed: creditCost }),
+    return NextResponse.json(
+      { message: "Scan submitted successfully", docId, creditsUsed: creditCost },
       { status: 201 }
     );
   } catch (error) {
     console.error("Error in submit handler:", error);
     const errorMessage = error instanceof Error ? error.message : "Internal Server Error";
-    return new Response(JSON.stringify({ error: errorMessage }), {
-      status: 500,
-    });
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
