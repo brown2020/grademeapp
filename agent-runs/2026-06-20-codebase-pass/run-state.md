@@ -11,23 +11,23 @@
 
 ## Current State
 
-- Phase: Baseline Validation
-- Task: T-002
+- Phase: Findings Backlog
+- Task: T-003
 - Status: In Progress
 - Last command: npm run lint
-- Last result: Passed after baseline report updates
-- Last pushed commit: fc96456 docs: initialize codebase improvement pass
-- Branch sync: dev matches origin/dev after T-001 push
-- Working tree: Dirty only with owned baseline report and queue/state updates for T-002
-- Next action: Commit and push baseline validation report, then build findings backlog
+- Last result: Passed for findings report checkpoint
+- Last pushed commit: 07939d4 test: document baseline validation
+- Branch sync: dev matches origin/dev after T-002 push
+- Working tree: Dirty only with owned findings report and queue/state updates for T-003
+- Next action: Commit and push findings backlog, then execute F-001/F-002/F-003 Copyleaks hardening batch
 
 ## Dirty File Classification
 
 | Path | Classification | Owner/Reason |
 | --- | --- | --- |
-| agent-runs/2026-06-20-codebase-pass/02-baseline-validation.md | Safe-to-commit | T-002 baseline validation report |
-| agent-runs/2026-06-20-codebase-pass/run-state.md | Safe-to-commit | T-002 resume ledger update |
-| agent-runs/2026-06-20-codebase-pass/task-queue.md | Safe-to-commit | T-002 status and T-005 audit evidence update |
+| agent-runs/2026-06-20-codebase-pass/03-findings-backlog.md | Safe-to-commit | T-003 findings backlog and architecture scorecard |
+| agent-runs/2026-06-20-codebase-pass/run-state.md | Safe-to-commit | T-003 resume ledger update |
+| agent-runs/2026-06-20-codebase-pass/task-queue.md | Safe-to-commit | T-003 status and execution-task ownership update |
 
 ## Blockers
 
