@@ -11,23 +11,23 @@
 
 ## Current State
 
-- Phase: Preflight and Repo Docs
-- Task: T-001
+- Phase: Baseline Validation
+- Task: T-002
 - Status: In Progress
 - Last command: npm run lint
-- Last result: Passed
-- Last pushed commit: 759a52a fix: persist regrades, correct summary load toast, guard double-submit
-- Branch sync: dev matches origin/dev after fetch/pull; dry-run push returned "Everything up-to-date"
-- Working tree: Dirty only with owned run reports and docs edits for T-001
-- Next action: Inspect diff, commit T-001, dry-run push, push, and confirm sync
+- Last result: Passed after baseline report updates
+- Last pushed commit: fc96456 docs: initialize codebase improvement pass
+- Branch sync: dev matches origin/dev after T-001 push
+- Working tree: Dirty only with owned baseline report and queue/state updates for T-002
+- Next action: Commit and push baseline validation report, then build findings backlog
 
 ## Dirty File Classification
 
 | Path | Classification | Owner/Reason |
 | --- | --- | --- |
-| agent-runs/2026-06-20-codebase-pass/* | Safe-to-commit | Run reports created by T-001 |
-| AGENTS.md | Safe-to-commit | T-001 docs sweep aligns definition of done with canonical gate |
-| spec.md | Safe-to-commit | T-001 docs sweep updates current test inventory and removes obsolete debug-artifact note |
+| agent-runs/2026-06-20-codebase-pass/02-baseline-validation.md | Safe-to-commit | T-002 baseline validation report |
+| agent-runs/2026-06-20-codebase-pass/run-state.md | Safe-to-commit | T-002 resume ledger update |
+| agent-runs/2026-06-20-codebase-pass/task-queue.md | Safe-to-commit | T-002 status and T-005 audit evidence update |
 
 ## Blockers
 
