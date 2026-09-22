@@ -14,7 +14,7 @@ const HolisticCriteriaBuilder: React.FC<HolisticCriteriaBuilderProps> = ({ rubri
 
   return (
     <div className="mb-4">
-      <h3 className="text-primary-30 text-center font-semibold">Add Level Descriptions</h3>
+      <h3 className="text-primary-20 text-center font-semibold">Add Level Descriptions</h3>
       <hr />
       {(['Excellent', 'Proficient', 'Developing', 'Beginning'] as Array<keyof HolisticRubric['criteria']>).map((level) => (
         <div key={level} className="mb-2">

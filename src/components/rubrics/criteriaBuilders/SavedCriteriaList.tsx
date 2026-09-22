@@ -21,7 +21,7 @@ export default function SavedCriteriaList({
 }: Props) {
   return (
     <div className="criteria-list mt-4">
-      <h4 className="text-primary-30 font-semibold text-center">{title}</h4>
+      <h4 className="text-primary-20 font-semibold text-center">{title}</h4>
       {items.length === 0 ? (
         <div className="text-center text-primary-10 p-2 border-dashed border-2 border-primary-30 rounded-md">
           <p>{emptyText}</p>

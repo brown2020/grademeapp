@@ -99,7 +99,7 @@ export default function RubricBuilder({ onClose }: {
         <XCircleIcon onClick={handleClose} className="h-6 w-6 text-primary-10 cursor-pointer" />
       </div>
 
-      <div className='flex flex-col gap-x-2 gap-y-2 items-center text-primary-30 mb-2'>
+      <div className='flex flex-col gap-x-2 gap-y-2 items-center text-primary-20 mb-2'>
         <div className='flex gap-x-2'>
           <Blocks />
           <h2 className="text-xl font-medium mb-1 text-center">Rubric Builder</h2>

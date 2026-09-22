@@ -49,16 +49,16 @@ export default function HeaderMobileDrawer({ isExiting, closeMenu, handleSignOut
                   />
                 </div>
               ) : uid ? (
-                <div className="cursor-pointer text-primary-30 hover:bg-gray-100 flex flex-row items-center">
+                <div className="cursor-pointer text-primary-20 hover:bg-gray-100 flex flex-row items-center">
                   <User2 />
                 </div>
               ) : null}
-              <div className="flex text-center whitespace-nowrap text-primary-30">
+              <div className="flex text-center whitespace-nowrap text-primary-20">
                 Profile
               </div>
             </li>
             <li
-              className="cursor-pointer text-primary-30 hover:bg-gray-100 flex flex-row items-center gap-4 border-b border-primary-40 pb-2 mobile-menu-about"
+              className="cursor-pointer text-primary-20 hover:bg-gray-100 flex flex-row items-center gap-4 border-b border-primary-40 pb-2 mobile-menu-about"
               onClick={() => {
                 closeMenu();
                 setTimeout(() => router.push('/'), 100);
@@ -67,7 +67,7 @@ export default function HeaderMobileDrawer({ isExiting, closeMenu, handleSignOut
               <Bot />About
             </li>
             <li
-              className="cursor-pointer text-primary-30 hover:bg-gray-100 flex flex-row items-center gap-4 border-b border-primary-40 pb-2 mobile-menu-support"
+              className="cursor-pointer text-primary-20 hover:bg-gray-100 flex flex-row items-center gap-4 border-b border-primary-40 pb-2 mobile-menu-support"
               onClick={() => {
                 closeMenu();
                 setTimeout(() => router.push('/support'), 100);
@@ -76,7 +76,7 @@ export default function HeaderMobileDrawer({ isExiting, closeMenu, handleSignOut
               <LifeBuoy />Support
             </li>
             <li
-              className="cursor-pointer text-primary-30 hover:bg-gray-100 flex flex-row items-center gap-4 border-b border-primary-40 pb-2 mobile-menu-terms"
+              className="cursor-pointer text-primary-20 hover:bg-gray-100 flex flex-row items-center gap-4 border-b border-primary-40 pb-2 mobile-menu-terms"
               onClick={() => {
                 closeMenu();
                 setTimeout(() => router.push('/terms'), 100);
@@ -85,7 +85,7 @@ export default function HeaderMobileDrawer({ isExiting, closeMenu, handleSignOut
               <Handshake />Terms
             </li>
             <li
-              className="cursor-pointer text-primary-30 hover:bg-gray-100 flex flex-row items-center gap-4 border-b border-primary-40 pb-2 mobile-menu-privacy"
+              className="cursor-pointer text-primary-20 hover:bg-gray-100 flex flex-row items-center gap-4 border-b border-primary-40 pb-2 mobile-menu-privacy"
               onClick={() => {
                 closeMenu();
                 setTimeout(() => router.push('/privacy'), 100);

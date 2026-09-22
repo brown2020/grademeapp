@@ -101,7 +101,7 @@ const AnalyticalCriteriaBuilder: React.FC<AnalyticalCriteriaBuilderProps> = ({
 
   return (
     <div className="mb-2 p-2 border border-primary-40 rounded-sm rubric-builder-create-criterion-section">
-      <h3 className="text-primary-30 text-center font-semibold">Create Analytical Criterion</h3>
+      <h3 className="text-primary-20 text-center font-semibold">Create Analytical Criterion</h3>
       <div className='rubric-builder-criterion-name'>
         <label className="block text-sm font-semibold text-primary-10" htmlFor="criterion-name">Criterion Name</label>
         <input id="criterion-name" aria-label="Criterion Name"
@@ -131,7 +131,7 @@ const AnalyticalCriteriaBuilder: React.FC<AnalyticalCriteriaBuilderProps> = ({
         <p>{isEditing ? 'Update Criterion' : 'Add Criterion'}</p>
       </CustomButton>
       <div className="criteria-list mt-4 rubric-builder-saved-criteria">
-        <h4 className="text-primary-30 font-semibold text-center">Saved Criteria</h4>
+        <h4 className="text-primary-20 font-semibold text-center">Saved Criteria</h4>
         {savedCriteria.length === 0 ? (
           <div className="text-center text-primary-10 p-2 border-dashed border-2 border-primary-30 rounded-md">
             <p>Added criteria will appear here.</p>

@@ -70,7 +70,7 @@ const ChecklistCriteriaBuilder: React.FC<ChecklistCriteriaBuilderProps> = ({ rub
 
   return (
     <div className="mb-2">
-      <h3 className="text-primary-30 text-center font-semibold">Checklist</h3>
+      <h3 className="text-primary-20 text-center font-semibold">Checklist</h3>
       <hr />
       {Object.entries(rubric.criteria as GenericRubricCriteria).map(([criterion, yesNoValue]) => (
         <div key={criterion} className="mb-3 flex flex-row items-center gap-x-2">

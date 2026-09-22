@@ -105,7 +105,7 @@ const TaskSpecificCriteriaBuilder: React.FC<TaskSpecificCriteriaBuilderProps> = 
 
   return (
     <div className="mb-2 p-2 border border-primary-40 rounded-sm">
-      <h3 className="text-primary-30 text-center font-semibold">Create Task-Specific Rubric</h3>
+      <h3 className="text-primary-20 text-center font-semibold">Create Task-Specific Rubric</h3>
       <div className="mb-4">
         <label className="block text-sm font-semibold text-primary-10" htmlFor="task-description">Task Description</label>
         <textarea id="task-description" aria-label="Task Description"
@@ -156,7 +156,7 @@ const TaskSpecificCriteriaBuilder: React.FC<TaskSpecificCriteriaBuilderProps> = 
         <p>{isEditing ? 'Update Criterion' : 'Add Criterion'}</p>
       </CustomButton>
       <div className="mt-4">
-        <h4 className="text-primary-30 font-semibold text-center">Saved Criteria</h4>
+        <h4 className="text-primary-20 font-semibold text-center">Saved Criteria</h4>
         {criteria.length === 0 ? (
           <div className="text-center text-primary-10 p-2 border-dashed border-2 border-primary-30 rounded-md">
             <p>Added criteria will appear here.</p>

@@ -32,14 +32,14 @@ export default function BottomBar() {
           setTimeout(() => router.back(), 100);
         }}
       >
-        <ChevronLeft size={30} className="text-primary-30" />
+        <ChevronLeft size={30} className="text-primary-20" />
       </button>
       <button
         type="button"
         aria-label="Rubrics"
         className={`${navBtn} hover:animate-wiggle rubrics-link-mobile ${
           pathname?.startsWith("/rubrics")
-            ? "text-primary-40 opacity-100"
+            ? "text-primary-20 opacity-100"
             : "text-slate-900 opacity-90"
         }`}
         onClick={() => {
@@ -55,7 +55,7 @@ export default function BottomBar() {
         aria-label="Grader"
         className={`${navBtn} hover:animate-wiggle grader-link-mobile ${
           pathname?.startsWith("/grader")
-            ? "text-primary-40 opacity-100"
+            ? "text-primary-20 opacity-100"
             : "text-slate-900 opacity-90"
         }`}
         onClick={() => {
@@ -71,7 +71,7 @@ export default function BottomBar() {
         aria-label="Assignments"
         className={`${navBtn} hover:animate-wiggle assignments-link-mobile ${
           pathname?.startsWith("/assignments")
-            ? "text-primary-40 opacity-100"
+            ? "text-primary-20 opacity-100"
             : "text-slate-900 opacity-90"
         }`}
         onClick={() => {
@@ -87,7 +87,7 @@ export default function BottomBar() {
         aria-label="Plagiarism check"
         className={`${navBtn} hover:animate-wiggle plagiarism-link-mobile ${
           pathname?.startsWith("/plagiarism-check")
-            ? "text-primary-40 opacity-100"
+            ? "text-primary-20 opacity-100"
             : "text-slate-900 opacity-90"
         }`}
         onClick={() => {
@@ -112,7 +112,7 @@ export default function BottomBar() {
           setTimeout(() => router.forward(), 100);
         }}
       >
-        <ChevronRight size={30} className="text-primary-30" />
+        <ChevronRight size={30} className="text-primary-20" />
       </button>
     </div>
   );

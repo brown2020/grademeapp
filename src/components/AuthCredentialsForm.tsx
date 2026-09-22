@@ -95,7 +95,7 @@ export default function AuthCredentialsForm(p: Props) {
                   <button
                     type="button"
                     onClick={() => setIsEmailLinkLogin(!isEmailLinkLogin)}
-                    className="underline"
+                    className="underline text-slate-800"
                   >
                     {isEmailLinkLogin ? "Use Email/Password" : "Use Email Link"}
                   </button>
@@ -104,7 +104,7 @@ export default function AuthCredentialsForm(p: Props) {
                   <button
                     type="button"
                     onClick={() => setForgotPasswordMode(true)}
-                    className="underline"
+                    className="underline text-slate-800"
                   >
                     Forgot Password?
                   </button>
@@ -115,7 +115,7 @@ export default function AuthCredentialsForm(p: Props) {
                     onClick={() =>
                       setAuthMode((m) => (m === "signin" ? "signup" : "signin"))
                     }
-                    className="underline"
+                    className="underline text-slate-800"
                   >
                     {authMode === "signin"
                       ? "Need an account? Create one"
@@ -132,11 +132,11 @@ export default function AuthCredentialsForm(p: Props) {
                   />
                   <span>
                     I accept the{" "}
-                    <Link href={"/terms"} className="underline">
+                    <Link href={"/terms"} className="underline text-slate-800">
                       terms
                     </Link>{" "}
                     and{" "}
-                    <Link href="/privacy" className="underline">
+                    <Link href="/privacy" className="underline text-slate-800">
                       privacy
                     </Link>{" "}
                     policy.

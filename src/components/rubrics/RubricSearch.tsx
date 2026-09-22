@@ -102,7 +102,7 @@ export default function RubricSearch() {
       <div ref={wrapperRef} className="w-full bg-secondary-97 rounded-b-lg h-[33vh] overflow-y-auto rubric-search-select">
         <button
           type="button"
-          className="cursor-pointer font-medium select-none px-4 py-2 mb-1 text-primary-30 underline underline-offset-2 hover:text-primary-40-foreground bg-transparent border-0 text-left w-full"
+          className="cursor-pointer font-medium select-none px-4 py-2 mb-1 text-primary-20 underline underline-offset-2 hover:text-primary-40-foreground bg-transparent border-0 text-left w-full"
           onClick={() => openRubricBuilder && openRubricBuilder()}
         >
           Create Custom Rubric

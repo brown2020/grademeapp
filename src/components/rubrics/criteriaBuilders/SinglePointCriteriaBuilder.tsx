@@ -28,7 +28,7 @@ const SinglePointCriteriaBuilder: React.FC<SinglePointCriteriaBuilderProps> = ({
 
   return (
     <div className="mb-2">
-      <h3 className="text-primary-30 text-center font-semibold">Single Point Criterion</h3>
+      <h3 className="text-primary-20 text-center font-semibold">Single Point Criterion</h3>
       <hr />
       <div className="mb-1">
         <label className="block font-semibold" htmlFor="proficient">Proficient</label>

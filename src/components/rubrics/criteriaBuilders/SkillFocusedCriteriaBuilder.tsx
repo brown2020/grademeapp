@@ -123,7 +123,7 @@ const SkillFocusedCriteriaBuilder: React.FC<SkillFocusedCriteriaBuilderProps> = 
 
   return (
     <div className="mb-2 p-2 border border-primary-40 rounded-sm">
-      <h3 className="text-primary-30 text-center font-semibold">Create Skill-Focused Criterion</h3>
+      <h3 className="text-primary-20 text-center font-semibold">Create Skill-Focused Criterion</h3>
       <div>
         <label className="block text-sm font-semibold text-primary-10" htmlFor="skill-component-name">Skill Component Name</label>
         <input id="skill-component-name" aria-label="Skill Component Name"

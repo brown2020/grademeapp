@@ -39,8 +39,8 @@ export default function HeaderIdentityModal({
             </div>
             <div className="flex flex-col gap-y-4">
               <div>
-                <h2 className="text-primary-30 text-left font-medium text-lg">Select your user type and level of experience.</h2>
-                <p className="text-primary-30 text-left text-sm">This information helps us tailor your experience on Grade.me.</p>
+                <h2 className="text-primary-20 text-left font-medium text-lg">Select your user type and level of experience.</h2>
+                <p className="text-primary-20 text-left text-sm">This information helps us tailor your experience on Grade.me.</p>
                 <hr />
               </div>
               <div className="flex flex-wrap items-baseline justify-center">

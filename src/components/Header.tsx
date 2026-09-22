@@ -92,10 +92,10 @@ export default function Header() {
 
   return (
     <>
-      <div className="z-10 flex py-1 justify-between items-center h-16 md:h-24 px-2 text-primary-20 border-b border-primary-40">
+      <div className="z-10 flex py-1 justify-between items-center h-16 md:h-24 px-2 text-primary-20 border-b border-primary-40 bg-white">
         <div className="flex h-full gap-4 items-center w-full">
           <button type="button" 
-            className={`flex gap-x-3 md:flex-col items-center md:justify-end px-2 h-full transition duration-300 cursor-pointer hover:text-primary-40 hover:opacity-100 grademe-link-desktop ${pathname === "/" ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
+            className={`flex gap-x-3 md:flex-col items-center md:justify-end px-2 h-full transition duration-300 cursor-pointer hover:text-primary-20 hover:opacity-100 grademe-link-desktop ${pathname === "/" ? "text-primary-20 opacity-100" : "text-slate-900 opacity-90"
               }`}
             onClick={() => {
               setTimeout(() => router.push("/"), 100);
@@ -111,7 +111,7 @@ export default function Header() {
         <div className="flex gap-x-4">
           <div className="hidden md:flex h-full gap-x-4 items-center w-full">
             <button type="button" 
-              className={`flex flex-col items-center justify-end px-2 h-full transition duration-300 cursor-pointer hover:text-primary-40 hover:opacity-100 rubrics-link-desktop ${pathname?.startsWith("/rubrics") ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
+              className={`flex flex-col items-center justify-end px-2 h-full transition duration-300 cursor-pointer hover:text-primary-20 hover:opacity-100 rubrics-link-desktop ${pathname?.startsWith("/rubrics") ? "text-primary-20 opacity-100" : "text-slate-900 opacity-90"
                 }`}
               onClick={() => {
                 setTimeout(() => router.push("/rubrics"), 100);
@@ -123,7 +123,7 @@ export default function Header() {
               <div className="text-lg font-medium">rubrics</div>
             </button>
             <button type="button" 
-              className={`flex flex-col items-center justify-end px-2 h-full transition duration-300 cursor-pointer hover:text-primary-40 hover:opacity-100 grader-link-desktop ${pathname?.startsWith("/grader") ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
+              className={`flex flex-col items-center justify-end px-2 h-full transition duration-300 cursor-pointer hover:text-primary-20 hover:opacity-100 grader-link-desktop ${pathname?.startsWith("/grader") ? "text-primary-20 opacity-100" : "text-slate-900 opacity-90"
                 }`}
               onClick={() => {
                 setTimeout(() => router.push("/grader"), 100);
@@ -135,7 +135,7 @@ export default function Header() {
               <div className="text-lg font-medium">grader</div>
             </button>
             <button type="button" 
-              className={`flex flex-col items-center justify-end px-2 h-full transition duration-300 cursor-pointer hover:text-primary-40 hover:opacity-100 assignments-link-desktop ${pathname?.startsWith("/assignments") ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
+              className={`flex flex-col items-center justify-end px-2 h-full transition duration-300 cursor-pointer hover:text-primary-20 hover:opacity-100 assignments-link-desktop ${pathname?.startsWith("/assignments") ? "text-primary-20 opacity-100" : "text-slate-900 opacity-90"
                 }`}
               onClick={() => {
                 setTimeout(() => router.push("/assignments"), 100);
@@ -148,7 +148,7 @@ export default function Header() {
             </button>
           </div>
           <button type="button" 
-            className="cursor-pointer hidden md:flex justify-start items-center md:flex-col gap-x-2 md:gap-y-0 hover:text-primary-40 text-primary-10 plagiarism-link-desktop"
+            className="cursor-pointer hidden md:flex justify-start items-center md:flex-col gap-x-2 md:gap-y-0 hover:text-primary-20 text-primary-10 plagiarism-link-desktop"
             onClick={() => {
               setTimeout(() => router.push("/plagiarism-check"), 100);
             }}>
@@ -159,7 +159,7 @@ export default function Header() {
           </button>
 
           <button type="button" 
-            className="cursor-pointer hidden md:flex justify-start items-center md:flex-col gap-x-2 md:gap-y-0 hover:text-primary-40 text-primary-10 profile-link-desktop"
+            className="cursor-pointer hidden md:flex justify-start items-center md:flex-col gap-x-2 md:gap-y-0 hover:text-primary-20 text-primary-10 profile-link-desktop"
             onClick={() => {
               setTimeout(() => router.push('/profile'), 100);
             }}
@@ -185,7 +185,7 @@ export default function Header() {
         </div>
 
         <div className="mobile-menu flex md:hidden items-end">
-          <button type="button" aria-label="Open menu" className="bg-transparent border-0 p-0" onClick={toggleMenu}><Menu size={25} className="text-primary-30" /></button>
+          <button type="button" aria-label="Open menu" className="bg-transparent border-0 p-0" onClick={toggleMenu}><Menu size={25} className="text-primary-20" /></button>
         </div>
       </div>
 

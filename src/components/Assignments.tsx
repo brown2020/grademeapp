@@ -184,7 +184,7 @@ export default function Assignments() {
       <div className="flex flex-row items-center px-3 bg-secondary-95 focus-within:ring-1 ring-primary-30 rounded-full w-full ring-offset-4 shadow-sm assignments-search">
         <Search size={20} className="flex text-primary-40" />
         <input
-          className="w-full px-3 h-8 outline-none bg-secondary-95 placeholder:text-primary-30"
+          className="w-full px-3 h-8 outline-none bg-secondary-95 placeholder:text-primary-20"
           type="text"
           aria-label="Find an assignment..." placeholder="Find an assignment..."
           onChange={(e) => handleSearchChange(e.target.value)}
@@ -192,7 +192,7 @@ export default function Assignments() {
       </div>
 
       <div>
-        <h2 className="text-primary-30 text-left font-medium text-lg">Recent Assignments</h2>
+        <h2 className="text-primary-20 text-left font-medium text-lg">Recent Assignments</h2>
         <hr />
       </div>
       <div className="flex flex-col space-y-3">

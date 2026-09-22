@@ -23,7 +23,7 @@ export default function Support({
         {/* Logo and Title Section */}
         <div className="flex flex-col w-58 max-w-md size-56 items-center justify-center mx-auto shadow-2xl bg-secondary border-4 border-primary-40 rounded-full">
           <Image src={grademe} alt="Grade.me" className="size-40" loading="lazy" />
-          <div className="text-2xl text-center text-primary-40 leading-6">{companyName}</div>
+          <div className="text-2xl text-center text-primary-20 leading-6">{companyName}</div>
         </div>
       </div>
 

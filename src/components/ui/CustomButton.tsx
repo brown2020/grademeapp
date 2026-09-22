@@ -1,11 +1,8 @@
 import React from "react";
 
-interface CustomButtonProps {
-  onClick?: () => void;
+interface CustomButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
   className?: string;
-  type?: "button" | "submit" | "reset";
-  disabled?: boolean;
 }
 
 const CustomButton: React.FC<CustomButtonProps> = ({
@@ -14,6 +11,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   className,
   type = "button",
   disabled,
+  ...rest
 }) => {
   return (
     <button
@@ -21,6 +19,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       onClick={onClick}
       disabled={disabled}
       className={`btn btn-hover btn-disabled ${className ?? ""}`}
+      {...rest}
     >
       {children}
     </button>

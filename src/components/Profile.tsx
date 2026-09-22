@@ -51,7 +51,7 @@ export default function Profile() {
       {/* Identity Settings */}
       <div className="profile-identity-settings">
         <div>
-          <h2 className="text-primary-30 text-left font-medium text-lg">Identity</h2>
+          <h2 className="text-primary-20 text-left font-medium text-lg">Identity</h2>
           <hr />
         </div>
         <div className="flex flex-wrap items-baseline justify-center">

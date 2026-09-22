@@ -187,7 +187,7 @@ export default function Grader({ onModelChange }: GraderProps) {
       </div>
       <section className="flex flex-col grader-selected-rubric">
         <div>
-          <h2 className="block text-primary-30 font-medium">Selected Rubric</h2>
+          <h2 className="block text-primary-20 font-medium">Selected Rubric</h2>
           <hr />
         </div>
         <button
@@ -202,7 +202,7 @@ export default function Grader({ onModelChange }: GraderProps) {
         <form className="flex flex-col gap-y-4" onSubmit={handleSubmit}>
           {/* Title */}
           <section>
-            <label className="block text-primary-30 font-medium" htmlFor="title">Title</label>
+            <label className="block text-primary-20 font-medium" htmlFor="title">Title</label>
             <hr />
             <input aria-label="Input field"
               type="text"
@@ -224,7 +224,7 @@ export default function Grader({ onModelChange }: GraderProps) {
                   onModelChange?.(id)
                 }}
               />
-              <label className="block font-medium text-primary-30 mt-2" htmlFor="text">Text</label>
+              <label className="block font-medium text-primary-20 mt-2" htmlFor="text">Text</label>
               <hr />
               <Tiptap
                 wordLimit={gradingData.wordLimit}
@@ -259,7 +259,7 @@ export default function Grader({ onModelChange }: GraderProps) {
                 className="cursor-pointer flex items-center justify-center peer"
                 onClick={(e) => e.stopPropagation()} // Prevent label click from propagating
               >
-                <Paperclip className="size-6 sm:size-10 place-self-center place-items-center text-primary-30" />
+                <Paperclip className="size-6 sm:size-10 place-self-center place-items-center text-primary-20" />
               </label>
               {/* Hidden file input */}
               <input aria-label="Input field"
@@ -278,8 +278,8 @@ export default function Grader({ onModelChange }: GraderProps) {
             <CustomButton onClick={() => {
               setGradingData({ title: "", text: "" });
             }}
-              className="size-12 sm:size-16 btn btn-shiny flex items-center bg-secondary-97 border-2 border-primary-40 rounded-full p-1.5 grader-reset-button">
-              <RefreshCwIcon size={25} className="place-self-center place-items-center text-primary-30" />
+              aria-label="Reset grader" className="size-12 sm:size-16 btn btn-shiny flex items-center bg-secondary-97 border-2 border-primary-40 rounded-full p-1.5 grader-reset-button">
+              <RefreshCwIcon size={25} className="place-self-center place-items-center text-primary-20" />
             </CustomButton>
 
             <GraderSettingsModal />

@@ -195,7 +195,7 @@
 }
 
 @utility btn-shiny {
-  @apply cursor-pointer inline-flex justify-center whitespace-nowrap rounded-lg px-3.5 py-2.5 text-sm font-medium text-primary-97 dark:text-slate-800 shadow-button active:shadow-pressed active:scale-95 focus:outline-hidden focus:ring-3 focus:ring-slate-500/50 focus-visible:outline-hidden focus-visible:ring-3 focus-visible:ring-slate-500/50 relative;
+  @apply cursor-pointer inline-flex justify-center whitespace-nowrap rounded-lg px-3.5 py-2.5 text-sm font-medium text-white dark:text-slate-900 shadow-button active:shadow-pressed active:scale-95 focus:outline-hidden focus:ring-3 focus:ring-slate-500/50 focus-visible:outline-hidden focus-visible:ring-3 focus-visible:ring-slate-500/50 relative;
   position: relative;
   overflow: hidden;
 
@@ -224,7 +224,7 @@
 }
 
 @utility btn-shiny-green {
-  @apply bg-linear-to-r from-[#02cc1d] to-green-600 dark:from-slate-200 dark:to-slate-100 dark:hover:bg-slate-100;
+  @apply bg-linear-to-r from-[#0b7a1a] to-green-800 dark:from-slate-200 dark:to-slate-100 dark:hover:bg-slate-100;
 }
 
 @utility btn-shiny-red {
@@ -409,7 +409,7 @@
   }
 
   h1 {
-    @apply text-xl font-bold text-left text-primary-30 mb-1;
+    @apply text-xl font-bold text-left text-primary-20 mb-1;
   }
 
   hr {

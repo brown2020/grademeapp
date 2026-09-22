@@ -104,7 +104,7 @@ const StandardsBasedCriteriaBuilder: React.FC<StandardsBasedCriteriaBuilderProps
 
   return (
     <div className="mb-2 p-2 border border-primary-40 rounded-sm">
-      <h3 className="text-primary-30 text-center font-semibold">Create Standards-Based Rubric</h3>
+      <h3 className="text-primary-20 text-center font-semibold">Create Standards-Based Rubric</h3>
       <div>
         <label className="block text-sm font-semibold text-primary-10" htmlFor="standard-name">Standard Name</label>
         <input id="standard-name" aria-label="Standard Name"
@@ -145,7 +145,7 @@ const StandardsBasedCriteriaBuilder: React.FC<StandardsBasedCriteriaBuilderProps
         <span>{isEditing ? 'Update Standard' : 'Add Standard'}</span>
       </CustomButton>
       <div className="mt-4">
-        <h4 className="text-primary-30 font-semibold text-center">Saved Standards</h4>
+        <h4 className="text-primary-20 font-semibold text-center">Saved Standards</h4>
         {standards.length === 0 ? (
           <div className="text-center text-primary-10 p-2 border-dashed border-2 border-primary-30 rounded-md">
             <p>Added standards will appear here.</p>

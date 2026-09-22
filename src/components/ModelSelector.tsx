@@ -41,12 +41,12 @@ export function ModelSelector({
 
   return (
     <div className="w-fit border border-secondary-30 rounded">
-      <Select aria-label="Select"
+      <Select
         name="model"
         value={selectedModelId}
         onValueChange={handleModelChange}
       >
-        <SelectTrigger className="mr-2 h-7 text-xs border-none shadow-none focus:ring-0">
+        <SelectTrigger aria-label="Select model" className="mr-2 h-7 text-xs border-none shadow-none focus:ring-0">
           <SelectValue placeholder="Select model" />
         </SelectTrigger>
         <SelectContent className="max-h-[300px] overflow-y-auto">

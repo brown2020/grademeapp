@@ -20,7 +20,7 @@ export default function Footer() {
         <Link
           key={item.label}
           href={item.href}
-          className="text-black/50 hover:text-black"
+          className="text-slate-700 hover:text-slate-900"
         >
           <div>{item.label}</div>
         </Link>

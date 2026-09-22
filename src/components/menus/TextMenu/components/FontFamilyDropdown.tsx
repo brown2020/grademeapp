@@ -75,7 +75,7 @@ const FontFamilyDropdown: React.FC<FontFamilyDropdownProps> = ({ editor }) => {
                     onChange={(event) => setQuery(event.target.value)}
                     placeholder="Choose font"
                 />
-                <ComboboxButton className="group absolute inset-y-0 right-0 px-2.5">
+                <ComboboxButton aria-label="Font family" className="group absolute inset-y-0 right-0 px-2.5">
                     <ChevronDown className="size-4 fill-white/60 group-data-hover:fill-white" />
                 </ComboboxButton>
 

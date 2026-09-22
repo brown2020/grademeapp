@@ -119,7 +119,7 @@ const DevelopmentalCriteriaBuilder: React.FC<DevelopmentalCriteriaBuilderProps> 
 
   return (
     <div className="mb-2 p-2 border border-primary-40 rounded-sm">
-      <h3 className="text-primary-30 text-center font-semibold">Create Developmental Criterion</h3>
+      <h3 className="text-primary-20 text-center font-semibold">Create Developmental Criterion</h3>
       <div>
         <label className="block text-sm font-semibold text-primary-10" htmlFor="criterion-name">Criterion Name</label>
         <input id="criterion-name" aria-label="Criterion Name"

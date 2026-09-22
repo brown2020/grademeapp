@@ -64,7 +64,7 @@ export default function AuthShell(p: AuthShellProps) {
       </div>
 
       {isVisible && (
-        <div className="fixed inset-0 px-2 bg-black/60 flex justify-center items-center">
+        <div className="fixed inset-0 z-50 px-2 bg-black/60 flex justify-center items-center">
           <div
             ref={modalRef}
             className="relative bg-white text-black p-4 rounded-lg shadow-lg w-full max-w-md mx-auto"
@@ -93,7 +93,7 @@ export default function AuthShell(p: AuthShellProps) {
                 <div className="text-2xl text-center">Signing you in</div>
                 <div className="flex flex-col gap-3 border rounded-md px-3 py-2">
                   <div>
-                    {`Check your email at ${email} for a message from Generate.me`}
+                    {`Check your email at ${email} for a message from Grade.me`}
                   </div>
                   <div>{`If you don't see the message, check your spam folder. Mark it "not spam" or move it to your inbox.`}</div>
                   <div>
@@ -139,7 +139,7 @@ export default function AuthShell(p: AuthShellProps) {
                   <button
                     type="button"
                     onClick={() => setForgotPasswordMode(false)}
-                    className="underline"
+                    className="underline text-slate-800"
                   >
                     Go Back to Sign In
                   </button>

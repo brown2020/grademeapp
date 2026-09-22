@@ -122,7 +122,7 @@ const ContentSpecificCriteriaBuilder: React.FC<ContentSpecificCriteriaBuilderPro
 
   return (
     <div className="mb-2 p-2 border border-primary-40 rounded-sm">
-      <h3 className="text-primary-30 text-center font-semibold">Create Content-Specific Criterion</h3>
+      <h3 className="text-primary-20 text-center font-semibold">Create Content-Specific Criterion</h3>
       <div className="mb-4">
         <label className="block text-sm font-semibold text-primary-10" htmlFor="assignment-type">Assignment Type</label>
         <input id="assignment-type" aria-label="Assignment Type"
