@@ -74,7 +74,7 @@ const ChecklistCriteriaBuilder: React.FC<ChecklistCriteriaBuilderProps> = ({ rub
       <hr />
       {Object.entries(rubric.criteria as GenericRubricCriteria).map(([criterion, yesNoValue]) => (
         <div key={criterion} className="mb-3 flex flex-row items-center gap-x-2">
-          <input aria-label="Input field"
+          <input aria-label="Criterion field"
             type="text"
             value={editedCriterion === criterion ? tempValue : criterion}
             onChange={(e) => handleChecklistChange(e, criterion)}
@@ -88,7 +88,7 @@ const ChecklistCriteriaBuilder: React.FC<ChecklistCriteriaBuilderProps> = ({ rub
         </div>
       ))}
       <div className="flex flex-row items-center gap-x-2">
-        <input aria-label="Input field"
+        <input aria-label="Criterion field"
           type="text"
           value={newCriterion}
           onChange={(e) => setNewCriterion(e.target.value)}

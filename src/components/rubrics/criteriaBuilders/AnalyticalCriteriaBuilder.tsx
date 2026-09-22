@@ -114,8 +114,9 @@ const AnalyticalCriteriaBuilder: React.FC<AnalyticalCriteriaBuilderProps> = ({
         {(['Excellent', 'Proficient', 'Developing', 'Beginning'] as const).map((level) => (
           <div key={level}>
             <label htmlFor={`criterion-${level}`} className="block text-sm font-semibold text-primary-10">{level}</label>
-            <textarea aria-label="Text area"
+            <textarea
               id={`criterion-${level}`}
+              aria-label={level}
               value={currentCriterion[level]}
               onChange={(e) => setCurrentCriterion({ ...currentCriterion, [level]: e.target.value })}
               className="px-1 w-full py-0.5 rounded shadow-sm border border-primary-40"

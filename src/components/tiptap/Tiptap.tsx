@@ -199,7 +199,7 @@ const Tiptap = ({ wordLimit, wordLimitType, editorContent, onChange }: TiptapPro
           onClick={() => editor.chain().focus().toggleItalic().run()}
           className={`size-8 rounded ${editor.isActive("italic") ? "is-active bg-gray-300" : ""
             }`}
-          title="Italic (Ctrl+I)"
+          title="Italic (Ctrl+I)" aria-label="Italic"
         >
           <i>i</i>
         </button>
@@ -209,13 +209,14 @@ const Tiptap = ({ wordLimit, wordLimitType, editorContent, onChange }: TiptapPro
           onClick={() => editor.chain().focus().toggleUnderline().run()}
           className={`size-8 rounded ${editor.isActive("underline") ? "is-active bg-gray-300" : ""
             }`}
-          title="Underline (Ctrl+U)"
+          title="Underline (Ctrl+U)" aria-label="Underline"
         >
           <u>u</u>
         </button>
         {/* Heading */}
         <button
           type="button"
+          aria-label="Heading"
           onClick={() =>
             editor.chain().focus().toggleHeading({ level: 2 }).run()
           }
@@ -229,7 +230,7 @@ const Tiptap = ({ wordLimit, wordLimitType, editorContent, onChange }: TiptapPro
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           className={`p-1 rounded ${editor.isActive("bulletList") ? "bg-gray-300" : ""
             }`}
-          title="Bullet List"
+          title="Bullet List" aria-label="Bullet list"
         >
           <List size={18} />
         </button>
@@ -239,7 +240,7 @@ const Tiptap = ({ wordLimit, wordLimitType, editorContent, onChange }: TiptapPro
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
           className={`p-1 rounded ${editor.isActive("orderedList") ? "bg-gray-300" : ""
             }`}
-          title="Ordered List"
+          title="Ordered List" aria-label="Ordered list"
         >
           <ListOrdered size={18} />
         </button>
@@ -247,13 +248,14 @@ const Tiptap = ({ wordLimit, wordLimitType, editorContent, onChange }: TiptapPro
         <Popover className="flex relative">
           {({ open }) => (
             <>
-              <PopoverButton className={`p-1 rounded ${open ? "bg-gray-300" : ""
+              <PopoverButton aria-label="Text alignment" className={`p-1 rounded ${open ? "bg-gray-300" : ""
                 }`}>
                 <AlignLeftIcon size={18} />
               </PopoverButton>
               <PopoverPanel className="absolute z-10 right-0 top-8 flex flex-row gap-0 bg-white rounded-lg shadow-md">
                 <button
                   type="button"
+                  aria-label="Align left"
                   onClick={() =>
                     editor.chain().focus().setTextAlign("left").run()
                   }
@@ -264,6 +266,7 @@ const Tiptap = ({ wordLimit, wordLimitType, editorContent, onChange }: TiptapPro
                 </button>
                 <button
                   type="button"
+                  aria-label="Align center"
                   onClick={() =>
                     editor.chain().focus().setTextAlign("center").run()
                   }
@@ -274,6 +277,7 @@ const Tiptap = ({ wordLimit, wordLimitType, editorContent, onChange }: TiptapPro
                 </button>
                 <button
                   type="button"
+                  aria-label="Align right"
                   onClick={() =>
                     editor.chain().focus().setTextAlign("right").run()
                   }
@@ -284,6 +288,7 @@ const Tiptap = ({ wordLimit, wordLimitType, editorContent, onChange }: TiptapPro
                 </button>
                 <button
                   type="button"
+                  aria-label="Align justify"
                   onClick={() =>
                     editor.chain().focus().setTextAlign("justify").run()
                   }

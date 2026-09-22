@@ -4,7 +4,7 @@ import { deleteCookie, setCookie } from "cookies-next";
 import { debounce } from "lodash";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useAuthStore } from "@/zustand/useAuthStore";
-import { auth } from "@/firebase/firebaseClient";
+import { auth, hasClientConfig } from "@/firebase/firebaseClient";
 
 const useAuthToken = (cookieName = "authToken") => {
   const [user, loading, error] = useAuthState(auth);
@@ -20,7 +20,7 @@ const useAuthToken = (cookieName = "authToken") => {
 
   const refreshAuthToken = async () => {
     try {
-      if (!auth.currentUser) throw new Error("No user found");
+      if (!hasClientConfig || !auth.currentUser) throw new Error("No user found");
       const idTokenResult = await getIdToken(auth.currentUser, true);
 
       setCookie(cookieName, idTokenResult, {

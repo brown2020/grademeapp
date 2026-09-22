@@ -164,7 +164,7 @@ const MultiTraitCriteriaBuilder: React.FC<MultiTraitCriteriaBuilderProps> = ({
           </div>
         ))}
         <div className="mt-2 p-2 border border-primary-20 rounded">
-          <textarea aria-label="Text area"
+          <textarea aria-label="Criterion level description"
             value={currentSubCriterion.description}
             onChange={(e) => handleSubCriterionChange('description', e.target.value)}
             className="px-1 w-full py-0.5 rounded shadow-sm border border-primary-40"
@@ -174,7 +174,7 @@ const MultiTraitCriteriaBuilder: React.FC<MultiTraitCriteriaBuilderProps> = ({
           <h5 className="font-semibold mt-2">Performance Levels</h5>
           {['Excellent', 'Good', 'Fair', 'Poor'].map((levelName) => (
             <div key={levelName} className="mb-2">
-              <input aria-label="Input field"
+              <input aria-label="Criterion field"
                 type="text"
                 placeholder={`${levelName} Description`}
                 value={currentSubCriterion.levels[levelName] || ''}

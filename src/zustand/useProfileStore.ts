@@ -1,8 +1,8 @@
 import { create } from "zustand";
 import { deleteDoc, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { useAuthStore } from "./useAuthStore";
-import { db } from "@/firebase/firebaseClient";
-import { deleteUser, getAuth } from "firebase/auth";
+import { auth, db } from "@/firebase/firebaseClient";
+import { deleteUser } from "firebase/auth";
 
 export interface ProfileType {
   email: string;
@@ -121,7 +121,6 @@ const useProfileStore = create<ProfileState>((set, get) => ({
   },
 
   deleteAccount: async () => {
-    const auth = getAuth(); // Get Firebase auth instance
     const currentUser = auth.currentUser;
 
     const uid = useAuthStore.getState().uid;

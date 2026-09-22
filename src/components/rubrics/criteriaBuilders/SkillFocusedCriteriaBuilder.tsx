@@ -136,7 +136,7 @@ const SkillFocusedCriteriaBuilder: React.FC<SkillFocusedCriteriaBuilderProps> = 
         {currentSkillComponent.levels.map((level, index) => (
           <div key={index} className="mt-2 p-2 border border-primary-20 rounded space-y-2">
             <div className="flex justify-between items-center">
-              <input aria-label="Input field"
+              <input aria-label="Criterion field"
                 type="text"
                 value={level.name}
                 onChange={(e) => handleLevelChange(index, 'name', e.target.value)}
@@ -147,7 +147,7 @@ const SkillFocusedCriteriaBuilder: React.FC<SkillFocusedCriteriaBuilderProps> = 
                 <Trash2 size={20} />
               </button>
             </div>
-            <textarea aria-label="Text area"
+            <textarea aria-label="Criterion level description"
               value={level.description}
               onChange={(e) => handleLevelChange(index, 'description', e.target.value)}
               className="px-1 w-full py-0.5 rounded shadow-sm border border-primary-40"

@@ -38,7 +38,7 @@ export default function AuthComponent() {
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [isEmailLinkLogin, setIsEmailLinkLogin] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
-  const [showGoogleLogin, setShowGoogleLogin] = useState(true);
+  const [showGoogleLogin, setShowGoogleLogin] = useState(false);
   const [forgotPasswordMode, setForgotPasswordMode] = useState(false); // New state
   const [showPassword, setShowPassword] = useState(false);
   const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
@@ -203,6 +203,8 @@ export default function AuthComponent() {
             style={{ zIndex: 1000 }}
           >
             <button
+              type="button"
+              aria-label="Close"
               onClick={hideModal}
               className="absolute top-0 right-0 p-2 hover:bg-gray-400 bg-gray-200 rounded-full m-2"
             >

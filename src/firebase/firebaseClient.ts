@@ -1,6 +1,11 @@
 import { getApp, getApps, initializeApp, type FirebaseApp } from "firebase/app";
 import { getFirestore, type Firestore } from "firebase/firestore";
-import { getAuth, type Auth } from "firebase/auth";
+import {
+  getAuth,
+  type Auth,
+  type Unsubscribe,
+  type User,
+} from "firebase/auth";
 import { getStorage, type FirebaseStorage } from "firebase/storage";
 
 const firebaseConfig = {
@@ -15,6 +20,34 @@ const firebaseConfig = {
 
 const hasClientConfig = Boolean(firebaseConfig.apiKey?.trim());
 
+/** Minimal Auth stand-in so SSG/CI without secrets does not crash on .currentUser. */
+function createDeferredAuth(): Auth {
+  const authStub = {
+    get currentUser(): User | null {
+      return null;
+    },
+    onAuthStateChanged(
+      nextOrObserver: ((user: User | null) => void) | { next?: (user: User | null) => void },
+      error?: (err: Error) => void,
+      completed?: () => void,
+    ): Unsubscribe {
+      const next =
+        typeof nextOrObserver === "function"
+          ? nextOrObserver
+          : nextOrObserver?.next;
+      try {
+        next?.(null);
+      } catch {
+        /* ignore */
+      }
+      void error;
+      void completed;
+      return () => {};
+    },
+  };
+  return authStub as unknown as Auth;
+}
+
 let app: FirebaseApp | undefined;
 let auth: Auth;
 let db: Firestore;
@@ -26,13 +59,10 @@ if (hasClientConfig) {
   db = getFirestore(app);
   storage = getStorage(app);
 } else {
-  // CI gate jobs / empty Actions secrets: skip module-scope init so SSG does not
-  // throw auth/invalid-api-key. Runtime without NEXT_PUBLIC_FIREBASE_* still fails
-  // on first auth use.
   console.warn(
     "Firebase client config missing (NEXT_PUBLIC_FIREBASE_APIKEY); deferring init",
   );
-  auth = null as unknown as Auth;
+  auth = createDeferredAuth();
   db = null as unknown as Firestore;
   storage = null as unknown as FirebaseStorage;
 }

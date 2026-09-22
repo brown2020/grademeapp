@@ -141,7 +141,7 @@ const DevelopmentalCriteriaBuilder: React.FC<DevelopmentalCriteriaBuilderProps> 
         {currentCriterion.stages.map((stage, index) => (
           <div key={index} className="mt-2 p-2 border border-primary-20 rounded">
             <div className="flex justify-between items-center">
-              <input aria-label="Input field"
+              <input aria-label="Criterion field"
                 type="text"
                 value={stage.name}
                 onChange={(e) => updateStage(index, 'name', e.target.value)}
@@ -152,7 +152,7 @@ const DevelopmentalCriteriaBuilder: React.FC<DevelopmentalCriteriaBuilderProps> 
                 <Trash2 size={18} />
               </button>
             </div>
-            <textarea aria-label="Text area"
+            <textarea aria-label="Criterion level description"
               value={stage.description}
               onChange={(e) => updateStage(index, 'description', e.target.value)}
               className="px-1 w-full py-0.5 mt-1 rounded shadow-sm border border-primary-40"

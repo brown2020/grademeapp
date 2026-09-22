@@ -128,7 +128,7 @@ const PrimaryTraitCriteriaBuilder: React.FC<PrimaryTraitCriteriaBuilderProps> = 
         {currentCriterion.levels.map((level, index) => (
           <div key={index} className="mt-2 p-2 border border-primary-20 rounded">
             <div className="flex justify-between items-center">
-              <input aria-label="Input field"
+              <input aria-label="Criterion field"
                 type="number"
                 value={level.score}
                 onChange={(e) => handleLevelChange(index, 'score', parseInt(e.target.value))}
@@ -137,7 +137,7 @@ const PrimaryTraitCriteriaBuilder: React.FC<PrimaryTraitCriteriaBuilderProps> = 
                 max="4"
               />
             </div>
-            <textarea aria-label="Text area"
+            <textarea aria-label="Criterion level description"
               value={level.description}
               onChange={(e) => handleLevelChange(index, 'description', e.target.value)}
               className="px-1 w-full py-0.5 mt-1 rounded shadow-sm border border-primary-40"
