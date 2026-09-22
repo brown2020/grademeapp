@@ -1,7 +1,7 @@
 "use client";
 
 import useProfileStore from "@/zustand/useProfileStore";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { isIOSReactNativeWebView } from "@/lib/utils/platform"; // Import the platform detection
 import { usePaymentsStore } from "@/zustand/usePaymentsStore";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
@@ -21,13 +21,17 @@ export default function ProfileComponent() {
   );
   const [openaiApiKey, setOpenaiApiKey] = useState(profile.openai_api_key);
   const [useCredits, setUseCredits] = useState(profile.useCredits);
-  // Compute iOS WebView status once (never changes during component lifecycle)
-  const showCreditsSection = useMemo(() => !isIOSReactNativeWebView(), []);
+  // Defer WebView detection until after mount to avoid SSR/client hydration mismatch.
+  const [showCreditsSection, setShowCreditsSection] = useState(true);
   const addCredits = useProfileStore((state) => state.addCredits);
   const addPayment = usePaymentsStore((state) => state.addPayment);
   const deleteAccount = useProfileStore((state) => state.deleteAccount);
   const clearAuthDetails = useAuthStore((s) => s.clearAuthDetails);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  useEffect(() => {
+    setShowCreditsSection(!isIOSReactNativeWebView());
+  }, []);
 
   // Sync local API key inputs when store values change externally
   // ("Adjusting state during render" pattern from React docs)
@@ -160,7 +164,7 @@ export default function ProfileComponent() {
           <label htmlFor="fireworks-api-key" className="text-sm font-medium">
             Fireworks API Key:
           </label>
-          <input
+          <input aria-label="Input field"
             type="text"
             id="fireworks-api-key"
             value={fireworksApiKey}
@@ -171,7 +175,7 @@ export default function ProfileComponent() {
           <label htmlFor="openai-api-key" className="text-sm font-medium">
             OpenAI API Key:
           </label>
-          <input
+          <input aria-label="Input field"
             type="text"
             id="openai-api-key"
             value={openaiApiKey}
@@ -208,7 +212,7 @@ export default function ProfileComponent() {
         <label htmlFor="toggle-use-credits" className="text-sm font-medium">
           Use:
         </label>
-        <select
+        <select aria-label="select"
           id="toggle-use-credits"
           value={useCredits ? "credits" : "apikeys"}
           onChange={handleCreditsChange}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DevelopmentalRubric, GenericRubricCriteria } from '@/lib/types/rubrics-types';
 import { toast } from 'react-hot-toast';
 import { BadgePlus, Save, Edit2Icon, Trash2, PlusCircle } from 'lucide-react';
@@ -19,11 +19,9 @@ interface DevelopmentalCriterionState {
 interface DevelopmentalCriteriaBuilderProps {
   rubric: DevelopmentalRubric;
   onChange: (updatedRubric: DevelopmentalRubric) => void;
-  hasSaved: boolean;
-  setHasSaved: (hasSaved: boolean) => void;
 }
 
-const DevelopmentalCriteriaBuilder: React.FC<DevelopmentalCriteriaBuilderProps> = ({ rubric, onChange, hasSaved, setHasSaved }) => {
+const DevelopmentalCriteriaBuilder: React.FC<DevelopmentalCriteriaBuilderProps> = ({ rubric, onChange }) => {
   const [currentCriterion, setCurrentCriterion] = useState<DevelopmentalCriterionState>({
     id: '',
     name: '',
@@ -38,67 +36,7 @@ const DevelopmentalCriteriaBuilder: React.FC<DevelopmentalCriteriaBuilderProps> 
   const [isEditing, setIsEditing] = useState(false);
   const [savedCriteria, setSavedCriteria] = useState<DevelopmentalCriterionState[]>([]);
 
-  // Sync savedCriteria when rubric.criteria changes ("adjusting state during render" pattern)
-  const [prevRubricCriteria, setPrevRubricCriteria] = useState(rubric.criteria);
-  if (rubric.criteria !== prevRubricCriteria) {
-    setPrevRubricCriteria(rubric.criteria);
-    const initialSavedCriteria: DevelopmentalCriterionState[] = Object.entries(rubric.criteria).map(
-      ([criterionName, criterionValue]) => {
-        if (typeof criterionValue === 'object' && criterionValue !== null) {
-          if ('stages' in criterionValue && 'description' in criterionValue) {
-            const stagesObj = criterionValue.stages as Record<string, string>;
-            const stagesArray = Object.entries(stagesObj).map(([stageName, stageDescription]) => ({
-              name: stageName,
-              description: stageDescription,
-            }));
-            return {
-              id: criterionName,
-              name: criterionName,
-              description: criterionValue.description as string,
-              stages: stagesArray,
-            };
-          } else {
-            const stagesArray = Object.entries(criterionValue as Record<string, string>).map(
-              ([stageName, stageDescription]) => ({
-                name: stageName,
-                description: stageDescription,
-              })
-            );
-            return {
-              id: criterionName,
-              name: criterionName,
-              description: '',
-              stages: stagesArray,
-            };
-          }
-        } else {
-          return null;
-        }
-      }
-    ).filter(Boolean) as DevelopmentalCriterionState[];
-    setSavedCriteria(initialSavedCriteria);
-  }
 
-  // Reset when parent signals save completed ("adjusting state during render" pattern)
-  const [prevHasSaved, setPrevHasSaved] = useState(hasSaved);
-  if (hasSaved && !prevHasSaved) {
-    setPrevHasSaved(hasSaved);
-    setSavedCriteria([]);
-    setCurrentCriterion({
-      id: '',
-      name: '',
-      description: '',
-      stages: [
-        { name: 'Emerging', description: '' },
-        { name: 'Developing', description: '' },
-        { name: 'Proficient', description: '' },
-        { name: 'Advanced', description: '' },
-      ],
-    });
-    setHasSaved(false);
-  } else if (hasSaved !== prevHasSaved) {
-    setPrevHasSaved(hasSaved);
-  }
 
   const addOrUpdateCriterion = () => {
     if (!currentCriterion.name.trim()) {
@@ -181,8 +119,8 @@ const DevelopmentalCriteriaBuilder: React.FC<DevelopmentalCriteriaBuilderProps> 
     <div className="mb-2 p-2 border border-primary-40 rounded-sm">
       <h3 className="text-primary-30 text-center font-semibold">Create Developmental Criterion</h3>
       <div>
-        <label className="block text-sm font-semibold text-primary-10">Criterion Name</label>
-        <input
+        <label className="block text-sm font-semibold text-primary-10" htmlFor="criterion-name">Criterion Name</label>
+        <input id="criterion-name" aria-label="Criterion Name"
           type="text"
           value={currentCriterion.name}
           onChange={(e) => setCurrentCriterion({ ...currentCriterion, name: e.target.value })}
@@ -190,8 +128,8 @@ const DevelopmentalCriteriaBuilder: React.FC<DevelopmentalCriteriaBuilderProps> 
         />
       </div>
       <div>
-        <label className="block text-sm font-semibold text-primary-10">Criterion Description</label>
-        <textarea
+        <label className="block text-sm font-semibold text-primary-10" htmlFor="criterion-description">Criterion Description</label>
+        <textarea id="criterion-description" aria-label="Criterion Description"
           value={currentCriterion.description}
           onChange={(e) => setCurrentCriterion({ ...currentCriterion, description: e.target.value })}
           className="px-1 w-full py-0.5 rounded shadow-sm border border-primary-40"
@@ -203,7 +141,7 @@ const DevelopmentalCriteriaBuilder: React.FC<DevelopmentalCriteriaBuilderProps> 
         {currentCriterion.stages.map((stage, index) => (
           <div key={index} className="mt-2 p-2 border border-primary-20 rounded">
             <div className="flex justify-between items-center">
-              <input
+              <input aria-label="Input field"
                 type="text"
                 value={stage.name}
                 onChange={(e) => updateStage(index, 'name', e.target.value)}
@@ -214,7 +152,7 @@ const DevelopmentalCriteriaBuilder: React.FC<DevelopmentalCriteriaBuilderProps> 
                 <Trash2 size={18} />
               </button>
             </div>
-            <textarea
+            <textarea aria-label="Text area"
               value={stage.description}
               onChange={(e) => updateStage(index, 'description', e.target.value)}
               className="px-1 w-full py-0.5 mt-1 rounded shadow-sm border border-primary-40"

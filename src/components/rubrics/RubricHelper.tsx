@@ -228,7 +228,7 @@ export default function RubricHelper() {
                 placeholder="Select..."
               />
 
-              <input
+              <input aria-label="Input field"
                 type="number"
                 name="wordLimit"
                 id="wordLimit"

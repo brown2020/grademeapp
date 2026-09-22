@@ -60,7 +60,7 @@ const DownloadPopover: React.FC<DownloadPopoverProps> = ({ content }) => {
       <PopoverPanel className="absolute z-10 bg-secondary-97 border border-secondary-40 shadow-lg rounded-lg p-4 w-48 mt-2">
         <h3 className="font-semibold text-lg mb-2">Download as</h3>
 
-        <select
+        <select aria-label="select"
           value={selectedFormat}
           onChange={(e) => setSelectedFormat(e.target.value)}
           className="border border-gray-300 rounded w-full p-2 mb-4"

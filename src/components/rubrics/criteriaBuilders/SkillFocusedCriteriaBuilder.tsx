@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SkillFocusedRubric, GenericRubricCriteria } from '@/lib/types/rubrics-types';
 import { toast } from 'react-hot-toast';
 import { BadgePlus, Save, Edit2Icon, Trash2, PlusCircle } from 'lucide-react';
@@ -7,8 +7,6 @@ import CustomButton from '@/components/ui/CustomButton';
 interface SkillFocusedCriteriaBuilderProps {
   rubric: SkillFocusedRubric;
   onChange: (updatedRubric: SkillFocusedRubric) => void;
-  hasSaved: boolean;
-  setHasSaved: (hasSaved: boolean) => void;
 }
 
 interface PerformanceLevel {
@@ -24,9 +22,7 @@ interface SkillComponent {
 
 const SkillFocusedCriteriaBuilder: React.FC<SkillFocusedCriteriaBuilderProps> = ({
   rubric,
-  onChange,
-  hasSaved,
-  setHasSaved
+  onChange
 }) => {
   const [skillComponents, setSkillComponents] = useState<SkillComponent[]>([]);
   const [currentSkillComponent, setCurrentSkillComponent] = useState<SkillComponent>({
@@ -41,41 +37,7 @@ const SkillFocusedCriteriaBuilder: React.FC<SkillFocusedCriteriaBuilderProps> = 
   });
   const [isEditing, setIsEditing] = useState(false);
 
-  // Sync skillComponents when rubric.criteria changes ("adjusting state during render" pattern)
-  const [prevRubricCriteria, setPrevRubricCriteria] = useState(rubric?.criteria);
-  if (rubric.criteria && rubric.criteria !== prevRubricCriteria) {
-    setPrevRubricCriteria(rubric.criteria);
-    const initialSkillComponents = Object.entries(rubric.criteria).map(([name, criterion]) => ({
-      id: name,
-      name,
-      levels: Object.entries(criterion as GenericRubricCriteria).map(([levelName, description]) => ({
-        name: levelName,
-        description: String(description)
-      }))
-    }));
-    setSkillComponents(initialSkillComponents);
-  }
 
-  // Reset when parent signals save completed ("adjusting state during render" pattern)
-  const [prevHasSaved, setPrevHasSaved] = useState(hasSaved);
-  if (hasSaved && !prevHasSaved) {
-    setPrevHasSaved(hasSaved);
-    setSkillComponents([]);
-    setCurrentSkillComponent({
-      id: '',
-      name: '',
-      levels: [
-        { name: 'Exemplary', description: '' },
-        { name: 'Proficient', description: '' },
-        { name: 'Developing', description: '' },
-        { name: 'Emerging', description: '' },
-      ],
-    });
-    setIsEditing(false);
-    setHasSaved(false);
-  } else if (hasSaved !== prevHasSaved) {
-    setPrevHasSaved(hasSaved);
-  }
 
   const addOrUpdateSkillComponent = () => {
     if (!currentSkillComponent.name.trim()) {
@@ -110,7 +72,6 @@ const SkillFocusedCriteriaBuilder: React.FC<SkillFocusedCriteriaBuilderProps> = 
       ],
     });
     setIsEditing(false);
-    setHasSaved(false);
   };
 
   const editSkillComponent = (skillComponent: SkillComponent) => {
@@ -162,8 +123,8 @@ const SkillFocusedCriteriaBuilder: React.FC<SkillFocusedCriteriaBuilderProps> = 
     <div className="mb-2 p-2 border border-primary-40 rounded-sm">
       <h3 className="text-primary-30 text-center font-semibold">Create Skill-Focused Criterion</h3>
       <div>
-        <label className="block text-sm font-semibold text-primary-10">Skill Component Name</label>
-        <input
+        <label className="block text-sm font-semibold text-primary-10" htmlFor="skill-component-name">Skill Component Name</label>
+        <input id="skill-component-name" aria-label="Skill Component Name"
           type="text"
           value={currentSkillComponent.name}
           onChange={(e) => handleSkillComponentChange('name', e.target.value)}
@@ -175,7 +136,7 @@ const SkillFocusedCriteriaBuilder: React.FC<SkillFocusedCriteriaBuilderProps> = 
         {currentSkillComponent.levels.map((level, index) => (
           <div key={index} className="mt-2 p-2 border border-primary-20 rounded space-y-2">
             <div className="flex justify-between items-center">
-              <input
+              <input aria-label="Input field"
                 type="text"
                 value={level.name}
                 onChange={(e) => handleLevelChange(index, 'name', e.target.value)}
@@ -186,7 +147,7 @@ const SkillFocusedCriteriaBuilder: React.FC<SkillFocusedCriteriaBuilderProps> = 
                 <Trash2 size={20} />
               </button>
             </div>
-            <textarea
+            <textarea aria-label="Text area"
               value={level.description}
               onChange={(e) => handleLevelChange(index, 'description', e.target.value)}
               className="px-1 w-full py-0.5 rounded shadow-sm border border-primary-40"

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StandardsBasedRubric, GenericRubricCriteria } from '@/lib/types/rubrics-types';
 import { toast } from 'react-hot-toast';
 import { BadgePlus, Save, Edit2Icon, Trash2 } from 'lucide-react';
@@ -7,8 +7,6 @@ import CustomButton from '@/components/ui/CustomButton';
 interface StandardsBasedCriteriaBuilderProps {
   rubric: StandardsBasedRubric;
   onChange: (updatedRubric: StandardsBasedRubric) => void;
-  hasSaved: boolean;
-  setHasSaved: (hasSaved: boolean) => void;
 }
 
 interface Standard {
@@ -29,9 +27,7 @@ const DEFAULT_LEVELS = {
 
 const StandardsBasedCriteriaBuilder: React.FC<StandardsBasedCriteriaBuilderProps> = ({
   rubric,
-  onChange,
-  hasSaved,
-  setHasSaved
+  onChange
 }) => {
   const [standards, setStandards] = useState<Standard[]>([]);
   const [currentStandard, setCurrentStandard] = useState<Standard>({
@@ -42,35 +38,7 @@ const StandardsBasedCriteriaBuilder: React.FC<StandardsBasedCriteriaBuilderProps
   });
   const [isEditing, setIsEditing] = useState(false);
 
-  // Sync standards when rubric.criteria changes ("adjusting state during render" pattern)
-  const [prevRubricCriteria, setPrevRubricCriteria] = useState(rubric?.criteria);
-  if (rubric.criteria && rubric.criteria !== prevRubricCriteria) {
-    setPrevRubricCriteria(rubric.criteria);
-    const initialStandards = Object.entries(rubric.criteria).map(([name, criterion]) => ({
-      id: name,
-      name,
-      description: (criterion as GenericRubricCriteria).description as string || '',
-      levels: (criterion as GenericRubricCriteria).levels as Standard['levels'],
-    }));
-    setStandards(initialStandards);
-  }
 
-  // Reset when parent signals save completed ("adjusting state during render" pattern)
-  const [prevHasSaved, setPrevHasSaved] = useState(hasSaved);
-  if (hasSaved && !prevHasSaved) {
-    setPrevHasSaved(hasSaved);
-    setStandards([]);
-    setCurrentStandard({
-      id: '',
-      name: '',
-      description: '',
-      levels: { ...DEFAULT_LEVELS },
-    });
-    setIsEditing(false);
-    setHasSaved(false);
-  } else if (hasSaved !== prevHasSaved) {
-    setPrevHasSaved(hasSaved);
-  }
 
   const addOrUpdateStandard = () => {
     if (!currentStandard.name.trim()) {
@@ -101,7 +69,6 @@ const StandardsBasedCriteriaBuilder: React.FC<StandardsBasedCriteriaBuilderProps
       levels: { ...DEFAULT_LEVELS },
     });
     setIsEditing(false);
-    setHasSaved(false);
   };
 
   const editStandard = (standard: Standard) => {
@@ -139,8 +106,8 @@ const StandardsBasedCriteriaBuilder: React.FC<StandardsBasedCriteriaBuilderProps
     <div className="mb-2 p-2 border border-primary-40 rounded-sm">
       <h3 className="text-primary-30 text-center font-semibold">Create Standards-Based Rubric</h3>
       <div>
-        <label className="block text-sm font-semibold text-primary-10">Standard Name</label>
-        <input
+        <label className="block text-sm font-semibold text-primary-10" htmlFor="standard-name">Standard Name</label>
+        <input id="standard-name" aria-label="Standard Name"
           type="text"
           value={currentStandard.name}
           onChange={(e) => handleStandardChange('name', e.target.value)}
@@ -149,8 +116,8 @@ const StandardsBasedCriteriaBuilder: React.FC<StandardsBasedCriteriaBuilderProps
         />
       </div>
       <div className="mt-2">
-        <label className="block text-sm font-semibold text-primary-10">Standard Description</label>
-        <textarea
+        <label className="block text-sm font-semibold text-primary-10" htmlFor="standard-description">Standard Description</label>
+        <textarea id="standard-description" aria-label="Standard Description"
           value={currentStandard.description}
           onChange={(e) => handleStandardChange('description', e.target.value)}
           className="px-1 w-full py-0.5 rounded shadow-sm border border-primary-40"
@@ -162,8 +129,8 @@ const StandardsBasedCriteriaBuilder: React.FC<StandardsBasedCriteriaBuilderProps
         <h4 className="text-primary-20 font-semibold">Performance Levels</h4>
         {Object.entries(currentStandard.levels).map(([level, description]) => (
           <div key={level} className="mt-2">
-            <label className="block text-sm font-semibold text-primary-10">{`Level ${level}`}</label>
-            <textarea
+            <label className="block text-sm font-semibold text-primary-10" htmlFor="level-level">{`Level ${level}`}</label>
+            <textarea id="level-level" aria-label="{`Level ${level}`}"
               value={description}
               onChange={(e) => handleLevelChange(level, e.target.value)}
               className="px-1 w-full py-0.5 rounded shadow-sm border border-primary-40"

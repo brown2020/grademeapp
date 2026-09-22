@@ -1,19 +1,21 @@
-"use client"
+"use client";
 
-import { forwardRef } from 'react';
-import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/react';
-import { ChevronDown } from 'lucide-react';
-import clsx from 'clsx';
-import Skeleton from 'react-loading-skeleton'; // Skeleton loader
+import { forwardRef } from "react";
+import {
+  Listbox,
+  ListboxButton,
+  ListboxOptions,
+  ListboxOption,
+} from "@headlessui/react";
+import { ChevronDown } from "lucide-react";
+import clsx from "clsx";
+import Skeleton from "react-loading-skeleton";
 
-
-// General Type for Listbox Option
 interface ListboxOptionType {
   label: string;
   value: string;
 }
 
-// Props for the CustomListbox component
 interface CustomListboxProps<T> {
   value: T;
   options: ListboxOptionType[];
@@ -23,9 +25,24 @@ interface CustomListboxProps<T> {
   optionsWrapperClassName?: string;
   placeholder?: string;
   isLoading?: boolean;
+  id?: string;
 }
 
-const CustomListbox = <T extends string | number | string[] | null>({
+const ListboxTrigger = forwardRef<
+  HTMLButtonElement,
+  React.ButtonHTMLAttributes<HTMLButtonElement>
+>(function ListboxTrigger(props, ref) {
+  return <button type="button" ref={ref} {...props} />;
+});
+
+const ListboxOptionRow = forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(function ListboxOptionRow(props, ref) {
+  return <div ref={ref} {...props} />;
+});
+
+function CustomListbox<T extends string | number | string[] | null>({
   value,
   options,
   onChange,
@@ -34,20 +51,9 @@ const CustomListbox = <T extends string | number | string[] | null>({
   optionsWrapperClassName,
   placeholder = "Select an option",
   isLoading = false,
-}: CustomListboxProps<T>) => {
-
-  const MyCustomButton = forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement>>((props, ref) => {
-    return <button className="..." ref={ref} {...props} />;
-  });
-  MyCustomButton.displayName = "MyCustomButton";
-
-  const MyCustomDiv = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>((props, ref) => {
-    return <div className="..." ref={ref} {...props} />;
-  });
-  MyCustomDiv.displayName = "MyCustomDiv";
-
+  id,
+}: CustomListboxProps<T>) {
   if (isLoading) {
-    // Show Skeleton Loader when loading
     return (
       <div className="w-full">
         <Skeleton height={40} />
@@ -64,10 +70,11 @@ const CustomListbox = <T extends string | number | string[] | null>({
       {({ open }) => (
         <>
           <ListboxButton
-            as={MyCustomButton}
+            as={ListboxTrigger}
+            id={id}
             className={clsx(
               "align-bottom pt-2 rounded-md text-sm ring-0 data-focus:ring-0 focus:outline-none data-focus:bg-secondary",
-              buttonClassName
+              buttonClassName,
             )}
           >
             <div className="relative w-fit min-w-[50px]">
@@ -76,24 +83,30 @@ const CustomListbox = <T extends string | number | string[] | null>({
                 <ChevronDown
                   className={clsx(
                     "size-4 ml-1 duration-300 transform",
-                    open ? " -rotate-180" : "rotate-0"
+                    open ? " -rotate-180" : "rotate-0",
                   )}
                 />
               </div>
               <hr />
             </div>
           </ListboxButton>
-          <ListboxOptions anchor="bottom" className={clsx("rounded-md cursor-pointer z-10", "custom-listbox-options", optionsWrapperClassName)}>
-            {options.map(({ label, value }, index) => (
+          <ListboxOptions
+            anchor="bottom"
+            className={clsx(
+              "rounded-md cursor-pointer z-10",
+              "custom-listbox-options",
+              optionsWrapperClassName,
+            )}
+          >
+            {options.map(({ label, value: optionValue }, index) => (
               <ListboxOption
-                key={index}
-                value={value}
-                as={MyCustomDiv}
-                // Apply alternating background color based on even/odd index
+                key={String(optionValue)}
+                value={optionValue}
+                as={ListboxOptionRow}
                 className={clsx(
                   "group flex gap-2 px-2 py-1 data-focus:bg-secondary-50 text-sm",
-                  index % 2 === 0 ? "bg-secondary-97" : "bg-secondary-93", // Alternating background colors
-                  optionClassName
+                  index % 2 === 0 ? "bg-secondary-97" : "bg-secondary-93",
+                  optionClassName,
                 )}
               >
                 {label}
@@ -104,6 +117,6 @@ const CustomListbox = <T extends string | number | string[] | null>({
       )}
     </Listbox>
   );
-};
+}
 
 export default CustomListbox;

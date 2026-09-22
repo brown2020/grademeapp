@@ -86,64 +86,79 @@ export const useRubricStore = create<RubricStoreState>((set, get) => {
       );
     }
 
-    const favorites = rubrics.filter(rubric => profile.favoriteRubrics.includes(rubric.id));
+    const favoriteIds = new Set(profile.favoriteRubrics);
+    const favorites = rubrics.filter((rubric) => favoriteIds.has(rubric.id));
     // Remove favorites from the main rubrics array to prevent duplicates
-    rubrics = rubrics.filter(rubric => !profile.favoriteRubrics.includes(rubric.id));
+    rubrics = rubrics.filter((rubric) => !favoriteIds.has(rubric.id));
 
-    const exactMatches = rubrics.filter(rubric =>
-      safeCompare(rubric.identity, profile.identity) &&
-      safeCompare(rubric.identityLevel, profile.identityLevel) &&
-      safeCompare(rubric.textType, gradingData.textType)
+    const exactMatches = rubrics.filter(
+      (rubric) =>
+        safeCompare(rubric.identity, profile.identity) &&
+        safeCompare(rubric.identityLevel, profile.identityLevel) &&
+        safeCompare(rubric.textType, gradingData.textType),
     );
+    const exactMatchSet = new Set(exactMatches);
 
-    const levelAndTypeMatches = rubrics.filter(rubric =>
-      rubric.identityLevel && // Ensure identityLevel exists
-      safeCompare(rubric.identityLevel, profile.identityLevel) &&
-      safeCompare(rubric.textType, gradingData.textType) &&
-      !exactMatches.includes(rubric)
+    const levelAndTypeMatches = rubrics.filter(
+      (rubric) =>
+        rubric.identityLevel && // Ensure identityLevel exists
+        safeCompare(rubric.identityLevel, profile.identityLevel) &&
+        safeCompare(rubric.textType, gradingData.textType) &&
+        !exactMatchSet.has(rubric),
     );
+    const levelAndTypeSet = new Set(levelAndTypeMatches);
 
-    const levelMatches = rubrics.filter(rubric =>
-      rubric.identityLevel && // Ensure identityLevel exists
-      safeCompare(rubric.identityLevel, profile.identityLevel) &&
-      !exactMatches.includes(rubric) &&
-      !levelAndTypeMatches.includes(rubric)
+    const levelMatches = rubrics.filter(
+      (rubric) =>
+        rubric.identityLevel && // Ensure identityLevel exists
+        safeCompare(rubric.identityLevel, profile.identityLevel) &&
+        !exactMatchSet.has(rubric) &&
+        !levelAndTypeSet.has(rubric),
     );
+    const levelMatchSet = new Set(levelMatches);
 
-    const typeAndIdentityMatches = rubrics.filter(rubric =>
-      safeCompare(rubric.textType, gradingData.textType) &&
-      safeCompare(rubric.identity, profile.identity) &&
-      !exactMatches.includes(rubric) &&
-      !levelAndTypeMatches.includes(rubric) &&
-      !levelMatches.includes(rubric)
+    const typeAndIdentityMatches = rubrics.filter(
+      (rubric) =>
+        safeCompare(rubric.textType, gradingData.textType) &&
+        safeCompare(rubric.identity, profile.identity) &&
+        !exactMatchSet.has(rubric) &&
+        !levelAndTypeSet.has(rubric) &&
+        !levelMatchSet.has(rubric),
     );
+    const typeAndIdentitySet = new Set(typeAndIdentityMatches);
 
-    const typeMatches = rubrics.filter(rubric =>
-      safeCompare(rubric.textType, gradingData.textType) &&
-      !safeCompare(rubric.identity, profile.identity) && // Ensure it doesn't match identity
-      !exactMatches.includes(rubric) &&
-      !levelAndTypeMatches.includes(rubric) &&
-      !levelMatches.includes(rubric) &&
-      !typeAndIdentityMatches.includes(rubric)
+    const typeMatches = rubrics.filter(
+      (rubric) =>
+        safeCompare(rubric.textType, gradingData.textType) &&
+        !safeCompare(rubric.identity, profile.identity) && // Ensure it doesn't match identity
+        !exactMatchSet.has(rubric) &&
+        !levelAndTypeSet.has(rubric) &&
+        !levelMatchSet.has(rubric) &&
+        !typeAndIdentitySet.has(rubric),
     );
+    const typeMatchSet = new Set(typeMatches);
 
-    const identityMatches = rubrics.filter(rubric =>
-      safeCompare(rubric.identity, profile.identity) &&
-      !exactMatches.includes(rubric) &&
-      !levelAndTypeMatches.includes(rubric) &&
-      !levelMatches.includes(rubric) &&
-      !typeAndIdentityMatches.includes(rubric) &&
-      !typeMatches.includes(rubric)
+    const identityMatches = rubrics.filter(
+      (rubric) =>
+        safeCompare(rubric.identity, profile.identity) &&
+        !exactMatchSet.has(rubric) &&
+        !levelAndTypeSet.has(rubric) &&
+        !levelMatchSet.has(rubric) &&
+        !typeAndIdentitySet.has(rubric) &&
+        !typeMatchSet.has(rubric),
     );
+    const identityMatchSet = new Set(identityMatches);
+    const favoriteSet = new Set(favorites);
 
-    const remainingRubrics = rubrics.filter(rubric =>
-      !favorites.includes(rubric) &&
-      !exactMatches.includes(rubric) &&
-      !levelAndTypeMatches.includes(rubric) &&
-      !levelMatches.includes(rubric) &&
-      !typeAndIdentityMatches.includes(rubric) &&
-      !typeMatches.includes(rubric) &&
-      !identityMatches.includes(rubric)
+    const remainingRubrics = rubrics.filter(
+      (rubric) =>
+        !favoriteSet.has(rubric) &&
+        !exactMatchSet.has(rubric) &&
+        !levelAndTypeSet.has(rubric) &&
+        !levelMatchSet.has(rubric) &&
+        !typeAndIdentitySet.has(rubric) &&
+        !typeMatchSet.has(rubric) &&
+        !identityMatchSet.has(rubric),
     );
 
     const sortedRubrics = [

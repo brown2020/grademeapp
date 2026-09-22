@@ -46,8 +46,8 @@ const GraderSettingsModal: React.FC = () => {
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-primary-20">Topic:</label>
-            <input
+            <label className="block text-sm font-medium text-primary-20" htmlFor="topic">Topic:</label>
+            <input id="topic" aria-label="Topic"
               type="text"
               name="topic"
               value={gradingData.topic}
@@ -56,8 +56,8 @@ const GraderSettingsModal: React.FC = () => {
             />
           </div>
           <div className='flex gap-x-2 items-center'>
-            <label className="block text-sm font-medium text-gray-700">Assigner:</label>
-            <CustomListbox
+            <label className="block text-sm font-medium text-gray-700" htmlFor="assigner">Assigner:</label>
+            <CustomListbox id="assigner"
               value={gradingData.assigner}
               options={userInputs.assigner.options.student.map(option => ({ label: option, value: option }))}
               onChange={(value) => handleChange('assigner', value)}
@@ -66,8 +66,8 @@ const GraderSettingsModal: React.FC = () => {
           </div>
 
           <div className='flex gap-x-2 items-center'>
-            <label className="block text-sm font-medium text-gray-700">Text Type:</label>
-            <CustomListbox
+            <label className="block text-sm font-medium text-gray-700" htmlFor="text-type">Text Type:</label>
+            <CustomListbox id="text-type"
               value={gradingData.textType}
               options={userInputs.textType.map(option => ({ label: option.value, value: option.value }))}
               onChange={(value) => handleChange('textType', value)}
@@ -76,8 +76,8 @@ const GraderSettingsModal: React.FC = () => {
           </div>
 
           <div className='flex gap-x-2 items-center'>
-            <label className="block text-sm font-medium text-gray-700">Prose:</label>
-            <CustomListbox
+            <label className="block text-sm font-medium text-gray-700" htmlFor="prose">Prose:</label>
+            <CustomListbox id="prose"
               value={gradingData.prose}
               options={proseOptions.map(option => ({ label: option, value: option }))}
               onChange={(value) => handleChange('prose', value)}
@@ -86,8 +86,8 @@ const GraderSettingsModal: React.FC = () => {
           </div>
 
           <div className='flex gap-x-2 items-center'>
-            <label className="block text-sm font-medium text-gray-700">Audience:</label>
-            <CustomListbox
+            <label className="block text-sm font-medium text-gray-700" htmlFor="audience">Audience:</label>
+            <CustomListbox id="audience"
               value={gradingData.audience}
               options={userInputs.audience.options.map(option => ({ label: option, value: option }))}
               onChange={(value) => handleChange('audience', value)}
@@ -96,8 +96,8 @@ const GraderSettingsModal: React.FC = () => {
           </div>
 
           <div className='flex gap-x-2 items-center'>
-            <label className="block text-sm font-medium text-gray-700">Word Limit Type:</label>
-            <CustomListbox
+            <label className="block text-sm font-medium text-gray-700" htmlFor="word-limit-type">Word Limit Type:</label>
+            <CustomListbox id="word-limit-type"
               value={gradingData.wordLimitType}
               options={userInputs.wordCount.comparisonType.map(option => ({ label: option, value: option }))}
               onChange={(value) => handleChange('wordLimitType', value)}
@@ -106,8 +106,8 @@ const GraderSettingsModal: React.FC = () => {
           </div>
 
           <div className='flex gap-x-2 items-center'>
-            <label className="block text-sm font-medium text-gray-700 text-nowrap">Word Limit:</label>
-            <input
+            <label className="block text-sm font-medium text-gray-700 text-nowrap" htmlFor="word-limit">Word Limit:</label>
+            <input id="word-limit" aria-label="Word Limit"
               type="number"
               name="wordLimit"
               value={gradingData.wordLimit}
@@ -121,9 +121,9 @@ const GraderSettingsModal: React.FC = () => {
         </div>
 
         <div className="flex flex-row gap-x-4 justify-start mt-4">
-          <div onClick={closeGraderSettings} className="btn btn-shiny btn-shiny-green grader-settings-done">
+          <button type="button" onClick={closeGraderSettings} className="btn btn-shiny btn-shiny-green grader-settings-done">
             Done
-          </div>
+          </button>
         </div>
       </div>
     </div>

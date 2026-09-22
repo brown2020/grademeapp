@@ -41,7 +41,7 @@ export function ModelSelector({
 
   return (
     <div className="w-fit border border-secondary-30 rounded">
-      <Select
+      <Select aria-label="Select"
         name="model"
         value={selectedModelId}
         onValueChange={handleModelChange}

@@ -47,8 +47,10 @@ export default function RubricSearch() {
   };
 
   // Handle adding/removing a rubric from favorites
+  const favoriteRubricIdSet = new Set(profile.favoriteRubrics);
+
   const handleRubricFavorite = async (rubric: RubricState) => {
-    const isFavorite = profile.favoriteRubrics.includes(rubric.id);
+    const isFavorite = favoriteRubricIdSet.has(rubric.id);
 
     try {
       if (isFavorite) {
@@ -89,7 +91,7 @@ export default function RubricSearch() {
     <div ref={wrapperRef} className="relative w-full border border-secondary-30 rounded-lg">
       {/* Input Field */}
       <div className="relative w-full">
-        <input
+        <input aria-label="Input field"
           className="input-secondary rubric-search"
           onChange={(event) => setSearchQuery(event.target.value)}
           value={searchQuery}
@@ -106,7 +108,7 @@ export default function RubricSearch() {
         </div>
         {filteredRubrics.length > 0 ? (
           filteredRubrics.map((rubric) => {
-            const isFavorite = profile.favoriteRubrics.includes(rubric.id);
+            const isFavorite = favoriteRubricIdSet.has(rubric.id);
             return (
               <div key={rubric.id} className='flex flex-row justify-between items-center gap-x-2 px-2 border-b border-dashed border-primary-20 '>
                 <div className='flex flex-row gap-x-2'>

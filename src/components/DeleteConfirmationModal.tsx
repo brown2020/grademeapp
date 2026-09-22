@@ -43,7 +43,7 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
         </p>
 
         <p className="mb-2">Type &quot;{confirmText}&quot; to confirm:</p>
-        <input
+        <input aria-label="Input field"
           type="text"
           value={confirmationInput}
           onChange={(e) => setConfirmationInput(e.target.value)}

@@ -295,19 +295,19 @@ const Document = ({ onModelChange }: DocumentProps) => {
         <hr />
       </div>
       <h2 className="font-medium">( Grade: {grade} )</h2>
-      <div
+      <button type="button" 
         onClick={() => router.push("/rubrics")}
         className="bg-primary-90 text-sm font-semibold p-2 text-center shadow-sm rounded-lg cursor-pointer"
       >
         {selectedRubric?.name ? selectedRubric.name : "Select a rubric"}
-      </div>
+      </button>
       <div className="">
         <form className="flex flex-col gap-y-2" onSubmit={handleSubmit}>
           {/* Title */}
           <section>
             <label className="block text-primary-20 font-medium" htmlFor="title">Title</label>
             <hr />
-            <input
+            <input aria-label="Input field"
               type="text"
               name="title"
               id="title"
@@ -351,13 +351,13 @@ const Document = ({ onModelChange }: DocumentProps) => {
               <Image alt={"grader icon"} src={grader} width={50} height={50} className={`btn btn-shiny bg-secondary-97 border-2 border-primary-40 rounded-full size-12 sm:size-16 p-0 ${!active ? "cursor-not-allowed opacity-50" : ""}`} />
             </button>
             <DownloadPopover content={gradingData.text} />
-            <div
+            <button type="button" 
               className="btn btn-shiny btn-shiny-purple-blue rounded-full size-12 sm:size-16 flex gap-x-2 md:rounded-lg md:size-fit p-3 items-center"
               onClick={handleFixGrammarSpelling}
             >
               <Wand2 size={30} />
               <p className="hidden sm:flex">Fix Grammar & Spelling</p>
-            </div>
+            </button>
             <PlagiarismChecker text={gradingData.text} />
           </div>
 

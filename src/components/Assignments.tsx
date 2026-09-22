@@ -182,7 +182,7 @@ export default function Assignments() {
         <input
           className="w-full px-3 h-8 outline-none bg-secondary-95 placeholder:text-primary-30"
           type="text"
-          placeholder="Find an assignment..."
+          aria-label="Find an assignment..." placeholder="Find an assignment..."
           onChange={(e) => handleSearchChange(e.target.value)}
         />
       </div>

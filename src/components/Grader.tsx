@@ -202,7 +202,7 @@ export default function Grader({ onModelChange }: GraderProps) {
           <section>
             <label className="block text-primary-30 font-medium" htmlFor="title">Title</label>
             <hr />
-            <input
+            <input aria-label="Input field"
               type="text"
               name="title"
               id="title"
@@ -258,7 +258,7 @@ export default function Grader({ onModelChange }: GraderProps) {
                 <Paperclip className="size-6 sm:size-10 place-self-center place-items-center text-primary-30" />
               </label>
               {/* Hidden file input */}
-              <input
+              <input aria-label="Input field"
                 id="file-upload"
                 type="file"
                 accept=".docx,.pdf,.odt,.txt,.rtf"

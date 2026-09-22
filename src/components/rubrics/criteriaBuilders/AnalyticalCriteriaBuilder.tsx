@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AnalyticalRubric, RubricType } from '@/lib/types/rubrics-types';
 import { toast } from 'react-hot-toast';
 import { BadgePlus, Save, Edit2Icon, Trash2 } from 'lucide-react';
@@ -17,15 +17,11 @@ interface AnalyticalCriterionState {
 interface AnalyticalCriteriaBuilderProps {
   rubric: AnalyticalRubric;
   onChange: (updatedRubric: AnalyticalRubric) => void;
-  setHasSaved: (hasSaved: boolean) => void;
-  hasSaved: boolean;
 }
 
 const AnalyticalCriteriaBuilder: React.FC<AnalyticalCriteriaBuilderProps> = ({
   rubric,
   onChange,
-  setHasSaved,
-  hasSaved
 }) => {
   const [currentCriterion, setCurrentCriterion] = useState<AnalyticalCriterionState>({
     id: '',
@@ -41,43 +37,8 @@ const AnalyticalCriteriaBuilder: React.FC<AnalyticalCriteriaBuilderProps> = ({
   const { showRubricBuilder } = useRubricStore();
 
   // Reset when rubric builder closes ("adjusting state during render" pattern)
-  const [prevShowRubricBuilder, setPrevShowRubricBuilder] = useState(showRubricBuilder);
-  if (!showRubricBuilder && prevShowRubricBuilder) {
-    setPrevShowRubricBuilder(showRubricBuilder);
-    setSavedCriteria([]);
-    setCurrentCriterion({ id: '', name: '', Excellent: '', Proficient: '', Developing: '', Beginning: '' });
-    setIsEditing(false);
-    setNextId(1);
-  } else if (showRubricBuilder !== prevShowRubricBuilder) {
-    setPrevShowRubricBuilder(showRubricBuilder);
-  }
 
-  // Sync savedCriteria when rubric.criteria changes ("adjusting state during render" pattern)
-  const [prevRubricCriteria, setPrevRubricCriteria] = useState(rubric?.criteria);
-  if (rubric && rubric.type === RubricType.Analytical && rubric.criteria !== prevRubricCriteria) {
-    setPrevRubricCriteria(rubric.criteria);
-    const criteriaArray = Object.entries(rubric.criteria).map(([_key, criterion], index) => ({
-      id: `criterion-${index + 1}`,
-      name: _key,
-      Excellent: typeof criterion === 'object' && 'Excellent' in criterion ? String(criterion.Excellent) : '',
-      Proficient: typeof criterion === 'object' && 'Proficient' in criterion ? String(criterion.Proficient) : '',
-      Developing: typeof criterion === 'object' && 'Developing' in criterion ? String(criterion.Developing) : '',
-      Beginning: typeof criterion === 'object' && 'Beginning' in criterion ? String(criterion.Beginning) : '',
-    }));
-    setSavedCriteria(criteriaArray);
-    setNextId(criteriaArray.length + 1);
-  }
 
-  // Reset when parent signals save completed ("adjusting state during render" pattern)
-  const [prevHasSaved, setPrevHasSaved] = useState(hasSaved);
-  if (hasSaved && !prevHasSaved) {
-    setPrevHasSaved(hasSaved);
-    setSavedCriteria([]);
-    setCurrentCriterion({ id: '', name: '', Excellent: '', Proficient: '', Developing: '', Beginning: '' });
-    setHasSaved(false);
-  } else if (hasSaved !== prevHasSaved) {
-    setPrevHasSaved(hasSaved);
-  }
 
   const addOrUpdateCriterion = () => {
     if (!currentCriterion.name.trim()) {
@@ -141,8 +102,8 @@ const AnalyticalCriteriaBuilder: React.FC<AnalyticalCriteriaBuilderProps> = ({
     <div className="mb-2 p-2 border border-primary-40 rounded-sm rubric-builder-create-criterion-section">
       <h3 className="text-primary-30 text-center font-semibold">Create Analytical Criterion</h3>
       <div className='rubric-builder-criterion-name'>
-        <label className="block text-sm font-semibold text-primary-10">Criterion Name</label>
-        <input
+        <label className="block text-sm font-semibold text-primary-10" htmlFor="criterion-name">Criterion Name</label>
+        <input id="criterion-name" aria-label="Criterion Name"
           type="text"
           value={currentCriterion.name}
           onChange={(e) => setCurrentCriterion({ ...currentCriterion, name: e.target.value })}
@@ -153,7 +114,7 @@ const AnalyticalCriteriaBuilder: React.FC<AnalyticalCriteriaBuilderProps> = ({
         {(['Excellent', 'Proficient', 'Developing', 'Beginning'] as const).map((level) => (
           <div key={level}>
             <label htmlFor={`criterion-${level}`} className="block text-sm font-semibold text-primary-10">{level}</label>
-            <textarea
+            <textarea aria-label="Text area"
               id={`criterion-${level}`}
               value={currentCriterion[level]}
               onChange={(e) => setCurrentCriterion({ ...currentCriterion, [level]: e.target.value })}

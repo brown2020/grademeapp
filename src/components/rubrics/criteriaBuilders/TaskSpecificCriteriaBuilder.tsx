@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { TaskSpecificRubric, GenericRubricCriteria } from '@/lib/types/rubrics-types';
 import { toast } from 'react-hot-toast';
 import { BadgePlus, Save, Edit2Icon, Trash2 } from 'lucide-react';
@@ -7,8 +7,6 @@ import CustomButton from '@/components/ui/CustomButton';
 interface TaskSpecificCriteriaBuilderProps {
   rubric: TaskSpecificRubric;
   onChange: (updatedRubric: TaskSpecificRubric) => void;
-  hasSaved: boolean;
-  setHasSaved: (hasSaved: boolean) => void;
 }
 
 interface Criterion {
@@ -29,9 +27,7 @@ const DEFAULT_LEVELS = {
 
 const TaskSpecificCriteriaBuilder: React.FC<TaskSpecificCriteriaBuilderProps> = ({
   rubric,
-  onChange,
-  hasSaved,
-  setHasSaved
+  onChange
 }) => {
   const [criteria, setCriteria] = useState<Criterion[]>([]);
   const [currentCriterion, setCurrentCriterion] = useState<Criterion>({
@@ -43,36 +39,7 @@ const TaskSpecificCriteriaBuilder: React.FC<TaskSpecificCriteriaBuilderProps> = 
   const [isEditing, setIsEditing] = useState(false);
   const [taskDescription, setTaskDescription] = useState(rubric.description || '');
 
-  // Sync criteria when rubric.criteria changes ("adjusting state during render" pattern)
-  const [prevRubricCriteria, setPrevRubricCriteria] = useState(rubric?.criteria);
-  if (rubric.criteria && rubric.criteria !== prevRubricCriteria) {
-    setPrevRubricCriteria(rubric.criteria);
-    const initialCriteria = Object.entries(rubric.criteria).map(([name, criterion]) => ({
-      id: name,
-      name,
-      description: (criterion as GenericRubricCriteria).description as string || '',
-      levels: (criterion as GenericRubricCriteria).levels as Criterion['levels'],
-    }));
-    setCriteria(initialCriteria);
-  }
 
-  // Reset when parent signals save completed ("adjusting state during render" pattern)
-  const [prevHasSaved, setPrevHasSaved] = useState(hasSaved);
-  if (hasSaved && !prevHasSaved) {
-    setPrevHasSaved(hasSaved);
-    setCriteria([]);
-    setCurrentCriterion({
-      id: '',
-      name: '',
-      description: '',
-      levels: { ...DEFAULT_LEVELS },
-    });
-    setIsEditing(false);
-    setTaskDescription('');
-    setHasSaved(false);
-  } else if (hasSaved !== prevHasSaved) {
-    setPrevHasSaved(hasSaved);
-  }
 
   const addOrUpdateCriterion = () => {
     if (!currentCriterion.name.trim()) {
@@ -140,8 +107,8 @@ const TaskSpecificCriteriaBuilder: React.FC<TaskSpecificCriteriaBuilderProps> = 
     <div className="mb-2 p-2 border border-primary-40 rounded-sm">
       <h3 className="text-primary-30 text-center font-semibold">Create Task-Specific Rubric</h3>
       <div className="mb-4">
-        <label className="block text-sm font-semibold text-primary-10">Task Description</label>
-        <textarea
+        <label className="block text-sm font-semibold text-primary-10" htmlFor="task-description">Task Description</label>
+        <textarea id="task-description" aria-label="Task Description"
           value={taskDescription}
           onChange={(e) => setTaskDescription(e.target.value)}
           className="px-1 w-full py-0.5 rounded shadow-sm border border-primary-40"
@@ -150,8 +117,8 @@ const TaskSpecificCriteriaBuilder: React.FC<TaskSpecificCriteriaBuilderProps> = 
         />
       </div>
       <div>
-        <label className="block text-sm font-semibold text-primary-10">Criterion Name</label>
-        <input
+        <label className="block text-sm font-semibold text-primary-10" htmlFor="criterion-name">Criterion Name</label>
+        <input id="criterion-name" aria-label="Criterion Name"
           type="text"
           value={currentCriterion.name}
           onChange={(e) => handleCriterionChange('name', e.target.value)}
@@ -160,8 +127,8 @@ const TaskSpecificCriteriaBuilder: React.FC<TaskSpecificCriteriaBuilderProps> = 
         />
       </div>
       <div className="mt-2">
-        <label className="block text-sm font-semibold text-primary-10">Criterion Description</label>
-        <textarea
+        <label className="block text-sm font-semibold text-primary-10" htmlFor="criterion-description">Criterion Description</label>
+        <textarea id="criterion-description" aria-label="Criterion Description"
           value={currentCriterion.description}
           onChange={(e) => handleCriterionChange('description', e.target.value)}
           className="px-1 w-full py-0.5 rounded shadow-sm border border-primary-40"
@@ -173,8 +140,8 @@ const TaskSpecificCriteriaBuilder: React.FC<TaskSpecificCriteriaBuilderProps> = 
         <h4 className="text-primary-20 font-semibold">Performance Levels</h4>
         {Object.entries(currentCriterion.levels).map(([level, description]) => (
           <div key={level} className="mt-2">
-            <label className="block text-sm font-semibold text-primary-10">{level}</label>
-            <textarea
+            <label className="block text-sm font-semibold text-primary-10" htmlFor="level">{level}</label>
+            <textarea id="level" aria-label="{level}"
               value={description}
               onChange={(e) => handleLevelChange(level, e.target.value)}
               className="px-1 w-full py-0.5 rounded shadow-sm border border-primary-40"

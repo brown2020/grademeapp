@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { GenericRubricCriteria, ContentSpecificRubric } from '@/lib/types/rubrics-types';
 import { toast } from 'react-hot-toast';
 import { BadgePlus, Save, Edit2Icon, Trash2, PlusCircle } from 'lucide-react';
@@ -19,11 +19,9 @@ interface ContentSpecificCriterionState {
 interface ContentSpecificCriteriaBuilderProps {
   rubric: ContentSpecificRubric;
   onChange: (updatedRubric: ContentSpecificRubric) => void;
-  hasSaved: boolean;
-  setHasSaved: (hasSaved: boolean) => void;
 }
 
-const ContentSpecificCriteriaBuilder: React.FC<ContentSpecificCriteriaBuilderProps> = ({ rubric, onChange, hasSaved, setHasSaved }) => {
+const ContentSpecificCriteriaBuilder: React.FC<ContentSpecificCriteriaBuilderProps> = ({ rubric, onChange }) => {
   const [currentCriterion, setCurrentCriterion] = useState<ContentSpecificCriterionState>({
     id: '',
     name: '',
@@ -39,26 +37,6 @@ const ContentSpecificCriteriaBuilder: React.FC<ContentSpecificCriteriaBuilderPro
   const [savedCriteria, setSavedCriteria] = useState<ContentSpecificCriterionState[]>([]);
   const [assignmentType, setAssignmentType] = useState('');
 
-  // Reset when parent signals save completed ("adjusting state during render" pattern)
-  const [prevHasSaved, setPrevHasSaved] = useState(hasSaved);
-  if (hasSaved && !prevHasSaved) {
-    setPrevHasSaved(hasSaved);
-    setSavedCriteria([]);
-    setCurrentCriterion({
-      id: '',
-      name: '',
-      description: '',
-      levels: [
-        { name: 'Excellent', description: '' },
-        { name: 'Proficient', description: '' },
-        { name: 'Developing', description: '' },
-        { name: 'Beginning', description: '' },
-      ],
-    });
-    setHasSaved(false);
-  } else if (hasSaved !== prevHasSaved) {
-    setPrevHasSaved(hasSaved);
-  }
 
   const addOrUpdateCriterion = () => {
     if (!currentCriterion.name.trim()) {
@@ -144,8 +122,8 @@ const ContentSpecificCriteriaBuilder: React.FC<ContentSpecificCriteriaBuilderPro
     <div className="mb-2 p-2 border border-primary-40 rounded-sm">
       <h3 className="text-primary-30 text-center font-semibold">Create Content-Specific Criterion</h3>
       <div className="mb-4">
-        <label className="block text-sm font-semibold text-primary-10">Assignment Type</label>
-        <input
+        <label className="block text-sm font-semibold text-primary-10" htmlFor="assignment-type">Assignment Type</label>
+        <input id="assignment-type" aria-label="Assignment Type"
           type="text"
           value={assignmentType}
           onChange={(e) => setAssignmentType(e.target.value)}
@@ -154,8 +132,8 @@ const ContentSpecificCriteriaBuilder: React.FC<ContentSpecificCriteriaBuilderPro
         />
       </div>
       <div>
-        <label className="block text-sm font-semibold text-primary-10">Criterion Name</label>
-        <input
+        <label className="block text-sm font-semibold text-primary-10" htmlFor="criterion-name">Criterion Name</label>
+        <input id="criterion-name" aria-label="Criterion Name"
           type="text"
           value={currentCriterion.name}
           onChange={(e) => setCurrentCriterion({ ...currentCriterion, name: e.target.value })}
@@ -163,8 +141,8 @@ const ContentSpecificCriteriaBuilder: React.FC<ContentSpecificCriteriaBuilderPro
         />
       </div>
       <div>
-        <label className="block text-sm font-semibold text-primary-10">Criterion Description</label>
-        <textarea
+        <label className="block text-sm font-semibold text-primary-10" htmlFor="criterion-description">Criterion Description</label>
+        <textarea id="criterion-description" aria-label="Criterion Description"
           value={currentCriterion.description}
           onChange={(e) => setCurrentCriterion({ ...currentCriterion, description: e.target.value })}
           className="px-1 w-full py-0.5 rounded shadow-sm border border-primary-40"
@@ -176,7 +154,7 @@ const ContentSpecificCriteriaBuilder: React.FC<ContentSpecificCriteriaBuilderPro
         {currentCriterion.levels.map((level, index) => (
           <div key={index} className="mt-2 p-2 border border-primary-20 rounded">
             <div className="flex justify-between items-center">
-              <input
+              <input aria-label="Input field"
                 type="text"
                 value={level.name}
                 onChange={(e) => updatePerformanceLevel(index, 'name', e.target.value)}
@@ -187,7 +165,7 @@ const ContentSpecificCriteriaBuilder: React.FC<ContentSpecificCriteriaBuilderPro
                 <Trash2 size={18} />
               </button>
             </div>
-            <textarea
+            <textarea aria-label="Text area"
               value={level.description}
               onChange={(e) => updatePerformanceLevel(index, 'description', e.target.value)}
               className="px-1 w-full py-0.5 mt-1 rounded shadow-sm border border-primary-40"

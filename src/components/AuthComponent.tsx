@@ -15,7 +15,7 @@ import google_ctn from "@/app/assets/google_ctn.svg";
 
 import Image from "next/image";
 import Link from "next/link";
-import { LockIcon, MailIcon, XIcon } from "lucide-react";
+import { Eye, EyeOff, LockIcon, MailIcon, XIcon } from "lucide-react";
 import { PulseLoader } from "react-spinners";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import { auth } from "@/firebase/firebaseClient";
@@ -40,6 +40,9 @@ export default function AuthComponent() {
   const modalRef = useRef<HTMLDivElement>(null);
   const [showGoogleLogin, setShowGoogleLogin] = useState(true);
   const [forgotPasswordMode, setForgotPasswordMode] = useState(false); // New state
+  const [showPassword, setShowPassword] = useState(false);
+  const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
+  const [authLoading, setAuthLoading] = useState(false);
   const router = useRouter();
 
   const showModal = () => setTimeout(() => setIsVisible(true), 300);
@@ -93,42 +96,65 @@ export default function AuthComponent() {
   };
 
   const handlePasswordLogin = async () => {
+    setAuthLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
       window.localStorage.setItem("generateEmail", email);
       window.localStorage.setItem("generateName", email.split("@")[0]);
+      hideModal();
     } catch (error: unknown) {
       handleAuthError(error);
     } finally {
-      hideModal();
+      setAuthLoading(false);
     }
   };
 
   const handlePasswordSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (authMode === "signin") {
+      await handlePasswordLogin();
+      return;
+    }
+    setAuthLoading(true);
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       window.localStorage.setItem("generateEmail", email);
       window.localStorage.setItem("generateName", email.split("@")[0]);
+      hideModal();
     } catch (error: unknown) {
       if (
         isFirebaseError(error) &&
         error.code === "auth/email-already-in-use"
       ) {
-        handlePasswordLogin();
+        setAuthLoading(false);
+        await handlePasswordLogin();
         return;
       }
-      hideModal();
       handleAuthError(error);
     } finally {
-      hideModal();
+      setAuthLoading(false);
     }
   };
 
   const handleAuthError = (error: unknown) => {
-    if (isFirebaseError(error)) {
-      toast.error(error.message);
+    if (!isFirebaseError(error)) {
+      toast.error("Something went wrong. Please try again.");
+      return;
     }
+    const messages: Record<string, string> = {
+      "auth/invalid-email": "Please enter a valid email address.",
+      "auth/user-disabled": "This account has been disabled.",
+      "auth/user-not-found": "No account found with that email.",
+      "auth/wrong-password": "Incorrect password. Try again or reset it.",
+      "auth/invalid-credential": "Email or password is incorrect.",
+      "auth/too-many-requests": "Too many attempts. Please wait and try again.",
+      "auth/email-already-in-use": "An account with this email already exists.",
+      "auth/weak-password": "Password should be at least 6 characters.",
+      "auth/network-request-failed": "Network error. Check your connection.",
+      "auth/missing-email": "Please enter your email address.",
+      "auth/invalid-action-code": "This reset link is invalid or expired.",
+    };
+    toast.error(messages[error.code] ?? "Unable to authenticate. Please try again.");
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -219,12 +245,16 @@ export default function AuthComponent() {
             ) : forgotPasswordMode ? ( // Forgot Password form
               <div className="flex flex-col gap-2">
                 <div className="text-3xl text-center pb-3">Forgot Password</div>
-                <input
+                <label htmlFor="email" className="sr-only">
+                  Email
+                </label>
+                <input aria-label="Input field"
                   id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
+                  autoComplete="email"
                   className="input-primary"
                 />
                 <button
@@ -253,7 +283,7 @@ export default function AuthComponent() {
                 ref={formRef}
                 className="flex flex-col gap-2"
               >
-                <div className="text-3xl text-center pb-3">Sign In</div>
+                <div className="text-3xl text-center pb-3">{authMode === "signin" ? "Sign In" : "Create Account"}</div>
                 {showGoogleLogin && (
                   <>
                     <button
@@ -278,7 +308,7 @@ export default function AuthComponent() {
                 )}
 
                 {isEmailLinkLogin && (
-                  <input
+                  <input aria-label="Input field"
                     id="name"
                     type="text"
                     value={name}
@@ -287,27 +317,46 @@ export default function AuthComponent() {
                     className="input-primary mb-2"
                   />
                 )}
-                <input
+                <label htmlFor="email" className="sr-only">
+                  Email
+                </label>
+                <input aria-label="Input field"
                   id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
+                  autoComplete="email"
                   className="input-primary"
                 />
                 {!isEmailLinkLogin && (
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
-                    className="input-primary my-2"
-                  />
+                  <div className="relative my-2">
+                    <label htmlFor="auth-password" className="sr-only">
+                      Password
+                    </label>
+                    <input aria-label="Input field"
+                      id="auth-password"
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter your password"
+                      autoComplete={authMode === "signin" ? "current-password" : "new-password"}
+                      className="input-primary w-full pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-black"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
                 )}
                 <button
                   type="submit"
                   className="btn btn-shiny btn-shiny-green text-lg w-fit place-self-center"
-                  disabled={!email || (!isEmailLinkLogin && !password)}
+                  disabled={authLoading || !email || (!isEmailLinkLogin && !password)}
                 >
                   {isEmailLinkLogin ? (
                     <div className="flex items-center gap-2 h-8">
@@ -317,7 +366,7 @@ export default function AuthComponent() {
                   ) : (
                     <div className="flex items-center gap-2 h-8">
                       <LockIcon size={20} />
-                      <span>Continue with Password</span>
+                      <span>{authLoading ? "Please wait…" : authMode === "signin" ? "Sign In" : "Create Account"}</span>
                     </div>
                   )}
                 </button>
@@ -339,8 +388,21 @@ export default function AuthComponent() {
                     Forgot Password?
                   </button>
                 </div>
+                <div className="text-center mt-1">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setAuthMode((m) => (m === "signin" ? "signup" : "signin"))
+                    }
+                    className="underline"
+                  >
+                    {authMode === "signin"
+                      ? "Need an account? Create one"
+                      : "Already have an account? Sign in"}
+                  </button>
+                </div>
                 <label className="flex w-fit items-center space-x-2 pl-1">
-                  <input
+                  <input aria-label="Input field"
                     type="checkbox"
                     checked={acceptTerms}
                     onChange={(e) => setAcceptTerms(e.target.checked)}

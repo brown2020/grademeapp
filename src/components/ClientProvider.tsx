@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import { ClipLoader } from "react-spinners";
 import CookieConsent from "react-cookie-consent";
@@ -12,21 +12,18 @@ import ErrorBoundary from "./ErrorBoundary";
 export function ClientProvider({ children }: { children: React.ReactNode }) {
   const { loading } = useAuthToken(process.env.NEXT_PUBLIC_COOKIE_NAME!);
   useInitializeStores();
+  const [showCookieConsent, setShowCookieConsent] = useState(false);
 
   useEffect(() => {
     function adjustHeight() {
       const vh = window.innerHeight * 0.01;
-      // console.log(`--vh value is now: ${vh}px`);
       document.documentElement.style.setProperty("--vh", `${vh}px`);
     }
 
     window.addEventListener("resize", adjustHeight);
     window.addEventListener("orientationchange", adjustHeight);
-
-    // Initial adjustment
     adjustHeight();
 
-    // Cleanup
     return () => {
       window.removeEventListener("resize", adjustHeight);
       window.removeEventListener("orientationchange", adjustHeight);
@@ -34,7 +31,9 @@ export function ClientProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (window.ReactNativeWebView) {
+    const inRnWebView = Boolean(window.ReactNativeWebView);
+    setShowCookieConsent(!inRnWebView);
+    if (inRnWebView) {
       document.body.classList.add("noscroll");
     } else {
       document.body.classList.remove("noscroll");
@@ -60,7 +59,7 @@ export function ClientProvider({ children }: { children: React.ReactNode }) {
     <ErrorBoundary>
       <div className="flex flex-col h-full">
         {children}
-        {typeof window !== 'undefined' && !window.ReactNativeWebView && (
+        {showCookieConsent && (
           <CookieConsent>
             This app uses cookies to enhance the user experience.
           </CookieConsent>
@@ -71,20 +70,18 @@ export function ClientProvider({ children }: { children: React.ReactNode }) {
           toastOptions={{
             duration: 3000,
             style: {
-              position: 'relative',
-              bottom: '0',
-              left: '0',
-              width: '100%',
-              height: '30%',
-              // zIndex: 9999,
-              background: '#FFFFFF',
-              color: '#000000',
-              fontFamily: 'Poppins',
-              fontSize: '1rem',
-              fontWeight: '700',
+              position: "relative",
+              bottom: "0",
+              left: "0",
+              width: "100%",
+              height: "30%",
+              background: "#FFFFFF",
+              color: "#000000",
+              fontFamily: "Poppins",
+              fontSize: "1rem",
+              fontWeight: "700",
             },
           }}
-
         />
       </div>
     </ErrorBoundary>

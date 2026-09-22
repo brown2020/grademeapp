@@ -91,7 +91,7 @@ const Summary = () => {
             name="topic"
             value={summary.userInput.topic}
             onChange={handleInputChange}
-            placeholder="Explain the assignment"
+            aria-label="Explain the assignment" placeholder="Explain the assignment"
             className="border rounded-md w-full text-sm px-2 py-1"
           />
         }

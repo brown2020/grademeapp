@@ -7,7 +7,9 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "doctor": "react-doctor ."
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.81",

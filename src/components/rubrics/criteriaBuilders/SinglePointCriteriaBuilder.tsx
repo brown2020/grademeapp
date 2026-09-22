@@ -31,8 +31,8 @@ const SinglePointCriteriaBuilder: React.FC<SinglePointCriteriaBuilderProps> = ({
       <h3 className="text-primary-30 text-center font-semibold">Single Point Criterion</h3>
       <hr />
       <div className="mb-1">
-        <label className="block font-semibold">Proficient</label>
-        <textarea
+        <label className="block font-semibold" htmlFor="proficient">Proficient</label>
+        <textarea id="proficient" aria-label="Proficient"
           value={typeof (rubric.criteria as GenericRubricCriteria).Proficient === 'string' ? (rubric.criteria as GenericRubricCriteria).Proficient as string : ''}
           onChange={(e) => handleChange('Proficient', e.target.value)}
           className="px-1 w-full py-0.5 rounded shadow-sm border border-primary-40"
@@ -40,8 +40,8 @@ const SinglePointCriteriaBuilder: React.FC<SinglePointCriteriaBuilderProps> = ({
         />
       </div>
       <div className="mb-1">
-        <label className="block font-semibold">Strengths</label>
-        <textarea
+        <label className="block font-semibold" htmlFor="strengths">Strengths</label>
+        <textarea id="strengths" aria-label="Strengths"
           value={rubric.feedback?.Strengths || ''}
           onChange={(e) => handleChange('Strengths', e.target.value)}
           className="px-1 w-full py-0.5 rounded shadow-sm border border-primary-40"
@@ -49,8 +49,8 @@ const SinglePointCriteriaBuilder: React.FC<SinglePointCriteriaBuilderProps> = ({
         />
       </div>
       <div className="mb-1">
-        <label className="block font-semibold">Areas for Improvement</label>
-        <textarea
+        <label className="block font-semibold" htmlFor="areas-for-improvement">Areas for Improvement</label>
+        <textarea id="areas-for-improvement" aria-label="Areas for Improvement"
           value={rubric.feedback?.["Areas for Improvement"] || ''}
           onChange={(e) => handleChange('Areas for Improvement', e.target.value)}
           className="px-1 w-full py-0.5 rounded shadow-sm border border-primary-40"

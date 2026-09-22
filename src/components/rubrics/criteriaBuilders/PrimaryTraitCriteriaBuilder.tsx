@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { PrimaryTraitRubric, GenericRubricCriteria } from '@/lib/types/rubrics-types';
 import { toast } from 'react-hot-toast';
 import { BadgePlus, Save, Edit2Icon, Trash2 } from 'lucide-react';
@@ -7,8 +7,6 @@ import CustomButton from '@/components/ui/CustomButton';
 interface PrimaryTraitCriteriaBuilderProps {
   rubric: PrimaryTraitRubric;
   onChange: (updatedRubric: PrimaryTraitRubric) => void;
-  hasSaved: boolean;
-  setHasSaved: (hasSaved: boolean) => void;
 }
 
 interface PrimaryTraitCriterionState {
@@ -23,9 +21,7 @@ interface PrimaryTraitCriterionState {
 
 const PrimaryTraitCriteriaBuilder: React.FC<PrimaryTraitCriteriaBuilderProps> = ({
   rubric,
-  onChange,
-  hasSaved,
-  setHasSaved
+  onChange
 }) => {
   const [currentCriterion, setCurrentCriterion] = useState<PrimaryTraitCriterionState>({
     id: '',
@@ -41,42 +37,7 @@ const PrimaryTraitCriteriaBuilder: React.FC<PrimaryTraitCriteriaBuilderProps> = 
   const [isEditing, setIsEditing] = useState(false);
   const [savedCriteria, setSavedCriteria] = useState<PrimaryTraitCriterionState[]>([]);
 
-  // Sync savedCriteria when rubric.criteria changes ("adjusting state during render" pattern)
-  const [prevRubricCriteria, setPrevRubricCriteria] = useState(rubric?.criteria);
-  if (rubric.criteria && rubric.criteria !== prevRubricCriteria) {
-    setPrevRubricCriteria(rubric.criteria);
-    const initialSavedCriteria = Object.entries(rubric.criteria).map(([name, criterion]) => ({
-      id: name,
-      name,
-      description: (criterion as GenericRubricCriteria).description as string || '',
-      levels: Object.entries((criterion as GenericRubricCriteria).levels as Record<string, string>).map(([score, description]) => ({
-        score: parseInt(score),
-        description,
-      })),
-    }));
-    setSavedCriteria(initialSavedCriteria);
-  }
 
-  // Reset when parent signals save completed ("adjusting state during render" pattern)
-  const [prevHasSaved, setPrevHasSaved] = useState(hasSaved);
-  if (hasSaved && !prevHasSaved) {
-    setPrevHasSaved(hasSaved);
-    setSavedCriteria([]);
-    setCurrentCriterion({
-      id: '',
-      name: '',
-      description: '',
-      levels: [
-        { score: 4, description: '' },
-        { score: 3, description: '' },
-        { score: 2, description: '' },
-        { score: 1, description: '' },
-      ],
-    });
-    setHasSaved(false);
-  } else if (hasSaved !== prevHasSaved) {
-    setPrevHasSaved(hasSaved);
-  }
 
   const addOrUpdateCriterion = () => {
     if (!currentCriterion.name.trim()) {
@@ -115,7 +76,6 @@ const PrimaryTraitCriteriaBuilder: React.FC<PrimaryTraitCriteriaBuilderProps> = 
       ],
     });
     setIsEditing(false);
-    setHasSaved(false);
   };
 
   const loadCriterion = (criterion: PrimaryTraitCriterionState) => {
@@ -146,8 +106,8 @@ const PrimaryTraitCriteriaBuilder: React.FC<PrimaryTraitCriteriaBuilderProps> = 
     <div className="mb-2 p-2 border border-primary-40 rounded-sm">
       <h3 className="text-primary-30 text-center font-semibold">Create Primary-Trait Criterion</h3>
       <div>
-        <label className="block text-sm font-semibold text-primary-10">Criterion Name</label>
-        <input
+        <label className="block text-sm font-semibold text-primary-10" htmlFor="criterion-name">Criterion Name</label>
+        <input id="criterion-name" aria-label="Criterion Name"
           type="text"
           value={currentCriterion.name}
           onChange={(e) => setCurrentCriterion({ ...currentCriterion, name: e.target.value })}
@@ -155,8 +115,8 @@ const PrimaryTraitCriteriaBuilder: React.FC<PrimaryTraitCriteriaBuilderProps> = 
         />
       </div>
       <div>
-        <label className="block text-sm font-semibold text-primary-10">Criterion Description</label>
-        <textarea
+        <label className="block text-sm font-semibold text-primary-10" htmlFor="criterion-description">Criterion Description</label>
+        <textarea id="criterion-description" aria-label="Criterion Description"
           value={currentCriterion.description}
           onChange={(e) => setCurrentCriterion({ ...currentCriterion, description: e.target.value })}
           className="px-1 w-full py-0.5 rounded shadow-sm border border-primary-40"
@@ -168,7 +128,7 @@ const PrimaryTraitCriteriaBuilder: React.FC<PrimaryTraitCriteriaBuilderProps> = 
         {currentCriterion.levels.map((level, index) => (
           <div key={index} className="mt-2 p-2 border border-primary-20 rounded">
             <div className="flex justify-between items-center">
-              <input
+              <input aria-label="Input field"
                 type="number"
                 value={level.score}
                 onChange={(e) => handleLevelChange(index, 'score', parseInt(e.target.value))}
@@ -177,7 +137,7 @@ const PrimaryTraitCriteriaBuilder: React.FC<PrimaryTraitCriteriaBuilderProps> = 
                 max="4"
               />
             </div>
-            <textarea
+            <textarea aria-label="Text area"
               value={level.description}
               onChange={(e) => handleLevelChange(index, 'description', e.target.value)}
               className="px-1 w-full py-0.5 mt-1 rounded shadow-sm border border-primary-40"

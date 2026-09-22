@@ -32,19 +32,15 @@ import {
 interface RubricTypeSelectorProps {
   rubric: RubricState;
   onChange: (updatedRubric: RubricState) => void;
-  setHasSaved: (hasSaved: boolean) => void;
-  hasSaved: boolean;
 }
 
 const RubricTypeSelector: React.FC<RubricTypeSelectorProps> = ({
   rubric,
   onChange,
-  hasSaved,
-  setHasSaved,
 }) => {
   switch (rubric.type) {
     case RubricType.Analytical:
-      return <AnalyticalCriteriaBuilder rubric={rubric as AnalyticalRubric} onChange={onChange} hasSaved={hasSaved} setHasSaved={setHasSaved} />;
+      return <AnalyticalCriteriaBuilder rubric={rubric as AnalyticalRubric} onChange={onChange} />;
     case RubricType.Holistic:
       return <HolisticCriteriaBuilder rubric={rubric as HolisticRubric} onChange={onChange} />;
     case RubricType.SinglePoint:
@@ -52,30 +48,30 @@ const RubricTypeSelector: React.FC<RubricTypeSelectorProps> = ({
     case RubricType.Checklist:
       return <ChecklistCriteriaBuilder rubric={rubric as ChecklistRubric} onChange={(updatedRubric: Partial<RubricState>) => onChange(updatedRubric as RubricState)} />;
     case RubricType.ContentSpecific:
-      return <ContentSpecificCriteriaBuilder rubric={rubric as ContentSpecificRubric} onChange={onChange} hasSaved={hasSaved} setHasSaved={setHasSaved} />;
+      return <ContentSpecificCriteriaBuilder rubric={rubric as ContentSpecificRubric} onChange={onChange} />;
     case RubricType.Developmental:
       return (
-        <DevelopmentalCriteriaBuilder rubric={rubric as DevelopmentalRubric} onChange={onChange} hasSaved={hasSaved} setHasSaved={setHasSaved} />
+        <DevelopmentalCriteriaBuilder rubric={rubric as DevelopmentalRubric} onChange={onChange} />
       );
     case RubricType.MultiTrait:
       return (
-        <MultiTraitCriteriaBuilder rubric={rubric as MultiTraitRubric} onChange={onChange} hasSaved={hasSaved} setHasSaved={setHasSaved} />
+        <MultiTraitCriteriaBuilder rubric={rubric as MultiTraitRubric} onChange={onChange} />
       );
     case RubricType.PrimaryTrait:
       return (
-        <PrimaryTraitCriteriaBuilder rubric={rubric as PrimaryTraitRubric} onChange={onChange} hasSaved={hasSaved} setHasSaved={setHasSaved} />
+        <PrimaryTraitCriteriaBuilder rubric={rubric as PrimaryTraitRubric} onChange={onChange} />
       );
     case RubricType.SkillFocused:
       return (
-        <SkillFocusedCriteriaBuilder rubric={rubric as SkillFocusedRubric} onChange={onChange} hasSaved={hasSaved} setHasSaved={setHasSaved} />
+        <SkillFocusedCriteriaBuilder rubric={rubric as SkillFocusedRubric} onChange={onChange} />
       );
     case RubricType.StandardsBased:
       return (
-        <StandardsBasedCriteriaBuilder rubric={rubric as StandardsBasedRubric} onChange={onChange} hasSaved={hasSaved} setHasSaved={setHasSaved} />
+        <StandardsBasedCriteriaBuilder rubric={rubric as StandardsBasedRubric} onChange={onChange} />
       );
     case RubricType.TaskSpecific:
       return (
-        <TaskSpecificCriteriaBuilder rubric={rubric as TaskSpecificRubric} onChange={onChange} hasSaved={hasSaved} setHasSaved={setHasSaved} />
+        <TaskSpecificCriteriaBuilder rubric={rubric as TaskSpecificRubric} onChange={onChange} />
       );
     default:
       return null;

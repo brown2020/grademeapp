@@ -2,10 +2,23 @@
 "use server";
 
 import Stripe from "stripe";
+import {
+  requireServerUser,
+  UnauthorizedError,
+} from "@/lib/server/requestAuth";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "");
 
 export async function createPaymentIntent(amount: number) {
+  try {
+    await requireServerUser();
+  } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      throw new Error("Authentication required.");
+    }
+    throw error;
+  }
+
   const product = process.env.NEXT_PUBLIC_STRIPE_PRODUCT_NAME;
 
   try {
@@ -27,10 +40,18 @@ export async function createPaymentIntent(amount: number) {
 
 export async function validatePaymentIntent(paymentIntentId: string) {
   try {
+    await requireServerUser();
+  } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      throw new Error("Authentication required.");
+    }
+    throw error;
+  }
+
+  try {
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
 
     if (paymentIntent.status === "succeeded") {
-      // Convert the Stripe object to a plain object
       return {
         id: paymentIntent.id,
         amount: paymentIntent.amount,

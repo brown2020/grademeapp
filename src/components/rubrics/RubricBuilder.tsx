@@ -25,8 +25,6 @@ export default function RubricBuilder({ onClose }: {
     clearActiveRubric,
     rubricOptions,
   } = useRubricStore();
-  const [hasSaved, setHasSaved] = useState(false);
-
   // Initialize localRubric via lazy initializer (runs once on mount)
   const [localRubric, setLocalRubric] = useState<RubricState | null>(() => {
     if (editingRubricId) {
@@ -43,12 +41,6 @@ export default function RubricBuilder({ onClose }: {
     return createNewRubric(RubricType.Analytical);
   });
 
-  // Sync localRubric when activeRubric changes ("adjusting state during render" pattern)
-  const [prevActiveRubric, setPrevActiveRubric] = useState(activeRubric);
-  if (activeRubric && activeRubric !== prevActiveRubric) {
-    setPrevActiveRubric(activeRubric);
-    setLocalRubric(activeRubric);
-  }
 
   const handleClose = useCallback(() => {
     clearActiveRubric();
@@ -74,7 +66,6 @@ export default function RubricBuilder({ onClose }: {
       addCustomRubric(localRubric);
       toast.success('Rubric created successfully!');
     }
-    setHasSaved(true);
     handleClose();
   }, [localRubric, editingRubricId, updateCustomRubric, addCustomRubric, handleClose])
 
@@ -123,8 +114,8 @@ export default function RubricBuilder({ onClose }: {
         </div>
       ) : (
         <div className={`text-sm mb-2 rubric-builder-type-selector`}>
-          <label className="block text-primary-20 font-semibold">Rubric Type</label>
-          <select
+          <label className="block text-primary-20 font-semibold" htmlFor="rubric-type">Rubric Type</label>
+          <select id="rubric-type" aria-label="Rubric Type"
             value={localRubric?.type}
             onChange={(e) => handleRubricTypeChange(e.target.value as RubricType)}
             className="px-2 py-1 w-full rounded shadow-sm text-xs border border-primary-40"
@@ -142,8 +133,8 @@ export default function RubricBuilder({ onClose }: {
 
       {/* Rubric Name */}
       <div className="w-full h-fit mb-1 rubric-builder-name">
-        <label className="block text-sm text-primary-20 font-semibold">Rubric Name</label>
-        <input
+        <label className="block text-sm text-primary-20 font-semibold" htmlFor="rubric-name">Rubric Name</label>
+        <input id="rubric-name" aria-label="Rubric Name"
           type="text"
           name="name"
           value={localRubric?.name}
@@ -154,8 +145,8 @@ export default function RubricBuilder({ onClose }: {
 
       {/* Rubric Description */}
       <div className="w-full h-fit mb-1 rubric-builder-description">
-        <label className="block text-sm text-primary-20 font-semibold">Rubric Description</label>
-        <textarea
+        <label className="block text-sm text-primary-20 font-semibold" htmlFor="rubric-description">Rubric Description</label>
+        <textarea id="rubric-description" aria-label="Rubric Description"
           name="description"
           value={localRubric?.description ?? ''}
           onChange={(e) => handleInputChange('description', e.target.value)}
@@ -167,8 +158,6 @@ export default function RubricBuilder({ onClose }: {
       <RubricTypeSelector
         rubric={localRubric}
         onChange={setLocalRubric}
-        hasSaved={hasSaved}
-        setHasSaved={setHasSaved}
       />
 
       {/* Save and Cancel Buttons */}

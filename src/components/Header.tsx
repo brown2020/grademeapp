@@ -91,7 +91,7 @@ export default function Header() {
     <>
       <div className="z-10 flex py-1 justify-between items-center h-16 md:h-24 px-2 text-primary-20 border-b border-primary-40">
         <div className="flex h-full gap-4 items-center w-full">
-          <div
+          <button type="button" 
             className={`flex gap-x-3 md:flex-col items-center md:justify-end px-2 h-full transition duration-300 cursor-pointer hover:text-primary-40 hover:opacity-100 grademe-link-desktop ${pathname === "/" ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
               }`}
             onClick={() => {
@@ -102,12 +102,12 @@ export default function Header() {
               <Image alt="Grademe logo" src={grademe} loading="lazy" className="size-12" />
             </div>
             <div className="flex text-lg font-medium">Grade.me</div>
-          </div>
+          </button>
         </div>
 
         <div className="flex gap-x-4">
           <div className="hidden md:flex h-full gap-x-4 items-center w-full">
-            <div
+            <button type="button" 
               className={`flex flex-col items-center justify-end px-2 h-full transition duration-300 cursor-pointer hover:text-primary-40 hover:opacity-100 rubrics-link-desktop ${pathname?.startsWith("/rubrics") ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
                 }`}
               onClick={() => {
@@ -118,8 +118,8 @@ export default function Header() {
                 <Image alt="rubrics" src={rubric} width={75} height={75} loading="lazy" />
               </div>
               <div className="text-lg font-medium">rubrics</div>
-            </div>
-            <div
+            </button>
+            <button type="button" 
               className={`flex flex-col items-center justify-end px-2 h-full transition duration-300 cursor-pointer hover:text-primary-40 hover:opacity-100 grader-link-desktop ${pathname?.startsWith("/grader") ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
                 }`}
               onClick={() => {
@@ -130,8 +130,8 @@ export default function Header() {
                 <Image alt="grader" src={grader} width={75} height={75} loading="lazy" />
               </div>
               <div className="text-lg font-medium">grader</div>
-            </div>
-            <div
+            </button>
+            <button type="button" 
               className={`flex flex-col items-center justify-end px-2 h-full transition duration-300 cursor-pointer hover:text-primary-40 hover:opacity-100 assignments-link-desktop ${pathname?.startsWith("/assignments") ? "text-primary-40 opacity-100" : "text-slate-900 opacity-90"
                 }`}
               onClick={() => {
@@ -142,9 +142,9 @@ export default function Header() {
                 <Image alt="assignments" src={school} width={75} height={75} loading="lazy" />
               </div>
               <div className="text-lg font-medium">assignments</div>
-            </div>
+            </button>
           </div>
-          <div
+          <button type="button" 
             className="cursor-pointer hidden md:flex justify-start items-center md:flex-col gap-x-2 md:gap-y-0 hover:text-primary-40 text-primary-10 plagiarism-link-desktop"
             onClick={() => {
               setTimeout(() => router.push("/plagiarism-check"), 100);
@@ -153,9 +153,9 @@ export default function Header() {
               <Image alt="plagiarism" src={plagiarism} width={75} height={75} loading="lazy" />
             </div>
             <div className="text-lg font-medium">plagiarism</div>
-          </div>
+          </button>
 
-          <div
+          <button type="button" 
             className="cursor-pointer hidden md:flex justify-start items-center md:flex-col gap-x-2 md:gap-y-0 hover:text-primary-40 text-primary-10 profile-link-desktop"
             onClick={() => {
               setTimeout(() => router.push('/profile'), 100);
@@ -178,11 +178,11 @@ export default function Header() {
             <div className="flex text-center text-lg font-medium whitespace-nowrap">
               profile
             </div>
-          </div>
+          </button>
         </div>
 
         <div className="mobile-menu flex md:hidden items-end">
-          <Menu size={25} className="text-primary-30 cursor-pointer" onClick={toggleMenu} />
+          <button type="button" aria-label="Open menu" className="bg-transparent border-0 p-0" onClick={toggleMenu}><Menu size={25} className="text-primary-30" /></button>
         </div>
       </div>
 
@@ -192,7 +192,7 @@ export default function Header() {
         className={`fixed right-0 top-16 h-auto max-w-56 w-full z-10 transition-all ${isOpen ? 'animate-enter' : isExiting ? 'animate-exit' : 'hidden'}`}
       >
         <div className="bg-white rounded-bl shadow-lg px-4 py-3">
-          <XIcon size={24} className="text-primary-10 cursor-pointer absolute top-2 right-2" onClick={closeMenu} />
+          <button type="button" aria-label="Close menu" className="bg-transparent border-0 p-0 absolute top-2 right-2" onClick={closeMenu}><XIcon size={24} className="text-primary-10" /></button>
           <ul className="mt-4">
             <li
               className="profile-link-mobile flex justify-start items-end md:flex-col md:items-end gap-x-2 md:gap-y-1 border-b border-primary-40 pb-2"
@@ -200,7 +200,7 @@ export default function Header() {
                 closeMenu();
                 setTimeout(() => router.push('/profile'), 100);
               }}
-            >
+             role="menuitem" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); (e.currentTarget as HTMLElement).click(); } }}>
               {uid && profile?.photoUrl ? (
                 <div className="size-9 md:size-12 aspect-square">
                   <Image
@@ -227,7 +227,7 @@ export default function Header() {
                 closeMenu();
                 setTimeout(() => router.push('/'), 100);
               }}
-            >
+             role="menuitem" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); (e.currentTarget as HTMLElement).click(); } }}>
               <Bot />About
             </li>
             <li
@@ -236,7 +236,7 @@ export default function Header() {
                 closeMenu();
                 setTimeout(() => router.push('/support'), 100);
               }}
-            >
+             role="menuitem" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); (e.currentTarget as HTMLElement).click(); } }}>
               <LifeBuoy />Support
             </li>
             <li
@@ -245,7 +245,7 @@ export default function Header() {
                 closeMenu();
                 setTimeout(() => router.push('/terms'), 100);
               }}
-            >
+             role="menuitem" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); (e.currentTarget as HTMLElement).click(); } }}>
               <Handshake />Terms
             </li>
             <li
@@ -254,7 +254,7 @@ export default function Header() {
                 closeMenu();
                 setTimeout(() => router.push('/privacy'), 100);
               }}
-            >
+             role="menuitem" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); (e.currentTarget as HTMLElement).click(); } }}>
               <GlobeLock />Privacy
             </li>
             <li>
@@ -271,7 +271,7 @@ export default function Header() {
           <div ref={modalRef} className={`bg-black/30 absolute inset-0 w-full h-full z-0 ${identityModalOpen ? 'overlay-open' : 'overlay-closed'}`} aria-hidden="true" />
           <div className={`fixed w-96 bg-secondary p-4 rounded-lg flex flex-col place-self-center top-1/3 z-10 transition-all ${identityModalOpen ? 'animate-enter' : modalClosing ? 'animate-exit' : 'hidden'}`}>
             <div className="flex justify-end">
-              <XIcon size={24} className="text-primary-10 cursor-pointer" onClick={closeModal} />
+              <button type="button" aria-label="Close dialog" className="bg-transparent border-0 p-0" onClick={closeModal}><XIcon size={24} className="text-primary-10" /></button>
             </div>
             <div className="flex flex-col gap-y-4">
               <div>
@@ -316,7 +316,7 @@ export default function Header() {
                 </div>
                 <span className="w-fit ml-0.5">.</span>
               </div>
-              <div onClick={closeModal} className="flex place-self-end btn btn-shiny btn-shiny-green">Finish</div>
+              <button type="button" onClick={closeModal} className="flex place-self-end btn btn-shiny btn-shiny-green">Finish</button>
             </div>
           </div>
         </>

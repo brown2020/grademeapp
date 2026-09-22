@@ -18,8 +18,8 @@ const HolisticCriteriaBuilder: React.FC<HolisticCriteriaBuilderProps> = ({ rubri
       <hr />
       {(['Excellent', 'Proficient', 'Developing', 'Beginning'] as Array<keyof HolisticRubric['criteria']>).map((level) => (
         <div key={level} className="mb-2">
-          <label className="block text-sm font-semibold">{level}</label>
-          <textarea
+          <label className="block text-sm font-semibold" htmlFor="level">{level}</label>
+          <textarea id="level" aria-label="{level}"
             value={typeof (rubric.criteria as GenericRubricCriteria)[level] === 'string' ? (rubric.criteria as GenericRubricCriteria)[level] as string : ''}
             onChange={(e) => handleLevelChange(level, e.target.value)}
             className="px-1 w-full py-0.5 rounded shadow-sm border border-primary-40"

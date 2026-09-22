@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   MultiTraitRubric,
   MultiTraitCriterion,
@@ -12,8 +12,6 @@ import CustomButton from '@/components/ui/CustomButton';
 interface MultiTraitCriteriaBuilderProps {
   rubric: MultiTraitRubric;
   onChange: (updatedRubric: MultiTraitRubric) => void;
-  hasSaved: boolean;
-  setHasSaved: (hasSaved: boolean) => void;
 }
 
 interface CriterionState {
@@ -26,8 +24,6 @@ interface CriterionState {
 const MultiTraitCriteriaBuilder: React.FC<MultiTraitCriteriaBuilderProps> = ({
   rubric,
   onChange,
-  hasSaved,
-  setHasSaved,
 }) => {
   const [criteria, setCriteria] = useState<Record<string, MultiTraitCriterion>>({});
   const [currentCriterion, setCurrentCriterion] = useState<CriterionState>({
@@ -43,39 +39,7 @@ const MultiTraitCriteriaBuilder: React.FC<MultiTraitCriteriaBuilderProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [savedCriteria, setSavedCriteria] = useState<CriterionState[]>([]);
 
-  // Sync criteria when rubric changes ("adjusting state during render" pattern)
-  const [prevRubricCriteria, setPrevRubricCriteria] = useState(rubric?.criteria);
-  if (rubric.criteria && rubric.criteria !== prevRubricCriteria) {
-    setPrevRubricCriteria(rubric.criteria);
-    setCriteria(rubric.criteria);
-    const initialSavedCriteria = Object.entries(rubric.criteria).map(([name, criterion]) => ({
-      id: name,
-      name,
-      description: criterion.description || '',
-      subCriteria: criterion.subCriteria,
-    }));
-    setSavedCriteria(initialSavedCriteria);
-  }
 
-  // Reset when parent signals save completed ("adjusting state during render" pattern)
-  const [prevHasSaved, setPrevHasSaved] = useState(hasSaved);
-  if (hasSaved && !prevHasSaved) {
-    setPrevHasSaved(hasSaved);
-    setSavedCriteria([]);
-    setCurrentCriterion({
-      id: '',
-      name: '',
-      description: '',
-      subCriteria: {},
-    });
-    setCurrentSubCriterion({
-      description: '',
-      levels: {},
-    });
-    setHasSaved(false);
-  } else if (hasSaved !== prevHasSaved) {
-    setPrevHasSaved(hasSaved);
-  }
 
   const handleCriterionChange = (field: keyof CriterionState, value: string) => {
     setCurrentCriterion((prev) => ({ ...prev, [field]: value }));
@@ -149,7 +113,6 @@ const MultiTraitCriteriaBuilder: React.FC<MultiTraitCriteriaBuilderProps> = ({
       levels: {},
     });
     setIsEditing(false);
-    setHasSaved(false);
   };
 
   const loadCriterion = (criterion: CriterionState) => {
@@ -171,8 +134,8 @@ const MultiTraitCriteriaBuilder: React.FC<MultiTraitCriteriaBuilderProps> = ({
     <div className="mb-2 p-2 border border-primary-40 rounded-sm">
       <h3 className="text-primary-30 text-center font-semibold">Create Multi-Trait Criterion</h3>
       <div>
-        <label className="block text-sm font-semibold text-primary-10">Criterion Name</label>
-        <input
+        <label className="block text-sm font-semibold text-primary-10" htmlFor="criterion-name">Criterion Name</label>
+        <input id="criterion-name" aria-label="Criterion Name"
           type="text"
           value={currentCriterion.name}
           onChange={(e) => handleCriterionChange('name', e.target.value)}
@@ -180,8 +143,8 @@ const MultiTraitCriteriaBuilder: React.FC<MultiTraitCriteriaBuilderProps> = ({
         />
       </div>
       <div>
-        <label className="block text-sm font-semibold text-primary-10">Criterion Description</label>
-        <textarea
+        <label className="block text-sm font-semibold text-primary-10" htmlFor="criterion-description">Criterion Description</label>
+        <textarea id="criterion-description" aria-label="Criterion Description"
           value={currentCriterion.description}
           onChange={(e) => handleCriterionChange('description', e.target.value)}
           className="px-1 w-full py-0.5 rounded shadow-sm border border-primary-40"
@@ -201,7 +164,7 @@ const MultiTraitCriteriaBuilder: React.FC<MultiTraitCriteriaBuilderProps> = ({
           </div>
         ))}
         <div className="mt-2 p-2 border border-primary-20 rounded">
-          <textarea
+          <textarea aria-label="Text area"
             value={currentSubCriterion.description}
             onChange={(e) => handleSubCriterionChange('description', e.target.value)}
             className="px-1 w-full py-0.5 rounded shadow-sm border border-primary-40"
@@ -211,7 +174,7 @@ const MultiTraitCriteriaBuilder: React.FC<MultiTraitCriteriaBuilderProps> = ({
           <h5 className="font-semibold mt-2">Performance Levels</h5>
           {['Excellent', 'Good', 'Fair', 'Poor'].map((levelName) => (
             <div key={levelName} className="mb-2">
-              <input
+              <input aria-label="Input field"
                 type="text"
                 placeholder={`${levelName} Description`}
                 value={currentSubCriterion.levels[levelName] || ''}
