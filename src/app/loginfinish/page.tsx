@@ -63,7 +63,7 @@ export default function LoginFinishPage() {
       } finally {
         window.localStorage.removeItem("grademeEmail");
         window.localStorage.removeItem("grademeName");
-        router.replace("/");
+        window.location.assign("/");
       }
     }
 

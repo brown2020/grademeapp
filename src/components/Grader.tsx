@@ -79,13 +79,14 @@ export default function Grader({ onModelChange }: GraderProps) {
 
         setGradingData({ text: parsedText });
 
-        setUploading(false);
         toast.dismiss();
         toast.success('File uploaded successfully.');
       } catch (error) {
         toast.dismiss();
         toast.error('Failed to upload file. Please try again.');
         console.error('Failed to upload file:', error);
+      } finally {
+        setUploading(false);
       }
     } else if (!uid) {
       toast.error('Please log in to upload a file.');
@@ -189,12 +190,13 @@ export default function Grader({ onModelChange }: GraderProps) {
           <h2 className="block text-primary-30 font-medium">Selected Rubric</h2>
           <hr />
         </div>
-        <div
+        <button
+          type="button"
           onClick={() => router.push("/rubrics")}
           className="place-self-center md:place-self-start w-fit border border-primary-40 text-sm font-semibold p-2 bg-primary-90 text-center shadow-sm rounded-lg cursor-pointer"
         >
           {selectedRubric?.name ? selectedRubric.name : "Select a rubric"}
-        </div>
+        </button>
       </section>
       <section className="flex flex-col gap-y-4">
         <form className="flex flex-col gap-y-4" onSubmit={handleSubmit}>
@@ -246,9 +248,11 @@ export default function Grader({ onModelChange }: GraderProps) {
             </button>
             <PlagiarismChecker text={gradingData.text} />
             {/* File Upload */}
-            <div
-              className="btn btn-shiny overflow-visible size-12 sm:size-16 flex items-center bg-secondary-97 border-2 border-primary-40 rounded-full p-1.5 grader-file-upload"
-              onClick={() => document.getElementById("file-upload")?.click()} // Trigger input click on div click
+            <button
+              type="button"
+              aria-label="Upload file"
+              className="relative btn btn-shiny overflow-visible size-12 sm:size-16 flex items-center bg-secondary-97 border-2 border-primary-40 rounded-full p-1.5 grader-file-upload"
+              onClick={() => document.getElementById("file-upload")?.click()}
             >
               <label
                 htmlFor="file-upload"
@@ -269,7 +273,7 @@ export default function Grader({ onModelChange }: GraderProps) {
               <div className="absolute left-12 -top-4 w-fit px-2 py-1 bg-secondary-20 text-xs text-primary-90 rounded opacity-0 hidden peer-hover:opacity-100 peer-hover:flex transition-opacity z-20">
                 Upload a file (docx, pdf, odt, rtf, txt)
               </div>
-            </div>
+            </button>
 
             <CustomButton onClick={() => {
               setGradingData({ title: "", text: "" });

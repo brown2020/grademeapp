@@ -1,5 +1,7 @@
 "use client";
-import { useEffect, useState, useCallback, FormEvent } from "react";
+
+import DocumentShell from "./DocumentShell";
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { doc as firestoreDoc, getDoc, Timestamp } from "firebase/firestore";
 import { toast } from "react-hot-toast";
 import { db } from "@/firebase/firebaseClient";
@@ -44,14 +46,13 @@ const Document = ({ onModelChange }: DocumentProps) => {
   const params = useParams();
   const summaryID = params?.summaryID as string;
   const timestamp = params?.timestamp as string;
-  const [submissionTimestamp, setSubmissionTimestamp] = useState<Timestamp>();
   const [userDoc, setUserDoc] = useState<UserHistoryType>();
   const [loading, setLoading] = useState<boolean>(true);
   const [grade, setGrade] = useState<string>("");
   const [thinking, setThinking] = useState<boolean>(false);
-  const [localCount, setLocalCount] = useState<number>(profile.credits);
-  const [isStreamingComplete, setIsStreamingComplete] = useState<boolean>(false);
-  const [hasSaved, setHasSaved] = useState<boolean>(false);
+  const localCount = profile.credits;
+  const isStreamingCompleteRef = useRef(false);
+  const hasSavedRef = useRef(false);
   const [summary, setSummary] = useState<string>("");
   const [flagged, setFlagged] = useState<string>("");
   const active = (gradingData.text.length > 1) && (localCount > 0 || !profile.useCredits) && !thinking;
@@ -62,71 +63,80 @@ const Document = ({ onModelChange }: DocumentProps) => {
   )
   const router = useRouter();
 
-  // get timestamp from path /assignments/${summary.id}/${submission.timestamp}
-  useEffect(() => {
-    const submissionTimestamp = Timestamp.fromMillis(Number(timestamp));
-    setSubmissionTimestamp(submissionTimestamp);
-  }, [timestamp]);
+  // Derive timestamp from the route (no effect sync)
+  const timestampMillis = Number(timestamp);
+  const submissionTimestamp = useMemo(
+    () => Timestamp.fromMillis(timestampMillis),
+    [timestampMillis]
+  );
 
-  // Load the requested document
+  // Load the requested document (cancelled on unmount)
   useEffect(() => {
-    const getDocument = async () => {
+    if (!uid || !summaryID || !submissionTimestamp) return;
+    let cancelled = false;
+    toast.loading("Loading document...");
+    void (async () => {
       try {
         const doc = await fetchDocumentById(uid as string, summaryID as string);
-        setUserDoc(doc[0] as UserHistoryType);
+        if (cancelled) return;
+        const loaded = doc[0] as UserHistoryType;
+        setUserDoc(loaded);
+        const matchingSubmission = loaded.submissions.find((sub) =>
+          sub.timestamp.seconds === submissionTimestamp.seconds &&
+          sub.timestamp.nanoseconds === submissionTimestamp.nanoseconds
+        );
+        if (matchingSubmission) {
+          setGradingData({
+            title: loaded.userInput.title,
+            text: matchingSubmission.text,
+            assigner: loaded.userInput.assigner,
+            textType: loaded.userInput.textType,
+            topic: loaded.userInput.topic,
+            prose: loaded.userInput.prose,
+            audience: loaded.userInput.audience,
+            wordLimitType: loaded.userInput.wordLimitType as
+              | "less than"
+              | "more than"
+              | "between",
+            wordLimit: loaded.userInput.wordLimit,
+            customRubric: loaded.userInput.customRubric,
+            rubric: loaded.userInput.rubric,
+          });
+          setSummary(matchingSubmission.response);
+          setGrade(matchingSubmission.grade);
+          setFileUrl(loaded.fileUrl);
+        }
         toast.dismiss();
         toast.success("Document loaded successfully", { id: "loading" });
       } catch (error) {
+        if (cancelled) return;
         console.error("Error in getDocument", error);
         toast.error("Failed to load document");
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
+    })();
+    return () => {
+      cancelled = true;
     };
+  }, [uid, summaryID, submissionTimestamp, setGradingData]);
 
-    if (uid && summaryID && submissionTimestamp) {
-      toast.loading("Loading document...");
-      getDocument();
-    }
-  }, [uid, summaryID, submissionTimestamp]);
 
-  // Find the matching submission
-  useEffect(() => {
-    if (userDoc && submissionTimestamp) {
-      // Find the submission with the matching timestamp
-      const matchingSubmission = userDoc.submissions.find((sub) =>
-        sub.timestamp.seconds === submissionTimestamp.seconds &&
-        sub.timestamp.nanoseconds === submissionTimestamp.nanoseconds
-      );
-      if (matchingSubmission) {
-        setGradingData({
-          title: userDoc.userInput.title,
-          text: matchingSubmission.text,
-          assigner: userDoc.userInput.assigner,
-          textType: userDoc.userInput.textType,
-          topic: userDoc.userInput.topic,
-          prose: userDoc.userInput.prose,
-          audience: userDoc.userInput.audience,
-          wordLimitType: userDoc.userInput.wordLimitType as
-            | "less than"
-            | "more than"
-            | "between",
-          wordLimit: userDoc.userInput.wordLimit,
-          customRubric: userDoc.userInput.customRubric,
-          rubric: userDoc.userInput.rubric,
-        });
-        setSummary(matchingSubmission.response);
-        setGrade(matchingSubmission.grade);
-        setFileUrl(userDoc.fileUrl);
-      }
-
-    }
-  }, [userDoc, submissionTimestamp, setGradingData]);
-
-  // Get the current amount of credits from the profile
-  useEffect(() => {
-    setLocalCount(profile.credits);
-  }, [profile]);
+  const saveSubmissionToHistory = useCallback(async (finalSummary: string, finalGrade: string) => {
+    if (!uid || !summaryID) return;
+    const newSubmission = {
+      text: gradingData.text,
+      response: finalSummary,
+      grade: finalGrade,
+      timestamp: Timestamp.now(),
+    };
+    const updatedSubmissions = userDoc?.submissions
+      ? [...userDoc.submissions, newSubmission]
+      : [newSubmission];
+    await updateDocument(uid, summaryID, gradingData, updatedSubmissions, fileUrl || null);
+    hasSavedRef.current = true;
+    toast.success("Document updated successfully");
+  }, [uid, summaryID, gradingData, fileUrl, userDoc?.submissions]);
 
   // Handle form submission
   const handleSubmit = useCallback(async (e: FormEvent) => {
@@ -134,8 +144,8 @@ const Document = ({ onModelChange }: DocumentProps) => {
     setThinking(true);
     setSummary("");
     setFlagged("");
-    setIsStreamingComplete(false);
-    setHasSaved(false);
+    isStreamingCompleteRef.current = false;
+    hasSavedRef.current = false;
 
     try {
       const {
@@ -178,16 +188,20 @@ const Document = ({ onModelChange }: DocumentProps) => {
         throw new Error("Failed to deduct credits.");
       }
 
+      let finalSummary = "";
+      let finalGrade = "";
       for await (const content of readStreamableValue(result)) {
         if (content) {
-          setSummary(content.trim());
-          setGrade(extractGrade(content.trim()));
+          finalSummary = content.trim();
+          finalGrade = extractGrade(finalSummary);
+          setSummary(finalSummary);
+          setGrade(finalGrade);
         }
       }
 
       setThinking(false);
-      setLocalCount((prev) => prev - creditsUsed);
-      setIsStreamingComplete(true);
+      isStreamingCompleteRef.current = true;
+      void saveSubmissionToHistory(finalSummary, finalGrade);
     } catch (error) {
       console.error(error);
       setThinking(false);
@@ -198,51 +212,16 @@ const Document = ({ onModelChange }: DocumentProps) => {
       setThinking(false);
     }
   },
-    [gradingData, minusCredits, profile.credits, profile.identity, profile.identityLevel, profile.useCredits, selectedModelId, uid]
+    [gradingData, minusCredits, profile.credits, profile.identity, profile.identityLevel, profile.useCredits, selectedModelId, uid, saveSubmissionToHistory]
   );
 
-  // Effect to handle saving to history
-  useEffect(() => {
-    if (isStreamingComplete && !hasSaved && summary) {
-
-      const newSubmission = {
-        text: gradingData.text,
-        response: summary,
-        grade,
-        timestamp: Timestamp.now(),
-      }
-
-      const updatedSubmissions = userDoc?.submissions
-        ? [...userDoc.submissions, newSubmission]
-        : [newSubmission];
-
-      if (uid && summaryID) {
-        updateDocument(uid, summaryID, gradingData, updatedSubmissions, fileUrl || null).then(
-          () => {
-            setHasSaved(true);
-            toast.success("Document updated successfully");
-          }
-        );
-      }
-    }
-  }, [
-    isStreamingComplete,
-    hasSaved,
-    uid,
-    summaryID,
-    summary,
-    gradingData,
-    grade,
-    fileUrl,
-    userDoc?.submissions
-  ]);
 
   // Handle fixing grammar and spelling
   const handleFixGrammarSpelling = async () => {
     setFlagged("");
     setThinking(true);
-    setIsStreamingComplete(false);
-    setHasSaved(false);
+    isStreamingCompleteRef.current = false;
+    hasSavedRef.current = false;
 
     try {
       const { correctedTextArray, totalCreditsUsed } = await correctGrammarAndSpelling(gradingData.text, profile.credits, profile.useCredits, uid, selectedModelId);
@@ -257,9 +236,8 @@ const Document = ({ onModelChange }: DocumentProps) => {
 
       // setSummary(finalText);
       setGradingData({ text: finalText });
-      setLocalCount((prev) => prev - totalCreditsUsed);
       setThinking(false);
-      setIsStreamingComplete(true);
+      isStreamingCompleteRef.current = true;
     } catch (error) {
       console.error(error);
       setThinking(false);
@@ -271,14 +249,14 @@ const Document = ({ onModelChange }: DocumentProps) => {
 
   // Scroll into view when content changes
   useEffect(() => {
-    if (!flagged && summary && isStreamingComplete) {
+    if (!flagged && summary && isStreamingCompleteRef.current) {
       document.getElementById("response")?.scrollIntoView({ behavior: "smooth" });
     } else if (thinking && !summary && !flagged) {
       document.getElementById("thinking")?.scrollIntoView({ behavior: "smooth" });
     } else if (flagged) {
       document.getElementById("flagged")?.scrollIntoView({ behavior: "smooth" });
     }
-  }, [thinking, flagged, isStreamingComplete, summary]);
+  }, [thinking, flagged, isStreamingCompleteRef, summary]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -288,104 +266,32 @@ const Document = ({ onModelChange }: DocumentProps) => {
     return <div>Document not found</div>;
   }
 
+
   return (
-    <div className="flex flex-col gap-y-3 mb-5">
-      <div>
-        <h1>{gradingData.title}</h1>
-        <hr />
-      </div>
-      <h2 className="font-medium">( Grade: {grade} )</h2>
-      <button type="button" 
-        onClick={() => router.push("/rubrics")}
-        className="bg-primary-90 text-sm font-semibold p-2 text-center shadow-sm rounded-lg cursor-pointer"
-      >
-        {selectedRubric?.name ? selectedRubric.name : "Select a rubric"}
-      </button>
-      <div className="">
-        <form className="flex flex-col gap-y-2" onSubmit={handleSubmit}>
-          {/* Title */}
-          <section>
-            <label className="block text-primary-20 font-medium" htmlFor="title">Title</label>
-            <hr />
-            <input aria-label="Input field"
-              type="text"
-              name="title"
-              id="title"
-              value={gradingData.title}
-              onChange={(e) => setGradingData({ title: e.target.value })}
-              placeholder="Enter the title here"
-              className="py-1 px-2 w-full bg-primary-90 border-b-2 border-slate-800 focus:outline-none focus:border-primary-40 focus:bg-primary-80 rounded-t-lg"
-            />
-          </section>
-          {/* Text Editor and File Upload */}
-          <section>
-            <div className="relative">
-              <ModelSelector
-                selectedModelId={selectedModelId}
-                onModelChange={id => {
-                  setSelectedModelId(id)
-                  onModelChange?.(id)
-                }}
-              />
-              <label className="block font-medium text-primary-20 mt-2" htmlFor="text">Text</label>
-              <hr />
-              <Tiptap
-                wordLimit={gradingData.wordLimit}
-                wordLimitType={gradingData.wordLimitType}
-                editorContent={gradingData.text}
-                onChange={(text) => setGradingData({ text })}
-              />
-            </div>
-          </section>
-
-
-          <div className="flex flex-row gap-x-8 items-center justify-center md:justify-start mb-6">
-            {/* Submit Button */}
-            <button
-              type="submit"
-              id="grademe"
-              onClick={handleSubmit}
-              disabled={!active}
-              className={`${!active ? "cursor-not-allowed" : ""}`}
-            >
-              <Image alt={"grader icon"} src={grader} width={50} height={50} className={`btn btn-shiny bg-secondary-97 border-2 border-primary-40 rounded-full size-12 sm:size-16 p-0 ${!active ? "cursor-not-allowed opacity-50" : ""}`} />
-            </button>
-            <DownloadPopover content={gradingData.text} />
-            <button type="button" 
-              className="btn btn-shiny btn-shiny-purple-blue rounded-full size-12 sm:size-16 flex gap-x-2 md:rounded-lg md:size-fit p-3 items-center"
-              onClick={handleFixGrammarSpelling}
-            >
-              <Wand2 size={30} />
-              <p className="hidden sm:flex">Fix Grammar & Spelling</p>
-            </button>
-            <PlagiarismChecker text={gradingData.text} />
-          </div>
-
-
-          {!thinking && profile.credits < 10 && (
-            <h3>{`You don't have enough credits to grade.`}</h3>
-          )}
-
-          {thinking && !summary && !flagged && (
-            <div id="thinking" className="p-5 mt-5">
-              <Image alt={"grademe logo"} src={grademe} width={100} height={100} className=" animate-bounce duration-1000 place-self-center" />
-            </div>
-          )}
-
-          {flagged && <h3 id="flagged">{flagged}</h3>}
-
-          {!flagged && summary && (
-            <div id="response" className="px-5 py-2 shadow-lg bg-secondary-97 border-secondary-30 border-2 rounded-md">
-              <div className="flex gap-x-2 items-center justify-center">
-                <Image alt={"grademe logo"} src={grademe} width={40} height={40} className="size-14" />
-                <h2 className="text-2xl text-center text-primary-10 font-medium">Grade.me Report</h2>
-              </div>
-              <ReactMarkdown>{summary}</ReactMarkdown>
-            </div>
-          )}
-        </form>
-      </div>
-    </div>
+    <DocumentShell
+      key={`${flagged}-${summary}-${grade}`}
+      active={active}
+      thinking={thinking}
+      localCount={localCount}
+      profile={profile}
+      gradingData={gradingData}
+      setGradingData={setGradingData}
+      summary={summary}
+      flagged={flagged}
+      fileUrl={fileUrl}
+      selectedModelId={selectedModelId}
+      setSelectedModelId={setSelectedModelId}
+      onModelChange={onModelChange}
+      handleSubmit={handleSubmit}
+      handleFixGrammarSpelling={handleFixGrammarSpelling}
+      router={router}
+      uid={uid}
+      loading={loading}
+      userDoc={userDoc}
+      grade={grade}
+      selectedRubric={selectedRubric}
+      models={models}
+    />
   );
 };
 

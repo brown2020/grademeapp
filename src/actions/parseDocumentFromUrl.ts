@@ -118,7 +118,7 @@ export async function parseDocumentFromUrl(fileUrl: string): Promise<string> {
       });
 
     } else {
-      console.warn("Unrecognized content type and file extension. File may not be supported.");
+      return "Unrecognized content type and file extension. File may not be supported.";
     }
 
     return parsedHtml;

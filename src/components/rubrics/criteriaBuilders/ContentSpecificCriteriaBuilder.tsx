@@ -1,3 +1,5 @@
+import SavedCriteriaList from "./SavedCriteriaList";
+import CriterionActions from "./CriterionActions";
 import React, { useEffect, useState } from 'react';
 import { GenericRubricCriteria, ContentSpecificRubric } from '@/lib/types/rubrics-types';
 import { toast } from 'react-hot-toast';
@@ -152,7 +154,7 @@ const ContentSpecificCriteriaBuilder: React.FC<ContentSpecificCriteriaBuilderPro
       <div className="mt-4">
         <h4 className="text-primary-20 font-semibold">Performance Levels</h4>
         {currentCriterion.levels.map((level, index) => (
-          <div key={index} className="mt-2 p-2 border border-primary-20 rounded">
+          <div key={`lvl-${level.name}-${level.description}`} className="mt-2 p-2 border border-primary-20 rounded">
             <div className="flex justify-between items-center">
               <input aria-label="Criterion field"
                 type="text"
@@ -161,7 +163,7 @@ const ContentSpecificCriteriaBuilder: React.FC<ContentSpecificCriteriaBuilderPro
                 className="px-1 w-1/3 py-0.5 rounded shadow-sm border border-primary-40"
                 placeholder="Level Name"
               />
-              <button onClick={() => removePerformanceLevel(index)} className="text-red-500 hover:text-red-700">
+              <button type="button" aria-label="Remove" onClick={() => removePerformanceLevel(index)} className="text-red-500 hover:text-red-700">
                 <Trash2 size={18} />
               </button>
             </div>
@@ -183,28 +185,7 @@ const ContentSpecificCriteriaBuilder: React.FC<ContentSpecificCriteriaBuilderPro
         {isEditing ? <Save size={18} /> : <BadgePlus size={18} />}
         <p>{isEditing ? 'Update Criterion' : 'Add Criterion'}</p>
       </CustomButton>
-      <div className="criteria-list mt-4">
-        <h4 className="text-primary-30 font-semibold text-center">Saved Criteria</h4>
-        {savedCriteria.length === 0 ? (
-          <div className="text-center text-primary-10 p-2 border-dashed border-2 border-primary-30 rounded-md">
-            <p>Added criteria will appear here.</p>
-          </div>
-        ) : (
-          savedCriteria.map((criterion) => (
-            <div key={criterion.id} className="flex justify-between items-center my-2">
-              <span className="text-primary-20">{criterion.name}</span>
-              <div className="flex gap-x-4">
-                <button onClick={() => isEditing ? addOrUpdateCriterion() : loadCriterion(criterion)} className="text-blue-500 hover:text-blue-700">
-                  <Edit2Icon size={20} />
-                </button>
-                <button onClick={() => deleteCriterion(criterion.id)} className="text-red-500 hover:text-red-700">
-                  <Trash2 size={20} />
-                </button>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
+      <SavedCriteriaList items={savedCriteria} onEdit={(criterion) => isEditing ? addOrUpdateCriterion() : loadCriterion(criterion as typeof savedCriteria[number])} onDelete={(id) => deleteCriterion(id)} />
     </div>
   );
 };

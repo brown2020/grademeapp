@@ -41,9 +41,9 @@ async function generateGrammarCorrections(
   selectedModelId: string,
   apiKey: string
 ) {
-  const creditsPerDollar = Number(process.env.NEXT_PUBLIC_CREDITS_PER_DOLLAR) || 500;
-  const creditsPerInputToken = Number(process.env.NEXT_PUBLIC_CREDITS_PER_INPUT_TOKEN) || 0.000005;
-  const creditsPerOutputToken = Number(process.env.NEXT_PUBLIC_CREDITS_PER_OUTPUT_TOKEN) || 0.000015;
+  const creditsPerDollar = Number(process.env.CREDITS_PER_DOLLAR) || 500;
+  const creditsPerInputToken = Number(process.env.CREDITS_PER_INPUT_TOKEN) || 0.000005;
+  const creditsPerOutputToken = Number(process.env.CREDITS_PER_OUTPUT_TOKEN) || 0.000015;
 
   const model = getModel(selectedModelId, apiKey);
 
@@ -129,27 +129,26 @@ export async function correctGrammarAndSpelling(
     apiKey = provider === 'openai' ? apiKeys.openai_api_key : apiKeys.fireworks_api_key;
   }
 
-  // Process each chunk and push the results to the array
-  for (const chunk of chunks) {
-    const messages = createCorrectionMessages(chunk);
-    const { chunks: resultChunks, creditsUsed } = await generateGrammarCorrections(
-      messages,
-      inputTokenEstimate,
-      estimatedOutputTokens,
-      availableCredits,
-      useCredits,
-      selectedModelId,
-      apiKey
-    );
-
-    // Combine all result chunks into corrected text
+  const chunkResults = await Promise.all(
+    chunks.map(async (chunk) => {
+      const messages = createCorrectionMessages(chunk);
+      return generateGrammarCorrections(
+        messages,
+        inputTokenEstimate,
+        estimatedOutputTokens,
+        availableCredits,
+        useCredits,
+        selectedModelId,
+        apiKey
+      );
+    })
+  );
+  for (const { chunks: resultChunks, creditsUsed } of chunkResults) {
     correctedTextArray.push(...resultChunks);
-
     totalCreditsUsed += creditsUsed;
-
-    if (useCredits && totalCreditsUsed > availableCredits) {
-      throw new Error("Insufficient credits to continue processing.");
-    }
+  }
+  if (useCredits && totalCreditsUsed > availableCredits) {
+    throw new Error("Insufficient credits to continue processing.");
   }
 
   return {

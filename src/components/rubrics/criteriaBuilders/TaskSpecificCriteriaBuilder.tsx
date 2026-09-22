@@ -166,10 +166,9 @@ const TaskSpecificCriteriaBuilder: React.FC<TaskSpecificCriteriaBuilderProps> = 
             <div key={c.id} className="flex justify-between items-center my-2">
               <span className="text-primary-20">{c.name}</span>
               <div className="flex gap-x-4">
-                <button onClick={() => editCriterion(c)} className="text-blue-500 hover:text-blue-700">
-                  <Edit2Icon size={20} />
+                <button type="button" aria-label="Edit criterion" onClick={() => editCriterion(c)} className="text-blue-500 hover:text-blue-700 bg-transparent border-0"><Edit2Icon size={20} />
                 </button>
-                <button onClick={() => deleteCriterion(c.id)} className="text-red-500 hover:text-red-700">
+                <button type="button" aria-label="Delete criterion" onClick={() => deleteCriterion(c.id)} className="text-red-500 hover:text-red-700 bg-transparent border-0">
                   <Trash2 size={20} />
                 </button>
               </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import useProfileStore from "@/zustand/useProfileStore";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { isIOSReactNativeWebView } from "@/lib/utils/platform"; // Import the platform detection
 import { usePaymentsStore } from "@/zustand/usePaymentsStore";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
@@ -22,16 +22,18 @@ export default function ProfileComponent() {
   const [openaiApiKey, setOpenaiApiKey] = useState(profile.openai_api_key);
   const [useCredits, setUseCredits] = useState(profile.useCredits);
   // Defer WebView detection until after mount to avoid SSR/client hydration mismatch.
-  const [showCreditsSection, setShowCreditsSection] = useState(true);
+  
   const addCredits = useProfileStore((state) => state.addCredits);
   const addPayment = usePaymentsStore((state) => state.addPayment);
   const deleteAccount = useProfileStore((state) => state.deleteAccount);
   const clearAuthDetails = useAuthStore((s) => s.clearAuthDetails);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  useEffect(() => {
-    setShowCreditsSection(!isIOSReactNativeWebView());
-  }, []);
+  const showCreditsSection = useSyncExternalStore(
+    () => () => {},
+    () => !isIOSReactNativeWebView(),
+    () => true
+  );
 
   // Sync local API key inputs when store values change externally
   // ("Adjusting state during render" pattern from React docs)

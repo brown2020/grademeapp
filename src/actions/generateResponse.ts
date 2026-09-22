@@ -50,9 +50,9 @@ async function generateDeterministicResponse(
   fireworks_api_key: string,
   openai_api_key: string,
 ) {
-  const creditsPerDollar = Number(process.env.NEXT_PUBLIC_CREDITS_PER_DOLLAR) || 500 as number;
-  const creditsPerInputToken = Number(process.env.NEXT_PUBLIC_CREDITS_PER_INPUT_TOKEN) || 0.000005 as number;
-  const creditsPerOutputToken = Number(process.env.NEXT_PUBLIC_CREDITS_PER_OUTPUT_TOKEN) || 0.000015 as number;
+  const creditsPerDollar = Number(process.env.CREDITS_PER_DOLLAR) || 500 as number;
+  const creditsPerInputToken = Number(process.env.CREDITS_PER_INPUT_TOKEN) || 0.000005 as number;
+  const creditsPerOutputToken = Number(process.env.CREDITS_PER_OUTPUT_TOKEN) || 0.000015 as number;
 
   const providerId = selectedModelId ? selectedModelId.split(':')[0] : 'openai'
 

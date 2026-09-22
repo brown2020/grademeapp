@@ -1,3 +1,5 @@
+import SavedCriteriaList from "./SavedCriteriaList";
+import CriterionActions from "./CriterionActions";
 import React, { useEffect, useState } from 'react';
 import {
   MultiTraitRubric,
@@ -193,28 +195,7 @@ const MultiTraitCriteriaBuilder: React.FC<MultiTraitCriteriaBuilderProps> = ({
         {isEditing ? <Save size={18} /> : <BadgePlus size={18} />}
         <span>{isEditing ? 'Update Criterion' : 'Add Criterion'}</span>
       </CustomButton>
-      <div className="criteria-list mt-4">
-        <h4 className="text-primary-30 font-semibold text-center">Saved Criteria</h4>
-        {savedCriteria.length === 0 ? (
-          <div className="text-center text-primary-10 p-2 border-dashed border-2 border-primary-30 rounded-md">
-            <p>Added criteria will appear here.</p>
-          </div>
-        ) : (
-          savedCriteria.map((criterion) => (
-            <div key={criterion.id} className="flex justify-between items-center my-2">
-              <span className="text-primary-20">{criterion.name}</span>
-              <div className="flex gap-x-4">
-                <button onClick={() => loadCriterion(criterion)} className="text-blue-500 hover:text-blue-700">
-                  <Edit2Icon size={20} />
-                </button>
-                <button onClick={() => deleteCriterion(criterion.id)} className="text-red-500 hover:text-red-700">
-                  <Trash2 size={20} />
-                </button>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
+      <SavedCriteriaList items={savedCriteria} onEdit={(criterion) => isEditing ? addOrUpdateCriterion() : loadCriterion(criterion as typeof savedCriteria[number])} onDelete={(id) => deleteCriterion(id)} />
     </div>
   );
 };

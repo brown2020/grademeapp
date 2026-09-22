@@ -1,3 +1,4 @@
+import BubbleMenuFormatButtons from "./BubbleMenuFormatButtons"
 import React from 'react'
 import { Editor } from '@tiptap/react'
 import NSpell from 'nspell'
@@ -38,7 +39,8 @@ const BubbleMenuContent: React.FC<BubbleMenuContentProps> = ({ editor }) => {
         {suggestions.length > 0 ? (
           suggestions.map((suggestion, index) => (
             <button
-              key={index}
+              type="button"
+              key={suggestion}
               onClick={() => {
                 editor.chain().focus().insertContentAt({ from, to }, suggestion).run()
               }}
@@ -52,43 +54,9 @@ const BubbleMenuContent: React.FC<BubbleMenuContentProps> = ({ editor }) => {
         )}
       </div>
     )
-  } else {
-    // Display regular formatting options
-    return (
-      <div className="flex space-x-2">
-        {/* Bold Button */}
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().toggleBold().run()}
-          className={`px-2 rounded ${editor.isActive('bold') ? 'bg-secondary-99' : ''
-            }`}
-          title="Bold (Ctrl+B)"
-        >
-          <b>B</b>
-        </button>
-        {/* Italic Button */}
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().toggleItalic().run()}
-          className={`px-2 rounded ${editor.isActive('italic') ? 'bg-secondary-99' : ''
-            }`}
-          title="Italic (Ctrl+I)"
-        >
-          <i>I</i>
-        </button>
-        {/* Underline Button */}
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().toggleUnderline().run()}
-          className={`px-2 rounded ${editor.isActive('underline') ? 'bg-secondary-99' : ''
-            }`}
-          title="Underline (Ctrl+U)"
-        >
-          <u>U</u>
-        </button>
-      </div>
-    )
   }
+
+  return <BubbleMenuFormatButtons editor={editor} />
 }
 
 export default BubbleMenuContent

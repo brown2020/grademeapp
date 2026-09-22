@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   doc,
   getDoc,
@@ -30,6 +30,7 @@ const Summary = () => {
   const summaryID = params?.summaryID as string;
   const [summary, setSummary] = useState<UserHistoryType | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
   const [rubric, setRubric] = useState<BaseRubric | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -37,33 +38,38 @@ const Summary = () => {
     setSummary((prevSummary) => prevSummary ? { ...prevSummary, userInput: { ...prevSummary.userInput, [name]: value } } : null);
   };
 
-  useEffect(() => {
-    const getSummary = async () => {
-      try {
-        setLoading(true);
-        toast.loading("Loading summary...");
-        const summaryData = await fetchSummaryById(uid as string, summaryID as string);
-        setSummary(summaryData || null);
-        setRubric(summaryData?.userInput?.rubric as unknown as BaseRubric || null);
-        toast.dismiss();
-        if (summaryData) {
-          toast.success("Summary loaded successfully");
-        } else {
-          toast.error("Summary not found.");
-        }
-      } catch (error) {
-        console.error("Error in getSummary", error);
-        toast.dismiss();
-        toast.error("Failed to load the summary.");
-      } finally {
-        setLoading(false);
+  const loadSummary = async () => {
+    if (!uid || !summaryID) return;
+    try {
+      setLoading(true);
+      toast.loading("Loading summary...");
+      const summaryData = await fetchSummaryById(uid as string, summaryID as string);
+      setSummary(summaryData || null);
+      setRubric(summaryData?.userInput?.rubric as unknown as BaseRubric || null);
+      setHasLoaded(true);
+      toast.dismiss();
+      if (summaryData) {
+        toast.success("Summary loaded successfully");
+      } else {
+        toast.error("Summary not found.");
       }
-    };
-
-    if (uid && summaryID) {
-      getSummary();
+    } catch (error) {
+      console.error("Error in getSummary", error);
+      toast.dismiss();
+      toast.error("Failed to load the summary.");
+    } finally {
+      setLoading(false);
     }
-  }, [uid, summaryID]);
+  };
+
+
+  if (!hasLoaded && !loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
+        <button type="button" className="btn btn-shiny" onClick={loadSummary}>Load summary</button>
+      </div>
+    );
+  }
 
   if (loading) {
     return <div>Loading...</div>;
@@ -72,6 +78,7 @@ const Summary = () => {
   if (!summary) {
     return <div>Summary not found</div>;
   }
+
 
   return (
     <div className="flex flex-col gap-y-4 p-1 max-w-2xl mx-auto">
@@ -124,12 +131,12 @@ const Summary = () => {
           <p>No submissions yet</p>
         ) : (
           summary.submissions.map((submission: Submission, index: number) => (
-            <Disclosure key={index}>
+            <Disclosure key={submission.timestamp.toMillis()}>
               {({ open }) => (
                 <>
                   <DisclosureButton className="btn btn-shiny btn-shiny-teal text-primary-95 w-full mb-3 px-2 justify-between summary-submission-item">
                     <span>
-                      #{index + 1} - {submission.timestamp.toDate().toLocaleDateString('en-US')}
+                      #{index + 1} - {submission.timestamp.toDate().toISOString().slice(0, 10)}
                     </span>
                     <span>Grade: {submission.grade}</span>
                     <Link href={`/assignments/${summaryID}/${submission.timestamp.toMillis()}`}>

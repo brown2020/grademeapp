@@ -33,7 +33,7 @@ export default function PaymentsPage() {
               <div>
                 Created At:{" "}
                 {payment.createdAt
-                  ? payment.createdAt.toDate().toLocaleString()
+                  ? payment.createdAt.toDate().toISOString()
                   : "N/A"}
               </div>
               <div>Status: {payment.status}</div>

@@ -21,17 +21,19 @@ export default function PaymentCheckoutPage({ amount }: Props) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
     async function initializePayment() {
       try {
         const secret = await createPaymentIntent(convertToSubcurrency(amount));
-        if (secret) setClientSecret(secret);
+        if (!cancelled && secret) setClientSecret(secret);
       } catch (error) {
         console.error("Failed to initialize payment:", error);
-        setErrorMessage("Failed to initialize payment. Please try again.");
+        if (!cancelled) setErrorMessage("Failed to initialize payment. Please try again.");
       }
     }
 
     initializePayment();
+    return () => { cancelled = true; };
   }, [amount]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -48,7 +50,6 @@ export default function PaymentCheckoutPage({ amount }: Props) {
       const { error: submitError } = await elements.submit();
       if (submitError) {
         setErrorMessage(submitError.message || "Payment failed");
-        setLoading(false);
         return;
       }
 
@@ -61,20 +62,14 @@ export default function PaymentCheckoutPage({ amount }: Props) {
       });
 
       if (error) {
-        // This point is only reached if there's an immediate error when
-        // confirming the payment. Show the error to the user
-        // For example, the card was declined
         setErrorMessage(error.message || "Payment failed");
-      } else {
-        // The payment UI automatically closes with a success animation
-        // User is redirected to the return_url
       }
     } catch (error) {
       setErrorMessage("Payment validation failed. Please try again.");
       console.error("Payment validation error:", error);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   if (!clientSecret || !stripe || !elements) {
@@ -98,7 +93,7 @@ export default function PaymentCheckoutPage({ amount }: Props) {
 
         {errorMessage && <p className="text-red-500">{errorMessage}</p>}
 
-        <button
+        <button type="submit"
           disabled={!stripe || loading}
           className="text-white w-full p-5 bg-black mt-2 rounded-md font-bold disabled:opacity-50 disabled:animate-pulse"
         >

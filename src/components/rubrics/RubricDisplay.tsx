@@ -86,7 +86,7 @@ function renderOverallCriteria(rubric: HolisticRubric) {
   return (
     <div>
       {Object.entries(rubric.criteria).map(([levelName, description], index) => (
-        <div key={`level-${index}`} className="mb-2">
+        <div key={levelName} className="mb-2">
           <span className=" font-semibold">{levelName}: </span>
           <span className=" text-gray-600">{typeof description === 'string' ? description : ''}</span>
         </div>
@@ -103,12 +103,12 @@ function renderDetailedCriteria(rubric: AnalyticalRubric) {
         <p className="mb-4">{rubric.description}</p>
       )}
       {Object.entries(rubric.criteria).map(([criterionName, levels], index) => (
-        <div key={`criterion-${index}`} className="mb-4">
+        <div key={criterionName} className="mb-4">
           <h3 className="font-semibold mb-2">{criterionName}</h3>
           {typeof levels === 'object' && levels !== null && (
             <div className="ml-4">
-              {Object.entries(levels).map(([levelName, description], levelIndex) => (
-                <div key={`level-${levelIndex}`} className="mb-2">
+              {Object.entries(levels as Record<string, unknown>).map(([levelName, description], levelIndex) => (
+                <div key={`${criterionName}-${levelName}`} className="mb-2">
                   <span className="font-medium">{levelName}: </span>
                   <span className="text-gray-600">{renderContent(description)}</span>
                 </div>
@@ -127,7 +127,7 @@ function renderContent(content: unknown): React.ReactNode {
     return <div className="text-gray-600">{content}</div>;
   } else if (Array.isArray(content)) {
     return content.map((item, index) => (
-      <div key={`item-${index}`} className="text-gray-600 ml-3">
+      <div key={typeof item === 'string' || typeof item === 'number' ? `item-${item}` : `item-${JSON.stringify(item)}`} className="text-gray-600 ml-3">
         {renderContent(item)}
       </div>
     ));
@@ -140,7 +140,7 @@ function renderContent(content: unknown): React.ReactNode {
         {Object.entries(content)
           .filter(([entryKey]) => entryKey !== 'key') // Exclude 'key'
           .map(([entryKey, value], index) => {
-            const uniqueKey = `entry-${index}-${entryKey}`;
+            const uniqueKey = `entry-${entryKey}`;
             return (
               <div className="flex flex-row flex-wrap gap-2" key={uniqueKey}>
                 <div className="font-semibold">{entryKey}: </div>
@@ -156,6 +156,45 @@ function renderContent(content: unknown): React.ReactNode {
 }
 
 // Renderer for Single-Point rubrics
+
+function CriterionWithLevels({
+  name,
+  description,
+  levels,
+}: {
+  name: string;
+  description?: unknown;
+  levels?: object;
+}) {
+  return (
+    <div className="mb-4">
+      <h4 className="font-medium">{name}</h4>
+      {description ? <p className="ml-2 mb-2">{renderContent(description)}</p> : null}
+      {levels ? <LevelsBlock parentKey={name} levels={levels} /> : null}
+    </div>
+  );
+}
+
+function LevelsBlock({
+  parentKey,
+  levels,
+}: {
+  parentKey: string;
+  levels: object;
+}) {
+  return (
+    <div className="ml-4">
+      {Object.entries(levels as Record<string, unknown>).map(([levelName, description]) => (
+        <div key={`${parentKey}-${levelName}`} className="mb-2">
+          <span className="font-medium">{levelName}: </span>
+          <span>{typeof description === "string" ? description : renderContent(description)}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+
 function renderSinglePointCriteria(rubric: SinglePointRubric) {
   return (
     <div>
@@ -229,26 +268,7 @@ function renderContentSpecificCriteria(rubric: ContentSpecificRubric) {
     <div>
       <h3 className="font-semibold mb-2">Content-Specific Rubric</h3>
       {Object.entries(rubric.criteria).map(([criterionName, criterionData], index) => (
-        <div key={`criterion-${index}`} className="mb-4">
-          <h4 className="font-medium">{criterionName}</h4>
-          {typeof criterionData === 'object' && criterionData !== null && (
-            <>
-              {'description' in criterionData && criterionData.description && (
-                <p className="ml-2 mb-2">{renderContent(criterionData.description)}</p>
-              )}
-              {'levels' in criterionData && criterionData.levels && (
-                <div className="ml-4">
-                  {Object.entries(criterionData.levels).map(([levelName, description], levelIndex) => (
-                    <div key={`level-${levelIndex}`} className="mb-2">
-                      <span className="font-medium">{levelName}: </span>
-                      <span>{renderContent(description)}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-        </div>
+        <CriterionWithLevels key={criterionName} name={criterionName} description={typeof criterionData === "object" && criterionData && "description" in criterionData ? criterionData.description : undefined} levels={typeof criterionData === "object" && criterionData && "levels" in criterionData ? (criterionData.levels as object) : undefined} />
       ))}
     </div>
   );
@@ -262,12 +282,12 @@ function renderSkillFocusedCriteria(rubric: SkillFocusedRubric) {
         <p className="mb-4">{rubric.description}</p>
       )}
       {Object.entries(rubric.criteria).map(([skillName, levels], index) => (
-        <div key={`skill-${index}`} className="mb-4">
+        <div key={skillName} className="mb-4">
           <h4 className="font-medium">{skillName}</h4>
           {typeof levels === 'object' && levels !== null && (
             <div className="ml-4">
-              {Object.entries(levels).map(([levelName, description], levelIndex) => (
-                <div key={`level-${levelIndex}`} className="mb-2 flex">
+              {Object.entries(levels as Record<string, unknown>).map(([levelName, description], levelIndex) => (
+                <div key={`${skillName}-${levelName}`} className="mb-2 flex">
                   <span className="font-medium">{levelName}: </span>
                   <span className="text-gray-600 ml-1">{renderContent(description)}</span>
                 </div>
@@ -288,12 +308,12 @@ function renderDevelopmentalCriteria(rubric: DevelopmentalRubric) {
         <p className="mb-4">{rubric.description}</p>
       )}
       {Object.entries(rubric.criteria).map(([criterionName, levels], index) => (
-        <div key={`criterion-${index}`} className="mb-4">
+        <div key={criterionName} className="mb-4">
           <h4 className="font-medium">{criterionName}</h4>
           {typeof levels === 'object' && levels !== null && (
             <div className="ml-4">
-              {Object.entries(levels).map(([levelName, description], levelIndex) => (
-                <div key={`level-${levelIndex}`} className="mb-2">
+              {Object.entries(levels as Record<string, unknown>).map(([levelName, description], levelIndex) => (
+                <div key={`${criterionName}-${levelName}`} className="mb-2">
                   <span className="font-medium">{levelName}: </span>
                   <span>{renderContent(description)}</span>
                 </div>
@@ -311,26 +331,7 @@ function renderPrimaryTraitCriteria(rubric: PrimaryTraitRubric) {
     <div>
       <h3 className="font-semibold mb-2">Primary Trait Rubric</h3>
       {Object.entries(rubric.criteria).map(([traitName, traitData], index) => (
-        <div key={`trait-${index}`} className="mb-4">
-          <h4 className="font-medium">{traitName}</h4>
-          {typeof traitData === 'object' && traitData !== null && (
-            <>
-              {'description' in traitData && traitData.description && (
-                <p className="ml-2 mb-2">{renderContent(traitData.description)}</p>
-              )}
-              {'levels' in traitData && traitData.levels && (
-                <div className="ml-4">
-                  {Object.entries(traitData.levels).map(([levelName, description], levelIndex) => (
-                    <div key={`level-${levelIndex}`} className="mb-2">
-                      <span className="font-medium">{levelName}: </span>
-                      <span>{description}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-        </div>
+        <CriterionWithLevels key={traitName} name={traitName} description={typeof traitData === "object" && traitData && "description" in traitData ? traitData.description : undefined} levels={typeof traitData === "object" && traitData && "levels" in traitData ? (traitData.levels as object) : undefined} />
       ))}
     </div>
   );
@@ -344,12 +345,12 @@ function renderTaskSpecificCriteria(rubric: TaskSpecificRubric) {
         <p className="mb-4">{rubric.description}</p>
       )}
       {Object.entries(rubric.criteria).map(([criterionName, levels], index) => (
-        <div key={`criterion-${index}`} className="mb-4">
+        <div key={criterionName} className="mb-4">
           <h4 className="font-medium">{criterionName}</h4>
           {typeof levels === 'object' && levels !== null && (
             <div className="ml-4">
-              {Object.entries(levels).map(([levelName, description], levelIndex) => (
-                <div key={`level-${levelIndex}`} className="mb-2">
+              {Object.entries(levels as Record<string, unknown>).map(([levelName, description], levelIndex) => (
+                <div key={`${criterionName}-${levelName}`} className="mb-2">
                   <span className="font-medium min-w-[80px]">{levelName}: </span>
                   <span className="text-gray-600 ml-1">{renderContent(description)}</span>
                 </div>
@@ -367,26 +368,7 @@ function renderStandardsBasedCriteria(rubric: StandardsBasedRubric) {
     <div>
       <h3 className="font-semibold mb-2">Standards-Based Rubric</h3>
       {Object.entries(rubric.criteria).map(([standardName, standardData], index) => (
-        <div key={`standard-${index}`} className="mb-4">
-          <h4 className="font-medium">{standardName}</h4>
-          {typeof standardData === 'object' && standardData !== null && (
-            <>
-              {'description' in standardData && standardData.description && (
-                <p className="ml-2 mb-2">{renderContent(standardData.description)}</p>
-              )}
-              {'levels' in standardData && standardData.levels && (
-                <div className="ml-4">
-                  {Object.entries(standardData.levels).map(([levelName, description], levelIndex) => (
-                    <div key={`level-${levelIndex}`} className="mb-2">
-                      <span className="font-medium">{levelName}: </span>
-                      <span>{description}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-        </div>
+        <CriterionWithLevels key={standardName} name={standardName} description={typeof standardData === "object" && standardData && "description" in standardData ? standardData.description : undefined} levels={typeof standardData === "object" && standardData && "levels" in standardData ? (standardData.levels as object) : undefined} />
       ))}
     </div>
   );

@@ -1,3 +1,5 @@
+import SavedCriteriaList from "./SavedCriteriaList";
+import CriterionActions from "./CriterionActions";
 import React, { useEffect, useState } from 'react';
 import { SkillFocusedRubric, GenericRubricCriteria } from '@/lib/types/rubrics-types';
 import { toast } from 'react-hot-toast';
@@ -134,7 +136,7 @@ const SkillFocusedCriteriaBuilder: React.FC<SkillFocusedCriteriaBuilderProps> = 
       <div className="mt-4">
         <h4 className="text-primary-20 font-semibold">Performance Levels</h4>
         {currentSkillComponent.levels.map((level, index) => (
-          <div key={index} className="mt-2 p-2 border border-primary-20 rounded space-y-2">
+          <div key={`lvl-${level.name}-${level.description}`} className="mt-2 p-2 border border-primary-20 rounded space-y-2">
             <div className="flex justify-between items-center">
               <input aria-label="Criterion field"
                 type="text"
@@ -143,7 +145,7 @@ const SkillFocusedCriteriaBuilder: React.FC<SkillFocusedCriteriaBuilderProps> = 
                 className="px-1 w-1/2 py-0.5 rounded shadow-sm border border-primary-40"
                 placeholder="Level name"
               />
-              <button onClick={() => removePerformanceLevel(index)} className="text-red-500 hover:text-red-700">
+              <button type="button" aria-label="Remove" onClick={() => removePerformanceLevel(index)} className="text-red-500 hover:text-red-700">
                 <Trash2 size={20} />
               </button>
             </div>
@@ -165,28 +167,7 @@ const SkillFocusedCriteriaBuilder: React.FC<SkillFocusedCriteriaBuilderProps> = 
         {isEditing ? <Save size={18} /> : <BadgePlus size={18} />}
         <span>{isEditing ? 'Update Skill Component' : 'Add Skill Component'}</span>
       </CustomButton>
-      <div className="mt-4">
-        <h4 className="text-primary-30 font-semibold text-center">Saved Skill Components</h4>
-        {skillComponents.length === 0 ? (
-          <div className="text-center text-primary-10 p-2 border-dashed border-2 border-primary-30 rounded-md">
-            <p>Added skill components will appear here.</p>
-          </div>
-        ) : (
-          skillComponents.map((sc) => (
-            <div key={sc.id} className="flex justify-between items-center my-2">
-              <span className="text-primary-20">{sc.name}</span>
-              <div className="flex gap-x-4">
-                <button onClick={() => editSkillComponent(sc)} className="text-blue-500 hover:text-blue-700">
-                  <Edit2Icon size={20} />
-                </button>
-                <button onClick={() => deleteSkillComponent(sc.id)} className="text-red-500 hover:text-red-700">
-                  <Trash2 size={20} />
-                </button>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
+      <SavedCriteriaList title="Saved Skill Components" emptyText="Added skill components will appear here." items={skillComponents} onEdit={(item) => editSkillComponent(item as typeof skillComponents[number])} onDelete={(id) => deleteSkillComponent(id)} />
     </div>
   );
 };

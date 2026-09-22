@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 import { getIdToken } from "firebase/auth";
 import { deleteCookie, setCookie } from "cookies-next";
-import { debounce } from "lodash";
+import debounce from "lodash/debounce";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import { auth, hasClientConfig } from "@/firebase/firebaseClient";
@@ -13,12 +13,9 @@ const useAuthToken = (cookieName = "authToken") => {
 
   const refreshInterval = 50 * 60 * 1000; // 50 minutes
   const lastTokenRefresh = `lastTokenRefresh_${cookieName}`;
+  const activityTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const [activityTimeout, setActivityTimeout] = useState<NodeJS.Timeout | null>(
-    null
-  );
-
-  const refreshAuthToken = async () => {
+  const refreshAuthTokenRef = useRef(async () => {
     try {
       if (!hasClientConfig || !auth.currentUser) throw new Error("No user found");
       const idTokenResult = await getIdToken(auth.currentUser, true);
@@ -39,37 +36,38 @@ const useAuthToken = (cookieName = "authToken") => {
       }
       deleteCookie(cookieName, { path: "/" });
     }
-  };
+  });
 
-  const scheduleTokenRefresh = () => {
-    if (activityTimeout) {
-      clearTimeout(activityTimeout);
+  const scheduleTokenRefreshRef = useRef(() => {
+    if (activityTimeoutRef.current) {
+      clearTimeout(activityTimeoutRef.current);
     }
     if (document.visibilityState === "visible") {
-      const timeoutId = setTimeout(refreshAuthToken, refreshInterval);
-      setActivityTimeout(timeoutId);
+      activityTimeoutRef.current = setTimeout(() => {
+        void refreshAuthTokenRef.current();
+      }, refreshInterval);
     }
-  };
-
-  const handleStorageChange = debounce((e: StorageEvent) => {
-    if (e.key === lastTokenRefresh) {
-      scheduleTokenRefresh();
-    }
-  }, 1000);
+  });
 
   useEffect(() => {
+    const handleStorageChange = debounce((e: StorageEvent) => {
+      if (e.key === lastTokenRefresh) {
+        scheduleTokenRefreshRef.current();
+      }
+    }, 1000);
+
     if (!window.ReactNativeWebView) {
       window.addEventListener("storage", handleStorageChange);
     }
 
     return () => {
       window.removeEventListener("storage", handleStorageChange);
-      if (activityTimeout) {
-        clearTimeout(activityTimeout);
+      if (activityTimeoutRef.current) {
+        clearTimeout(activityTimeoutRef.current);
       }
       handleStorageChange.cancel();
     };
-  }, [activityTimeout, handleStorageChange]);
+  }, [lastTokenRefresh]);
 
   useEffect(() => {
     if (user?.uid) {
@@ -83,9 +81,6 @@ const useAuthToken = (cookieName = "authToken") => {
         authPending: false,
       });
 
-      // Establish the session cookie immediately on sign-in so server-side
-      // route protection (proxy.ts) can gate protected routes. Without this the
-      // cookie would only be written on the periodic refresh timer.
       getIdToken(user)
         .then((idToken) => {
           setCookie(cookieName, idToken, {

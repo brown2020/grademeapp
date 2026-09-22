@@ -117,10 +117,14 @@ export default function Assignments() {
           const querySnapshot = await getDocs(q);
           const newSummaries: UserHistoryType[] = [];
 
+          await Promise.all(
+            querySnapshot.docs.map(async (summaryDoc) => {
+              const docId = summaryDoc.id;
+              await migrateDocumentIfNeeded(summaryDoc, uid, docId);
+            })
+          );
           for (const summaryDoc of querySnapshot.docs) {
             const docId = summaryDoc.id;
-            await migrateDocumentIfNeeded(summaryDoc, uid, docId);
-
             const summaryData = summaryDoc.data();
             newSummaries.push({
               id: docId,
@@ -201,23 +205,27 @@ export default function Assignments() {
           )
           .map((summary, index) => (
             <div
-              key={`${summary.id}-${summary.timestamp.seconds}-${index}`}
+              key={summary.id}
               className="flex flex-col px-2 py-1 rounded-lg shadow-md bg-secondary-98 assignments-card"
             >
               <div className="flex flex-col justify-between items-baseline w-full">
                 <div className="flex flex-row text-primary-10 w-full font-medium cursor-pointer">
-                  <p
-                    className="truncate underline"
+                  <button
+                    type="button"
+                    className="truncate underline bg-transparent border-0 p-0 text-left font-medium text-primary-10"
                     onClick={() => { router.push(`/assignments/${summary.id}`) }}
                   >
                     {summary.userInput?.title ?? "No title available"}
-                  </p>
-                  <XCircle
-                    size={20}
-                    className="flex ml-auto text-red-600 cursor-pointer assignments-delete"
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Delete assignment"
+                    className="flex ml-auto bg-transparent border-0 p-0 assignments-delete"
                     onClick={() => handleDeleteClick(summary.id, summary.userInput?.title ?? "Untitled Assignment")}
                     data-summary-id={summary.id}
-                  />
+                  >
+                    <XCircle size={20} className="text-red-600" />
+                  </button>
                 </div>
                 <div className="flex flex-row w-full justify-between mb-1">
                   <div className="flex text-xs">
@@ -230,14 +238,15 @@ export default function Assignments() {
                 <hr />
                 <div className="flex flex-col gap-y-2">
                   {summary.submissions.map((submission, i) => (
-                    <div key={i} className="text-sm flex flex-row gap-x-2 justify-between">
+                    <div key={submission.timestamp.toMillis()} className="text-sm flex flex-row gap-x-2 justify-between">
                       <p>#{i + 1} </p>
                       <p>Grade: {submission.grade}</p>
-                      <p>{submission.timestamp.toDate().toLocaleDateString('en-US')}</p>
-                      <p
-                        className="cursor-pointer underline font-medium assignments-feedback"
+                      <p>{submission.timestamp.toDate().toISOString().slice(0, 10)}</p>
+                      <button
+                        type="button"
+                        className="cursor-pointer underline font-medium assignments-feedback bg-transparent border-0 p-0"
                         onClick={() => { router.push(`/assignments/${summary.id}/${submission.timestamp.toMillis()}`) }}
-                      >View Feedback</p>
+                      >View Feedback</button>
                     </div>
                   ))}
                 </div>
@@ -248,6 +257,7 @@ export default function Assignments() {
       </div>
       {lastKey && (
         <button
+          type="button"
           className="btn btn-shiny btn-shiny-blue w-full md:fit assignments-load-more"
           onClick={postsNextBatch}
         >

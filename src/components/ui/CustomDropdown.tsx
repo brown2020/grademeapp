@@ -26,24 +26,28 @@ export default function CustomDropdown({
       }
     )}>
       {/* Create Custom Rubric option */}
-      <div
-        className="cursor-pointer font-medium select-none px-4 py-2 text-blue-600 hover:underline"
-        onClick={openRubricBuilder} // Open the custom rubric builder
+      <button
+        type="button"
+        className="cursor-pointer font-medium select-none px-4 py-2 text-blue-600 hover:underline bg-transparent border-0 text-left w-full"
+        onClick={openRubricBuilder}
       >
         Create Custom Rubric
-      </div>
-      <XIcon className="absolute top-2 right-2 w-5 h-5 text-gray-700 cursor-pointer" onClick={handleClose} />
+      </button>
+      <button type="button" aria-label="Close" className="absolute top-2 right-2 bg-transparent border-0 p-0" onClick={handleClose}>
+        <XIcon className="w-5 h-5 text-gray-700 cursor-pointer" />
+      </button>
 
       {filteredRubrics.length > 0 ? (
         filteredRubrics.map((rubric) => (
-          <div
-            key={rubric.name}
+          <button
+            type="button"
+            key={rubric.id || rubric.name}
             onClick={() => handleRubricSelect(rubric)}
-            className="cursor-pointer select-none px-4 py-2 hover:bg-orange-400 hover:text-white text-gray-900"
+            className="cursor-pointer select-none px-4 py-2 hover:bg-orange-400 hover:text-white text-gray-900 bg-transparent border-0 text-left w-full"
           >
             <span className="block text-sm font-semibold">{rubric.name}</span>
             <span className="block text-xs text-gray-600">{rubric.description}</span>
-          </div>
+          </button>
         ))
       ) : (
         <div className="cursor-default select-none px-4 py-2 text-gray-700">

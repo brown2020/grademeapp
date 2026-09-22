@@ -100,33 +100,35 @@ export default function RubricSearch() {
       </div>
       {/* Search Results Display */}
       <div ref={wrapperRef} className="w-full bg-secondary-97 rounded-b-lg h-[33vh] overflow-y-auto rubric-search-select">
-        <div
-          className="cursor-pointer font-medium select-none px-4 py-2 mb-1 text-primary-30 underline underline-offset-2 hover:text-primary-40-foreground"
-          onClick={() => openRubricBuilder && openRubricBuilder()} // Open the custom rubric builder
+        <button
+          type="button"
+          className="cursor-pointer font-medium select-none px-4 py-2 mb-1 text-primary-30 underline underline-offset-2 hover:text-primary-40-foreground bg-transparent border-0 text-left w-full"
+          onClick={() => openRubricBuilder && openRubricBuilder()}
         >
           Create Custom Rubric
-        </div>
+        </button>
         {filteredRubrics.length > 0 ? (
           filteredRubrics.map((rubric) => {
             const isFavorite = favoriteRubricIdSet.has(rubric.id);
             return (
               <div key={rubric.id} className='flex flex-row justify-between items-center gap-x-2 px-2 border-b border-dashed border-primary-20 '>
                 <div className='flex flex-row gap-x-2'>
-                  <Star
-                    onClick={() => handleRubricFavorite(rubric)}
-                    size={20}
-                    strokeWidth={1}
-                    className={`flex-none cursor-pointer mt-1 ${isFavorite ? "fill-yellow-300" : "fill-none"}`}
-                  />
+                  <button type="button" aria-label={isFavorite ? "Unfavorite rubric" : "Favorite rubric"} className="bg-transparent border-0 p-0 mt-1" onClick={() => handleRubricFavorite(rubric)}>
+                    <Star
+                      size={20}
+                      strokeWidth={1}
+                      className={`flex-none cursor-pointer ${isFavorite ? "fill-yellow-300" : "fill-none"}`}
+                    />
+                  </button>
 
-                  <div
-                    key={rubric.name}
+                  <button
+                    type="button"
                     onClick={() => handleRubricSelect(rubric)}
-                    className="cursor-pointer select-none pb-2 hover:text-primary-40 rounded-lg p-1"
+                    className="cursor-pointer select-none pb-2 hover:text-primary-40 rounded-lg p-1 bg-transparent border-0 text-left"
                   >
                     <span className="block text-sm font-semibold">{rubric.name}</span>
                     <span className="block text-xs text-gray-800">{rubric.description}</span>
-                  </div>
+                  </button>
                 </div>
                 {!useCustomRubrics &&
                   <CustomButton

@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import CriterionActions from "./CriterionActions";
+import React, { useEffect, useRef, useState } from 'react';
 import { AnalyticalRubric, RubricType } from '@/lib/types/rubrics-types';
 import { toast } from 'react-hot-toast';
 import { BadgePlus, Save, Edit2Icon, Trash2 } from 'lucide-react';
@@ -33,7 +34,7 @@ const AnalyticalCriteriaBuilder: React.FC<AnalyticalCriteriaBuilderProps> = ({
   });
   const [isEditing, setIsEditing] = useState(false);
   const [savedCriteria, setSavedCriteria] = useState<AnalyticalCriterionState[]>([]);
-  const [nextId, setNextId] = useState(1);
+  const nextIdRef = useRef(1);
   const { showRubricBuilder } = useRubricStore();
 
   // Reset when rubric builder closes ("adjusting state during render" pattern)
@@ -61,9 +62,9 @@ const AnalyticalCriteriaBuilder: React.FC<AnalyticalCriteriaBuilderProps> = ({
         c.id === currentCriterion.id ? { ...currentCriterion } : c
       );
     } else {
-      const newCriterion = { ...currentCriterion, id: `criterion_${nextId}` };
+      const newCriterion = { ...currentCriterion, id: `criterion_${nextIdRef.current}` };
       updatedSavedCriteria = [...savedCriteria, newCriterion];
-      setNextId(nextId + 1);
+      nextIdRef.current += 1;
     }
 
     const updatedCriteria = updatedSavedCriteria.reduce((acc, criterion) => {
@@ -139,14 +140,7 @@ const AnalyticalCriteriaBuilder: React.FC<AnalyticalCriteriaBuilderProps> = ({
           savedCriteria.map((criterion) => (
             <div key={criterion.id} className="flex justify-between items-center my-2">
               <span className="text-primary-20">{criterion.name}</span>
-              <div className="flex gap-x-4">
-                <button onClick={() => isEditing ? addOrUpdateCriterion() : loadCriterion(criterion)} className="text-blue-500 hover:text-blue-700">
-                  <Edit2Icon size={20} />
-                </button>
-                <button onClick={() => deleteCriterion(criterion.id)} className="text-red-500 hover:text-red-700">
-                  <Trash2 size={20} />
-                </button>
-              </div>
+              <CriterionActions onEdit={() => isEditing ? addOrUpdateCriterion() : loadCriterion(criterion)} onDelete={() => deleteCriterion(criterion.id)} />
             </div>
           ))
         )}

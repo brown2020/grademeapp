@@ -74,21 +74,21 @@ const ChecklistCriteriaBuilder: React.FC<ChecklistCriteriaBuilderProps> = ({ rub
       <hr />
       {Object.entries(rubric.criteria as GenericRubricCriteria).map(([criterion, yesNoValue]) => (
         <div key={criterion} className="mb-3 flex flex-row items-center gap-x-2">
-          <input aria-label="Criterion field"
+          <input aria-label="Checklist criterion"
             type="text"
             value={editedCriterion === criterion ? tempValue : criterion}
             onChange={(e) => handleChecklistChange(e, criterion)}
             onBlur={applyChecklistChange}
             className="px-1 w-full py-0.5 rounded shadow-sm border border-primary-40"
           />
-          <label className="block font-semibold mt-1">{typeof yesNoValue === 'string' ? yesNoValue : ''}</label>
-          <button onClick={() => removeChecklistCriterion(criterion)} className="ml-2 text-red-600">
+          <span className="block font-semibold mt-1">{typeof yesNoValue === 'string' ? yesNoValue : ''}</span>
+          <button type="button" aria-label={`Remove criterion ${criterion}`} onClick={() => removeChecklistCriterion(criterion)} className="ml-2 text-red-600 bg-transparent border-0">
             <MinusCircleIcon className="h-5 w-5" />
           </button>
         </div>
       ))}
       <div className="flex flex-row items-center gap-x-2">
-        <input aria-label="Criterion field"
+        <input aria-label="Checklist criterion"
           type="text"
           value={newCriterion}
           onChange={(e) => setNewCriterion(e.target.value)}

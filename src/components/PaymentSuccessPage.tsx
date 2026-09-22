@@ -4,7 +4,7 @@ import { useAuthStore } from "@/zustand/useAuthStore";
 import { usePaymentsStore } from "@/zustand/usePaymentsStore";
 import useProfileStore from "@/zustand/useProfileStore";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { validatePaymentIntent } from "@/actions/paymentActions";
 
 type Props = {
@@ -28,7 +28,7 @@ export default function PaymentSuccessPage({ payment_intent }: Props) {
 
   const uid = useAuthStore((state) => state.uid);
 
-  useEffect(() => {
+  const loadPayment = async () => {
     if (!payment_intent) {
       setMessage("No payment intent found");
       setLoading(false);
@@ -38,11 +38,11 @@ export default function PaymentSuccessPage({ payment_intent }: Props) {
     const handlePaymentSuccess = async () => {
       try {
         const data = await validatePaymentIntent(payment_intent);
-
+        
         if (data.status === "succeeded") {
           // Check if payment is already processed
           const existingPayment = await checkIfPaymentProcessed(data.id);
-          if (existingPayment) {
+                    if (existingPayment) {
             setMessage("Payment has already been processed.");
 
             // Convert Timestamp to milliseconds before setting state
@@ -91,7 +91,8 @@ export default function PaymentSuccessPage({ payment_intent }: Props) {
     };
 
     if (uid) handlePaymentSuccess();
-  }, [payment_intent, addPayment, checkIfPaymentProcessed, addCredits, uid]);
+  };
+
 
   return (
     <main className="max-w-6xl flex flex-col gap-2.5 mx-auto p-10 text-black text-center border m-10 rounded-md border-black">

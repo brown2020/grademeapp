@@ -1,5 +1,8 @@
 "use client";
 
+import HeaderMobileDrawer from "./HeaderMobileDrawer";
+import HeaderIdentityModal from "./HeaderIdentityModal";
+
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
@@ -186,141 +189,9 @@ export default function Header() {
         </div>
       </div>
 
-      <div className={`bg-black/30 absolute inset-0 w-full h-full z-10 ${isOpen ? 'overlay-open' : 'overlay-closed'}`} aria-hidden="true" />
-      <div
-        ref={menuRef}
-        className={`fixed right-0 top-16 h-auto max-w-56 w-full z-10 transition-all ${isOpen ? 'animate-enter' : isExiting ? 'animate-exit' : 'hidden'}`}
-      >
-        <div className="bg-white rounded-bl shadow-lg px-4 py-3">
-          <button type="button" aria-label="Close menu" className="bg-transparent border-0 p-0 absolute top-2 right-2" onClick={closeMenu}><XIcon size={24} className="text-primary-10" /></button>
-          <ul className="mt-4">
-            <li
-              className="profile-link-mobile flex justify-start items-end md:flex-col md:items-end gap-x-2 md:gap-y-1 border-b border-primary-40 pb-2"
-              onClick={() => {
-                closeMenu();
-                setTimeout(() => router.push('/profile'), 100);
-              }}
-             role="menuitem" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); (e.currentTarget as HTMLElement).click(); } }}>
-              {uid && profile?.photoUrl ? (
-                <div className="size-9 md:size-12 aspect-square">
-                  <Image
-                    src={profile.photoUrl}
-                    alt="User Avatar"
-                    width={50}
-                    height={50}
-                    className="rounded-full border-2 border-spacing-2 border-primary-40"
-                    loading="lazy"
-                  />
-                </div>
-              ) : uid ? (
-                <div className="cursor-pointer text-primary-30 hover:bg-gray-100 flex flex-row items-center">
-                  <User2 />
-                </div>
-              ) : null}
-              <div className="flex text-center whitespace-nowrap text-primary-30">
-                Profile
-              </div>
-            </li>
-            <li
-              className="cursor-pointer text-primary-30 hover:bg-gray-100 flex flex-row items-center gap-4 border-b border-primary-40 pb-2 mobile-menu-about"
-              onClick={() => {
-                closeMenu();
-                setTimeout(() => router.push('/'), 100);
-              }}
-             role="menuitem" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); (e.currentTarget as HTMLElement).click(); } }}>
-              <Bot />About
-            </li>
-            <li
-              className="cursor-pointer text-primary-30 hover:bg-gray-100 flex flex-row items-center gap-4 border-b border-primary-40 pb-2 mobile-menu-support"
-              onClick={() => {
-                closeMenu();
-                setTimeout(() => router.push('/support'), 100);
-              }}
-             role="menuitem" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); (e.currentTarget as HTMLElement).click(); } }}>
-              <LifeBuoy />Support
-            </li>
-            <li
-              className="cursor-pointer text-primary-30 hover:bg-gray-100 flex flex-row items-center gap-4 border-b border-primary-40 pb-2 mobile-menu-terms"
-              onClick={() => {
-                closeMenu();
-                setTimeout(() => router.push('/terms'), 100);
-              }}
-             role="menuitem" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); (e.currentTarget as HTMLElement).click(); } }}>
-              <Handshake />Terms
-            </li>
-            <li
-              className="cursor-pointer text-primary-30 hover:bg-gray-100 flex flex-row items-center gap-4 border-b border-primary-40 pb-2 mobile-menu-privacy"
-              onClick={() => {
-                closeMenu();
-                setTimeout(() => router.push('/privacy'), 100);
-              }}
-             role="menuitem" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); (e.currentTarget as HTMLElement).click(); } }}>
-              <GlobeLock />Privacy
-            </li>
-            <li>
-              <button onClick={handleSignOut} className="btn-shiny btn-shiny-red mobile-menu-logout">
-                Sign Out
-              </button>
-            </li>
-          </ul>
-        </div>
-      </div>
+      <HeaderMobileDrawer isExiting={isExiting} closeMenu={closeMenu} handleSignOut={handleSignOut} menuRef={menuRef} />
+      <HeaderIdentityModal identityModalOpen={identityModalOpen} modalClosing={modalClosing} closeModal={closeModal} modalRef={modalRef} />
 
-      {uid && identityModalOpen && (
-        <>
-          <div ref={modalRef} className={`bg-black/30 absolute inset-0 w-full h-full z-0 ${identityModalOpen ? 'overlay-open' : 'overlay-closed'}`} aria-hidden="true" />
-          <div className={`fixed w-96 bg-secondary p-4 rounded-lg flex flex-col place-self-center top-1/3 z-10 transition-all ${identityModalOpen ? 'animate-enter' : modalClosing ? 'animate-exit' : 'hidden'}`}>
-            <div className="flex justify-end">
-              <button type="button" aria-label="Close dialog" className="bg-transparent border-0 p-0" onClick={closeModal}><XIcon size={24} className="text-primary-10" /></button>
-            </div>
-            <div className="flex flex-col gap-y-4">
-              <div>
-                <h2 className="text-primary-30 text-left font-medium text-lg">Select your user type and level of experience.</h2>
-                <p className="text-primary-30 text-left text-sm">This information helps us tailor your experience on Grade.me.</p>
-                <hr />
-              </div>
-              <div className="flex flex-wrap items-baseline justify-center">
-                <span className="mr-2">I am a</span>
-                <div className="flex flex-row gap-x-2">
-                  <CustomListbox
-                    value={profile?.identityLevel ?? identityLevels[0]}
-                    options={
-                      identityLevels.map((level) => ({
-                        label: level,
-                        value: level,
-                      }))
-                    }
-                    onChange={(value) => {
-                      if (profile?.identityLevel !== value) {
-                        updateProfile({ identityLevel: value });
-                      }
-                    }}
-                    buttonClassName="w-fit"
-                    placeholder="Select Level"
-                  />
-                  <CustomListbox
-                    value={profile?.identity ?? "student"}
-                    options={userInputs?.identity?.options?.map((identity) => ({
-                      label: identity,
-                      value: identity,
-                    })) ?? []}
-                    onChange={(value) => {
-                      if (profile?.identity !== value) {
-                        const newIdentityLevels = userInputs?.identity?.identityLevels?.[value] ?? ["3rd grade"];
-                        updateProfile({ identity: value, identityLevel: newIdentityLevels[0] });
-                      }
-                    }}
-                    buttonClassName="w-fit"
-                    placeholder="Select User Type"
-                  />
-                </div>
-                <span className="w-fit ml-0.5">.</span>
-              </div>
-              <button type="button" onClick={closeModal} className="flex place-self-end btn btn-shiny btn-shiny-green">Finish</button>
-            </div>
-          </div>
-        </>
-      )}
     </>
   );
 }

@@ -100,6 +100,7 @@
     "eslint-config-next": "^16.2.4",
     "postcss": "^8.5.15",
     "raw-loader": "^4.0.2",
+    "react-doctor": "^0.9.14",
     "tailwindcss": "^4.3.0",
     "typescript": "^6.0.3",
     "vitest": "^4.1.8"

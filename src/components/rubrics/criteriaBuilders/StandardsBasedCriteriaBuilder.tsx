@@ -155,10 +155,9 @@ const StandardsBasedCriteriaBuilder: React.FC<StandardsBasedCriteriaBuilderProps
             <div key={s.id} className="flex justify-between items-center my-2">
               <span className="text-primary-20">{s.name}</span>
               <div className="flex gap-x-4">
-                <button onClick={() => editStandard(s)} className="text-blue-500 hover:text-blue-700">
-                  <Edit2Icon size={20} />
+                <button type="button" aria-label="Edit criterion" onClick={() => editStandard(s)} className="text-blue-500 hover:text-blue-700 bg-transparent border-0"><Edit2Icon size={20} />
                 </button>
-                <button onClick={() => deleteStandard(s.id)} className="text-red-500 hover:text-red-700">
+                <button type="button" aria-label="Remove item" onClick={() => deleteStandard(s.id)} className="text-red-500 hover:text-red-700">
                   <Trash2 size={20} />
                 </button>
               </div>
