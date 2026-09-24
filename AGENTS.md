@@ -30,8 +30,13 @@ before submitting it. The grade is a means to the feedback, not the end. See
 - **Framework:** Next.js 16 (App Router), React 19, TypeScript 6 (strict).
 - **Bundler:** Webpack (scripts pass `--webpack`; the project is **not** on
   Turbopack — do not switch it).
-- **Styling:** Tailwind CSS v4 (`@tailwindcss/postcss`), `tailwind.config.ts`,
-  `tailwindcss-animate`. Some shadcn/Radix primitives in `src/components/ui`.
+- **Styling:** Tailwind CSS v4, CSS-first (no `tailwind.config.ts`): semantic
+  design tokens (light + dark via `prefers-color-scheme`) and `@theme` live in
+  `src/app/globals.css`. Fonts: Inter (UI) + Source Serif 4 (headings, essays,
+  grades) via `next/font`. Shared shadcn-style primitives on Radix in
+  `src/components/ui` (button, input/Field, card, badge, spinner, page,
+  dialog, select/SimpleSelect, popover, switch, dropdown-menu, tabs,
+  ConfirmDeleteDialog). See "UI conventions" below.
 - **State:** Zustand stores in `src/zustand`.
 - **Auth & data:** Firebase (client SDK in the browser, `firebase-admin` on the
   server). Firestore is the database; Firebase Storage holds uploaded documents.
@@ -63,8 +68,13 @@ src/
     parseDocumentFromUrl.ts    # fetch + parse uploaded docs (SSRF-guarded)
     paymentActions.ts          # Stripe PaymentIntent create/validate
     htmlToDocx.ts              # editor HTML -> .docx (base64)
-  components/              # UI. Big ones: Grader, Rubrics, Assignments, Summary,
-    rubrics/ plagiarism/ tiptap/ tours/ menus/ ui/
+  components/              # UI, grouped by feature area:
+    shell/                 # AppShell, AppHeader, MobileTabBar, UserMenu, nav, footer, dialogs
+    auth/                  # AuthDialog (all sign-in modes), authErrors
+    grader/ editor/        # grading workspace; TipTap editor, toolbar, spellcheck
+    rubrics/               # library, cards, builder/ (schema-driven), lib/ (pure, tested)
+    history/ profile/ payments/ plagiarism/ legal/
+    ui/                    # design-system primitives
   zustand/                 # useAuthStore, useProfileStore, useRubricStore,
                            # usePaymentsStore, useMobileMenuStore, useInitializeStores
   firebase/                # firebaseClient.ts (browser), firebaseAdmin.ts (server)
@@ -86,7 +96,7 @@ src/
   (`NEXT_PUBLIC_COOKIE_NAME`), refreshes it on a 50-minute timer, and mirrors the
   user into `useAuthStore`. `useInitializeStores` then loads the Firestore profile
   into `useProfileStore`.
-- **Grading flow:** `Grader.tsx` calls the `generateGrade` server action, which
+- **Grading flow:** `grader/Grader.tsx` (via `grader/streamGrade.ts`) calls the `generateGrade` server action, which
   resolves a model from the registry, estimates token cost, streams text back via
   `createStreamableValue`, and returns `creditsUsed`. The client consumes the
   stream with `readStreamableValue`, deducts credits with
@@ -123,9 +133,6 @@ src/
 - Export feedback/document to `.docx`.
 - Embeds in a React Native WebView (mobile wrapper).
 
-> Inferred / partially implemented: the in-app guided **tours** (`src/components/
-> tours/*`) are currently **disabled** — every tour component returns `null`
-> because `react-joyride` is not React 19 compatible. Treat tours as dormant.
 
 ## Important commands
 
@@ -182,6 +189,21 @@ runs the Vitest unit suite once (no watch mode), which is CI-safe.
 - Use `react-hot-toast` for user-facing errors; `console.error` for diagnostics.
 - Prefer small, focused Zustand stores; follow the existing store patterns.
 - Do not add narration comments. Comments should explain non-obvious intent only.
+
+## UI conventions
+
+- Use semantic token classes only (`bg-surface`, `bg-muted`, `text-muted-foreground`,
+  `border-border`, `bg-primary`, `bg-accent`, …). No raw palette colors, hex values, or
+  `dark:` overrides — tokens handle dark mode.
+- Build pages as `<PageContainer><PageHeader …/>…</PageContainer>` (`ui/page`); use
+  `EmptyState`, `Skeleton`/`Spinner`, `Card`, `Button` (`loading`, `asChild`) rather than
+  hand-rolled equivalents. AI feedback markdown goes inside `feedback-prose`; long legal
+  text inside `legal-prose`.
+- The shell owns header, mobile tab bar, footer and the single scrolling `<main>` (the
+  document never scrolls — WebView-safe). Pages must not render their own header/footer
+  or use `100vh` heights. Nav items live in `components/shell/nav.ts`.
+- Open the sign-in dialog with `useAuthDialogStore.getState().setOpen(true)`; sign out
+  with `signOutUser()` from `src/lib/auth/signOut.ts`.
 
 ## TypeScript and lint expectations
 

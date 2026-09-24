@@ -48,7 +48,7 @@ See [`spec.md`](./spec.md) for the full, current feature inventory and status.
 
 ## Tech Stack
 
-- **Frontend**: Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4
+- **Frontend**: Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4 (CSS-first tokens, light/dark), Radix primitives
 - **Backend**: Firebase Firestore, Firebase Authentication, Firebase Storage (client SDK + `firebase-admin`)
 - **AI Integration**: Vercel AI SDK (`ai`, `@ai-sdk/*`) via a multi-provider registry, using Server Actions and streamed responses (`@ai-sdk/rsc`)
 - **Plagiarism**: Copyleaks REST API via Next.js route handlers

@@ -69,7 +69,7 @@ export results to `.docx`.
 |---|---|---|
 | AI grading (streamed) | ✅ Working | `generateGrade` server action + `readStreamableValue`. |
 | Rubric library (~13 types) | ✅ Working | `src/lib/constants/rubrics.json`. |
-| Custom rubric builder | ✅ Working | Per-type criteria builders in `components/rubrics/criteriaBuilders`. |
+| Custom rubric builder | ✅ Working | One schema-driven builder (`components/rubrics/builder`, config in `rubrics/lib/rubricTypeConfig.ts`); stored shapes per type unchanged. |
 | Favorite + relevance-sorted rubrics | ✅ Working | `useRubricStore.sortAndGroupRubrics`. |
 | Grammar/spelling correction | ✅ Working | `correctGrammarAndSpelling`, chunked for long text. |
 | Document upload + parsing | ✅ Working | DOCX/PDF/ODT/RTF/TXT; SSRF-guarded. |
@@ -79,7 +79,7 @@ export results to `.docx`.
 | Bring-your-own API key | ✅ Working | OpenAI/Fireworks keys in profile; `useCredits=false`. |
 | Multi-method auth | ✅ Working | Google, email/password, email link. |
 | `.docx` export | ✅ Working | `htmlToDocx` + `DownloadPopover`. |
-| In-app guided tours | ⛔ Disabled **[inferred]** | All tour components return `null`; `react-joyride` not React 19 compatible. |
+| In-app guided tours | ⛔ Removed | Dormant `react-joyride` stubs deleted in the 2026-09 redesign. |
 | Automated tests | 🟡 Limited | Vitest covers pure utility logic under `src/lib/utils`; no component/e2e harness. |
 | OpenAI-compatible provider | 🟡 Partial | Registered, but commented out in the model list. |
 
@@ -89,7 +89,7 @@ export results to `.docx`.
   (refreshed every 50 min), mirrors the user into `useAuthStore`, then
   `useInitializeStores` loads `users/{uid}/profile/userData` into `useProfileStore`
   (creating it with starter credits on first sign-in).
-- **Grade:** `Grader.tsx` → `generateGrade(...)` resolves a `provider:model` from
+- **Grade:** `grader/Grader.tsx` → `generateGrade(...)` resolves a `provider:model` from
   the registry, estimates cost (+50% buffer), streams text, returns `creditsUsed`;
   client streams via `readStreamableValue`, deducts with `minusCredits`, and saves
   via `saveDocument`.
@@ -155,7 +155,12 @@ Firestore is the database, keyed under `users/{uid}` with `profile`, `summaries`
   `useProfileStore` default (0), and `createNewProfile` (1000).
 - **[inferred] Output-token cost estimate is a fixed guess** (1000 tokens; see the
   in-code `TODO`), so pre-flight credit checks are rough.
-- Tours are disabled; no onboarding currently runs.
+- **Account deletion is partial.** `deleteAccount` removes only
+  `profile/userData` and the auth user; `summaries`, `custom_rubrics`, payments and
+  `plagiarism_reports` remain in Firestore.
+- **AI-content % is not stored.** The Copyleaks completed webhook saves `results`
+  only, so the report page cannot show an AI-detection score.
+- Tours were removed; no onboarding currently runs beyond the first-sign-in identity dialog.
 - Automated coverage is limited to pure utility modules; there is no component or
   end-to-end test harness.
 
