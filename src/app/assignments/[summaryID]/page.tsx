@@ -1,5 +1,5 @@
-import Summary from "@/components/Summary";
+import SummaryPage from "@/components/history/SummaryPage";
 
-export default function SummaryPage() {
-  return <Summary />;
+export default function AssignmentSummaryPage() {
+  return <SummaryPage />;
 }

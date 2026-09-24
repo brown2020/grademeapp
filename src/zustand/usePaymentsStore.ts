@@ -89,25 +89,26 @@ export const usePaymentsStore = create<PaymentsStoreState>((set) => ({
   },
 }));
 
-// Helper function to fetch user payments
 async function fetchUserPayments(uid: string): Promise<PaymentType[]> {
   const q = query(collection(db, "users", uid, "payments"));
   const querySnapshot = await getDocs(q);
-  const payments = querySnapshot.docs.map((doc) => ({
-    id: doc.id,
-    amount: doc.data().amount,
-    createdAt: doc.data().createdAt,
-    status: doc.data().status,
-    mode: doc.data().mode,
-    platform: doc.data().platform,
-    productId: doc.data().productId,
-    currency: doc.data().currency,
-  }));
+  const payments = querySnapshot.docs.map((snap) => {
+    const data = snap.data();
+    return {
+      id: snap.id,
+      amount: data.amount,
+      createdAt: data.createdAt,
+      status: data.status,
+      mode: data.mode,
+      platform: data.platform,
+      productId: data.productId,
+      currency: data.currency,
+    };
+  });
 
   return sortPayments(payments);
 }
 
-// Helper function to check if payment exists
 async function checkPaymentExists(
   uid: string,
   paymentId: string
@@ -120,15 +121,15 @@ async function checkPaymentExists(
   return !querySnapshot.empty;
 }
 
-// Helper function to create a new payment
 async function createPayment(
   uid: string,
   payment: Omit<PaymentType, "createdAt">
 ): Promise<PaymentType> {
+  const createdAt = Timestamp.now();
   const newPaymentDoc = await addDoc(collection(db, "users", uid, "payments"), {
     id: payment.id,
     amount: payment.amount,
-    createdAt: Timestamp.now(),
+    createdAt,
     status: payment.status,
     mode: payment.mode,
     platform: payment.platform,
@@ -139,7 +140,7 @@ async function createPayment(
   return {
     id: newPaymentDoc.id,
     amount: payment.amount,
-    createdAt: Timestamp.now(),
+    createdAt,
     status: payment.status,
     mode: payment.mode,
     platform: payment.platform,
@@ -148,7 +149,6 @@ async function createPayment(
   };
 }
 
-// Helper function to find a processed payment
 async function findProcessedPayment(
   uid: string,
   paymentId: string
@@ -168,25 +168,23 @@ async function findProcessedPayment(
   return null;
 }
 
-// Helper function to sort payments by createdAt
 function sortPayments(payments: PaymentType[]): PaymentType[] {
   return payments.sort(
     (a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0)
   );
 }
 
-// Helper function to handle errors with correct typing for Zustand set function
 function handleError(
   set: (
     partial:
       | Partial<PaymentsStoreState>
       | ((state: PaymentsStoreState) => Partial<PaymentsStoreState>),
-    replace?: false | undefined // Ensuring replace can only be false or undefined
+    replace?: false | undefined
   ) => void,
   error: unknown,
   defaultMessage: string
 ): void {
   const errorMessage = error instanceof Error ? error.message : defaultMessage;
   console.error(defaultMessage, errorMessage);
-  set({ paymentsError: errorMessage, paymentsLoading: false }, false); // Explicitly passing false for replace
+  set({ paymentsError: errorMessage, paymentsLoading: false }, false);
 }

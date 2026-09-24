@@ -1,5 +1,5 @@
-import Assignments from "@/components/Assignments";
+import HistoryPage from "@/components/history/HistoryPage";
 
-export default function ImagesPage() {
-  return <Assignments />;
+export default function AssignmentsPage() {
+  return <HistoryPage />;
 }
