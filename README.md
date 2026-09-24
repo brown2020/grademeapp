@@ -1,245 +1,147 @@
-# GRADE.ME - AI-Powered Essay Grading Platform
+# Grade.me
 
-Welcome to **GRADE.ME**, an AI-powered essay grading platform that provides instant feedback and personalized recommendations to help users improve their writing skills. GRADE.ME leverages state-of-the-art language models to evaluate and grade essays, providing insights to enhance writing quality.
+AI-powered writing feedback for students, educators, and writers. Submit an essay (typed, pasted, or uploaded), pick or build a rubric, and get a streamed letter grade with detailed, rubric-aligned feedback. Live at [https://grade.me](https://grade.me).
 
-> **Documentation map**
-> - [`spec.md`](./spec.md) — authoritative product spec, current-state inventory, and roadmap.
-> - [`AGENTS.md`](./AGENTS.md) — engineering conventions and the workflow for AI agents/contributors.
-> - This `README.md` — setup, environment, and integration how-tos.
->
-> For the current feature set and architecture, treat [`spec.md`](./spec.md) as the source of truth; the summaries below are a quick orientation.
-
-## Table of Contents
-
-- [About the Project](#about-the-project)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Environment Variables](#environment-variables)
-- [Usage](#usage)
-- [Firebase Configuration](#firebase-configuration)
-- [Stripe Integration](#stripe-integration)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact](#contact)
-
-## About the Project
-
-GRADE.ME is an innovative platform that uses AI to grade essays, helping users improve their writing skills by providing instant, detailed feedback. The platform is designed for students, educators, and writers looking to refine their writing quality.
+> Product inventory and roadmap: [`spec.md`](./spec.md). Agent / contributor conventions: [`AGENTS.md`](./AGENTS.md).
 
 ## Features
 
-- **AI-Powered Grading**: Stream rubric-aligned feedback and a percentage grade using the Vercel AI SDK through a multi-provider registry (OpenAI, Fireworks, xAI, Anthropic, Google, Groq, Azure, and OpenAI-compatible endpoints).
-- **Rubric System**: ~13 built-in rubric types plus a custom rubric builder, favorites, and relevance-based sorting.
-- **Grammar & Spelling Correction**: Clean up drafts in a TipTap editor (chunked for long inputs).
-- **Document Upload & Parsing**: Grade uploaded DOCX, PDF, ODT, RTF, and TXT files.
-- **Plagiarism / AI-Content Detection**: Copyleaks-backed scans with asynchronous webhook results.
-- **Personalized Feedback**: A grade plus a detailed, evidence-quoted explanation of strengths and improvements.
-- **User Profile Management**: Firebase Authentication (Google, email/password, email link) and Firestore.
-- **Credit-Based System**: Spend credits to grade, or bring your own OpenAI/Fireworks API key.
-- **Payment Integration**: Stripe for secure credit purchases.
-- **History Management**: Review past gradings ("assignments") and per-submission detail.
-- **Export**: Download feedback/documents as `.docx`.
-- **Responsive & WebView-ready**: Optimized for desktop, mobile, and the React Native WebView wrapper.
+- **Streamed AI grading** with rubric-aligned feedback and a percentage / letter grade
+- **Rubric library** — built-in rubrics plus a custom rubric builder; favorites and relevance sorting
+- **TipTap editor** with grammar/spelling correction (`nspell` + bundled dictionaries)
+- **Document upload** — DOCX, PDF, ODT, RTF, TXT (server-side parsing)
+- **Plagiarism / AI-content detection** via Copyleaks (async webhook → report pages)
+- **Grading history** (“assignments”) with per-submission detail views
+- **Credits + Stripe** PaymentIntents, or bring-your-own OpenAI / Fireworks keys
+- **Auth** — Firebase Google, email/password, and passwordless email link
+- **DOCX export** of feedback / document
+- Embeddable in a React Native WebView (layout and auth stay WebView-safe)
 
-See [`spec.md`](./spec.md) for the full, current feature inventory and status.
+## Tech stack
 
-## Tech Stack
+| Layer | Tech |
+| --- | --- |
+| Framework | Next.js ^16.2.7 (App Router, **Webpack** — not Turbopack) |
+| UI | React ^19.2.7, Tailwind CSS ^4.3.0, Radix / shadcn-style primitives, TipTap 3 |
+| Language | TypeScript ^6.0.3 |
+| State | Zustand ^5.0.14 |
+| Backend | Firebase ^12.14.0 + Firebase Admin ^13.10.0 (Auth, Firestore, Storage) |
+| AI | Vercel AI SDK (`ai` ^6, `@ai-sdk/*` including OpenAI, Anthropic, Google, Azure, xAI, RSC streaming) |
+| Payments | Stripe ^22 + `@stripe/react-stripe-js` |
+| Docs | mammoth, pdf2json, officeparser, `@iarna/rtf-to-html`, `docx` |
+| Plagiarism | Copyleaks REST API (route handlers) |
+| Tests / quality | Vitest ^4.1.8, ESLint 9, React Doctor |
 
-- **Frontend**: Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4 (CSS-first tokens, light/dark), Radix primitives
-- **Backend**: Firebase Firestore, Firebase Authentication, Firebase Storage (client SDK + `firebase-admin`)
-- **AI Integration**: Vercel AI SDK (`ai`, `@ai-sdk/*`) via a multi-provider registry, using Server Actions and streamed responses (`@ai-sdk/rsc`)
-- **Plagiarism**: Copyleaks REST API via Next.js route handlers
-- **Editor**: TipTap with `nspell`-based spellcheck
-- **State Management**: Zustand
-- **Payment Processing**: Stripe
-- **Utilities**: `react-hot-toast` for notifications, `react-spinners` for loading indicators, `lodash`, and `react-markdown` for rendering feedback
+## Project structure
 
-> Note: the build uses Webpack (`next ... --webpack`), and the package manager is npm with `legacy-peer-deps=true`.
+```
+src/
+  app/                     # App Router pages + Copyleaks API routes
+    api/copyleaks/         # submit, webhook/[status], reports/[uid]/[docId]
+    grader/ rubrics/ assignments/ dashboard/ profile/
+    plagiarism-check/ payment-*/ loginfinish/ support/ terms/ privacy/
+  actions/                 # Server actions: generateGrade, grammar, parse docs, payments, docx
+  components/              # shell, auth, grader, editor, rubrics, history, plagiarism, payments, ui
+  zustand/                 # Auth, profile, rubrics, payments stores
+  firebase/                # Client + Admin SDK
+  lib/                     # AI registry, constants (rubrics.json), hooks, dictionaries, utils
+  proxy.ts                 # Next.js proxy for soft route protection
+```
 
-## Getting Started
-
-To get a local copy up and running, follow these simple steps.
+## Getting started
 
 ### Prerequisites
 
-Make sure you have the following installed:
+- Node.js 22+
+- npm (`.npmrc` uses `legacy-peer-deps=true`)
+- Firebase project (Auth, Firestore, Storage)
+- Stripe account
+- Optional: Copyleaks account; provider API keys for models you enable
 
-- [Node.js](https://nodejs.org/) (version 14 or higher)
-- [npm](https://www.npmjs.com/) (version 6 or higher)
+### Install
 
-### Installation
+```bash
+git clone https://github.com/brown2020/grademeapp.git
+cd grademeapp
+cp .env.example .env.local
+# Fill in values from the table below — never commit real secrets
+npm ci
+npm run dev
+```
 
-1. **Clone the repository:**
+Open [http://localhost:3000](http://localhost:3000).
 
-   ```sh
-   git clone https://github.com/brown2020/grademeapp.git
-   cd grademeapp
-   ```
+## Environment variables
 
-2. **Install dependencies:**
+Start from `.env.example`. Additional keys are read in code for optional providers and Copyleaks.
 
-   ```sh
-   npm install
-   ```
+### Core (in `.env.example`)
 
-3. **Set up environment variables:**
+| Name | Purpose | Where to get it |
+| --- | --- | --- |
+| `FIREBASE_*` | Admin SDK service account fields | Firebase Console → Service accounts |
+| `NEXT_PUBLIC_FIREBASE_*` | Client Firebase config | Firebase Console → Project settings |
+| `NEXT_PUBLIC_COOKIE_NAME` | Auth ID-token cookie name | Choose a stable name (e.g. `grademeAuthToken`) |
+| `OPENAI_API_KEY` | Platform OpenAI key | [platform.openai.com](https://platform.openai.com) |
+| `FIREWORKS_API_KEY` | Platform Fireworks key | [fireworks.ai](https://fireworks.ai) |
+| `XAI_API_KEY` / `XAI_API_URL` | xAI provider | [console.x.ai](https://console.x.ai) |
+| `NEXT_PUBLIC_STRIPE_KEY` | Stripe publishable key | Stripe Dashboard |
+| `STRIPE_SECRET_KEY` | Stripe secret key | Stripe Dashboard |
+| `NEXT_PUBLIC_STRIPE_PRODUCT_NAME` | Credit product label | Your Stripe product / choice |
+| `NEXT_PUBLIC_CREDITS_PER_GRADING` | Credits charged per grading (client display) | Tune for your pricing |
 
-   Create a `.env.local` file in the root directory of the project and add the following environment variables based on the `.env.example` provided:
+### Also used in code (optional / not all in `.env.example`)
 
-   ```sh
-   # Firebase Server Config
-   FIREBASE_TYPE=service_account
-   FIREBASE_PROJECT_ID=your_project_id
-   FIREBASE_PRIVATE_KEY_ID=your_private_key_id
-   FIREBASE_PRIVATE_KEY=your_private_key
-   FIREBASE_CLIENT_EMAIL=your_client_email
-   FIREBASE_CLIENT_ID=your_client_id
-   FIREBASE_AUTH_URI=https://accounts.google.com/o/oauth2/auth
-   FIREBASE_TOKEN_URI=https://oauth2.googleapis.com/token
-   FIREBASE_AUTH_PROVIDER_X509_CERT_URL=https://www.googleapis.com/oauth2/v1/certs
-   FIREBASE_CLIENT_CERTS_URL=your_client_cert_url
-   FIREBASE_UNIVERSE_DOMAIN=googleapis.com
+| Name | Purpose |
+| --- | --- |
+| `ANTHROPIC_API_KEY` | Anthropic models via AI SDK registry |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | Google models |
+| `GROQ_API_KEY` | Groq models |
+| `AZURE_API_KEY` / `AZURE_RESOURCE_NAME` | Azure OpenAI |
+| `OPENAI_COMPATIBLE_API_KEY` / `OPENAI_COMPATIBLE_API_BASE_URL` / `NEXT_PUBLIC_OPENAI_COMPATIBLE_MODEL` | OpenAI-compatible endpoint |
+| `XAI_BASE_URL` | Override xAI base URL (code may use this name) |
+| `COPYLEAKS_EMAIL` / `COPYLEAKS_API_KEY` / `COPYLEAKS_WEBHOOK_SECRET` | Copyleaks plagiarism / AI detection |
+| `BASE_URL` | Public base URL for webhooks / callbacks |
+| `CREDITS_PER_INPUT_TOKEN` / `CREDITS_PER_OUTPUT_TOKEN` / `CREDITS_PER_DOLLAR` | Server-side credit accounting |
 
-   # Firebase Client Config
-   NEXT_PUBLIC_FIREBASE_APIKEY=your_firebase_api_key
-   NEXT_PUBLIC_FIREBASE_AUTHDOMAIN=your_firebase_auth_domain
-   NEXT_PUBLIC_FIREBASE_PROJECTID=your_firebase_project_id
-   NEXT_PUBLIC_FIREBASE_STORAGEBUCKET=your_firebase_storage_bucket
-   NEXT_PUBLIC_FIREBASE_MESSAGINGSENDERID=your_firebase_messaging_sender_id
-   NEXT_PUBLIC_FIREBASE_APPID=your_firebase_app_id
-   NEXT_PUBLIC_FIREBASE_MEASUREMENTID=your_firebase_measurement_id
+Never commit real values. Wire CI build secrets via GitHub Actions secrets only.
 
-   # OpenAI and Other API Keys
-   OPENAI_API_KEY=your_openai_api_key
-   FIREWORKS_API_KEY=your_fireworks_api_key
+## Scripts
 
-   # Cookie Configuration
-   NEXT_PUBLIC_COOKIE_NAME=grademeAuthToken
+| Script | Description |
+| --- | --- |
+| `npm run dev` | Next.js dev server (Webpack) |
+| `npm run build` | Production build (Webpack) |
+| `npm start` | Serve production build |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm test` | Vitest |
+| `npm run doctor` | React Doctor |
 
-   # Stripe Configuration
-   NEXT_PUBLIC_STRIPE_PRODUCT_NAME=grademe_demo_credits
-   NEXT_PUBLIC_CREDITS_PER_GRADING=100
-   NEXT_PUBLIC_STRIPE_KEY=your_stripe_key
-   STRIPE_SECRET_KEY=your_stripe_secret_key
-   ```
+## Testing and CI
 
-### Environment Variables
+- Vitest unit tests (e.g. payment actions, rubric helpers).
+- `.github/workflows/ci.yml` on `dev` / `main`: typecheck → test → production build (client env from Actions secrets).
+- Malware IOC scan workflow is also present.
 
-- **Firebase Server Config**: Required for server-side Firebase operations.
-- **Firebase Client Config**: Required to initialize Firebase on the client side.
-- **OpenAI and Fireworks API Keys**: Required for AI-based grading functionality and other API integrations.
-- **Stripe Configuration**: Required for handling payments through Stripe.
-- **Cookie Configuration**: Manages authentication tokens.
+## Firebase / services
 
-### Running the Application
+1. Enable Google, email/password, and email-link auth as needed.
+2. Firestore collections used include `users/{uid}`, `users/{uid}/profile/userData`, `summaries`, `custom_rubrics`, `plagiarism_reports`.
+3. Configure Storage for uploaded documents.
+4. For Copyleaks, set webhook URL to your deployed `/api/copyleaks/webhook/[status]` and matching secrets.
 
-- **Development Mode:**
+## Deployment
 
-  ```sh
-  npm run dev
-  ```
-
-- **Production Mode:**
-
-  ```sh
-  npm run build
-  npm start
-  ```
-
-## Usage
-
-- **Sign In/Sign Up**: Use the built-in authentication component to log in or create an account.
-- **Submit Essays**: Paste your essay into the input field and click the "Grade" button to receive feedback.
-- **View History**: Check your grading history to review past essays and feedback.
-- **Manage Profile**: Update your user profile, including your credits and personal information.
-- **Purchase Credits**: Use the integrated Stripe payment system to purchase additional credits.
-
-## Firebase Configuration
-
-1. **Firebase Authentication**: Used for user sign-in and registration.
-2. **Firestore Database**: Stores user profiles, essay summaries, and payment records.
-3. **Firebase Storage**: Handles file uploads (if any, such as profile pictures).
-
-Ensure your Firebase project is set up correctly, and all necessary credentials are added to the `.env.local` file.
-
-## Stripe Integration
-
-The `GRADE.ME` application integrates Stripe for secure payment processing. This allows users to purchase credits that they can use for grading essays.
-
-### How Stripe is Used in This Project
-
-1. **Creating Payment Intents:**
-
-   - The `createPaymentIntent` function in `paymentActions.ts` is used to create a payment intent using the Stripe API. This function takes an `amount` (in subunits like cents) and returns a `client_secret` needed to confirm the payment on the client side.
-   - The payment intent is created with metadata that includes a product description (`NEXT_PUBLIC_STRIPE_PRODUCT_NAME`).
-
-2. **Validating Payment Intents:**
-
-   - The `validatePaymentIntent` function in `paymentActions.ts` retrieves a payment intent by its ID from Stripe and checks its status. If the payment is successful (`status === "succeeded"`), it returns the payment details.
-
-3. **Client-side Payment Flow:**
-
-   - The **Payment Checkout Page** component uses Stripe's `useStripe` and `useElements` hooks from `@stripe/react-stripe-js` to handle the client-side payment flow.
-   - A new payment intent is created on component mount using the `createPaymentIntent` server action.
-   - When the user submits the form, the `stripe.confirmPayment` method is called to complete the payment.
-
-4. **Payment Success Handling:**
-   - The **Payment Success Page** component handles post-payment success operations:
-     - Validates the payment intent using the `validatePaymentIntent` server action.
-     - Checks if the payment has already been processed to prevent duplicate credit additions.
-     - Adds credits to the user profile using `useProfileStore` once the payment is validated.
-
-### Setting Up Stripe
-
-1. **Install Stripe and Stripe React Components:**
-
-   ```sh
-   npm install stripe @stripe/react-stripe-js
-   ```
-
-2. **Add Environment Variables:**
-
-   Make sure to include the following environment variables in your `.env.local` file:
-
-   ```sh
-   NEXT_PUBLIC_STRIPE_PRODUCT_NAME=grademe_demo_credits
-   NEXT_PUBLIC_STRIPE_KEY=your_stripe_key
-   STRIPE_SECRET_KEY=your_stripe_secret_key
-   ```
-
-   - `NEXT_PUBLIC_STRIPE_PRODUCT_NAME`: The name of the product being sold (e.g., credits).
-   - `NEXT_PUBLIC_STRIPE_KEY`: Your Stripe public key for client-side integration.
-   - `STRIPE_SECRET_KEY`: Your Stripe secret key for server-side actions.
-
-3. **Configuring Server Actions:**
-
-   - **`createPaymentIntent`**: Initializes the payment by creating a payment intent using the Stripe secret key. It returns a client secret for confirming the payment.
-   - **`validatePaymentIntent`**: Verifies the payment's status and confirms whether it was successful.
-
-4. **Client-Side Components:**
-   - **Payment Checkout Page**: Handles the client-side payment form and interacts with the Stripe API to confirm payments.
-   - **Payment Success Page**: Manages post-payment validation and updates the user's credits
-
-based on successful transactions.
+Next.js on Vercel (or similar). Set the same env vars in the host. Keep Webpack (`--webpack`) unless you intentionally migrate bundlers. Do not put secrets in workflow YAML.
 
 ## Contributing
 
-Contributions are welcome! Please fork the repository, create a new branch, and submit a pull request.
-
-1. **Fork the Project**
-2. **Create a Branch** (`git checkout -b feature/AmazingFeature`)
-3. **Commit Your Changes** (`git commit -m 'Add some AmazingFeature'`)
-4. **Push to the Branch** (`git push origin feature/AmazingFeature`)
-5. **Open a Pull Request**
+1. Branch from `dev`.
+2. Respect WebView constraints (scrolling, auth cookie flow).
+3. Run `npm run typecheck`, `npm test`, and `npm run build` before opening a PR.
+4. See [`AGENTS.md`](./AGENTS.md) for coding conventions.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-## Contact
-
-- **GitHub**: [brown2020](https://github.com/brown2020)
-- **Email**: [info@ignitechannel.com](mailto:info@ignitechannel.com)
+GNU Affero General Public License v3.0 — see [LICENSE.md](LICENSE.md).
