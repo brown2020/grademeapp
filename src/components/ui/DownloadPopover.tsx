@@ -1,87 +1,95 @@
-import { useState } from 'react';
-import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
-import { htmlToDocx } from '@/actions/htmlToDocx';
-import { Download } from 'lucide-react';
+"use client";
+
+import { useState } from "react";
+import { Download, FileText } from "lucide-react";
+import { toast } from "react-hot-toast";
+import { htmlToDocx } from "@/actions/htmlToDocx";
+import { Button, type ButtonProps } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
+const DOCX_MIME =
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
+function base64ToBlob(base64: string, type: string) {
+  const bytes = Uint8Array.from(atob(base64), (char) => char.charCodeAt(0));
+  return new Blob([bytes], { type });
+}
+
+function triggerDownload(blob: Blob, fileName: string) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+function safeFileName(name: string) {
+  return name.trim().replace(/[\\/:*?"<>|]+/g, "").slice(0, 80) || "document";
+}
 
 type DownloadPopoverProps = {
+  /** HTML content of the document to export. */
   content: string;
+  fileName?: string;
+  label?: string;
+  variant?: ButtonProps["variant"];
+  size?: ButtonProps["size"];
+  className?: string;
 };
 
-const DownloadPopover: React.FC<DownloadPopoverProps> = ({ content }) => {
-  const [selectedFormat, setSelectedFormat] = useState<string>('docx');
+export default function DownloadPopover({
+  content,
+  fileName = "document",
+  label = "Download",
+  variant = "secondary",
+  size = "md",
+  className,
+}: DownloadPopoverProps) {
+  const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleDownload = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
+  const downloadDocx = async () => {
     setIsLoading(true);
-
     try {
-      let blob;
-
-      if (selectedFormat === 'docx') {
-        // Call the server action to generate the .docx file and retrieve the base64 string
-        const base64 = await htmlToDocx(content);
-
-        // Decode the base64 string to binary data and create a Blob
-        const byteCharacters = atob(base64);
-        const byteNumbers = Array.from(byteCharacters).map(char => char.charCodeAt(0));
-        const byteArray = new Uint8Array(byteNumbers);
-        blob = new Blob([byteArray], {
-          type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        });
-      } else {
-        // Handle other formats as needed
-        blob = new Blob([content], { type: 'text/plain' });
-      }
-
-      // Create a URL for the Blob and trigger the download
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `document.${selectedFormat}`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url); // Clean up
+      const base64 = await htmlToDocx(content);
+      triggerDownload(base64ToBlob(base64, DOCX_MIME), `${safeFileName(fileName)}.docx`);
+      setOpen(false);
     } catch (error) {
-      console.error('Error generating document:', error);
+      console.error("Error generating document:", error);
+      toast.error("Couldn't generate the document. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <Popover className="relative">
-      <PopoverButton className="btn btn-shiny btn-shiny-teal gap-x-2 rounded-full md:rounded-lg size-12 sm:size-16 md:size-fit">
-        <Download size={35} />
-        <p className="hidden md:flex">Download</p>
-      </PopoverButton>
-
-      <PopoverPanel className="absolute z-10 bg-secondary-97 border border-secondary-40 shadow-lg rounded-lg p-4 w-48 mt-2">
-        <h3 className="font-semibold text-lg mb-2">Download as</h3>
-
-        <select aria-label="select"
-          value={selectedFormat}
-          onChange={(e) => setSelectedFormat(e.target.value)}
-          className="border border-gray-300 rounded w-full p-2 mb-4"
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button variant={variant} size={size} className={className} disabled={!content}>
+          <Download />
+          {label}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-64 p-2">
+        <p className="px-2 pb-1.5 pt-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          Download as
+        </p>
+        <Button
+          variant="ghost"
+          className="h-auto w-full justify-start gap-3 px-2 py-2 text-left"
+          onClick={downloadDocx}
+          loading={isLoading}
         >
-          <option value="docx">DOCX</option>
-          {/* <option value="pdf">PDF</option> */}
-          {/* <option value="odt">ODT</option> */}
-          {/* <option value="rtf">RTF</option> */}
-          {/* <option value="txt">TXT</option> */}
-        </select>
-
-        <button
-          onClick={handleDownload}
-          className="bg-secondary-90 border-2 border-primary-40 text-primary-10 font-semibold w-full p-2 rounded-md hover:bg-primary-40 hover:text-secondary"
-          disabled={isLoading}
-        >
-          {isLoading ? 'Generating...' : 'Download'}
-        </button>
-      </PopoverPanel>
+          {!isLoading && <FileText className="text-primary" />}
+          <span className="flex flex-col">
+            <span>Word document</span>
+            <span className="text-xs font-normal text-muted-foreground">.docx</span>
+          </span>
+        </Button>
+      </PopoverContent>
     </Popover>
   );
-};
-
-export default DownloadPopover;
+}

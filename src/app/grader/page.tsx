@@ -1,5 +1,5 @@
-import Grader from "@/components/Grader";
+import Grader from "@/components/grader/Grader";
 
-export default function GeneratePage() {
+export default function GraderPage() {
   return <Grader />;
 }

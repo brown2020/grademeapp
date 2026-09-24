@@ -1,113 +1,100 @@
 "use client";
 
-import DocumentShell from "./DocumentShell";
-import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 import { doc as firestoreDoc, getDoc, Timestamp } from "firebase/firestore";
 import { toast } from "react-hot-toast";
+import { FileQuestion } from "lucide-react";
 import { db } from "@/firebase/firebaseClient";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import useProfileStore from "@/zustand/useProfileStore";
 import { useRubricStore } from "@/zustand/useRubricStore";
-import { useParams } from "next/navigation";
-import { generateGrade } from "@/actions/generateResponse";
-import { readStreamableValue } from "@ai-sdk/rsc";
-import ReactMarkdown from "react-markdown";
 import { correctGrammarAndSpelling } from "@/actions/correctGrammarSpelling";
-import { extractGrade } from "@/lib/utils/responseParser";
 import { updateDocument } from "@/lib/utils/saveHistory";
-import { UserHistoryType } from "@/lib/types/user-history";
-import DownloadPopover from "@/components/ui/DownloadPopover";
-import { Wand2 } from "lucide-react";
-import Tiptap from "@/components/tiptap/Tiptap";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import grademe from "@/app/assets/grademe.svg";
-import grader from "@/app/assets/grader_2.svg";
-import { ModelSelector } from "./ModelSelector";
-import { getDefaultModelId } from '@/lib/utils'
-import { models } from '@/lib/types/models';
-import { useLocalStorage } from '@/lib/hooks/use-local-storage';
-import { PlagiarismChecker } from "@/components/plagiarism/PlagiarismChecker";
+import type { GradingData } from "@/lib/types/grading-data";
+import type { Submission, UserHistoryType } from "@/lib/types/user-history";
+import { Button } from "@/components/ui/button";
+import { EmptyState, PageContainer } from "@/components/ui/page";
+import { PageLoader } from "@/components/ui/spinner";
+import { GRADING_FAILED_MESSAGE, streamGrade } from "@/components/grader/streamGrade";
+import { useScrollIntoView } from "@/components/grader/useScrollIntoView";
+import { useSelectedModel } from "@/components/grader/useSelectedModel";
+import DocumentShell from "./DocumentShell";
 
-const fetchDocumentById = async (uid: string, id: string) => {
-  const docRef = firestoreDoc(db, "users", uid, "summaries", id);
-  const docSnap = await getDoc(docRef);
-  return docSnap.exists() ? [docSnap.data()] : [];
-};
-
-interface DocumentProps {
-  onModelChange?: (id: string) => void
+async function fetchDocumentById(uid: string, id: string) {
+  const snap = await getDoc(firestoreDoc(db, "users", uid, "summaries", id));
+  return snap.exists() ? (snap.data() as UserHistoryType) : null;
 }
 
-const Document = ({ onModelChange }: DocumentProps) => {
-  const { uid } = useAuthStore();
-  const { profile, minusCredits } = useProfileStore();
-  const { selectedRubric, gradingData, setGradingData } = useRubricStore();
-  const params = useParams();
-  const summaryID = params?.summaryID as string;
-  const timestamp = params?.timestamp as string;
-  const [userDoc, setUserDoc] = useState<UserHistoryType>();
-  const [loading, setLoading] = useState<boolean>(true);
-  const [grade, setGrade] = useState<string>("");
-  const [thinking, setThinking] = useState<boolean>(false);
-  const localCount = profile.credits;
-  const isStreamingCompleteRef = useRef(false);
-  const hasSavedRef = useRef(false);
-  const [summary, setSummary] = useState<string>("");
-  const [flagged, setFlagged] = useState<string>("");
-  const active = (gradingData.text.length > 1) && (localCount > 0 || !profile.useCredits) && !thinking;
-  const [fileUrl, setFileUrl] = useState<string>("");
-  const [selectedModelId, setSelectedModelId] = useLocalStorage<string>(
-    'selectedModel',
-    getDefaultModelId(models)
-  )
-  const router = useRouter();
+type Busy = "grading" | "correcting" | null;
 
-  // Derive timestamp from the route (no effect sync)
-  const timestampMillis = Number(timestamp);
-  const submissionTimestamp = useMemo(
-    () => Timestamp.fromMillis(timestampMillis),
-    [timestampMillis]
+export default function Document() {
+  const uid = useAuthStore((s) => s.uid);
+  const { profile, minusCredits } = useProfileStore();
+  const { gradingData, setGradingData } = useRubricStore();
+  const params = useParams<{ summaryID: string; timestamp: string }>();
+  const summaryID = params?.summaryID ?? "";
+  const timestampMillis = Number(params?.timestamp);
+  const [selectedModelId, setSelectedModelId] = useSelectedModel();
+
+  const [userDoc, setUserDoc] = useState<UserHistoryType | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [summary, setSummary] = useState("");
+  const [grade, setGrade] = useState("");
+  const [fileUrl, setFileUrl] = useState("");
+  const [flagged, setFlagged] = useState("");
+  const [busy, setBusy] = useState<Busy>(null);
+  const [justGraded, setJustGraded] = useState(false);
+
+  const thinking = busy === "grading";
+  const canSubmit =
+    gradingData.text.length > 1 && (profile.credits > 0 || !profile.useCredits) && !busy;
+
+  useScrollIntoView(
+    flagged
+      ? "flagged"
+      : thinking && !summary
+        ? "thinking"
+        : justGraded && summary
+          ? "response"
+          : null
   );
 
-  // Load the requested document (cancelled on unmount)
   useEffect(() => {
-    if (!uid || !summaryID || !submissionTimestamp) return;
+    if (!uid || !summaryID || Number.isNaN(timestampMillis)) return;
+    const submissionTimestamp = Timestamp.fromMillis(timestampMillis);
     let cancelled = false;
-    toast.loading("Loading document...");
+
     void (async () => {
       try {
-        const doc = await fetchDocumentById(uid as string, summaryID as string);
+        const loaded = await fetchDocumentById(uid, summaryID);
         if (cancelled) return;
-        const loaded = doc[0] as UserHistoryType;
         setUserDoc(loaded);
-        const matchingSubmission = loaded.submissions.find((sub) =>
-          sub.timestamp.seconds === submissionTimestamp.seconds &&
-          sub.timestamp.nanoseconds === submissionTimestamp.nanoseconds
+        const match = loaded?.submissions.find(
+          (sub) =>
+            sub.timestamp.seconds === submissionTimestamp.seconds &&
+            sub.timestamp.nanoseconds === submissionTimestamp.nanoseconds
         );
-        if (matchingSubmission) {
+        if (loaded && match) {
+          const input = loaded.userInput;
           setGradingData({
-            title: loaded.userInput.title,
-            text: matchingSubmission.text,
-            assigner: loaded.userInput.assigner,
-            textType: loaded.userInput.textType,
-            topic: loaded.userInput.topic,
-            prose: loaded.userInput.prose,
-            audience: loaded.userInput.audience,
-            wordLimitType: loaded.userInput.wordLimitType as
-              | "less than"
-              | "more than"
-              | "between",
-            wordLimit: loaded.userInput.wordLimit,
-            customRubric: loaded.userInput.customRubric,
-            rubric: loaded.userInput.rubric,
+            title: input.title,
+            text: match.text,
+            assigner: input.assigner,
+            textType: input.textType,
+            topic: input.topic,
+            prose: input.prose,
+            audience: input.audience,
+            wordLimitType: input.wordLimitType as GradingData["wordLimitType"],
+            wordLimit: input.wordLimit,
+            customRubric: input.customRubric,
+            rubric: input.rubric,
           });
-          setSummary(matchingSubmission.response);
-          setGrade(matchingSubmission.grade);
+          setSummary(match.response);
+          setGrade(match.grade);
           setFileUrl(loaded.fileUrl);
         }
-        toast.dismiss();
-        toast.success("Document loaded successfully", { id: "loading" });
       } catch (error) {
         if (cancelled) return;
         console.error("Error in getDocument", error);
@@ -116,183 +103,124 @@ const Document = ({ onModelChange }: DocumentProps) => {
         if (!cancelled) setLoading(false);
       }
     })();
+
     return () => {
       cancelled = true;
     };
-  }, [uid, summaryID, submissionTimestamp, setGradingData]);
+  }, [uid, summaryID, timestampMillis, setGradingData]);
 
-
-  const saveSubmissionToHistory = useCallback(async (finalSummary: string, finalGrade: string) => {
-    if (!uid || !summaryID) return;
-    const newSubmission = {
+  const saveSubmission = async (response: string, finalGrade: string) => {
+    const submission: Submission = {
       text: gradingData.text,
-      response: finalSummary,
+      response,
       grade: finalGrade,
       timestamp: Timestamp.now(),
     };
-    const updatedSubmissions = userDoc?.submissions
-      ? [...userDoc.submissions, newSubmission]
-      : [newSubmission];
-    await updateDocument(uid, summaryID, gradingData, updatedSubmissions, fileUrl || null);
-    hasSavedRef.current = true;
+    const submissions = [...(userDoc?.submissions ?? []), submission];
+    await updateDocument(uid, summaryID, gradingData, submissions, fileUrl || null);
+    setUserDoc((prev) => (prev ? { ...prev, submissions } : prev));
     toast.success("Document updated successfully");
-  }, [uid, summaryID, gradingData, fileUrl, userDoc?.submissions]);
+  };
 
-  // Handle form submission
-  const handleSubmit = useCallback(async (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setThinking(true);
+    if (!canSubmit) return;
+    setBusy("grading");
     setSummary("");
     setFlagged("");
-    isStreamingCompleteRef.current = false;
-    hasSavedRef.current = false;
+    setJustGraded(false);
 
+    let result: { feedback: string; grade: string };
     try {
-      const {
-        assigner,
-        topic,
-        prose,
-        audience,
-        wordLimitType,
-        wordLimit,
-        title,
-        rubric,
-        text,
-      } = gradingData;
-
-      const rubricString = JSON.stringify(rubric);
-
-      const { result, creditsUsed } = await generateGrade(
-        selectedModelId || "",
-        profile.identity || "",
-        profile.identityLevel || "",
-        assigner,
-        topic,
-        prose,
-        audience,
-        wordLimitType,
-        wordLimit,
-        rubricString,
-        title,
-        text,
-        profile.credits,
-        profile.useCredits,
-        uid
-      );
-
-      if (!result) throw new Error("No response");
-
-      const creditsDeducted = await minusCredits(creditsUsed);
-
-      if (!creditsDeducted) {
-        throw new Error("Failed to deduct credits.");
-      }
-
-      let finalSummary = "";
-      let finalGrade = "";
-      for await (const content of readStreamableValue(result)) {
-        if (content) {
-          finalSummary = content.trim();
-          finalGrade = extractGrade(finalSummary);
-          setSummary(finalSummary);
-          setGrade(finalGrade);
-        }
-      }
-
-      setThinking(false);
-      isStreamingCompleteRef.current = true;
-      void saveSubmissionToHistory(finalSummary, finalGrade);
+      result = await streamGrade({
+        modelId: selectedModelId,
+        profile,
+        data: gradingData,
+        rubricString: JSON.stringify(gradingData.rubric),
+        uid,
+        minusCredits,
+        onUpdate: (feedback, nextGrade) => {
+          setSummary(feedback);
+          setGrade(nextGrade);
+        },
+      });
     } catch (error) {
       console.error(error);
-      setThinking(false);
-      setFlagged(
-        "No suggestions found. Servers might be overloaded right now."
-      );
+      setFlagged(GRADING_FAILED_MESSAGE);
+      return;
     } finally {
-      setThinking(false);
+      setBusy(null);
     }
-  },
-    [gradingData, minusCredits, profile.credits, profile.identity, profile.identityLevel, profile.useCredits, selectedModelId, uid, saveSubmissionToHistory]
-  );
 
-
-  // Handle fixing grammar and spelling
-  const handleFixGrammarSpelling = async () => {
-    setFlagged("");
-    setThinking(true);
-    isStreamingCompleteRef.current = false;
-    hasSavedRef.current = false;
-
+    setJustGraded(true);
+    if (!uid || !summaryID) return;
     try {
-      const { correctedTextArray, totalCreditsUsed } = await correctGrammarAndSpelling(gradingData.text, profile.credits, profile.useCredits, uid, selectedModelId);
-      const finalText = correctedTextArray.join("");
-      if (!finalText) throw new Error("No response");
-
-      const creditsDeducted = await minusCredits(totalCreditsUsed);
-
-      if (!creditsDeducted) {
-        throw new Error("Failed to deduct credits.");
-      }
-
-      // setSummary(finalText);
-      setGradingData({ text: finalText });
-      setThinking(false);
-      isStreamingCompleteRef.current = true;
+      await saveSubmission(result.feedback, result.grade);
     } catch (error) {
-      console.error(error);
-      setThinking(false);
-      setFlagged(
-        "No suggestions found. Servers might be overloaded right now."
-      );
+      console.error("Failed to save submission:", error);
+      toast.error("Graded, but couldn't save this version.");
     }
   };
 
-  // Scroll into view when content changes
-  useEffect(() => {
-    if (!flagged && summary && isStreamingCompleteRef.current) {
-      document.getElementById("response")?.scrollIntoView({ behavior: "smooth" });
-    } else if (thinking && !summary && !flagged) {
-      document.getElementById("thinking")?.scrollIntoView({ behavior: "smooth" });
-    } else if (flagged) {
-      document.getElementById("flagged")?.scrollIntoView({ behavior: "smooth" });
+  const handleFixGrammarSpelling = async () => {
+    setFlagged("");
+    setBusy("correcting");
+    try {
+      const { correctedTextArray, totalCreditsUsed } = await correctGrammarAndSpelling(
+        gradingData.text,
+        profile.credits,
+        profile.useCredits,
+        uid,
+        selectedModelId
+      );
+      const finalText = correctedTextArray.join("");
+      if (!finalText) throw new Error("No response");
+      if (!(await minusCredits(totalCreditsUsed))) throw new Error("Failed to deduct credits.");
+      setGradingData({ text: finalText });
+    } catch (error) {
+      console.error(error);
+      setFlagged(GRADING_FAILED_MESSAGE);
+    } finally {
+      setBusy(null);
     }
-  }, [thinking, flagged, isStreamingCompleteRef, summary]);
+  };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  if (loading) return <PageLoader label="Loading document" />;
 
   if (!userDoc) {
-    return <div>Document not found</div>;
+    return (
+      <PageContainer>
+        <EmptyState
+          icon={<FileQuestion />}
+          title="Document not found"
+          description="It may have been deleted, or the link is out of date."
+          action={
+            <Button asChild variant="secondary">
+              <Link href="/assignments">Back to history</Link>
+            </Button>
+          }
+        />
+      </PageContainer>
+    );
   }
-
 
   return (
     <DocumentShell
-      key={`${flagged}-${summary}-${grade}`}
-      active={active}
-      thinking={thinking}
-      localCount={localCount}
-      profile={profile}
+      summaryID={summaryID}
+      submittedAt={new Date(timestampMillis)}
       gradingData={gradingData}
       setGradingData={setGradingData}
+      profile={profile}
       summary={summary}
-      flagged={flagged}
-      fileUrl={fileUrl}
-      selectedModelId={selectedModelId}
-      setSelectedModelId={setSelectedModelId}
-      onModelChange={onModelChange}
-      handleSubmit={handleSubmit}
-      handleFixGrammarSpelling={handleFixGrammarSpelling}
-      router={router}
-      uid={uid}
-      loading={loading}
-      userDoc={userDoc}
       grade={grade}
-      selectedRubric={selectedRubric}
-      models={models}
+      flagged={flagged}
+      thinking={thinking}
+      correcting={busy === "correcting"}
+      canSubmit={canSubmit}
+      selectedModelId={selectedModelId}
+      onModelChange={setSelectedModelId}
+      onSubmit={handleSubmit}
+      onFixGrammarSpelling={handleFixGrammarSpelling}
     />
   );
-};
-
-export default Document;
+}
