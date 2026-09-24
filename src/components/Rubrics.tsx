@@ -11,9 +11,8 @@ import RubricDisplay from "@/components/rubrics/RubricDisplay";
 import RubricBuilder from "@/components/rubrics/RubricBuilder";
 import RubricSearch from "@/components/rubrics/RubricSearch";
 import RubricHelper from "@/components/rubrics/RubricHelper";
-import CustomButton from "@/components/ui/CustomButton";
+import { Button } from "@/components/ui/button";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
-import RubricsTour from "@/components/tours/RubricsTour"
 
 export default function Rubrics() {
   const { uid } = useAuthStore();
@@ -80,7 +79,6 @@ export default function Rubrics() {
       <div>
         <div className="flex flex-row justify-between">
           <div className="flex gap-x-1 items-center">
-            <RubricsTour />
             <h1>Rubrics</h1>
 
           </div>
@@ -125,10 +123,10 @@ export default function Rubrics() {
           <RubricHelper />
         </div>
         {/* Rubric Builder Button */}
-        <CustomButton onClick={() => setShowRubricBuilder(true)} className="btn-shiny btn-shiny-teal rubric-builder">
+        <Button onClick={() => setShowRubricBuilder(true)} className="btn-shiny btn-shiny-teal rubric-builder">
           <Blocks />
           <h2>Rubric Builder</h2>
-        </CustomButton>
+        </Button>
       </div>
 
       {/* Rubric Search */}

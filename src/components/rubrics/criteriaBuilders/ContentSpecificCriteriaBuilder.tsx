@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { GenericRubricCriteria, ContentSpecificRubric } from '@/lib/types/rubrics-types';
 import { toast } from 'react-hot-toast';
 import { BadgePlus, Save, Edit2Icon, Trash2, PlusCircle } from 'lucide-react';
-import CustomButton from '@/components/ui/CustomButton';
+import { Button } from "@/components/ui/button";
 
 interface PerformanceLevel {
   name: string;
@@ -176,15 +176,15 @@ const ContentSpecificCriteriaBuilder: React.FC<ContentSpecificCriteriaBuilderPro
             />
           </div>
         ))}
-        <CustomButton onClick={addPerformanceLevel} className="btn btn-shiny bg-primary-80 gap-x-2 w-fit text-primary-10 mt-2">
+        <Button onClick={addPerformanceLevel} className="btn btn-shiny bg-primary-80 gap-x-2 w-fit text-primary-10 mt-2">
           <PlusCircle size={18} />
           <p>Add Performance Level</p>
-        </CustomButton>
+        </Button>
       </div>
-      <CustomButton onClick={addOrUpdateCriterion} className="btn btn-shiny bg-primary-80 gap-x-2 w-fit text-primary-10 mt-4">
+      <Button onClick={addOrUpdateCriterion} className="btn btn-shiny bg-primary-80 gap-x-2 w-fit text-primary-10 mt-4">
         {isEditing ? <Save size={18} /> : <BadgePlus size={18} />}
         <p>{isEditing ? 'Update Criterion' : 'Add Criterion'}</p>
-      </CustomButton>
+      </Button>
       <SavedCriteriaList items={savedCriteria} onEdit={(criterion) => isEditing ? addOrUpdateCriterion() : loadCriterion(criterion as typeof savedCriteria[number])} onDelete={(id) => deleteCriterion(id)} />
     </div>
   );

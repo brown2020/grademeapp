@@ -1,7 +1,7 @@
 "use client";
 
 import { LifeBuoy } from "lucide-react";
-import CustomButton from "@/components/ui/CustomButton";
+import { Button } from "@/components/ui/button";
 
 export default function RubricHelperTrigger({
   isOpen,
@@ -11,9 +11,9 @@ export default function RubricHelperTrigger({
   onToggle: () => void;
 }) {
   return (
-    <CustomButton onClick={onToggle} className="btn-shiny btn-shiny-yellow-orange">
+    <Button onClick={onToggle} className="btn-shiny btn-shiny-yellow-orange">
       <LifeBuoy />
       <h2>Rubric Helper</h2>
-    </CustomButton>
+    </Button>
   );
 }

@@ -1,28 +1,48 @@
-import * as React from "react"
-import { Slot } from "@radix-ui/react-slot"
-import { type VariantProps } from "class-variance-authority"
+import * as React from "react";
+import { Slot } from "@radix-ui/react-slot";
+import { Loader2 } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { buttonVariants } from "./button-variants"
+import { cn } from "@/lib/utils";
+import { buttonVariants, type ButtonVariantProps } from "./button-variants";
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
-  asChild?: boolean
+    ButtonVariantProps {
+  asChild?: boolean;
+  loading?: boolean;
 }
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button"
+function Button({
+  className,
+  variant,
+  size,
+  asChild = false,
+  loading = false,
+  disabled,
+  children,
+  type,
+  ...props
+}: ButtonProps & { ref?: React.Ref<HTMLButtonElement> }) {
+  const classes = cn(buttonVariants({ variant, size }), className);
+  if (asChild) {
     return (
-      <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
-        ref={ref}
-        {...props}
-      />
-    )
+      <Slot className={classes} {...props}>
+        {children}
+      </Slot>
+    );
   }
-)
-Button.displayName = "Button"
+  return (
+    <button
+      type={type ?? "button"}
+      className={classes}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
+      {...props}
+    >
+      {loading && <Loader2 className="animate-spin" aria-hidden />}
+      {children}
+    </button>
+  );
+}
 
-export { Button }
+export { Button, buttonVariants };

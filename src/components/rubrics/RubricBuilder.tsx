@@ -6,9 +6,8 @@ import RubricTypeExplanation from '@/components/rubrics/criteriaBuilders/RubricT
 import { RubricState, RubricType } from '@/lib/types/rubrics-types';
 import { toast } from "react-hot-toast";
 import { Ban, Blocks, Save, XCircleIcon, DeleteIcon } from 'lucide-react';
-import CustomButton from '@/components/ui/CustomButton';
+import { Button } from "@/components/ui/button";
 import { useRubricStore } from "@/zustand/useRubricStore";
-import RubricBuilderTour from '@/components/tours/RubricBuilderTour';
 
 export default function RubricBuilder({ onClose }: {
   onClose: () => void;
@@ -95,7 +94,6 @@ export default function RubricBuilder({ onClose }: {
   return (
     <div className="flex flex-col pb-1 z-50 rubric-builder">
       <div className="flex justify-between">
-        <RubricBuilderTour />
         <XCircleIcon onClick={handleClose} className="h-6 w-6 text-primary-10 cursor-pointer" />
       </div>
 
@@ -163,23 +161,23 @@ export default function RubricBuilder({ onClose }: {
       {/* Save and Cancel Buttons */}
       <div className='flex flex-row justify-between'>
         <div className="flex flex-row justify-start gap-4">
-          <CustomButton onClick={handleSaveOrUpdate} className='btn btn-shiny btn-shiny-green rubric-builder-save'>
+          <Button onClick={handleSaveOrUpdate} className='btn btn-shiny btn-shiny-green rubric-builder-save'>
             <Save size={18} />
             <p>{editingRubricId ? 'Update Rubric' : 'Save Rubric'}</p>
-          </CustomButton>
-          <CustomButton onClick={handleClose} className="btn btn-shiny btn-shiny-red rubric-builder-cancel">
+          </Button>
+          <Button onClick={handleClose} className="btn btn-shiny btn-shiny-red rubric-builder-cancel">
             <Ban size={18} />
             <p>Cancel</p>
-          </CustomButton>
+          </Button>
         </div>
         {editingRubricId && (
-          <CustomButton onClick={() => {
+          <Button onClick={() => {
             handleDelete();
             handleClose();
           }} className="btn btn-shiny btn-shiny-red">
             <DeleteIcon size={18} />
             <p>Delete Rubric</p>
-          </CustomButton>
+          </Button>
         )}
       </div>
     </div>

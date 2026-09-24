@@ -17,12 +17,11 @@ import { Paperclip, RefreshCwIcon } from "lucide-react"
 import { extractGrade } from "@/lib/utils/responseParser";
 import { saveDocument } from "@/lib/utils/saveHistory";
 import { useRubricStore } from "@/zustand/useRubricStore";
-import CustomButton from "@/components/ui/CustomButton";
+import { Button } from "@/components/ui/button";
 import Tiptap from "@/components/tiptap/Tiptap";
 import Image from "next/image";
 import grader from "@/app/assets/grader_2.svg";
 import grademe from "@/app/assets/grademe.svg";
-import GraderTour from "@/components/tours/GraderTour";
 import GraderSettingsModal from "@/components/GraderSettingsModal";
 import { ModelSelector } from "./ModelSelector";
 import { getDefaultModelId } from '@/lib/utils'
@@ -180,7 +179,6 @@ export default function Grader({ onModelChange }: GraderProps) {
     <main className="flex flex-col gap-y-4 pb-10 md:pb-0">
       <div>
         <div className="flex gap-x-1 items-center">
-          <GraderTour />
           <h1>Grader</h1>
         </div>
         <hr />
@@ -275,12 +273,12 @@ export default function Grader({ onModelChange }: GraderProps) {
               </div>
             </button>
 
-            <CustomButton onClick={() => {
+            <Button onClick={() => {
               setGradingData({ title: "", text: "" });
             }}
               aria-label="Reset grader" className="size-12 sm:size-16 btn btn-shiny flex items-center bg-secondary-97 border-2 border-primary-40 rounded-full p-1.5 grader-reset-button">
               <RefreshCwIcon size={25} className="place-self-center place-items-center text-primary-20" />
-            </CustomButton>
+            </Button>
 
             <GraderSettingsModal />
           </section>

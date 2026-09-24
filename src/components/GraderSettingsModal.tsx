@@ -5,7 +5,7 @@ import { useRubricStore } from '@/zustand/useRubricStore';
 import CustomListbox from '@/components/ui/CustomListbox';
 import userInputs from '@/lib/constants/userInputs';
 import { Settings } from 'lucide-react';
-import CustomButton from '@/components/ui/CustomButton';
+import { Button } from "@/components/ui/button";
 
 const GraderSettingsModal: React.FC = () => {
   const { gradingData, setGradingData } = useRubricStore();
@@ -32,9 +32,9 @@ const GraderSettingsModal: React.FC = () => {
 
   return (
     <div className="grader-settings">
-      <CustomButton aria-label="Grader settings" onClick={isOpen ? closeGraderSettings : () => setIsOpen(true)} className="size-12 sm:size-16 btn btn-shiny flex items-center bg-secondary-97 border-2 border-primary-40 rounded-full p-1.5 grader-reset-button">
+      <Button aria-label="Grader settings" onClick={isOpen ? closeGraderSettings : () => setIsOpen(true)} className="size-12 sm:size-16 btn btn-shiny flex items-center bg-secondary-97 border-2 border-primary-40 rounded-full p-1.5 grader-reset-button">
         <Settings size={30} className="place-self-center place-items-center text-primary-20" />
-      </CustomButton>
+      </Button>
 
       <div
         className={`flex flex-col gap-y-4 bg-background border-primary-40 border-t-2 border-l-2 border-b-2 p-2 rounded-l-lg fixed right-0 top-[16svh] h-fit max-w-sm w-full z-10 transition-all ${isOpen ? 'animate-enter grader-settings-open' : isExiting ? 'animate-exit' : 'hidden'}`}

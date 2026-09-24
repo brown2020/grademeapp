@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { SkillFocusedRubric, GenericRubricCriteria } from '@/lib/types/rubrics-types';
 import { toast } from 'react-hot-toast';
 import { BadgePlus, Save, Edit2Icon, Trash2, PlusCircle } from 'lucide-react';
-import CustomButton from '@/components/ui/CustomButton';
+import { Button } from "@/components/ui/button";
 
 interface SkillFocusedCriteriaBuilderProps {
   rubric: SkillFocusedRubric;
@@ -158,15 +158,15 @@ const SkillFocusedCriteriaBuilder: React.FC<SkillFocusedCriteriaBuilderProps> = 
             />
           </div>
         ))}
-        <CustomButton onClick={addPerformanceLevel} className="btn btn-shiny bg-primary-80 gap-x-2 w-fit text-primary-10 mt-2">
+        <Button onClick={addPerformanceLevel} className="btn btn-shiny bg-primary-80 gap-x-2 w-fit text-primary-10 mt-2">
           <PlusCircle size={18} />
           <span>Add Performance Level</span>
-        </CustomButton>
+        </Button>
       </div>
-      <CustomButton onClick={addOrUpdateSkillComponent} className="btn btn-shiny bg-primary-80 gap-x-2 w-fit text-primary-10 mt-4">
+      <Button onClick={addOrUpdateSkillComponent} className="btn btn-shiny bg-primary-80 gap-x-2 w-fit text-primary-10 mt-4">
         {isEditing ? <Save size={18} /> : <BadgePlus size={18} />}
         <span>{isEditing ? 'Update Skill Component' : 'Add Skill Component'}</span>
-      </CustomButton>
+      </Button>
       <SavedCriteriaList title="Saved Skill Components" emptyText="Added skill components will appear here." items={skillComponents} onEdit={(item) => editSkillComponent(item as typeof skillComponents[number])} onDelete={(id) => deleteSkillComponent(id)} />
     </div>
   );

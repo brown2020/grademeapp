@@ -15,7 +15,6 @@ import RubricDisplay from "@/components/rubrics/RubricDisplay";
 import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/react";
 import { ChevronDown, Download } from "lucide-react";
 import { RubricState, BaseRubric } from "@/lib/types/rubrics-types";
-import SummaryTour from "@/components/tours/SummaryTour";
 
 // Fetch summary by ID
 const fetchSummaryById = async (uid: string, id: string) => {
@@ -85,7 +84,6 @@ const Summary = () => {
       {/* Title, Topic, and Rubric */}
       <div>
         <div className="flex gap-x-1">
-          <SummaryTour />
           <h1>Summary</h1>
         </div>
         <hr />

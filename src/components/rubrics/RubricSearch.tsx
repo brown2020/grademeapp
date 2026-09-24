@@ -6,7 +6,7 @@ import { useRubricStore } from '@/zustand/useRubricStore';
 import useProfileStore from '@/zustand/useProfileStore';
 import { toast } from 'react-hot-toast';
 import { Star, Edit3Icon, DeleteIcon, Copy } from 'lucide-react';
-import CustomButton from '@/components/ui/CustomButton';
+import { Button } from "@/components/ui/button";
 
 export default function RubricSearch() {
   const {
@@ -131,12 +131,12 @@ export default function RubricSearch() {
                   </button>
                 </div>
                 {!useCustomRubrics &&
-                  <CustomButton
+                  <Button
                     onClick={() => handleCopyRubric(rubric)}
                     className="cursor-pointer"
                   >
                     <Copy className="size-4" />
-                  </CustomButton>}
+                  </Button>}
                 {useCustomRubrics && customRubricsLoaded &&
                   <div className='flex gap-x-4'>
                     <Edit3Icon onClick={() => openRubricBuilder && openRubricBuilder(rubric.id)} className={`text-secondary-30 cursor-pointer`} />

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { PrimaryTraitRubric, GenericRubricCriteria } from '@/lib/types/rubrics-types';
 import { toast } from 'react-hot-toast';
 import { BadgePlus, Save, Edit2Icon, Trash2 } from 'lucide-react';
-import CustomButton from '@/components/ui/CustomButton';
+import { Button } from "@/components/ui/button";
 
 interface PrimaryTraitCriteriaBuilderProps {
   rubric: PrimaryTraitRubric;
@@ -148,10 +148,10 @@ const PrimaryTraitCriteriaBuilder: React.FC<PrimaryTraitCriteriaBuilderProps> = 
           </div>
         ))}
       </div>
-      <CustomButton onClick={addOrUpdateCriterion} className="btn btn-shiny bg-primary-80 gap-x-2 w-fit text-primary-10 mt-4">
+      <Button onClick={addOrUpdateCriterion} className="btn btn-shiny bg-primary-80 gap-x-2 w-fit text-primary-10 mt-4">
         {isEditing ? <Save size={18} /> : <BadgePlus size={18} />}
         <p>{isEditing ? 'Update Criterion' : 'Add Criterion'}</p>
-      </CustomButton>
+      </Button>
       <SavedCriteriaList items={savedCriteria} onEdit={(c) => loadCriterion(c as typeof savedCriteria[number])} onDelete={(id) => deleteCriterion(id)} />
     </div>
   );

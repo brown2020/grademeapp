@@ -5,6 +5,7 @@ import { isSignInWithEmailLink, signInWithEmailLink } from "firebase/auth";
 import { auth } from "@/firebase/firebaseClient";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { Loader2 } from "lucide-react";
 import { FirebaseError } from "firebase/app";
 import useProfileStore from "@/zustand/useProfileStore";
 
@@ -71,8 +72,9 @@ export default function LoginFinishPage() {
   }, [router, setAuthDetails, updateProfile]);
 
   return (
-    <div className="flex items-center justify-center h-full">
-      <p>Completing sign-in...</p>
+    <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-muted-foreground">
+      <Loader2 className="size-6 animate-spin" aria-hidden />
+      <p>Completing sign-in…</p>
     </div>
   );
 }

@@ -8,7 +8,7 @@ import {
 } from '@/lib/types/rubrics-types';
 import { toast } from 'react-hot-toast';
 import { BadgePlus, PlusCircle, Edit2Icon, Trash2, Save } from 'lucide-react';
-import CustomButton from '@/components/ui/CustomButton';
+import { Button } from "@/components/ui/button";
 
 
 interface MultiTraitCriteriaBuilderProps {
@@ -185,16 +185,16 @@ const MultiTraitCriteriaBuilder: React.FC<MultiTraitCriteriaBuilderProps> = ({
               />
             </div>
           ))}
-          <CustomButton onClick={addSubCriterion} className="btn btn-shiny bg-primary-80 gap-x-2 w-fit text-primary-10 mt-2">
+          <Button onClick={addSubCriterion} className="btn btn-shiny bg-primary-80 gap-x-2 w-fit text-primary-10 mt-2">
             <PlusCircle size={18} />
             <span>Add Sub-Criterion</span>
-          </CustomButton>
+          </Button>
         </div>
       </div>
-      <CustomButton onClick={addOrUpdateCriterion} className="btn btn-shiny bg-primary-80 gap-x-2 w-fit text-primary-10 mt-4">
+      <Button onClick={addOrUpdateCriterion} className="btn btn-shiny bg-primary-80 gap-x-2 w-fit text-primary-10 mt-4">
         {isEditing ? <Save size={18} /> : <BadgePlus size={18} />}
         <span>{isEditing ? 'Update Criterion' : 'Add Criterion'}</span>
-      </CustomButton>
+      </Button>
       <SavedCriteriaList items={savedCriteria} onEdit={(criterion) => isEditing ? addOrUpdateCriterion() : loadCriterion(criterion as typeof savedCriteria[number])} onDelete={(id) => deleteCriterion(id)} />
     </div>
   );

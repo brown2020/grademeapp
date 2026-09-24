@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { AnalyticalRubric, RubricType } from '@/lib/types/rubrics-types';
 import { toast } from 'react-hot-toast';
 import { BadgePlus, Save, Edit2Icon, Trash2 } from 'lucide-react';
-import CustomButton from '@/components/ui/CustomButton';
+import { Button } from "@/components/ui/button";
 import { useRubricStore } from '@/zustand/useRubricStore';
 
 interface AnalyticalCriterionState {
@@ -126,10 +126,10 @@ const AnalyticalCriteriaBuilder: React.FC<AnalyticalCriteriaBuilderProps> = ({
           </div>
         ))}
       </div>
-      <CustomButton onClick={addOrUpdateCriterion} className="rubric-builder-add-criterion btn btn-shiny bg-primary-80 gap-x-2 w-fit text-primary-10 mt-2">
+      <Button onClick={addOrUpdateCriterion} className="rubric-builder-add-criterion btn btn-shiny bg-primary-80 gap-x-2 w-fit text-primary-10 mt-2">
         {isEditing ? <Save size={18} /> : <BadgePlus size={18} />}
         <p>{isEditing ? 'Update Criterion' : 'Add Criterion'}</p>
-      </CustomButton>
+      </Button>
       <div className="criteria-list mt-4 rubric-builder-saved-criteria">
         <h4 className="text-primary-20 font-semibold text-center">Saved Criteria</h4>
         {savedCriteria.length === 0 ? (

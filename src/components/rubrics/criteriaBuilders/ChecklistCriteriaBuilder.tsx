@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ChecklistRubric, GenericRubricCriteria, RubricState } from '@/lib/types/rubrics-types';
 import { BadgePlus, MinusCircleIcon } from 'lucide-react';
-import CustomButton from '@/components/ui/CustomButton';
+import { Button } from "@/components/ui/button";
 import { toast } from 'react-hot-toast';
 
 interface ChecklistCriteriaBuilderProps {
@@ -95,10 +95,10 @@ const ChecklistCriteriaBuilder: React.FC<ChecklistCriteriaBuilderProps> = ({ rub
           placeholder="Enter new criterion"
           className="px-1 w-full py-0.5 rounded shadow-sm border border-primary-40"
         />
-        <CustomButton onClick={addNewChecklistCriterion} className="btn btn-shiny btn-shiny-green py-1 mx-1">
+        <Button onClick={addNewChecklistCriterion} className="btn btn-shiny btn-shiny-green py-1 mx-1">
           <BadgePlus className='size-4 flex-none' />
           <p>Add</p>
-        </CustomButton>
+        </Button>
       </div>
     </div>
   );

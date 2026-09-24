@@ -21,8 +21,7 @@ import { useAuthStore } from "@/zustand/useAuthStore";
 import { PlusCircle, Search, XCircle } from "lucide-react";
 import { UserHistoryType } from "@/lib/types/user-history";
 import { useRouter } from "next/navigation";
-import CustomButton from "./ui/CustomButton";
-import AssignmentsTour from "@/components/tours/AssignmentsTour";
+import { Button } from "@/components/ui/button";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 
 function debounce(func: (value: string) => void, delay: number): (value: string) => void {
@@ -170,16 +169,15 @@ export default function Assignments() {
     <div className="flex flex-col gap-y-4">
       <div>
         <div className="flex gap-x-1 items-center">
-          <AssignmentsTour />
           <h1>Assignments</h1>
         </div>
         <hr />
       </div>
 
-      <CustomButton onClick={() => setTimeout(() => router.push('/grader'), 300)} className="btn-shiny btn-shiny-green w-full md:w-fit assignments-new">
+      <Button onClick={() => setTimeout(() => router.push('/grader'), 300)} className="btn-shiny btn-shiny-green w-full md:w-fit assignments-new">
         <PlusCircle />
         <p>Grade New Assignment</p>
-      </CustomButton>
+      </Button>
 
       <div className="flex flex-row items-center px-3 bg-secondary-95 focus-within:ring-1 ring-primary-30 rounded-full w-full ring-offset-4 shadow-sm assignments-search">
         <Search size={20} className="flex text-primary-40" />

@@ -12,8 +12,7 @@ import { getVerbsByValue, userInputs } from "@/lib/constants/userInputs";
 import { useRubricStore } from "@/zustand/useRubricStore";
 import useProfileStore from "@/zustand/useProfileStore";
 import { LifeBuoy } from "lucide-react";
-import CustomButton from "@/components/ui/CustomButton";
-import RubricHelperTour from "@/components/tours/RubricHelperTour";
+import { Button } from "@/components/ui/button";
 
 export default function RubricHelper() {
   const { gradingData, setGradingData } = useRubricStore();

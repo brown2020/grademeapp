@@ -8,7 +8,6 @@ import Image from "next/image";
 import CustomListbox from "@/components/ui/CustomListbox";
 import { userInputs } from "@/lib/constants/userInputs";
 import { User2 } from "lucide-react";
-import ProfileTour from "@/components/tours/ProfileTour";
 
 export default function Profile() {
   const profile = useProfileStore((state) => state.profile);
@@ -23,7 +22,6 @@ export default function Profile() {
     <div className="flex flex-col h-full w-full max-w-4xl mx-auto gap-4 profile">
       <div>
         <div className="flex gap-x-1">
-          <ProfileTour />
           <h1>Profile</h1>
         </div>
         <hr />

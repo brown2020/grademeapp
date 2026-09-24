@@ -7,8 +7,7 @@ import { Field } from "@headlessui/react";
 import TextareaAutosize from "react-textarea-autosize";
 import { getVerbsByValue, userInputs } from "@/lib/constants/userInputs";
 import { LifeBuoy } from "lucide-react";
-import CustomButton from "@/components/ui/CustomButton";
-import RubricHelperTour from "@/components/tours/RubricHelperTour";
+import { Button } from "@/components/ui/button";
 import type { RefObject, ChangeEvent } from "react";
 
 type Props = {
@@ -43,7 +42,6 @@ export default function RubricHelperPanel({
         ref={rubricHelperRef}
         className={` flex flex-col gap-y-4 bg-background border-primary-40 border-t-2 border-l-2 border-b-2 p-2 rounded-l-lg fixed right-0 top-[16svh] h-fit max-w-sm w-full z-10 transition-all ${isOpen ? 'animate-enter rubric-helper-open' : isExiting ? 'animate-exit' : 'hidden'}`}
       >
-        <RubricHelperTour />
         <div className="flex flex-row gap-x-2 items-center justify-center mb-2">
           <LifeBuoy className="text-primary-40" />
           <h2 className="text-xl font-medium">Rubric Helper</h2>

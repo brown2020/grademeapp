@@ -1,12 +1,47 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { Inter, Source_Serif_4 } from "next/font/google";
 import "./globals.css";
 import { ClientProvider } from "@/components/ClientProvider";
-import Header from "@/components/Header";
-import BottomBar from "@/components/BottomBar";
+import { AppShell } from "@/components/shell/AppShell";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const serif = Source_Serif_4({
+  subsets: ["latin"],
+  variable: "--font-serif-display",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
-  title: "Grade.me",
-  description: "Let AI grade your papers and help you improve your work.",
+  title: {
+    default: "Grade.me — AI writing feedback",
+    template: "%s · Grade.me",
+  },
+  description:
+    "Rubric-based grades and actionable feedback on your writing, in seconds.",
+  manifest: "/site.webmanifest",
+  icons: {
+    icon: [
+      { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: { url: "/apple-touch-icon.png", sizes: "180x180" },
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fbfaf7" },
+    { media: "(prefers-color-scheme: dark)", color: "#16181c" },
+  ],
 };
 
 export default function RootLayout({
@@ -15,28 +50,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <head>
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1, viewport-fit=cover"
-        />
-        <meta name="theme-color" content="#ffffff" />
-        <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        <link rel="shortcut icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-        <link rel="manifest" href="/site.webmanifest" />
-      </head>
+    <html lang="en" className={`${inter.variable} ${serif.variable}`}>
       <body>
         <ClientProvider>
-          <div className="flex flex-col h-full relative">
-            <Header />
-            <div className="flex flex-col h-container-small md:h-container-custom overflow-y-auto">
-              <div className="flex flex-col h-full flex-1">{children}</div>
-            </div>
-            <BottomBar />
-          </div>
+          <AppShell>{children}</AppShell>
         </ClientProvider>
       </body>
     </html>
