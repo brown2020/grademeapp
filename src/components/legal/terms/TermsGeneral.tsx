@@ -1,77 +1,24 @@
-type Props = {
-  companyName: string;
-  companyEmail: string;
-  privacyLink: string;
-  updatedAt: string;
-};
+import { LEGAL } from "@/components/legal/legalInfo";
 
-export default function TermsPart3({
-  companyName,
-  companyEmail,
-  privacyLink,
-  updatedAt,
-}: Props) {
+/** Terms: notices, termination, compliance, governing law and modifications. */
+export function TermsGeneral() {
+  const { companyName, companyEmail } = LEGAL;
   return (
     <>
-      <p>
-        The Services may provide links to other websites maintained by third
-        parties. You acknowledge and agree that such links are provided for your
-        convenience only and do not reflect any endorsement, affiliation,
-        relationship, or sponsorship by {companyName} with respect to the
-        provider of such linked site or the quality, reliability, or any other
-        characteristic or feature of such linked site. You further acknowledge
-        and agree that {companyName} is not responsible in any manner (including
-        without limitation with respect to any loss or injury you may suffer)
-        for any matter associated with the linked site, including without
-        limitation, the content provided on or through any such linked site or
-        your reliance thereon. In addition, you should be aware that your use of
-        any third party site is subject to the terms and conditions applicable
-        to that site, including the privacy policies (or lack thereof) of such
-        site. If a third party links to the Services, it is not necessarily an
-        indication of endorsement, affiliation, relationship, or sponsorship by
-        or with {companyName}. {companyName} may not even be aware that a third
-        party has linked to the Services.
-      </p>
-      <p>
-        Any other content not owned by {companyName} is owned by its respective
-        owner. You acknowledge and agree that such content is provided by its
-        owner and does not reflect any endorsement, affiliation, relationship,
-        or sponsorship by {companyName} with respect to the provider of such
-        content. You further acknowledge and agree that
-        {companyName} is not liable or responsible in any manner (including
-        without limitation with respect to any loss or injury you may suffer)
-        for any content provided by third parties including, without limitation,
-        your reliance thereon. {companyName} MAKES NO REPRESENTATIONS OR
-        WARRANTIES WITH RESPECT TO ANY THIRD PARTY CONTENT.
-      </p>
-      <p>
-        You agree to indemnify, hold harmless, and defend {companyName}, its
-        subsidiaries, affiliates, officers, directors, employees,
-        representatives, agents, partners, licensors, successors, and assigns,
-        from and against any action, cause, claim, damage, debt, demand, or
-        liability, including reasonable costs and attorneys’ fees, asserted by
-        any person, arising out of or relating to (i) your use of the Services,
-        including but not limited to anyone using your account or Credentials;
-        (ii) breach of this Agreement by you or anyone using your account or
-        Credentials; (iii) any information used, stored, or transmitted in
-        connection with your account or Credentials; (iv) breach of the rights
-        of any third party, including but not limited to privacy, publicity,
-        intellectual property, or other proprietary rights by you or anyone
-        using your account or Credentials; or (v) violation of any law,
-        regulation, or other legal requirement.
-      </p>
-      <h4>Notice for California Users</h4>
+      <h2>Notice for California Users</h2>
       <p>
         Under California Civil Code Section 1789.3, California users of the
         Services are entitled to the following specific consumer rights notice:
       </p>
-      <h5>
+      <p>
+        <strong>
         The Complaint Assistance Unit of the Division of Consumer Services of
         the California Department of Consumer Affairs may be contacted in
         writing at 1625 N. Market Blvd., Suite N 112, Sacramento, California
         95834, or by telephone at (800) 952-5210.
-      </h5>
-      <h4>Termination; Cancellation</h4>
+      </strong>
+      </p>
+      <h2>Termination; Cancellation</h2>
       <p>
         This Agreement shall continue in full force until terminated or canceled
         pursuant to this Agreement.
@@ -99,7 +46,7 @@ export default function TermsPart3({
         during any notice period shall survive termination of this Agreement for
         any reason whatsoever.
       </p>
-      <h4>Federal Government End Use Restrictions</h4>
+      <h2>Federal Government End Use Restrictions</h2>
       <p>
         If you are a U.S. federal government department or agency or are
         contracting on behalf of such a department or agency, Services are
@@ -111,16 +58,16 @@ export default function TermsPart3({
         to you with only those rights as provided under the terms and conditions
         of this Agreement.
       </p>
-      <h4>Export Compliance and Use Restrictions</h4>
+      <h2>Export Compliance and Use Restrictions</h2>
       <p>
         You will not directly or indirectly export or re-export the Services, or
         any technical information related thereto, to any destination or person
         prohibited or restricted by applicable law, including, without
         limitation, all applicable U.S. export control laws and regulations.
       </p>
-      <h4>
+      <h2>
         Governing Law; Forum; Mandatory Binding Arbitration, Class Action Waiver
-      </h4>
+      </h2>
       <p>
         Any action related to this Agreement, the Services, and your
         relationship with {companyName} shall be governed by, construed, and
@@ -157,7 +104,7 @@ export default function TermsPart3({
         representative action, except where such waiver is prohibited by law or
         deemed by a court of law to be against public policy.
       </p>
-      <h4>Miscellaneous</h4>
+      <h2>Miscellaneous</h2>
       <p>
         You acknowledge that {companyName} has the right to monitor use of the
         Services to ensure compliance with the Agreement.
@@ -192,7 +139,7 @@ export default function TermsPart3({
         In case of any conflict between the terms of this Agreement and the
         terms of the Privacy Policy, the terms of this Agreement shall prevail.
       </p>
-      <h4>Modification of the Terms and Services</h4>
+      <h2>Modification of the Terms and Services</h2>
       <p>
         {companyName} reserves the right to update this Agreement and/or the
         Privacy Policy at any time and for any reason in its sole discretion by
@@ -214,7 +161,6 @@ export default function TermsPart3({
         {companyName} shall not be liable to you or to any third party for any
         modification, suspension, or discontinuance of the Services.
       </p>
-      <h5>Last Updated: {updatedAt}</h5>
     </>
   );
 }

@@ -1,12 +1,8 @@
-import TermsPage from "@/components/TermsPage";
+import type { Metadata } from "next";
+import { TermsOfService } from "@/components/legal/TermsOfService";
 
-export default function Terms() {
-  return (
-    <TermsPage
-      companyName="Grade.me"
-      companyEmail="info@ignitechannel.com"
-      updatedAt={"September 1, 2024"}
-      privacyLink={"/privacy"}
-    />
-  );
+export const metadata: Metadata = { title: "Terms of Service" };
+
+export default function TermsPage() {
+  return <TermsOfService />;
 }

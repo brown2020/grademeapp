@@ -1,13 +1,13 @@
-import PrivacyPage from "@/components/PrivacyPage";
+import type { Metadata } from "next";
+import { LegalDocument } from "@/components/legal/LegalDocument";
+import { PrivacyPolicy } from "@/components/legal/PrivacyPolicy";
 
-export default function page() {
+export const metadata: Metadata = { title: "Privacy Policy" };
+
+export default function PrivacyPage() {
   return (
-    <PrivacyPage
-      companyName="Grade.me"
-      companyEmail="info@ignitechannel.com"
-      companyAddress={"30765 Pacific Coast Hwy #354"}
-      companyLocation={"Malibu, CA"}
-      updatedAt={"September 1, 2024"}
-    />
+    <LegalDocument title="Privacy Policy">
+      <PrivacyPolicy />
+    </LegalDocument>
   );
 }

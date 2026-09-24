@@ -1,13 +1,8 @@
-import SupportPage from "@/components/SupportPage";
+import type { Metadata } from "next";
+import { SupportContact } from "@/components/legal/SupportContact";
 
-export default function page() {
-  return (
-    <SupportPage
-      companyName="Grade.me"
-      companyEmail="info@ignitechannel.com"
-      companyAddress={"30765 Pacific Coast Hwy #354"}
-      companyLocation={"Malibu, CA"}
-      updatedAt={"September 1, 2024"}
-    />
-  );
+export const metadata: Metadata = { title: "Support" };
+
+export default function SupportPage() {
+  return <SupportContact />;
 }

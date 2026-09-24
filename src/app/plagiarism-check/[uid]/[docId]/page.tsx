@@ -1,9 +1,8 @@
-import PlagiarismReport from "@/components/plagiarism/PlagiarismReport"
+import type { Metadata } from "next";
+import PlagiarismReport from "@/components/plagiarism/PlagiarismReport";
 
-const PlagiarismReportPage = () => {
-  return (
-    <PlagiarismReport />
-  )
+export const metadata: Metadata = { title: "Scan report" };
+
+export default function PlagiarismReportPage() {
+  return <PlagiarismReport />;
 }
-
-export default PlagiarismReportPage

@@ -1,104 +1,185 @@
 "use client";
 
-import { useCallback, useState } from "react";
 import { useParams } from "next/navigation";
-import { Loader2, AlertCircle } from "lucide-react";
+import { AlertCircle, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState, PageContainer, PageHeader } from "@/components/ui/page";
+import { Skeleton, Spinner } from "@/components/ui/spinner";
+import { MatchedSources } from "./MatchedSources";
+import { ScoreCard } from "./ScoreCard";
+import { StatusBadge } from "./StatusBadge";
+import { useJsonResource, usePolling } from "./useJsonResource";
+import {
+  formatDate,
+  matchedSources,
+  similarityPercent,
+  similarityTone,
+  type PlagiarismReportDoc,
+} from "./report";
 
-interface Report {
-  status: string;
-  results: {
-    score: {
-      aggregatedScore: number;
-    };
-    internet: {
-      id: string;
-      url: string;
-      title: string;
-      matchedWords: number;
-    }[];
-  };
+const POLL_MS = 10_000;
+
+async function parseReport(response: Response): Promise<PlagiarismReportDoc> {
+  if (!response.ok) {
+    throw new Error(
+      response.status === 404
+        ? "Report not found."
+        : "Failed to fetch report. Please try again later."
+    );
+  }
+  return response.json();
+}
+
+function ReportSkeleton() {
+  return (
+    <div className="flex flex-col gap-4" aria-busy>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Skeleton className="h-36 rounded-xl" />
+        <Skeleton className="h-36 rounded-xl" />
+      </div>
+      <Skeleton className="h-64 rounded-xl" />
+    </div>
+  );
+}
+
+function ScoreBreakdown({ report }: { report: PlagiarismReportDoc }) {
+  const score = report.results?.score;
+  const rows = [
+    ["Identical", score?.identicalWords],
+    ["Minor changes", score?.minorChangedWords],
+    ["Paraphrased", score?.relatedMeaningWords],
+  ].filter((row): row is [string, number] => typeof row[1] === "number");
+  if (rows.length === 0) return null;
+  return (
+    <dl className="flex flex-wrap gap-x-4 gap-y-1">
+      {rows.map(([label, value]) => (
+        <div key={label} className="flex gap-1">
+          <dt>{label}:</dt>
+          <dd className="tabular-nums text-foreground">{value.toLocaleString()} words</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+function ReportBody({ report }: { report: PlagiarismReportDoc }) {
+  if (report.status === "pending") {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
+          <Spinner className="size-6" label="Scanning" />
+          <p className="font-medium">Scanning your text…</p>
+          <p className="max-w-sm text-sm text-muted-foreground">
+            This usually takes a minute or two. The page checks for results automatically.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (report.status === "error") {
+    return (
+      <EmptyState
+        icon={<AlertCircle />}
+        title="This scan failed"
+        description="The checker couldn't finish this scan. Try submitting the text again."
+      />
+    );
+  }
+
+  const similarity = similarityPercent(report);
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <ScoreCard
+          label="Similarity"
+          value={similarity}
+          tone={similarity === null ? "primary" : similarityTone(similarity)}
+          caption={<ScoreBreakdown report={report} />}
+          fallback="No similarity score was returned for this scan."
+        />
+        <ScoreCard
+          label="AI content"
+          value={null}
+          tone="primary"
+          fallback="AI detection results aren't included in this report."
+        />
+      </div>
+      <MatchedSources sources={matchedSources(report)} wordCount={report.wordCount} />
+    </div>
+  );
 }
 
 export default function PlagiarismReport() {
-  const params = useParams();
-  const uid = params?.uid as string;
-  const docId = params?.docId as string;
-  const [report, setReport] = useState<Report | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [hasLoaded, setHasLoaded] = useState(false);
+  const params = useParams<{ uid: string; docId: string }>();
+  const uid = params?.uid;
+  const docId = params?.docId;
+  const url = uid && docId ? `/api/copyleaks/reports/${uid}/${docId}` : null;
+  const { data: report, error, isLoading, isRefreshing, reload } = useJsonResource(
+    url,
+    parseReport
+  );
+  usePolling(report?.status === "pending", POLL_MS, reload);
 
-  const loadReport = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(`/api/copyleaks/reports/${uid}/${docId}`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch report. Please try again later.");
-      }
-      const data = await response.json();
-      setReport(data);
-      setHasLoaded(true);
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("An unknown error occurred.");
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }, [uid, docId]);
-
-  if (!hasLoaded && !isLoading && !error) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
-        <p className="text-lg text-gray-500">Plagiarism report</p>
-        <button type="button" className="btn btn-shiny btn-shiny-blue px-4 py-2" onClick={loadReport}>
-          Load report
-        </button>
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
-        <p className="ml-4 text-lg text-gray-500">Loading report...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col items-center gap-3 p-4">
-        <AlertCircle className="h-8 w-8 text-red-500" />
-        <p className="text-red-500">{error}</p>
-        <button type="button" className="btn btn-shiny" onClick={loadReport}>Retry</button>
-      </div>
-    );
-  }
-
-  if (!report) {
-    return <p className="p-4">No report data.</p>;
-  }
+  const date = formatDate(report?.createdAt);
+  const details = [
+    date,
+    typeof report?.wordCount === "number" ? `${report.wordCount.toLocaleString()} words` : null,
+    typeof report?.creditCost === "number" ? `${report.creditCost.toLocaleString()} credits` : null,
+  ].filter(Boolean);
 
   return (
-    <div className="p-4 space-y-4">
-      <h1 className="text-xl font-semibold">Plagiarism Report</h1>
-      <p>Status: {report.status}</p>
-      <p>Score: {report.results?.score?.aggregatedScore ?? "N/A"}</p>
-      <ul className="space-y-2">
-        {(report.results?.internet ?? []).map((item) => (
-          <li key={item.id} className="border rounded p-2">
-            <a href={item.url} className="underline" target="_blank" rel="noreferrer">
-              {item.title || item.url}
-            </a>
-            <span className="ml-2 text-sm text-gray-600">{item.matchedWords} matched words</span>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <PageContainer>
+      <PageHeader
+        eyebrow="Plagiarism & AI check"
+        title="Scan report"
+        description={details.length > 0 ? details.join(" · ") : undefined}
+        actions={
+          report && (
+            <div className="flex items-center gap-2">
+              <StatusBadge status={report.status} />
+              <Button variant="outline" size="sm" onClick={reload} loading={isRefreshing}>
+                {!isRefreshing && <RefreshCw aria-hidden />}
+                Refresh
+              </Button>
+            </div>
+          )
+        }
+      />
+
+      {isLoading || !url ? (
+        <ReportSkeleton />
+      ) : error && !report ? (
+        <EmptyState
+          icon={<AlertCircle />}
+          title="Couldn't load this report"
+          description={error}
+          action={
+            <Button variant="outline" onClick={reload}>
+              Try again
+            </Button>
+          }
+        />
+      ) : report ? (
+        <div className="flex flex-col gap-4">
+          <ReportBody report={report} />
+          {report.text && (
+            <Card>
+              <details className="group">
+                <summary className="cursor-pointer list-none rounded-xl px-5 py-4 text-sm font-medium marker:content-none focus-visible:outline-2 focus-visible:outline-ring">
+                  Submitted text
+                  <span className="ml-2 text-muted-foreground group-open:hidden">Show</span>
+                  <span className="ml-2 hidden text-muted-foreground group-open:inline">Hide</span>
+                </summary>
+                <div className="scrollbar-thin max-h-96 overflow-y-auto whitespace-pre-wrap break-words border-t border-border px-5 py-4 font-serif leading-relaxed">
+                  {report.text}
+                </div>
+              </details>
+            </Card>
+          )}
+        </div>
+      ) : null}
+    </PageContainer>
   );
 }

@@ -1,47 +1,58 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
+import { useId, useState, type ReactNode } from "react";
+import Link from "next/link";
 import { toast } from "react-hot-toast";
+import { CheckCircle2, ScanSearch } from "lucide-react";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import useProfileStore from "@/zustand/useProfileStore";
-import { CheckCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import plagiarism from "@/app/assets/ai_detect.svg";
+import { Field, Textarea } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { countWords, estimateScanCredits } from "./report";
 
 interface PlagiarismCheckerProps {
-  text: string;
+  /** Text to pre-fill, e.g. the essay open in the grader. */
+  text?: string;
+  /** Custom trigger element; defaults to an outline "Plagiarism check" button. */
+  trigger?: ReactNode;
+  onSubmitted?: (docId: string) => void;
 }
 
-export function PlagiarismChecker({ text }: PlagiarismCheckerProps) {
-  const [isChecking, setIsChecking] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [reportLink, setReportLink] = useState("");
+export function PlagiarismChecker({ text = "", trigger, onSubmitted }: PlagiarismCheckerProps) {
+  const textareaId = useId();
   const { uid } = useAuthStore();
   const { profile, minusCredits } = useProfileStore();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [draft, setDraft] = useState(text);
+  const [isChecking, setIsChecking] = useState(false);
+  const [reportLink, setReportLink] = useState("");
+
+  const words = countWords(draft);
+  const estimate = estimateScanCredits(draft);
+  const lowCredits = estimate > 0 && profile.credits < estimate;
+
+  const handleOpenChange = (next: boolean) => {
+    if (isChecking) return;
+    if (next) {
+      setDraft(text);
+      setReportLink("");
+    }
+    setOpen(next);
+  };
 
   const handleCheck = async () => {
-    // Guard against double-submit: a second click while a scan is in flight
-    // would submit (and charge for) another Copyleaks scan.
-    if (isChecking) {
-      return;
-    }
-
-    if (!text.trim()) {
-      return;
-    }
-
+    // A second submit while a scan is in flight would charge for another scan.
+    if (isChecking || !draft.trim()) return;
     setIsChecking(true);
-    setIsSuccess(false);
 
     try {
       const response = await fetch("/api/copyleaks/submit", {
@@ -49,7 +60,7 @@ export function PlagiarismChecker({ text }: PlagiarismCheckerProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           uid,
-          text,
+          text: draft,
           availableCredits: profile.credits,
           useCredits: profile.useCredits,
         }),
@@ -61,18 +72,14 @@ export function PlagiarismChecker({ text }: PlagiarismCheckerProps) {
       }
 
       const { docId, creditsUsed } = await response.json();
-
       const creditsDeducted = await minusCredits(creditsUsed);
-
       if (!creditsDeducted) {
         throw new Error("Failed to deduct credits.");
       }
 
-      const reportPath = `/plagiarism-check/${uid}/${docId}`;
-
-      setReportLink(reportPath);
-      setIsSuccess(true);
+      setReportLink(`/plagiarism-check/${uid}/${docId}`);
       toast.success("Submission successful! Your report is being generated.");
+      onSubmitted?.(docId);
     } catch (error) {
       console.error("Error checking plagiarism:", error);
       toast.error(error instanceof Error ? error.message : "An unknown error occurred.");
@@ -82,50 +89,80 @@ export function PlagiarismChecker({ text }: PlagiarismCheckerProps) {
   };
 
   return (
-    <Dialog
-      open={isDialogOpen}
-      onOpenChange={(open) => {
-        setIsDialogOpen(open);
-      }}
-    >
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button
-          className="grader-plagiarism-button size-12 sm:size-16 btn btn-shiny flex items-center bg-secondary-97 border-2 border-primary-40 rounded-full p-1.5"
-          onClick={() => {
-            setIsDialogOpen(true);
-            handleCheck();
-          }}
-        >
-          {isChecking ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle size={16} />}
-          <Image src={plagiarism} alt="Plagiarism check" className="place-self-center place-items-center size-7 sm:size-10" />
-        </Button>
+        {trigger ?? (
+          <Button variant="outline" className="grader-plagiarism-button">
+            <ScanSearch aria-hidden />
+            <span className="max-sm:sr-only">Plagiarism check</span>
+          </Button>
+        )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[512px]">
-        <DialogHeader>
-          <DialogTitle>Plagiarism Check</DialogTitle>
-          <DialogDescription>
-            {isSuccess ? (
-              <div className="text-center">
-                <CheckCircle className="h-12 w-12 text-green-500 mx-auto" />
-                <p className="mt-4 text-lg font-medium">Your submission was successful!</p>
-                <p className="mt-2">Your report is being generated.</p>
-                <a
-                  href={reportLink}
-                  className="mt-4 inline-block text-blue-600 hover:underline"
-                >
-                  View your report here.
-                </a>
-              </div>
-            ) : isChecking ? (
-              <div className="text-center">
-                <Loader2 className="h-12 w-12 animate-spin mx-auto text-gray-500" />
-                <p className="mt-4 text-lg">Checking your submission...</p>
-              </div>
-            ) : (
-              <p className="text-center">Submit a document to check for plagiarism.</p>
+      <DialogContent className="sm:max-w-xl">
+        {reportLink ? (
+          <div className="flex flex-col items-center gap-3 py-4 text-center">
+            <span className="flex size-12 items-center justify-center rounded-full bg-success-soft text-success">
+              <CheckCircle2 className="size-6" aria-hidden />
+            </span>
+            <DialogTitle>Scan submitted</DialogTitle>
+            <DialogDescription>
+              Your report is being generated. It usually takes a minute or two.
+            </DialogDescription>
+            <div className="mt-2 flex flex-col-reverse gap-2 sm:flex-row">
+              <Button variant="ghost" onClick={() => setOpen(false)}>
+                Close
+              </Button>
+              <Button asChild>
+                <Link href={reportLink} onClick={() => setOpen(false)}>
+                  View report
+                </Link>
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <DialogHeader>
+              <DialogTitle>Plagiarism &amp; AI check</DialogTitle>
+              <DialogDescription>
+                Compare your text against web sources and scan it for AI-generated passages.
+              </DialogDescription>
+            </DialogHeader>
+            <Field
+              label="Text to scan"
+              htmlFor={textareaId}
+              hint={
+                words > 0
+                  ? `${words.toLocaleString()} words · about ${estimate.toLocaleString()} credits (you have ${profile.credits.toLocaleString()})`
+                  : "Paste an essay or passage. Cost is based on word count."
+              }
+            >
+              <Textarea
+                id={textareaId}
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                placeholder="Paste text here…"
+                disabled={isChecking}
+                className="min-h-48 font-serif text-base scrollbar-thin"
+              />
+            </Field>
+            {lowCredits && (
+              <p className="rounded-lg bg-warning-soft px-3 py-2 text-sm">
+                You may not have enough credits for this scan.{" "}
+                <Link href="/payment-attempt" className="font-medium text-primary underline-offset-4 hover:underline">
+                  Buy credits
+                </Link>
+              </p>
             )}
-          </DialogDescription>
-        </DialogHeader>
+            <DialogFooter>
+              <Button variant="ghost" onClick={() => setOpen(false)} disabled={isChecking}>
+                Cancel
+              </Button>
+              <Button onClick={handleCheck} loading={isChecking} disabled={!draft.trim()}>
+                {isChecking ? "Submitting…" : "Start scan"}
+              </Button>
+            </DialogFooter>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );

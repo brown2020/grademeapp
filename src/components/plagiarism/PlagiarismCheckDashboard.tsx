@@ -1,95 +1,112 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { AlertCircle, Plus, RefreshCw, ScanSearch } from "lucide-react";
 import { useAuthStore } from "@/zustand/useAuthStore";
-import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { EmptyState, PageContainer, PageHeader } from "@/components/ui/page";
+import { Skeleton } from "@/components/ui/spinner";
+import { PlagiarismChecker } from "./PlagiarismChecker";
+import { ReportListItem } from "./ReportListItem";
+import { useJsonResource, usePolling } from "./useJsonResource";
+import { sortNewestFirst, type PlagiarismReportDoc } from "./report";
 
-interface Report {
-  docId: string;
-  status: string;
+const POLL_MS = 15_000;
+
+async function parseReports(response: Response): Promise<PlagiarismReportDoc[]> {
+  // The list route answers 404 when the user has no reports yet.
+  if (response.status === 404) return [];
+  if (!response.ok) {
+    throw new Error(`Failed to load reports (${response.status})`);
+  }
+  const data = await response.json();
+  return Array.isArray(data) ? sortNewestFirst(data) : [];
+}
+
+function ReportsSkeleton() {
+  return (
+    <Card className="divide-y divide-border" aria-busy>
+      {[0, 1, 2].map((i) => (
+        <div key={i} className="flex items-center gap-4 px-4 py-4">
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-3 w-1/3" />
+          </div>
+          <Skeleton className="h-6 w-12" />
+        </div>
+      ))}
+    </Card>
+  );
 }
 
 export default function PlagiarismCheckDashboard() {
   const { uid } = useAuthStore();
-  const [reports, setReports] = useState<Report[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [hasLoaded, setHasLoaded] = useState(false);
+  const url = uid ? `/api/copyleaks/reports/${uid}` : null;
+  const { data: reports, error, isLoading, isRefreshing, reload } = useJsonResource(
+    url,
+    parseReports
+  );
+  usePolling(Boolean(reports?.some((r) => r.status === "pending")), POLL_MS, reload);
 
-  const loadReports = useCallback(async () => {
-    if (!uid) return;
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(`/api/copyleaks/reports/${uid}`);
-      if (!response.ok) {
-        throw new Error(`Failed to load reports (${response.status})`);
+  const newScan = (
+    <PlagiarismChecker
+      onSubmitted={reload}
+      trigger={
+        <Button>
+          <Plus aria-hidden />
+          New scan
+        </Button>
       }
-      const data = await response.json();
-      setReports(Array.isArray(data) ? data : []);
-      setHasLoaded(true);
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("An unknown error occurred.");
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }, [uid]);
-
-  if (!uid) {
-    return <p className="p-4 text-gray-500">Sign in to view plagiarism reports.</p>;
-  }
-
-  if (!hasLoaded && !isLoading && !error) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
-        <p className="text-lg text-gray-500">Plagiarism reports</p>
-        <button type="button" className="btn btn-shiny btn-shiny-blue px-4 py-2" onClick={loadReports}>
-          Load reports
-        </button>
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
-        <p className="ml-4 text-lg text-gray-500">Loading reports...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col items-center gap-3 p-4">
-        <p className="text-red-500">{error}</p>
-        <button type="button" className="btn btn-shiny" onClick={loadReports}>Retry</button>
-      </div>
-    );
-  }
+    />
+  );
 
   return (
-    <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl font-semibold">Plagiarism Reports</h1>
-        <button type="button" className="btn btn-shiny" onClick={loadReports}>Refresh</button>
-      </div>
-      {reports.length === 0 ? (
-        <p>No reports found.</p>
+    <PageContainer>
+      <PageHeader
+        title="Plagiarism & AI check"
+        description="Scan writing against web sources and for AI-generated passages. Reports update automatically while they run."
+        actions={
+          <>
+            {reports && reports.length > 0 && (
+              <Button variant="outline" onClick={reload} loading={isRefreshing}>
+                {!isRefreshing && <RefreshCw aria-hidden />}
+                Refresh
+              </Button>
+            )}
+            {newScan}
+          </>
+        }
+      />
+
+      {!uid || isLoading ? (
+        <ReportsSkeleton />
+      ) : error && !reports ? (
+        <EmptyState
+          icon={<AlertCircle />}
+          title="Couldn't load your reports"
+          description={error}
+          action={
+            <Button variant="outline" onClick={reload}>
+              Try again
+            </Button>
+          }
+        />
+      ) : !reports || reports.length === 0 ? (
+        <EmptyState
+          icon={<ScanSearch />}
+          title="No scans yet"
+          description="Run your first scan to check a piece of writing for matching sources and AI content."
+          action={newScan}
+        />
       ) : (
-        <ul className="space-y-2">
-          {reports.map((report) => (
-            <li key={report.docId} className="border rounded p-2 flex justify-between">
-              <span>{report.docId}</span>
-              <span>{report.status}</span>
-            </li>
-          ))}
-        </ul>
+        <Card className="p-1.5">
+          <ul className="divide-y divide-border">
+            {reports.map((report) => (
+              <ReportListItem key={report.docId} uid={uid} report={report} />
+            ))}
+          </ul>
+        </Card>
       )}
-    </div>
+    </PageContainer>
   );
 }

@@ -1,9 +1,8 @@
-import PlagiarismCheckDashboard from "@/components/plagiarism/PlagiarismCheckDashboard"
+import type { Metadata } from "next";
+import PlagiarismCheckDashboard from "@/components/plagiarism/PlagiarismCheckDashboard";
 
-const PlagiarismCheckPage = () => {
-  return (
-    <PlagiarismCheckDashboard />
-  )
+export const metadata: Metadata = { title: "Plagiarism & AI check" };
+
+export default function PlagiarismCheckPage() {
+  return <PlagiarismCheckDashboard />;
 }
-
-export default PlagiarismCheckPage
