@@ -4,7 +4,7 @@ import useProfileStore from "@/zustand/useProfileStore";
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { isIOSReactNativeWebView } from "@/lib/utils/platform"; // Import the platform detection
 import { usePaymentsStore } from "@/zustand/usePaymentsStore";
-import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
+import ConfirmDeleteDialog from "@/components/ui/ConfirmDeleteDialog";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import { signOut } from "firebase/auth";
 import { deleteCookie } from "cookies-next";
@@ -226,7 +226,7 @@ export default function ProfileComponent() {
         </select>
       </div>
 
-      <DeleteConfirmationModal
+      <ConfirmDeleteDialog
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         onConfirm={onDeleteConfirm}

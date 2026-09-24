@@ -22,7 +22,7 @@ import { PlusCircle, Search, XCircle } from "lucide-react";
 import { UserHistoryType } from "@/lib/types/user-history";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import DeleteConfirmationModal from "./DeleteConfirmationModal";
+import ConfirmDeleteDialog from "@/components/ui/ConfirmDeleteDialog";
 
 function debounce(func: (value: string) => void, delay: number): (value: string) => void {
   let timeout: NodeJS.Timeout;
@@ -262,7 +262,7 @@ export default function Assignments() {
           Load More
         </button>
       )}
-      <DeleteConfirmationModal
+      <ConfirmDeleteDialog
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDeleteConfirm}

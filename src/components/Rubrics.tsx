@@ -12,7 +12,7 @@ import RubricBuilder from "@/components/rubrics/RubricBuilder";
 import RubricSearch from "@/components/rubrics/RubricSearch";
 import RubricHelper from "@/components/rubrics/RubricHelper";
 import { Button } from "@/components/ui/button";
-import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
+import ConfirmDeleteDialog from "@/components/ui/ConfirmDeleteDialog";
 
 export default function Rubrics() {
   const { uid } = useAuthStore();
@@ -137,7 +137,7 @@ export default function Rubrics() {
         <RubricBuilder onClose={handleCloseRubricBuilder} />
       </div>
 
-      <DeleteConfirmationModal
+      <ConfirmDeleteDialog
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         onConfirm={onDeleteConfirm}
