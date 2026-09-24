@@ -104,7 +104,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
-      <section className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 pb-16 pt-10 sm:px-6 md:grid-cols-[1.1fr_1fr] md:pb-24 md:pt-20">
+      <section className="mx-auto grid w-full max-w-6xl items-center gap-12 overflow-x-clip px-4 pb-16 pt-10 sm:px-6 md:grid-cols-[1.1fr_1fr] md:pb-24 md:pt-20">
         <div className="flex flex-col items-start gap-6">
           <span className="rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-muted-foreground">
             AI feedback for students, educators & writers

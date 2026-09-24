@@ -115,7 +115,10 @@
   html,
   body {
     height: 100%;
+    width: 100%;
+    max-width: 100%;
     overflow: hidden;
+    overscroll-behavior: none;
   }
 
   body {
@@ -159,17 +162,26 @@
 
 /* Rendered AI feedback (react-markdown output) */
 @utility feedback-prose {
-  @apply prose prose-neutral max-w-none dark:prose-invert prose-headings:font-serif prose-headings:font-semibold prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-p:leading-relaxed prose-li:my-0.5 prose-strong:text-foreground prose-a:text-primary;
+  @apply prose prose-neutral max-w-none dark:prose-invert prose-headings:font-serif prose-headings:font-semibold prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-p:leading-relaxed prose-li:my-0.5 prose-strong:text-foreground prose-a:text-primary prose-a:break-all prose-pre:overflow-x-auto prose-img:max-w-full;
+  overflow-wrap: anywhere;
+
+  & table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+  }
 }
 
 /* Long-form legal/support pages */
 @utility legal-prose {
   @apply prose prose-neutral max-w-3xl dark:prose-invert prose-headings:font-serif prose-headings:font-semibold prose-a:text-primary;
+  overflow-wrap: anywhere;
 }
 
 /* TipTap editor surface */
 .ProseMirror {
   @apply min-h-[16rem] font-serif text-[1.0625rem] leading-relaxed outline-none;
+  overflow-wrap: anywhere;
 }
 
 .ProseMirror p {
