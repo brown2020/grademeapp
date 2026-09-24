@@ -16,3 +16,9 @@ export function getDefaultModelId(models: Model[]): string {
   }
   return createModelId(models[0])
 }
+
+/** Returns storedId if it is still offered, otherwise the default model id. */
+export function resolveModelId(storedId: string | null | undefined, models: Model[]): string {
+  if (storedId && models.some((m) => createModelId(m) === storedId)) return storedId
+  return getDefaultModelId(models)
+}

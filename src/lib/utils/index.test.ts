@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { createModelId, getDefaultModelId } from "@/lib/utils";
+import { createModelId, getDefaultModelId, resolveModelId } from "@/lib/utils";
 import type { Model } from "@/lib/types/models";
 
 const openai: Model = {
@@ -34,5 +34,20 @@ describe("getDefaultModelId", () => {
 
   it("throws when no models are available", () => {
     expect(() => getDefaultModelId([])).toThrow("No models available");
+  });
+});
+
+describe("resolveModelId", () => {
+  it("keeps a stored id that is still offered", () => {
+    expect(resolveModelId("fireworks:accounts/fireworks/models/llama-v3p1-8b-instruct", [openai, fireworks]))
+      .toBe("fireworks:accounts/fireworks/models/llama-v3p1-8b-instruct");
+  });
+
+  it("falls back to the default when the stored model was removed", () => {
+    expect(resolveModelId("groq:llama3-groq-8b-8192-tool-use-preview", [openai])).toBe("openai:gpt-4o");
+  });
+
+  it("falls back to the default when nothing is stored", () => {
+    expect(resolveModelId(null, [openai])).toBe("openai:gpt-4o");
   });
 });

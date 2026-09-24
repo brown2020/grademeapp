@@ -149,8 +149,11 @@ Firestore is the database, keyed under `users/{uid}` with `profile`, `summaries`
   submit/report route handlers verify the Firebase ID-token cookie before using a
   `uid`, but data safety elsewhere still depends on console-configured rules plus
   server-side token verification in sensitive handlers/actions.
-- **[inferred] Model list is stale.** `src/lib/types/models.ts` lists older models
-  (gpt-4o, claude-3-5, gemini-1.5, grok-beta) despite current AI SDKs.
+- **Credits use one flat per-token rate for every model** (`generateResponse.ts`), so
+  `src/lib/types/models.ts` is limited to mid/fast tiers; adding premium models needs
+  per-model pricing first.
+- **Fireworks/Groq have no listed models** since Llama was removed, so a saved
+  Fireworks BYO key is currently unused.
 - **[inferred] Inconsistent starter-credit defaults** across `useAuthStore` (1000),
   `useProfileStore` default (0), and `createNewProfile` (1000).
 - **[inferred] Output-token cost estimate is a fixed guess** (1000 tokens; see the

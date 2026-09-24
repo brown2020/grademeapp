@@ -5,6 +5,8 @@ import { streamText, type ModelMessage } from "ai";
 import { isProviderEnabled, getModel } from "@/lib/utils/registry";
 import { getApiKeys } from "@/lib/utils/user";
 import { validateInputs } from "@/lib/utils/textUtils";
+import { getDefaultModelId } from "@/lib/utils";
+import { models } from "@/lib/types/models";
 
 function getMessageText(content: ModelMessage["content"]): string {
   if (typeof content === "string") return content;
@@ -67,7 +69,7 @@ async function generateDeterministicResponse(
   }
 
   const model = !isProviderEnabled(providerId) && useCredits
-    ? getModel('openai:gpt-4o')
+    ? getModel(getDefaultModelId(models))
     : getModel(selectedModelId, apiKey);
 
   // Estimate token usage before making the request

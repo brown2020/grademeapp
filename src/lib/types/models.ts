@@ -5,65 +5,57 @@ export interface Model {
   providerId: string
 }
 
+// Keep to mid/fast tiers: credits are charged at a flat per-token rate in
+// generateResponse.ts, so premium models (e.g. GPT-6 Astra, Claude Opus) would
+// cost more than users are billed. The first entry is the default model.
 export const models: Model[] = [
   {
-    id: 'gpt-4o',
-    name: 'GPT-4o',
+    id: 'gpt-6-sol',
+    name: 'GPT-6 Sol',
     provider: 'OpenAI',
     providerId: 'openai'
   },
   {
-    id: 'gpt-4o-mini',
-    name: 'GPT-4o mini',
+    id: 'gpt-6-luna',
+    name: 'GPT-6 Luna',
     provider: 'OpenAI',
     providerId: 'openai'
   },
   {
-    id: 'accounts/fireworks/models/llama-v3p1-8b-instruct',
-    name: 'LLama v3p1 8B Instruct',
-    provider: 'Fireworks',
-    providerId: 'fireworks'
-  },
-  {
-    id: 'grok-beta',
-    name: 'Grok Beta',
-    provider: 'XAI',
-    providerId: 'xai'
-  },
-  {
-    id: 'claude-3-5-sonnet-latest',
-    name: 'Claude 3.5 Sonnet',
+    id: 'claude-sonnet-5',
+    name: 'Claude Sonnet 5',
     provider: 'Anthropic',
     providerId: 'anthropic'
   },
   {
-    id: 'claude-3-5-haiku-20241022',
-    name: 'Claude 3.5 Haiku',
+    id: 'claude-haiku-4-5',
+    name: 'Claude Haiku 4.5',
     provider: 'Anthropic',
     providerId: 'anthropic'
   },
   {
-    id: 'gemini-1.5-pro-002',
-    name: 'Gemini 1.5 Pro',
+    id: 'gemini-pro-latest',
+    name: 'Gemini Pro',
     provider: 'Google Generative AI',
     providerId: 'google'
   },
   {
-    id: 'llama3-groq-8b-8192-tool-use-preview',
-    name: 'LLama 3 Groq 8B Tool Use',
-    provider: 'Groq',
-    providerId: 'groq'
+    id: 'gemini-3.8-flash',
+    name: 'Gemini 3.8 Flash',
+    provider: 'Google Generative AI',
+    providerId: 'google'
   },
   {
-    id: 'gpt-4o',
-    name: 'GPT-4o',
+    id: 'grok-4.7',
+    name: 'Grok 4.7',
+    provider: 'XAI',
+    providerId: 'xai'
+  },
+  {
+    // Azure ids are deployment names; name the Azure deployment to match.
+    id: 'gpt-6-sol',
+    name: 'GPT-6 Sol',
     provider: 'Azure',
     providerId: 'azure'
   },
-  // {
-  //   id: process.env.NEXT_PUBLIC_OPENAI_COMPATIBLE_MODEL || 'undefined',
-  //   name: process.env.NEXT_PUBLIC_OPENAI_COMPATIBLE_MODEL || 'Undefined',
-  //   provider: 'OpenAI Compatible',
-  //   providerId: 'openai-compatible'
-  // }
 ]
