@@ -1,4 +1,4 @@
-import { Timestamp } from 'firebase/firestore';
+import type { Timestamp } from 'firebase/firestore';
 
 // Base interface for all rubric types
 export interface BaseRubric<TCriteria = GenericRubricCriteria> {

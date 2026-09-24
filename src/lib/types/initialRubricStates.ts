@@ -1,163 +1,55 @@
-// initialRubricStates.ts
-import {
-  RubricType,
-  AnalyticalRubric,
-  HolisticRubric,
-  SinglePointRubric,
-  ChecklistRubric,
-  MultiTraitRubric,
-  PrimaryTraitRubric,
-  SkillFocusedRubric,
-  ContentSpecificRubric,
-  DevelopmentalRubric,
-  TaskSpecificRubric,
-  StandardsBasedRubric,
-} from '@/lib/types/rubrics-types';
+import { RubricType, type RubricState } from '@/lib/types/rubrics-types';
 
-export const initialAnalyticalRubric: AnalyticalRubric = {
-  id: '',
-  name: '',
-  description: '',
-  type: RubricType.Analytical,
-  criteria: {},
+const LEVELS_TEMPLATE = {
+  Excellent: '',
+  Proficient: '',
+  Developing: '',
+  Beginning: '',
 };
 
-export const initialHolisticRubric: HolisticRubric = {
-  id: '',
-  name: '',
-  description: '',
-  type: RubricType.Holistic,
-  criteria: {
-    Excellent: '',
-    Proficient: '',
-    Developing: '',
-    Beginning: '',
+/**
+ * Blank rubric documents per type. These are the exact shapes persisted to
+ * `users/{uid}/custom_rubrics/{id}` (plus id/timestamp/isCustom on save).
+ */
+const INITIAL_RUBRICS: Record<RubricType, RubricState> = {
+  [RubricType.Analytical]: { id: '', name: '', description: '', type: RubricType.Analytical, criteria: {} },
+  [RubricType.Holistic]: {
+    id: '',
+    name: '',
+    description: '',
+    type: RubricType.Holistic,
+    criteria: { ...LEVELS_TEMPLATE },
   },
-};
-
-export const initialSinglePointRubric: SinglePointRubric = {
-  id: '',
-  name: '',
-  description: '',
-  type: RubricType.SinglePoint,
-  criteria: {
-    Proficient: ''
+  [RubricType.SinglePoint]: {
+    id: '',
+    name: '',
+    description: '',
+    type: RubricType.SinglePoint,
+    criteria: { Proficient: '' },
+    feedback: { Strengths: '', 'Areas for Improvement': '' },
   },
-  feedback: {
-    Strengths: '',
-    "Areas for Improvement": ''
-  }
+  [RubricType.SkillFocused]: { id: '', name: '', description: '', type: RubricType.SkillFocused, criteria: {} },
+  [RubricType.Checklist]: {
+    id: '',
+    name: '',
+    description: '',
+    type: RubricType.Checklist,
+    criteria: {
+      'Has a clear introduction': 'Yes/No',
+      'Main idea is developed with supporting details': 'Yes/No',
+      'Organized logically': 'Yes/No',
+    },
+  },
+  [RubricType.PrimaryTrait]: { id: '', name: '', description: '', type: RubricType.PrimaryTrait, criteria: {} },
+  [RubricType.MultiTrait]: { id: '', name: '', description: '', type: RubricType.MultiTrait, criteria: {} },
+  [RubricType.ContentSpecific]: { id: '', name: '', description: '', type: RubricType.ContentSpecific, criteria: {} },
+  [RubricType.Developmental]: { id: '', name: '', description: '', type: RubricType.Developmental, criteria: {} },
+  [RubricType.TaskSpecific]: { id: '', name: '', description: '', type: RubricType.TaskSpecific, criteria: {} },
+  [RubricType.StandardsBased]: { id: '', name: '', description: '', type: RubricType.StandardsBased, criteria: {} },
 };
 
-export const initialSkillFocusedRubric: SkillFocusedRubric = {
-  id: '',
-  name: '',
-  description: '',
-  type: RubricType.SkillFocused,
-  criteria: {}
-};
-
-export const initialChecklistRubric: ChecklistRubric = {
-  id: '',
-  name: '',
-  description: '',
-  type: RubricType.Checklist,
-  criteria: {
-    "Has a clear introduction": "Yes/No",
-    "Main idea is developed with supporting details": "Yes/No",
-    "Organized logically": "Yes/No",
-  }
-};
-
-export const initialPrimaryTraitRubric: PrimaryTraitRubric = {
-  id: '',
-  name: '',
-  description: '',
-  type: RubricType.PrimaryTrait,
-  criteria: {}
-};
-
-export const initialMultiTraitRubric: MultiTraitRubric = {
-  id: '',
-  name: '',
-  description: '',
-  type: RubricType.MultiTrait,
-  criteria: {
-    "Trait 1": {
-      description: ' ',
-      subCriteria: {
-        "Sub-trait 1": {
-          description: '',
-          levels: {
-            "Level 1": '',
-            "Level 2": '',
-            "Level 3": '',
-            "Level 4": '',
-          }
-        }
-      }
-    }
-  }
-};
-
-export const initialContentSpecificRubric: ContentSpecificRubric = {
-  id: '',
-  name: '',
-  description: '',
-  type: RubricType.ContentSpecific,
-  criteria: {}
-};
-
-export const initialDevelopmentalRubric: DevelopmentalRubric = {
-  id: '',
-  name: '',
-  description: '',
-  type: RubricType.Developmental,
-  criteria: {}
-};
-
-export const initialTaskSpecificRubric: TaskSpecificRubric = {
-  id: '',
-  name: '',
-  description: '',
-  type: RubricType.TaskSpecific,
-  criteria: {}
-};
-
-export const initialStandardsBasedRubric: StandardsBasedRubric = {
-  id: '',
-  name: '',
-  description: '',
-  type: RubricType.StandardsBased,
-  criteria: {}
-};
-
-
-export const getInitialRubricState = (type: RubricType) => {
-  switch (type) {
-    case RubricType.Analytical:
-      return initialAnalyticalRubric;
-    case RubricType.Holistic:
-      return initialHolisticRubric;
-    case RubricType.SinglePoint:
-      return initialSinglePointRubric;
-    case RubricType.Checklist:
-      return initialChecklistRubric;
-    case RubricType.ContentSpecific:
-      return initialContentSpecificRubric;
-    case RubricType.Developmental:
-      return initialDevelopmentalRubric;
-    case RubricType.PrimaryTrait:
-      return initialPrimaryTraitRubric;
-    case RubricType.MultiTrait:
-      return initialMultiTraitRubric;
-    case RubricType.SkillFocused:
-      return initialSkillFocusedRubric;
-    case RubricType.TaskSpecific:
-      return initialTaskSpecificRubric;
-    case RubricType.StandardsBased:
-      return initialStandardsBasedRubric;
-    default:
-      return initialAnalyticalRubric;
-  }
-};
+/** Returns a fresh (deep-copied) blank rubric of the given type. */
+export function getInitialRubricState(type: RubricType): RubricState {
+  const template = INITIAL_RUBRICS[type] ?? INITIAL_RUBRICS[RubricType.Analytical];
+  return structuredClone(template);
+}

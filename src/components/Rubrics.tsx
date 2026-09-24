@@ -1,151 +1,188 @@
-"use client"
+"use client";
 
-import { useState } from "react";
-import { useAuthStore } from "@/zustand/useAuthStore";
-import { useRubricStore } from "@/zustand/useRubricStore";
-import { Switch } from "@headlessui/react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
-import { Info, Blocks } from "lucide-react";
-
-import RubricDisplay from "@/components/rubrics/RubricDisplay";
-import RubricBuilder from "@/components/rubrics/RubricBuilder";
-import RubricSearch from "@/components/rubrics/RubricSearch";
-import RubricHelper from "@/components/rubrics/RubricHelper";
+import { Plus, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PageContainer, PageHeader } from "@/components/ui/page";
 import ConfirmDeleteDialog from "@/components/ui/ConfirmDeleteDialog";
+import type { RubricState } from "@/lib/types/rubrics-types";
+import { useAuthStore } from "@/zustand/useAuthStore";
+import useProfileStore from "@/zustand/useProfileStore";
+import { useRubricStore } from "@/zustand/useRubricStore";
+import RubricBrowser from "@/components/rubrics/RubricBrowser";
+import type { RubricCardActions } from "@/components/rubrics/RubricCard";
+import RubricDetailDialog from "@/components/rubrics/RubricDetailDialog";
+import RubricHelper from "@/components/rubrics/RubricHelper";
+import RubricBuilder from "@/components/rubrics/builder/RubricBuilder";
+import type { RubricMatchContext } from "@/components/rubrics/lib/rubricSorting";
+
+type View = { mode: "browse" } | { mode: "build"; rubric?: RubricState };
+
+function describeContext(ctx: RubricMatchContext) {
+  const who = [ctx.identityLevel, ctx.identity].filter(Boolean).join(" ");
+  const what = ctx.textType ? `${ctx.textType} writing` : "your writing";
+  return who ? `Suggestions for a ${who} working on ${what}.` : `Suggestions for ${what}.`;
+}
 
 export default function Rubrics() {
-  const { uid } = useAuthStore();
-  const {
-    selectedRubric,
-    useCustomRubrics,
-    setUseCustomRubrics,
-    resetToDefaultRubrics,
-    fetchCustomRubrics,
-    showRubricBuilder,
-    setShowRubricBuilder,
-    setEditingRubricId,
-    showDeleteModal,
-    setShowDeleteModal,
-    rubricToDelete,
-    setRubricToDelete,
-    deleteCustomRubric,
-  } = useRubricStore();
-  const [isExiting, setIsExiting] = useState<boolean>(false);
-  const [showTooltip, setShowTooltip] = useState<boolean>(false);
+  const router = useRouter();
+  const uid = useAuthStore((s) => s.uid);
+  const profile = useProfileStore((s) => s.profile);
+  const addFavoriteRubric = useProfileStore((s) => s.addFavoriteRubric);
+  const removeFavoriteRubric = useProfileStore((s) => s.removeFavoriteRubric);
 
+  const rubricOptions = useRubricStore((s) => s.rubricOptions);
+  const selectedRubric = useRubricStore((s) => s.selectedRubric);
+  const textType = useRubricStore((s) => s.gradingData.textType);
+  const customRubricsUid = useRubricStore((s) => s.customRubricsUid);
+  const customRubricsLoading = useRubricStore((s) => s.customRubricsLoading);
+  const fetchCustomRubrics = useRubricStore((s) => s.fetchCustomRubrics);
+  const setSelectedRubric = useRubricStore((s) => s.setSelectedRubric);
+  const refreshSuggestedRubric = useRubricStore((s) => s.refreshSuggestedRubric);
+  const deleteCustomRubric = useRubricStore((s) => s.deleteCustomRubric);
+  const copyDefaultRubric = useRubricStore((s) => s.copyDefaultRubric);
 
+  const [view, setView] = useState<View>({ mode: "browse" });
+  const [helperOpen, setHelperOpen] = useState(false);
+  const [previewRubric, setPreviewRubric] = useState<RubricState | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<RubricState | null>(null);
 
-  // Fetch default rubrics or custom rubrics based on toggle
-  const handleCustomRubrics = async () => {
-    const newUseCustomRubrics = !useCustomRubrics;
-    setUseCustomRubrics(newUseCustomRubrics);
-
-    if (newUseCustomRubrics && uid) {
-      await fetchCustomRubrics(uid);
-      toast.success("Custom rubrics loaded.");
-    } else {
-      resetToDefaultRubrics();
-      toast.success("Default rubrics loaded.");
+  useEffect(() => {
+    if (uid && customRubricsUid !== uid && !customRubricsLoading) {
+      void fetchCustomRubrics(uid);
     }
-  };
+  }, [uid, customRubricsUid, customRubricsLoading, fetchCustomRubrics]);
 
-  const handleCloseRubricBuilder = () => {
-    setIsExiting(true);
-    setTimeout(() => {
-      setShowRubricBuilder(false);
-      setIsExiting(false);
-      setEditingRubricId(undefined);
-    }, 150);
-  };
+  useEffect(() => {
+    refreshSuggestedRubric();
+  }, [refreshSuggestedRubric, rubricOptions, textType, profile.identity, profile.identityLevel, profile.favoriteRubrics]);
 
-  const onDeleteConfirm = async () => {
-    if (rubricToDelete) {
+  const context = useMemo<RubricMatchContext>(
+    () => ({
+      identity: profile.identity,
+      identityLevel: profile.identityLevel,
+      textType,
+      favoriteIds: profile.favoriteRubrics,
+    }),
+    [profile.identity, profile.identityLevel, profile.favoriteRubrics, textType]
+  );
+
+  const favoriteIds = profile.favoriteRubrics;
+
+  const actions: RubricCardActions = {
+    onUse: (rubric) => {
+      setSelectedRubric(rubric);
+      toast.success(`Using “${rubric.name}”`);
+      router.push("/grader");
+    },
+    onPreview: setPreviewRubric,
+    onToggleFavorite: async (rubric) => {
       try {
-        await deleteCustomRubric();
-        toast.success("Rubric deleted successfully");
+        if (favoriteIds.includes(rubric.id)) {
+          await removeFavoriteRubric(rubric.id);
+          toast.success("Removed from favorites");
+        } else {
+          await addFavoriteRubric(rubric.id);
+          toast.success("Added to favorites");
+        }
       } catch (error) {
-        console.error("Error deleting rubric:", error);
-        toast.error("Failed to delete rubric. Please try again.");
-      } finally {
-        setShowDeleteModal(false);
-        setRubricToDelete(null);
+        console.error("Error updating favorites:", error);
+        toast.error("Couldn't update favorites");
       }
+    },
+    onEdit: (rubric) => {
+      setPreviewRubric(null);
+      setView({ mode: "build", rubric });
+    },
+    onDelete: setDeleteTarget,
+    onDuplicate: async (rubric) => {
+      try {
+        const copy = await copyDefaultRubric(rubric);
+        toast.success(`Saved “${copy.name}” to My rubrics`);
+      } catch {
+        toast.error("Couldn't copy the rubric. Please try again.");
+      }
+    },
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      await deleteCustomRubric(deleteTarget.id);
+      toast.success("Rubric deleted");
+    } catch {
+      toast.error("Couldn't delete the rubric. Please try again.");
+    } finally {
+      setDeleteTarget(null);
     }
   };
+
+  if (view.mode === "build") {
+    return (
+      <PageContainer size="wide">
+        <RubricBuilder
+          key={view.rubric?.id ?? "new"}
+          rubric={view.rubric}
+          onClose={() => setView({ mode: "browse" })}
+        />
+      </PageContainer>
+    );
+  }
 
   return (
-    <div className="space-y-3">
-      <div>
-        <div className="flex flex-row justify-between">
-          <div className="flex gap-x-1 items-center">
-            <h1>Rubrics</h1>
+    <PageContainer size="wide">
+      <PageHeader
+        title="Rubrics"
+        description="Choose how your writing is graded. Pick a suggested rubric, star the ones you use often, or build your own."
+        actions={
+          <Button onClick={() => setView({ mode: "build" })}>
+            <Plus /> New rubric
+          </Button>
+        }
+      />
 
-          </div>
-          {/* Use Custom Rubrics Toggle */}
-          <div className="flex items-center space-x-2">
-            <Switch
-              checked={useCustomRubrics}
-              onChange={() => handleCustomRubrics()}
-              className={`${useCustomRubrics ? "bg-primary" : "bg-gray-300"} transition duration-300 ease-in-out relative inline-flex items-center h-6 rounded-full w-11`}
-            >
-              <span className="sr-only">Use Custom Rubrics</span>
-              <span
-                className={`${useCustomRubrics ? "translate-x-6" : "translate-x-1"} transition duration-300 ease-in-out inline-block w-4 h-4 transform bg-white rounded-full`}
-              />
-            </Switch>
-            <span className="text-xs w-[120px]">{useCustomRubrics ? "Using Custom Rubrics" : "Using Default Rubrics"}</span>
-          </div>
+      <div className="mb-6 flex flex-col gap-3 rounded-xl border border-border bg-muted/50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0 text-sm">
+          <p className="first-letter:uppercase">{describeContext(context)}</p>
+          {selectedRubric && (
+            <p className="truncate text-muted-foreground">
+              In use: <span className="font-medium text-foreground">{selectedRubric.name}</span>
+            </p>
+          )}
         </div>
-        <hr />
-      </div>
-      {/* Rubric Display */}
-      <div className="flex flex-col w-full p-2 text-sm border border-primary-40 rounded-lg bg-primary-98">
-        <div className="flex flex-row gap-2 mb-2 relative items-center justify-center text-primary-10">
-          <Info onClick={() => setShowTooltip(!showTooltip)} size={18} className="cursor-pointer text-primary-20" />
-          <span className={`absolute bottom-full z-50 text-wrap px-2 py-1 bg-primary-90 border border-primary-40 text-xs rounded transition-opacity ${showTooltip ? 'opacity-100 flex' : 'opacity-0 hidden'}`}>
-            {selectedRubric?.description}
-          </span>
-          <h2 className="text-primary-20 font-bold underline underline-offset-2 rubric-selected">{selectedRubric ? selectedRubric.name : "Select a rubric..."}</h2>
-        </div>
-        <p className="sm:relative text-sm max-w-xs truncate mb-1 hidden">{selectedRubric ? selectedRubric.description : "..."}</p>
-
-        {selectedRubric ? (
-          <RubricDisplay rubric={selectedRubric} />
-        ) : (
-          <div className="flex items-center justify-center h-52">No rubric selected. Search for and select a rubric below.</div>
-        )}
-      </div>
-
-      <div className="flex flex-row gap-x-4 justify-between sm:justify-start">
-        {/* Rubric Helper */}
-        <div className="rubric-helper">
-          <RubricHelper />
-        </div>
-        {/* Rubric Builder Button */}
-        <Button onClick={() => setShowRubricBuilder(true)} className="btn-shiny btn-shiny-teal rubric-builder">
-          <Blocks />
-          <h2>Rubric Builder</h2>
+        <Button variant="secondary" size="sm" onClick={() => setHelperOpen(true)} className="self-start sm:self-auto">
+          <SlidersHorizontal /> Refine suggestions
         </Button>
       </div>
 
-      {/* Rubric Search */}
-      <RubricSearch />
+      <RubricBrowser
+        rubrics={rubricOptions}
+        context={context}
+        selectedId={selectedRubric?.id}
+        customLoading={customRubricsLoading || customRubricsUid !== uid}
+        actions={actions}
+        onCreate={() => setView({ mode: "build" })}
+      />
 
-      {/* Custom Rubric Builder Modal */}
-      <div className={`bg-secondary p-2 absolute top-[54px] md:top-[90px] h-fit max-h-[84%] rounded-l-lg border-2 border-r-0 border-primary-40 left-2 right-0 scroll shadow-lg overflow-y-auto ${showRubricBuilder ? 'animate-enter' : isExiting ? 'animate-exit' : 'hidden'}`}>
-        <RubricBuilder onClose={handleCloseRubricBuilder} />
-      </div>
+      <RubricHelper open={helperOpen} onOpenChange={setHelperOpen} />
+
+      <RubricDetailDialog
+        rubric={previewRubric}
+        onOpenChange={(open) => !open && setPreviewRubric(null)}
+        actions={actions}
+      />
 
       <ConfirmDeleteDialog
-        isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        onConfirm={onDeleteConfirm}
-        title="Confirm Rubric Deletion"
-        description="Are you sure you want to delete this rubric? This action cannot be undone."
+        isOpen={deleteTarget !== null}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={confirmDelete}
+        title="Delete rubric?"
+        description="This permanently removes the rubric from My rubrics. This action cannot be undone."
         confirmText="Delete my rubric"
-        itemName={rubricToDelete?.name}
+        itemName={deleteTarget?.name}
       />
-    </div>
+    </PageContainer>
   );
 }

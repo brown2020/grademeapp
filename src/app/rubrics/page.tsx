@@ -1,5 +1,5 @@
 import Rubrics from "@/components/Rubrics";
 
-export default function GeneratePage() {
+export default function RubricsPage() {
   return <Rubrics />;
 }

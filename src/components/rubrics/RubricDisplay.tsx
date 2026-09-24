@@ -1,375 +1,174 @@
-"use client"
-
-import React from 'react';
+import { CheckSquare } from "lucide-react";
+import type { RubricState } from "@/lib/types/rubrics-types";
+import { cn } from "@/lib/utils";
 import {
-  RubricState,
-  RubricType,
-  AnalyticalRubric,
-  HolisticRubric,
-  SinglePointRubric,
-  ChecklistRubric,
-  MultiTraitRubric,
-  ContentSpecificRubric,
-  SkillFocusedRubric,
-  DevelopmentalRubric,
-  PrimaryTraitRubric,
-  TaskSpecificRubric,
-  StandardsBasedRubric,
-} from '@/lib/types/rubrics-types';
+  buildRubricView,
+  type LevelEntry,
+  type MatrixRow,
+  type TreeNode,
+} from "./lib/rubricView";
 
-
-export default function RubricDisplay({ rubric }: { rubric: RubricState | null }) {
-  if (!rubric) {
-    return (
-      <div className="w-full h-52 max-h-52 bg-secondary-97 rounded-md border border-dashed border-primary-30 rubric-criteria">
-        <div className="flex flex-col p-1 rounded-md text-primary-20">
-          <h2 className="text-left font-medium pl-2 pb-1">Rubric Criteria</h2>
-          <div className="p-1 rounded-sm">
-            <div className="mt-2 p-1 text-xs border-l-2 border-primary-40 h-40 max-h-40 overflow-auto">
-              No rubric available
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
+function LevelList({ levels, className }: { levels: LevelEntry[]; className?: string }) {
   return (
-    <div className="w-full h-52 max-h-52 bg-secondary-97 rounded-md border border-dashed border-primary-30 rubric-criteria">
-      <div className="flex flex-col p-1 rounded-md text-primary-20">
-        <h2 className="text-left font-medium pl-2 pb-1">Rubric Criteria</h2>
-        <div className="p-1 rounded-sm">
-          <div className="mt-2 p-1 text-xs border-l-2 border-primary-40 h-40 max-h-40 overflow-auto">
-            {renderRubricCriteria(rubric)}
-          </div>
+    <dl className={cn("flex flex-col gap-2", className)}>
+      {levels.map((level) => (
+        <div key={level.label} className="grid gap-0.5 sm:grid-cols-[9rem_1fr] sm:gap-3">
+          <dt className="text-sm font-medium text-foreground">{level.label}</dt>
+          <dd className="text-sm leading-relaxed text-muted-foreground">
+            {level.text || <span className="italic">Not described</span>}
+          </dd>
         </div>
-      </div>
+      ))}
+    </dl>
+  );
+}
+
+function CriterionHeading({ name, description }: { name: string; description?: string }) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <h4 className="font-serif text-base font-semibold">{name}</h4>
+      {description?.trim() && <p className="text-sm text-muted-foreground">{description}</p>}
     </div>
   );
 }
 
-// Base function to determine which rendering method to use
-function renderRubricCriteria(rubric: RubricState) {
-  switch (rubric.type) {
-    case RubricType.Holistic:
-      return renderOverallCriteria(rubric);
-    case RubricType.Analytical:
-      return renderDetailedCriteria(rubric);
-    case RubricType.SinglePoint:
-      return renderSinglePointCriteria(rubric as SinglePointRubric);
-    case RubricType.Checklist:
-      return renderChecklistCriteria(rubric as ChecklistRubric);
-    case RubricType.MultiTrait:
-      return renderMultiTraitCriteria(rubric as MultiTraitRubric);
-    case RubricType.ContentSpecific:
-      return renderContentSpecificCriteria(rubric as ContentSpecificRubric);
-    case RubricType.SkillFocused:
-      return renderSkillFocusedCriteria(rubric as SkillFocusedRubric);
-    case RubricType.Developmental:
-      return renderDevelopmentalCriteria(rubric as DevelopmentalRubric);
-    case RubricType.PrimaryTrait:
-      return renderPrimaryTraitCriteria(rubric as PrimaryTraitRubric);
-    case RubricType.TaskSpecific:
-      return renderTaskSpecificCriteria(rubric as TaskSpecificRubric);
-    case RubricType.StandardsBased:
-      return renderStandardsBasedCriteria(rubric as StandardsBasedRubric);
-    default:
-      return <div>Unknown rubric type</div>;
-  }
+function MatrixTable({ rows, columns }: { rows: MatrixRow[]; columns: string[] }) {
+  return (
+    <div className="hidden overflow-x-auto rounded-lg border border-border md:block">
+      <table className="w-full border-collapse text-left text-sm">
+        <thead className="bg-muted/60">
+          <tr>
+            <th scope="col" className="w-44 p-3 font-medium">Criterion</th>
+            {columns.map((c) => (
+              <th key={c} scope="col" className="p-3 font-medium">{c}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.name} className="border-t border-border align-top">
+              <th scope="row" className="p-3 font-normal">
+                <CriterionHeading name={row.name} description={row.description} />
+              </th>
+              {row.levels.map((l) => (
+                <td key={l.label} className="p-3 leading-relaxed text-muted-foreground">{l.text}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 }
 
-
-
-
-// Renderer for Holistic rubrics
-function renderOverallCriteria(rubric: HolisticRubric) {
+function StackedRows({ rows, className }: { rows: MatrixRow[]; className?: string }) {
   return (
-    <div>
-      {Object.entries(rubric.criteria).map(([levelName, description], index) => (
-        <div key={levelName} className="mb-2">
-          <span className=" font-semibold">{levelName}: </span>
-          <span className=" text-gray-600">{typeof description === 'string' ? description : ''}</span>
-        </div>
+    <div className={cn("flex flex-col divide-y divide-border", className)}>
+      {rows.map((row) => (
+        <section key={row.name} className="flex flex-col gap-2 py-4 first:pt-0 last:pb-0">
+          <CriterionHeading name={row.name} description={row.description} />
+          <LevelList levels={row.levels} />
+        </section>
       ))}
     </div>
   );
 }
 
-// Updated Renderer for Analytical rubrics to handle nested criteria
-function renderDetailedCriteria(rubric: AnalyticalRubric) {
+function Tree({ nodes }: { nodes: TreeNode[] }) {
   return (
-    <div>
-      {rubric.description && (
-        <p className="mb-4">{rubric.description}</p>
-      )}
-      {Object.entries(rubric.criteria).map(([criterionName, levels], index) => (
-        <div key={criterionName} className="mb-4">
-          <h3 className="font-semibold mb-2">{criterionName}</h3>
-          {typeof levels === 'object' && levels !== null && (
-            <div className="ml-4">
-              {Object.entries(levels as Record<string, unknown>).map(([levelName, description], levelIndex) => (
-                <div key={`${criterionName}-${levelName}`} className="mb-2">
-                  <span className="font-medium">{levelName}: </span>
-                  <span className="text-gray-600">{renderContent(description)}</span>
-                </div>
-              ))}
+    <ul className="flex flex-col gap-2">
+      {nodes.map((node, i) => (
+        <li key={`${node.label}-${i}`} className="text-sm">
+          <span className="font-medium">{node.label}</span>
+          {node.text !== undefined && (
+            <span className="text-muted-foreground">: {node.text}</span>
+          )}
+          {node.children && node.children.length > 0 && (
+            <div className="mt-1.5 border-l border-border pl-3">
+              <Tree nodes={node.children} />
             </div>
           )}
-        </div>
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }
 
-// Recursive function to render content
-function renderContent(content: unknown): React.ReactNode {
-  if (typeof content === 'string' || typeof content === 'number') {
-    return <div className="text-gray-600">{content}</div>;
-  } else if (Array.isArray(content)) {
-    return content.map((item, index) => (
-      <div key={typeof item === 'string' || typeof item === 'number' ? `item-${item}` : `item-${JSON.stringify(item)}`} className="text-gray-600 ml-3">
-        {renderContent(item)}
-      </div>
-    ));
-  } else if (React.isValidElement(content)) {
-    // If content is a React element, render it directly
-    return content;
-  } else if (typeof content === 'object' && content !== null) {
-    return (
-      <div className="ml-3">
-        {Object.entries(content)
-          .filter(([entryKey]) => entryKey !== 'key') // Exclude 'key'
-          .map(([entryKey, value], index) => {
-            const uniqueKey = `entry-${entryKey}`;
-            return (
-              <div className="flex flex-row flex-wrap gap-2" key={uniqueKey}>
-                <div className="font-semibold">{entryKey}: </div>
-                <div>{renderContent(value)}</div>
-              </div>
-            );
-          })}
-      </div>
-    );
-  } else {
-    return null;
+/** Renders a rubric's criteria in the layout that suits its type. */
+export default function RubricDisplay({
+  rubric,
+  className,
+}: {
+  rubric: RubricState | null;
+  className?: string;
+}) {
+  if (!rubric) {
+    return <p className={cn("text-sm text-muted-foreground", className)}>No rubric selected.</p>;
   }
-}
 
-// Renderer for Single-Point rubrics
+  const view = buildRubricView(rubric);
 
-function CriterionWithLevels({
-  name,
-  description,
-  levels,
-}: {
-  name: string;
-  description?: unknown;
-  levels?: object;
-}) {
-  return (
-    <div className="mb-4">
-      <h4 className="font-medium">{name}</h4>
-      {description ? <p className="ml-2 mb-2">{renderContent(description)}</p> : null}
-      {levels ? <LevelsBlock parentKey={name} levels={levels} /> : null}
-    </div>
-  );
-}
-
-function LevelsBlock({
-  parentKey,
-  levels,
-}: {
-  parentKey: string;
-  levels: object;
-}) {
-  return (
-    <div className="ml-4">
-      {Object.entries(levels as Record<string, unknown>).map(([levelName, description]) => (
-        <div key={`${parentKey}-${levelName}`} className="mb-2">
-          <span className="font-medium">{levelName}: </span>
-          <span>{typeof description === "string" ? description : renderContent(description)}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-
-function renderSinglePointCriteria(rubric: SinglePointRubric) {
-  return (
-    <div>
-      <h3 className="font-semibold mb-2">Single-Point Rubric</h3>
-      {rubric.description && (
-        <p className="mb-4">{rubric.description}</p>
-      )}
-      <div className="mb-4">
-        <div className="font-semibold">Proficient</div>
-        <div className="text-gray-600">{renderContent(rubric.criteria.Proficient)}</div>
-      </div>
-      {rubric.feedback && (
-        <>
-          <div className="ml-4 mb-2">
-            <div className="font-semibold">Strengths</div>
-            <div className="text-gray-600">{rubric.feedback.Strengths || "No feedback provided"}</div>
+  switch (view.kind) {
+    case "empty":
+      return <p className={cn("text-sm text-muted-foreground", className)}>This rubric has no criteria yet.</p>;
+    case "levels":
+      return <LevelList levels={view.levels} className={className} />;
+    case "single-point":
+      return (
+        <div className={cn("flex flex-col gap-4", className)}>
+          <div className="rounded-lg border-l-2 border-primary bg-accent/50 p-3">
+            <div className="text-xs font-medium uppercase tracking-wider text-accent-foreground">Proficient</div>
+            <p className="mt-1 text-sm leading-relaxed">{view.proficient || "Not described"}</p>
           </div>
-          <div className="ml-4">
-            <div className="font-semibold">Areas for Improvement</div>
-            <div className="text-gray-600">{rubric.feedback["Areas for Improvement"] || "No feedback provided"}</div>
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
-// Renderer for Checklist rubrics
-function renderChecklistCriteria(rubric: ChecklistRubric) {
-  return (
-    <div>
-      {Object.entries(rubric.criteria).map(([requirement, response]) => (
-        <div key={requirement} className="mb-2">
-          <div className=" font-semibold">{requirement}</div>
-          <div className=" text-gray-600">{renderContent(response)}</div>
+          {view.feedback.length > 0 && <LevelList levels={view.feedback} />}
         </div>
-      ))}
-    </div>
-  );
-}
-
-// Renderer for Multi-Trait rubrics
-function renderMultiTraitCriteria(rubric: MultiTraitRubric) {
-  return (
-    <div>
-      {Object.entries(rubric.criteria).map(([criterionName, criterion]) => (
-        <div key={criterionName} className="mb-4">
-          <h3 className="font-semibold">{criterionName}: </h3>
-          <span className="text-gray-600 ml-2">{criterion.description}</span>
-          {Object.entries(criterion.subCriteria).map(([subCriterionId, subCriterion]) => (
-            <div key={subCriterionId} className="ml-4 mt-2">
-              <h4 className="font-medium">{subCriterion.description}: </h4>
-              <div className="ml-2">
-                {Object.entries(subCriterion.levels).map(([levelName, description]) => (
-                  <div key={levelName} className="flex flex-row gap-x-2">
-                    <span className="font-semibold">{levelName}: </span>
-                    <span className="text-gray-600">{description}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+      );
+    case "checklist":
+      return (
+        <ul className={cn("flex flex-col gap-2", className)}>
+          {view.items.map((item) => (
+            <li key={item.label} className="flex items-start gap-2 text-sm">
+              <CheckSquare className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
+              <span>
+                {item.label}
+                {item.text && item.text !== "Yes/No" && (
+                  <span className="text-muted-foreground"> — {item.text}</span>
+                )}
+              </span>
+            </li>
+          ))}
+        </ul>
+      );
+    case "matrix":
+      return view.columns ? (
+        <div className={className}>
+          <MatrixTable rows={view.rows} columns={view.columns} />
+          <StackedRows rows={view.rows} className="md:hidden" />
+        </div>
+      ) : (
+        <StackedRows rows={view.rows} className={className} />
+      );
+    case "multi-trait":
+      return (
+        <div className={cn("flex flex-col divide-y divide-border", className)}>
+          {view.traits.map((trait) => (
+            <section key={trait.name} className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0">
+              <CriterionHeading name={trait.name} description={trait.description} />
+              {trait.subCriteria.map((sub, i) => (
+                <div key={`${trait.name}-${i}`} className="rounded-lg border border-border p-3">
+                  <p className="mb-2 text-sm font-medium">{sub.description || `Sub-criterion ${i + 1}`}</p>
+                  <LevelList levels={sub.levels} />
+                </div>
+              ))}
+            </section>
           ))}
         </div>
-      ))}
-    </div>
-  );
-}
-
-function renderContentSpecificCriteria(rubric: ContentSpecificRubric) {
-  return (
-    <div>
-      <h3 className="font-semibold mb-2">Content-Specific Rubric</h3>
-      {Object.entries(rubric.criteria).map(([criterionName, criterionData], index) => (
-        <CriterionWithLevels key={criterionName} name={criterionName} description={typeof criterionData === "object" && criterionData && "description" in criterionData ? criterionData.description : undefined} levels={typeof criterionData === "object" && criterionData && "levels" in criterionData ? (criterionData.levels as object) : undefined} />
-      ))}
-    </div>
-  );
-}
-
-function renderSkillFocusedCriteria(rubric: SkillFocusedRubric) {
-  return (
-    <div>
-      <h3 className="font-semibold mb-2">Skill-Focused Rubric</h3>
-      {rubric.description && (
-        <p className="mb-4">{rubric.description}</p>
-      )}
-      {Object.entries(rubric.criteria).map(([skillName, levels], index) => (
-        <div key={skillName} className="mb-4">
-          <h4 className="font-medium">{skillName}</h4>
-          {typeof levels === 'object' && levels !== null && (
-            <div className="ml-4">
-              {Object.entries(levels as Record<string, unknown>).map(([levelName, description], levelIndex) => (
-                <div key={`${skillName}-${levelName}`} className="mb-2 flex">
-                  <span className="font-medium">{levelName}: </span>
-                  <span className="text-gray-600 ml-1">{renderContent(description)}</span>
-                </div>
-              ))}
-            </div>
-          )}
+      );
+    case "tree":
+      return (
+        <div className={className}>
+          <Tree nodes={view.nodes} />
         </div>
-      ))}
-    </div>
-  );
-}
-
-function renderDevelopmentalCriteria(rubric: DevelopmentalRubric) {
-  return (
-    <div>
-      <h3 className="font-semibold mb-2">Developmental Rubric</h3>
-      {rubric.description && (
-        <p className="mb-4">{rubric.description}</p>
-      )}
-      {Object.entries(rubric.criteria).map(([criterionName, levels], index) => (
-        <div key={criterionName} className="mb-4">
-          <h4 className="font-medium">{criterionName}</h4>
-          {typeof levels === 'object' && levels !== null && (
-            <div className="ml-4">
-              {Object.entries(levels as Record<string, unknown>).map(([levelName, description], levelIndex) => (
-                <div key={`${criterionName}-${levelName}`} className="mb-2">
-                  <span className="font-medium">{levelName}: </span>
-                  <span>{renderContent(description)}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function renderPrimaryTraitCriteria(rubric: PrimaryTraitRubric) {
-  return (
-    <div>
-      <h3 className="font-semibold mb-2">Primary Trait Rubric</h3>
-      {Object.entries(rubric.criteria).map(([traitName, traitData], index) => (
-        <CriterionWithLevels key={traitName} name={traitName} description={typeof traitData === "object" && traitData && "description" in traitData ? traitData.description : undefined} levels={typeof traitData === "object" && traitData && "levels" in traitData ? (traitData.levels as object) : undefined} />
-      ))}
-    </div>
-  );
-}
-
-function renderTaskSpecificCriteria(rubric: TaskSpecificRubric) {
-  return (
-    <div>
-      <h3 className="font-semibold mb-2">Task-Specific Rubric</h3>
-      {rubric.description && (
-        <p className="mb-4">{rubric.description}</p>
-      )}
-      {Object.entries(rubric.criteria).map(([criterionName, levels], index) => (
-        <div key={criterionName} className="mb-4">
-          <h4 className="font-medium">{criterionName}</h4>
-          {typeof levels === 'object' && levels !== null && (
-            <div className="ml-4">
-              {Object.entries(levels as Record<string, unknown>).map(([levelName, description], levelIndex) => (
-                <div key={`${criterionName}-${levelName}`} className="mb-2">
-                  <span className="font-medium min-w-[80px]">{levelName}: </span>
-                  <span className="text-gray-600 ml-1">{renderContent(description)}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function renderStandardsBasedCriteria(rubric: StandardsBasedRubric) {
-  return (
-    <div>
-      <h3 className="font-semibold mb-2">Standards-Based Rubric</h3>
-      {Object.entries(rubric.criteria).map(([standardName, standardData], index) => (
-        <CriterionWithLevels key={standardName} name={standardName} description={typeof standardData === "object" && standardData && "description" in standardData ? standardData.description : undefined} levels={typeof standardData === "object" && standardData && "levels" in standardData ? (standardData.levels as object) : undefined} />
-      ))}
-    </div>
-  );
+      );
+  }
 }
