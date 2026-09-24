@@ -1,8 +1,8 @@
 import { create } from "zustand";
-import { deleteDoc, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { useAuthStore } from "./useAuthStore";
-import { auth, db } from "@/firebase/firebaseClient";
-import { deleteUser } from "firebase/auth";
+import { db } from "@/firebase/firebaseClient";
+import { deleteAccountData } from "@/actions/deleteAccount";
 
 export interface ProfileType {
   email: string;
@@ -121,22 +121,11 @@ const useProfileStore = create<ProfileState>((set, get) => ({
   },
 
   deleteAccount: async () => {
-    const currentUser = auth.currentUser;
-
-    const uid = useAuthStore.getState().uid;
-    if (!uid || !currentUser) return;
-
-    try {
-      const userRef = doc(db, `users/${uid}/profile/userData`);
-      // Delete the user profile data from Firestore
-      await deleteDoc(userRef);
-
-      //Delete the user from Firebase Authentication
-      await deleteUser(currentUser);
-
-    } catch (error) {
-      handleProfileError("deleting account", error);
-    }
+    if (!useAuthStore.getState().uid) return;
+    // Server verifies the session and removes Firestore data, uploads, and the auth user.
+    // Errors propagate so the caller never reports a failed deletion as success.
+    await deleteAccountData();
+    set({ profile: defaultProfile });
   },
 
   minusCredits: async (amount: number) => {

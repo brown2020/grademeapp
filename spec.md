@@ -155,9 +155,6 @@ Firestore is the database, keyed under `users/{uid}` with `profile`, `summaries`
   `useProfileStore` default (0), and `createNewProfile` (1000).
 - **[inferred] Output-token cost estimate is a fixed guess** (1000 tokens; see the
   in-code `TODO`), so pre-flight credit checks are rough.
-- **Account deletion is partial.** `deleteAccount` removes only
-  `profile/userData` and the auth user; `summaries`, `custom_rubrics`, payments and
-  `plagiarism_reports` remain in Firestore.
 - **AI-content % is not stored.** The Copyleaks completed webhook saves `results`
   only, so the report page cannot show an AI-detection score.
 - Tours were removed; no onboarding currently runs beyond the first-sign-in identity dialog.

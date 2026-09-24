@@ -2,41 +2,38 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signOut } from "firebase/auth";
-import { deleteCookie } from "cookies-next";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import ConfirmDeleteDialog from "@/components/ui/ConfirmDeleteDialog";
-import { auth } from "@/firebase/firebaseClient";
-import { useAuthStore } from "@/zustand/useAuthStore";
+import { signOutUser } from "@/lib/auth/signOut";
 import useProfileStore from "@/zustand/useProfileStore";
 
 export default function DangerZoneCard() {
   const router = useRouter();
   const deleteAccount = useProfileStore((s) => s.deleteAccount);
-  const clearAuthDetails = useAuthStore((s) => s.clearAuthDetails);
   const [open, setOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const onConfirm = async () => {
     setOpen(false);
+    setDeleting(true);
     try {
       await deleteAccount();
-
-      // Delete the auth cookie before Firebase sign-out so the proxy can't see a stale session.
-      const cookieName = process.env.NEXT_PUBLIC_COOKIE_NAME || "authToken";
-      deleteCookie(cookieName, { path: "/" });
-
-      await signOut(auth);
-      clearAuthDetails();
-      sessionStorage.clear();
-
-      toast.success("Account deleted successfully.");
-      router.replace("/");
     } catch (error) {
-      console.error("Error on deletion of account:", error);
+      console.error("Error deleting account:", error);
       toast.error("Couldn't delete your account. Please try again.");
+      setDeleting(false);
+      return;
     }
+    try {
+      // The auth user is already gone server-side; this clears the local session.
+      await signOutUser();
+    } catch (error) {
+      console.error("Error signing out after account deletion:", error);
+    }
+    toast.success("Your account and all of its data were deleted.");
+    router.replace("/");
   };
 
   return (
@@ -44,11 +41,12 @@ export default function DangerZoneCard() {
       <CardHeader>
         <CardTitle className="font-serif text-lg text-destructive">Danger zone</CardTitle>
         <CardDescription>
-          Permanently delete your account and profile, including any remaining credits.
+          Permanently delete your account and all of its data: profile, credits, grading
+          history, custom rubrics, payment records, plagiarism reports, and uploaded files.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Button variant="destructive" onClick={() => setOpen(true)}>
+        <Button variant="destructive" loading={deleting} onClick={() => setOpen(true)}>
           Delete account
         </Button>
       </CardContent>
@@ -57,7 +55,7 @@ export default function DangerZoneCard() {
         onClose={() => setOpen(false)}
         onConfirm={onConfirm}
         title="Delete your account?"
-        description="This can't be undone. All of your data will be permanently removed."
+        description="This can't be undone. Your profile, credits, grading history, custom rubrics, payment records, plagiarism reports, and uploaded files will be permanently removed."
         confirmText="DELETE ACCOUNT"
       />
     </Card>
