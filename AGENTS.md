@@ -310,9 +310,17 @@ runs the Vitest unit suite once (no watch mode), which is CI-safe.
 
 - `main` is the **stable production branch**. `dev` is the **working branch**.
 - Default workflow for agents: work on `dev`, commit to `dev`, push `origin/dev`.
-- **Never push to `main`** unless a human explicitly directs it. `main` is a
-  protected branch (requires PR review + verified signatures); do not attempt to
-  bypass protection.
+- **Releases promote `dev` to `main` by fast-forward — no pull requests.** Only do
+  this when a human asks to "promote dev to main" (or equivalent). Procedure:
+  1. `git fetch origin` and confirm `dev` is clean and equals `origin/dev`.
+  2. Confirm `main` is an ancestor of `dev`:
+     `git merge-base --is-ancestor origin/main origin/dev`. If not (someone committed
+     to `main` directly), stop and report — never merge, rebase, or force.
+  3. Run the canonical check on `dev`: `npm run lint && npm test && npm run build`.
+  4. `git push origin origin/dev:refs/heads/main` (a plain fast-forward push).
+  5. Sync local `main`: `git fetch origin main:main`, then verify `dev`, `main`,
+     `origin/dev`, `origin/main` all point to the same commit.
+- Never commit directly to `main`; all changes land on `dev` first.
 - Do not change git config, do not force-push, do not rewrite published history.
 - Use Conventional Commit messages (e.g. `feat:`, `fix:`, `chore(deps):`,
   `docs:`), matching the existing history.
@@ -356,8 +364,9 @@ Stop and report instead of guessing when any of these occur:
 
 - Pre-existing uncommitted changes in the working tree that are not clearly safe to
   preserve.
-- A task would require pushing to `main`, bypassing branch protection, editing git
-  config, or committing secrets.
+- A task would require committing directly to `main`, a non-fast-forward update of
+  `main`, editing git config, or committing secrets. (Fast-forward promotion of
+  `dev` to `main` on request is allowed — see the git workflow section.)
 - A change needs new environment variables, new third-party services, or new
   Firestore security rules you cannot configure from the repo.
 - `npm run build` fails for reasons you cannot resolve within the change's scope,
