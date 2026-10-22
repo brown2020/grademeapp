@@ -6,8 +6,8 @@ import { auth } from "@/firebase/firebaseClient";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
-import { FirebaseError } from "firebase/app";
 import useProfileStore from "@/zustand/useProfileStore";
+import { authErrorMessage, isFirebaseError, logAuthFailure } from "@/components/auth/authErrors";
 
 export default function LoginFinishPage() {
   const router = useRouter();
@@ -53,14 +53,14 @@ export default function LoginFinishPage() {
         });
         updateProfile({ displayName: selectedName });
       } catch (error) {
-        let errorMessage = "Unknown error signing in";
-        if (error instanceof FirebaseError) {
-          errorMessage = error.message;
-        } else if (error instanceof Error) {
-          errorMessage = error.message;
-        }
-
-        alert(errorMessage);
+        logAuthFailure("email link sign-in", error);
+        alert(
+          isFirebaseError(error)
+            ? authErrorMessage(error)
+            : error instanceof Error
+              ? error.message
+              : "Couldn't finish signing in. Please try again."
+        );
       } finally {
         window.localStorage.removeItem("grademeEmail");
         window.localStorage.removeItem("grademeName");

@@ -29,3 +29,16 @@ export function authErrorMessage(error: unknown): string {
   if (!isFirebaseError(error)) return "Something went wrong. Please try again.";
   return MESSAGES[error.code] ?? "Unable to authenticate. Please try again.";
 }
+
+/**
+ * Logs a handled auth failure as a code string. Passing the Error object to
+ * console.error makes the Next.js dev overlay report it as an uncaught error.
+ */
+export function logAuthFailure(action: string, error: unknown): void {
+  const detail = isFirebaseError(error)
+    ? error.code
+    : error instanceof Error
+      ? error.message
+      : String(error);
+  console.warn(`[auth] ${action} failed: ${detail}`);
+}

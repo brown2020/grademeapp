@@ -28,7 +28,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { authErrorMessage, isFirebaseError } from "./authErrors";
+import { authErrorMessage, isFirebaseError, logAuthFailure } from "./authErrors";
 
 type Mode = "signin" | "signup" | "link" | "reset";
 
@@ -72,7 +72,7 @@ export function AuthDialog() {
   );
 
   const fail = (error: unknown) => {
-    console.error(error);
+    logAuthFailure(mode, error);
     toast.error(authErrorMessage(error));
   };
 
@@ -142,7 +142,7 @@ export function AuthDialog() {
     try {
       await signOutUser();
     } catch (error) {
-      console.error(error);
+      logAuthFailure("sign-out", error);
     }
     setAuthDetails({ authPending: false });
   };

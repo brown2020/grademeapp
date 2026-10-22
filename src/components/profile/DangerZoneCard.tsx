@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import ConfirmDeleteDialog from "@/components/ui/ConfirmDeleteDialog";
 import { signOutUser } from "@/lib/auth/signOut";
+import { logAuthFailure } from "@/components/auth/authErrors";
 import useProfileStore from "@/zustand/useProfileStore";
 
 export default function DangerZoneCard() {
@@ -21,7 +22,7 @@ export default function DangerZoneCard() {
     try {
       await deleteAccount();
     } catch (error) {
-      console.error("Error deleting account:", error);
+      logAuthFailure("delete-account", error);
       toast.error("Couldn't delete your account. Please try again.");
       setDeleting(false);
       return;
@@ -30,7 +31,7 @@ export default function DangerZoneCard() {
       // The auth user is already gone server-side; this clears the local session.
       await signOutUser();
     } catch (error) {
-      console.error("Error signing out after account deletion:", error);
+      logAuthFailure("sign-out after account deletion", error);
     }
     toast.success("Your account and all of its data were deleted.");
     router.replace("/");

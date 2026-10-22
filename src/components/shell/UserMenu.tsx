@@ -22,6 +22,7 @@ import {
 import useProfileStore from "@/zustand/useProfileStore";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import { signOutUser } from "@/lib/auth/signOut";
+import { logAuthFailure } from "@/components/auth/authErrors";
 
 export function Avatar({
   src,
@@ -65,7 +66,7 @@ export function UserMenu() {
     try {
       await signOutUser();
     } catch (error) {
-      console.error("Error signing out:", error);
+      logAuthFailure("sign-out", error);
       toast.error("Couldn't sign out. Please try again.");
     } finally {
       router.push("/");
