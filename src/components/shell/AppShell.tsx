@@ -12,6 +12,12 @@ import { SiteFooter } from "./SiteFooter";
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="app-height flex flex-col">
+      <a
+        href="#main"
+        className="sr-only focus-visible:not-sr-only focus-visible:absolute focus-visible:left-4 focus-visible:top-3 focus-visible:z-50 focus-visible:rounded-md focus-visible:bg-surface focus-visible:px-3 focus-visible:py-2 focus-visible:text-sm focus-visible:font-medium focus-visible:text-foreground focus-visible:shadow-raised focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+      >
+        Skip to content
+      </a>
       <AppHeader />
       <main
         id="main"

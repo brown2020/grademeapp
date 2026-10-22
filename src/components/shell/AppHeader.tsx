@@ -52,7 +52,7 @@ export function AppHeader() {
                       : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
                   )}
                 >
-                  <Icon className="size-4" />
+                  <Icon className="size-4" aria-hidden />
                   {label}
                 </Link>
               );

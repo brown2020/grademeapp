@@ -164,7 +164,6 @@ export default function RubricBuilder({
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. 9th grade persuasive essay"
                 aria-invalid={showErrors && !name.trim()}
-                autoFocus
               />
             </Field>
             <Field label="Description" htmlFor="rubric-description" hint="Shown on the rubric card and sent to the grader.">

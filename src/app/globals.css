@@ -144,6 +144,32 @@
   [role='button']:not([aria-disabled='true']) {
     cursor: pointer;
   }
+
+  button,
+  [role='button'],
+  a,
+  label,
+  summary,
+  input,
+  select,
+  textarea {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+}
+
+/* Honor the user's reduced-motion preference globally (animations, transitions,
+   tailwindcss-animate data-state effects, spinners, smooth scrolling). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after,
+  ::backdrop {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 @utility app-height {

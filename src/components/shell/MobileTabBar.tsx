@@ -29,7 +29,7 @@ export function MobileTabBar() {
                   active ? "text-primary" : "text-muted-foreground"
                 )}
               >
-                <Icon className="size-5" strokeWidth={active ? 2.25 : 1.75} />
+                <Icon className="size-5" strokeWidth={active ? 2.25 : 1.75} aria-hidden />
                 {label}
               </Link>
             </li>

@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 
 export function Spinner({
   className,
-  label = "Loading",
+  label = "Loading…",
 }: {
   className?: string;
   label?: string;
