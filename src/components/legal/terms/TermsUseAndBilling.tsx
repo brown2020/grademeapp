@@ -41,9 +41,11 @@ export function TermsUseAndBilling() {
         any time and in its sole discretion.
       </p>
       <p>
-        You represent and warrant that you are at least 18 years of age and have
-        the legal authority to accept this Agreement on your behalf or on behalf
-        of any party you represent. You alone are responsible for your
+        You represent and warrant that you are at least 13 years of age. If you
+        are under 18, you represent that your parent or legal guardian has
+        reviewed and agreed to this Agreement on your behalf. You also represent
+        that you have the legal authority to accept this Agreement on your
+        behalf or on behalf of any party you represent. You alone are responsible for your
         activities and interaction with the Services.
       </p>
       <p>

@@ -134,10 +134,10 @@ export function PrivacyPolicy() {
 
       <h2>Children Under Thirteen</h2>
       <p>
-        {companyName} does not knowingly collect personally identifiable
-        information from children under the age of thirteen. If you are under
-        the age of thirteen, you must ask your parent or guardian for permission
-        to use this application.
+        {companyName} is not intended for children under the age of thirteen and
+        does not knowingly collect personally identifiable information from
+        them. If you believe a child under thirteen has provided us with
+        personal information, contact us and we will delete it.
       </p>
       <h2>E-mail Communications</h2>
       <p>
