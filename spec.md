@@ -98,7 +98,8 @@ export results to `.docx`.
 - **Plagiarism:** client → `POST /api/copyleaks/submit` (verifies the session uid,
   debits credits atomically, writes a `pending` report, submits base64 text to
   Copyleaks, refunds on failure) → Copyleaks → `POST /api/copyleaks/webhook/[status]`
-  (HMAC-verified) writes results → report pages render them, polling while pending.
+  (HMAC-verified) settles the pending report once (completed, or error with a
+  credit refund) → report pages render it, polling while pending.
   Filenames encode `{uid}-{docId}` for correlation.
 - **Payments:** checkout creates a PaymentIntent for the fixed credit pack, tagged
   with the buyer's uid; the success page calls `completePayment`, which verifies
@@ -218,10 +219,14 @@ plagiarism scan debits server-side at submit time.
   model/Copyleaks call.
 - Balances shown in the UI match Firestore after a grade and after a scan.
 
-### M2 — Authenticate the Copyleaks webhook and harden report writes — **Partly done**
+### M2 — Authenticate the Copyleaks webhook and harden report writes — **Done**
 
-HMAC signature verification (fail-closed in production) is in place. Still open:
-confirm the `uid/docId` resolves to an existing `pending` report before updating it.
+HMAC signature verification (fail-closed in production) is in place. Callbacks
+resolve the report from `developerPayload` (`uid/docId`, falling back to the
+filename), settle it in a transaction only while it is `pending`, and refund the
+scan's credits on `error`; unknown reports are acknowledged without writes. Covered
+by `webhook/[status]/route.test.ts`. A live Copyleaks round trip (paid) has not been
+run against these changes.
 
 **User value:** users' plagiarism reports can't be spoofed or corrupted by forged
 callbacks; results they see are trustworthy.

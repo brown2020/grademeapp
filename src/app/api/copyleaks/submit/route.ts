@@ -122,6 +122,7 @@ export async function POST(request: NextRequest) {
         base64: base64Text,
         filename: `${uid}-${docId}.txt`,
         properties: {
+          developerPayload: `${uid}/${docId}`,
           action: 0,
           includeHtml: true,
           sandbox: false,

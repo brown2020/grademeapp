@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "crypto";
+import { FieldValue, type DocumentReference, type Transaction } from "firebase-admin/firestore";
 import { adminDb } from "@/firebase/firebaseAdmin";
+import { profileRef } from "@/lib/server/billing";
 
 function verifyWebhookSignature(request: NextRequest, rawBody: string): boolean {
   const secret = process.env.COPYLEAKS_WEBHOOK_SECRET;
@@ -38,21 +40,31 @@ export async function POST(
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
+  let body: WebhookBody;
   try {
-    const body = JSON.parse(rawBody);
+    body = JSON.parse(rawBody) as WebhookBody;
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
 
-    switch (status) {
-      case "completed":
-        await handleCompletedWebhook(body);
-        break;
-      case "error":
-        console.error("Webhook reported an error:", body);
-        break;
-      default:
-        console.warn(`Unhandled webhook status: ${status}`);
-    }
+  if (status !== "completed" && status !== "error") {
+    console.warn(`Unhandled webhook status: ${status}`);
+    return NextResponse.json({ message: "Ignored" }, { status: 200 });
+  }
 
-    return NextResponse.json({ message: "Webhook processed successfully" }, { status: 200 });
+  const ids = reportIds(body);
+  if (!ids) {
+    return NextResponse.json({ error: "Webhook payload does not identify a report" }, { status: 400 });
+  }
+
+  try {
+    const outcome =
+      status === "completed"
+        ? await settleReport(ids, { status: "completed", results: body.results ?? {} })
+        : await settleReport(ids, { status: "error", message: body.error?.message || "Scan failed" });
+    // 200 for "missing"/"already" too: retrying cannot change the outcome.
+    if (outcome !== "updated") console.warn(`Copyleaks ${status} webhook for ${outcome} report ${ids.docId}`);
+    return NextResponse.json({ message: "Webhook processed successfully", outcome }, { status: 200 });
   } catch (error) {
     console.error("Error processing webhook:", error);
     return NextResponse.json({ error: "Failed to process webhook" }, { status: 500 });
@@ -60,35 +72,47 @@ export async function POST(
 }
 
 interface WebhookBody {
-  scannedDocument: {
-    metadata: {
-      filename: string;
-    };
-  };
-  results: Record<string, unknown>;
+  developerPayload?: string;
+  scannedDocument?: { metadata?: { filename?: string } };
+  results?: Record<string, unknown>;
+  error?: { message?: string };
 }
 
-async function handleCompletedWebhook(body: WebhookBody) {
-  const {
-    scannedDocument: { metadata },
-    results,
-  } = body;
+type ReportIds = { uid: string; docId: string };
 
-  const filename = metadata?.filename || "";
-  const [uid, docId] = filename.replace(".txt", "").split("-");
+/** Submissions send `developerPayload: "uid/docId"`; older scans only carry `uid-docId.txt`. */
+function reportIds(body: WebhookBody): ReportIds | null {
+  const fromPayload = typeof body.developerPayload === "string" ? body.developerPayload.split("/") : [];
+  const fromFilename = (body.scannedDocument?.metadata?.filename ?? "").replace(/\.txt$/, "").split("-");
+  const parts = fromPayload.length === 2 ? fromPayload : fromFilename;
+  const [uid, docId] = parts;
+  return parts.length === 2 && uid && docId ? { uid, docId } : null;
+}
 
-  if (!uid || !docId) {
-    throw new Error("Invalid filename format in webhook payload.");
-  }
+type Outcome =
+  | { status: "completed"; results: Record<string, unknown> }
+  | { status: "error"; message: string };
 
-  await adminDb
-    .collection("users")
-    .doc(uid)
-    .collection("plagiarism_reports")
-    .doc(docId)
-    .update({
-      status: "completed",
-      results,
-      updatedAt: new Date().toISOString(),
-    });
+/**
+ * Moves a pending report to its final state exactly once. A failed scan refunds
+ * the credits charged at submit, in the same transaction.
+ */
+async function settleReport({ uid, docId }: ReportIds, outcome: Outcome) {
+  const reportRef = adminDb.doc(`users/${uid}/plagiarism_reports/${docId}`) as DocumentReference;
+  return adminDb.runTransaction(async (tx: Transaction) => {
+    const snap = await tx.get(reportRef);
+    if (!snap.exists) return "missing" as const;
+    const report = snap.data() ?? {};
+    if (report.status !== "pending") return "already" as const;
+
+    const updatedAt = new Date().toISOString();
+    if (outcome.status === "completed") {
+      tx.update(reportRef, { status: "completed", results: outcome.results, updatedAt });
+      return "updated" as const;
+    }
+    tx.update(reportRef, { status: "error", error: outcome.message, updatedAt });
+    const refund = Number(report.creditCost) || 0;
+    if (refund > 0) tx.update(profileRef(uid), { credits: FieldValue.increment(refund) });
+    return "updated" as const;
+  });
 }
