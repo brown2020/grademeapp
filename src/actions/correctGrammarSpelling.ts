@@ -2,8 +2,9 @@
 
 import { streamText, type ModelMessage } from "ai";
 import { getModel } from "@/lib/utils/registry";
-import { getApiKeys } from "@/lib/utils/user";
 import { validateInputs, estimateTokens } from "@/lib/utils/textUtils";
+import { requireServerUser } from "@/lib/server/requestAuth";
+import { debitCredits, getBilling, InsufficientCreditsError } from "@/lib/server/billing";
 
 // Function to split text into chunks based on max input tokens
 function splitTextIntoChunks(text: string, maxInputTokens: number): string[] {
@@ -52,7 +53,7 @@ async function generateGrammarCorrections(
     const estimatedCreditCost = (inputTokenEstimate * creditsPerInputToken + estimatedOutputTokens * creditsPerOutputToken) * creditsPerDollar * 1.5; // 50% buffer
 
     if (availableCredits < estimatedCreditCost) {
-      throw new Error("Not enough credits to process the request.");
+      throw new InsufficientCreditsError();
     }
   }
 
@@ -95,17 +96,16 @@ function createCorrectionMessages(text: string): ModelMessage[] {
 }
 
 // Main function to handle grammar correction request
-export async function correctGrammarAndSpelling(
-  text: string,
-  availableCredits: number,
-  useCredits: boolean,
-  userId: string,
-  selectedModelId: string
-) {
+export async function correctGrammarAndSpelling(text: string, selectedModelId: string) {
   const validation = validateInputs(text);
   if (!validation.valid) {
     throw new Error(validation.error);
   }
+
+  // Identity, balance and BYO keys come only from the verified session, never the client.
+  const { uid } = await requireServerUser();
+  const { credits: availableCredits, useCredits, openaiApiKey, fireworksApiKey } =
+    await getBilling(uid);
 
   const inputTokenEstimate = estimateTokens(text);
   const maxInputTokens = 16384;
@@ -121,12 +121,11 @@ export async function correctGrammarAndSpelling(
 
   let apiKey = '';
   if (!useCredits) {
-    const apiKeys = await getApiKeys(userId);
-    if (!apiKeys) {
+    const [provider] = selectedModelId.split(':');
+    apiKey = provider === 'openai' ? openaiApiKey : fireworksApiKey;
+    if (!apiKey) {
       throw new Error("User API keys not found");
     }
-    const [provider] = selectedModelId.split(':');
-    apiKey = provider === 'openai' ? apiKeys.openai_api_key : apiKeys.fireworks_api_key;
   }
 
   const chunkResults = await Promise.all(
@@ -147,13 +146,15 @@ export async function correctGrammarAndSpelling(
     correctedTextArray.push(...resultChunks);
     totalCreditsUsed += creditsUsed;
   }
-  if (useCredits && totalCreditsUsed > availableCredits) {
-    throw new Error("Insufficient credits to continue processing.");
-  }
+
+  const credits = useCredits
+    ? await debitCredits(uid, totalCreditsUsed, { allowPartial: true })
+    : availableCredits;
 
   return {
     correctedTextArray, // Return all corrected text chunks
     totalCreditsUsed,
+    credits,
   };
 }
 

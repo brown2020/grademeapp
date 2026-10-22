@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/firebase/firebaseAdmin";
 import { requireMatchingUid } from "@/lib/server/requestAuth";
+import { debitCredits, InsufficientCreditsError, refundCredits } from "@/lib/server/billing";
 import { Buffer } from "buffer";
 
 const COPYLEAKS_API_KEY = process.env.COPYLEAKS_API_KEY;
@@ -58,6 +59,7 @@ async function saveDocument({ uid, text, wordCount, creditCost }: SaveDocumentPa
 export async function POST(request: NextRequest) {
 
   const BASE_URL = process.env.BASE_URL;
+  let charged: { uid: string; amount: number } | null = null;
 
   try {
     const body = (await request.json()) as { uid?: unknown; text?: unknown };
@@ -85,31 +87,20 @@ export async function POST(request: NextRequest) {
     const wordCount = Number(text.split(/\s+/).length); // Count words in the text
     const creditCost = calculateWordCost(wordCount);
 
-    // Fetch user credits
-    const profileDocRef = adminDb
-      .collection("users")
-      .doc(uid)
-      .collection("profile")
-      .doc("userData");
-    const profileDoc = await profileDocRef.get();
-    if (!profileDoc.exists) {
-      return NextResponse.json(
-        { error: "User profile not found." },
-        { status: 404 }
-      );
+    // Check and debit atomically before the paid Copyleaks call; refunded below on failure.
+    let credits: number;
+    try {
+      credits = await debitCredits(uid, creditCost);
+    } catch (error) {
+      if (error instanceof InsufficientCreditsError) {
+        return NextResponse.json(
+          { error: "Insufficient credits. Please purchase more credits." },
+          { status: 402 }
+        );
+      }
+      throw error;
     }
-
-    const profileData = profileDoc.data();
-    const availableCredits = Number(profileData?.credits ?? 0);
-
-    if (!Number.isFinite(availableCredits) || availableCredits < creditCost) {
-      return NextResponse.json(
-        {
-          error: "Insufficient credits. Please purchase more credits.",
-        },
-        { status: 402 } // HTTP 402 Payment Required
-      );
-    }
+    charged = { uid, amount: creditCost };
 
     // Save document to Firestore
     const { docId } = await saveDocument({ uid, text, wordCount, creditCost });
@@ -155,11 +146,17 @@ export async function POST(request: NextRequest) {
       throw new Error(error.message || "Failed to submit scan.");
     }
 
+    charged = null;
     return NextResponse.json(
-      { message: "Scan submitted successfully", docId, creditsUsed: creditCost },
+      { message: "Scan submitted successfully", docId, creditsUsed: creditCost, credits },
       { status: 201 }
     );
   } catch (error) {
+    if (charged) {
+      await refundCredits(charged.uid, charged.amount).catch((refundError) =>
+        console.error("Failed to refund plagiarism credits:", refundError)
+      );
+    }
     console.error("Error in submit handler:", error);
     const errorMessage = error instanceof Error ? error.message : "Internal Server Error";
     return NextResponse.json({ error: errorMessage }, { status: 500 });

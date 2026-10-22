@@ -3,8 +3,9 @@
 import { createStreamableValue } from "@ai-sdk/rsc";
 import { streamText, type ModelMessage } from "ai";
 import { isProviderEnabled, getModel } from "@/lib/utils/registry";
-import { getApiKeys } from "@/lib/utils/user";
 import { validateInputs } from "@/lib/utils/textUtils";
+import { requireServerUser } from "@/lib/server/requestAuth";
+import { debitCredits, getBilling, InsufficientCreditsError } from "@/lib/server/billing";
 import { getDefaultModelId } from "@/lib/utils";
 import { models } from "@/lib/types/models";
 
@@ -76,9 +77,8 @@ async function generateDeterministicResponse(
   const { inputTokens, outputTokens } = await estimateTokens(messages, estimatedOutputTokens);
   const estimatedCreditCost = ((inputTokens * 0.000005) + (outputTokens * 0.000015)) * creditsPerDollar * 1.5; // Add 50% buffer
 
-  // If the user does not have enough credits, throw an error
-  if (availableCredits < estimatedCreditCost) {
-    throw new Error("Not enough credits to process the request.");
+  if (useCredits && availableCredits < estimatedCreditCost) {
+    throw new InsufficientCreditsError();
   }
 
   // Proceed with the API call if the user has enough credits
@@ -145,21 +145,15 @@ export async function generateGrade(
   rubricString: string,
   title: string,
   text: string,
-  availableCredits: number,
-  useCredits: boolean,
-  userId: string,
 ) {
   const validation = validateInputs(text as string);
   if (!validation.valid) {
     throw new Error(validation.error);
   }
 
-  let apiKeys = null;
-  if (!useCredits) {
-    apiKeys = await getApiKeys(userId);
-  }
-
-  const { fireworks_api_key, openai_api_key } = apiKeys ?? {};
+  // Identity, balance and BYO keys come only from the verified session, never the client.
+  const { uid } = await requireServerUser();
+  const billing = await getBilling(uid);
 
   // Estimate output tokens based on average response length (adjust this as needed)
   // TODO: Implement a more accurate way to estimate output tokens
@@ -178,13 +172,19 @@ export async function generateGrade(
     title,
     text,
   );
-  return await generateDeterministicResponse(
+  const { result, creditsUsed } = await generateDeterministicResponse(
     selectedModelId,
     messages,
     estimatedOutputTokens,
-    availableCredits,
-    useCredits,
-    fireworks_api_key,
-    openai_api_key,
+    billing.credits,
+    billing.useCredits,
+    billing.fireworksApiKey,
+    billing.openaiApiKey,
   );
+
+  const credits = billing.useCredits
+    ? await debitCredits(uid, creditsUsed, { allowPartial: true })
+    : billing.credits;
+
+  return { result, creditsUsed: billing.useCredits ? creditsUsed : 0, credits };
 }

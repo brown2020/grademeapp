@@ -12,25 +12,24 @@ interface StreamGradeArgs {
   profile: ProfileType;
   data: GradingData;
   rubricString: string;
-  uid: string;
-  minusCredits: (amount: number) => Promise<boolean>;
+  /** Receives the balance after the server debited this grading. */
+  onCredits: (credits: number) => void;
   onUpdate: (feedback: string, grade: string) => void;
 }
 
 /**
- * Requests a grade, deducts the credits it cost, then streams the feedback
- * through `onUpdate`. Resolves with the final feedback and grade.
+ * Requests a grade (the server verifies the session and debits credits), then
+ * streams the feedback through `onUpdate`. Resolves with the final feedback and grade.
  */
 export async function streamGrade({
   modelId,
   profile,
   data,
   rubricString,
-  uid,
-  minusCredits,
+  onCredits,
   onUpdate,
 }: StreamGradeArgs) {
-  const { result, creditsUsed } = await generateGrade(
+  const { result, credits } = await generateGrade(
     modelId,
     profile.identity || "",
     profile.identityLevel || "",
@@ -42,14 +41,11 @@ export async function streamGrade({
     data.wordLimit,
     rubricString,
     data.title,
-    data.text,
-    profile.credits,
-    profile.useCredits,
-    uid
+    data.text
   );
 
   if (!result) throw new Error("No response");
-  if (!(await minusCredits(creditsUsed))) throw new Error("Failed to deduct credits.");
+  onCredits(credits);
 
   let feedback = "";
   let grade = "";

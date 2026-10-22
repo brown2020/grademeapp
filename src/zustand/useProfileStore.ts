@@ -42,7 +42,8 @@ interface ProfileState {
   profile: ProfileType;
   fetchProfile: () => Promise<void>;
   updateProfile: (newProfile: Partial<ProfileType>) => Promise<void>;
-  minusCredits: (amount: number) => Promise<boolean>;
+  /** Mirrors a balance returned by the server, which owns all credit debits and grants. */
+  setCredits: (credits: number) => void;
   addCredits: (amount: number) => Promise<void>;
   deleteAccount: () => Promise<void>;
   addFavoriteRubric: (rubricId: string) => Promise<void>;
@@ -128,22 +129,8 @@ const useProfileStore = create<ProfileState>((set, get) => ({
     set({ profile: defaultProfile });
   },
 
-  minusCredits: async (amount: number) => {
-    const uid = useAuthStore.getState().uid;
-    if (!uid) return false;
-
-    const profile = get().profile;
-    if (profile.credits < amount) return false;
-
-    try {
-      const newCredits = profile.credits - amount;
-      await updateCredits(uid, newCredits);
-      set({ profile: { ...profile, credits: newCredits } });
-      return true;
-    } catch (error) {
-      handleProfileError("using credits", error);
-      return false;
-    }
+  setCredits: (credits: number) => {
+    set((state) => ({ profile: { ...state.profile, credits } }));
   },
 
   addCredits: async (amount: number) => {

@@ -5,7 +5,6 @@ import Link from "next/link";
 import { PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { AlertCircle, Lock } from "lucide-react";
 import { createPaymentIntent } from "@/actions/paymentActions";
-import convertToSubcurrency from "@/lib/utils/convertToSubcurrency";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageContainer, PageHeader } from "@/components/ui/page";
@@ -39,7 +38,7 @@ export default function CheckoutForm({ amount }: Props) {
 
   useEffect(() => {
     let cancelled = false;
-    createPaymentIntent(convertToSubcurrency(amount))
+    createPaymentIntent()
       .then((secret) => {
         if (cancelled) return;
         setIntent(

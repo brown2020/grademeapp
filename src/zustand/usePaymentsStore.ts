@@ -28,7 +28,6 @@ interface PaymentsStoreState {
   paymentsError: string | null;
   fetchPayments: () => Promise<void>;
   addPayment: (payment: Omit<PaymentType, "createdAt">) => Promise<void>;
-  checkIfPaymentProcessed: (paymentId: string) => Promise<PaymentType | null>;
 }
 
 export const usePaymentsStore = create<PaymentsStoreState>((set) => ({
@@ -80,12 +79,6 @@ export const usePaymentsStore = create<PaymentsStoreState>((set) => ({
     } catch (error) {
       handleError(set, error, "Error adding payment");
     }
-  },
-
-  checkIfPaymentProcessed: async (paymentId) => {
-    const uid = useAuthStore.getState().uid;
-    if (!uid) return null;
-    return await findProcessedPayment(uid, paymentId);
   },
 }));
 
@@ -147,25 +140,6 @@ async function createPayment(
     productId: payment.productId,
     currency: payment.currency,
   };
-}
-
-async function findProcessedPayment(
-  uid: string,
-  paymentId: string
-): Promise<PaymentType | null> {
-  const paymentsRef = collection(db, "users", uid, "payments");
-  const q = query(
-    paymentsRef,
-    where("id", "==", paymentId),
-    where("status", "==", "succeeded")
-  );
-  const querySnapshot = await getDocs(q);
-
-  if (!querySnapshot.empty) {
-    return querySnapshot.docs[0].data() as PaymentType;
-  }
-
-  return null;
 }
 
 function sortPayments(payments: PaymentType[]): PaymentType[] {

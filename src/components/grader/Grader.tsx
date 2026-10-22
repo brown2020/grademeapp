@@ -28,7 +28,7 @@ import { WorkspaceLayout } from "./WorkspaceLayout";
 
 export default function Grader() {
   const uid = useAuthStore((s) => s.uid);
-  const { profile, minusCredits } = useProfileStore();
+  const { profile, setCredits } = useProfileStore();
   const { selectedRubric, gradingData, setGradingData } = useRubricStore();
   const [selectedModelId, setSelectedModelId] = useSelectedModel();
   const { uploading, fileUrl, upload } = useDocumentUpload(uid);
@@ -62,8 +62,7 @@ export default function Grader() {
         profile,
         data,
         rubricString: JSON.stringify(selectedRubric),
-        uid,
-        minusCredits,
+        onCredits: setCredits,
         onUpdate: (feedback, nextGrade) => {
           setResponse(feedback);
           setGrade(nextGrade);

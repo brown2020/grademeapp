@@ -3,92 +3,46 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { AlertCircle, ArrowRight, CheckCircle2 } from "lucide-react";
-import { validatePaymentIntent } from "@/actions/paymentActions";
+import { completePayment, type PaymentReceipt } from "@/actions/paymentActions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { PageContainer } from "@/components/ui/page";
 import { Spinner } from "@/components/ui/spinner";
 import { useAuthStore } from "@/zustand/useAuthStore";
-import { usePaymentsStore } from "@/zustand/usePaymentsStore";
 import useProfileStore from "@/zustand/useProfileStore";
-import { formatAmount, formatCredits } from "./format";
-
-type Receipt = { id: string; amount: number; created: number; status: string };
+import { CREDIT_PACK, formatAmount, formatCredits } from "./format";
 
 type Result =
   | { status: "loading" }
-  | { status: "success" | "already"; receipt: Receipt }
+  | { status: "success" | "already"; receipt: PaymentReceipt }
   | { status: "error"; message: string };
 
 type Props = { payment_intent: string };
 
 export default function PaymentSuccess({ payment_intent }: Props) {
   const uid = useAuthStore((s) => s.uid);
-  const addPayment = usePaymentsStore((s) => s.addPayment);
-  const checkIfPaymentProcessed = usePaymentsStore((s) => s.checkIfPaymentProcessed);
-  const addCredits = useProfileStore((s) => s.addCredits);
+  const setCredits = useProfileStore((s) => s.setCredits);
   const [result, setResult] = useState<Result>({ status: "loading" });
-  // Guards against processing (and crediting) the same intent twice, e.g. under StrictMode.
+  // Avoids a redundant second request under StrictMode; the server grant is idempotent anyway.
   const processedIntent = useRef<string | null>(null);
 
   useEffect(() => {
     if (!uid || !payment_intent || processedIntent.current === payment_intent) return;
     processedIntent.current = payment_intent;
 
-    const handlePaymentSuccess = async () => {
-      try {
-        const data = await validatePaymentIntent(payment_intent);
-
-        if (data.status !== "succeeded") {
-          console.error("Payment validation failed:", data.status);
-          setResult({ status: "error", message: "Payment validation failed" });
-          return;
-        }
-
-        const existingPayment = await checkIfPaymentProcessed(data.id);
-        if (existingPayment) {
-          setResult({
-            status: "already",
-            receipt: {
-              id: existingPayment.id,
-              amount: existingPayment.amount,
-              created: existingPayment.createdAt ? existingPayment.createdAt.toMillis() : 0,
-              status: existingPayment.status,
-            },
-          });
-          return;
-        }
-
-        await addPayment({
-          id: data.id,
-          amount: data.amount,
-          status: data.status,
-          mode: "stripe",
-          platform: "web",
-          productId: "payment_gateway",
-          currency: "$",
-        });
-
-        const creditsToAdd = data.amount + 1;
-        await addCredits(creditsToAdd);
-
-        setResult({
-          status: "success",
-          receipt: {
-            id: data.id,
-            amount: data.amount,
-            created: data.created * 1000,
-            status: data.status,
-          },
-        });
-      } catch (error) {
-        console.error("Error handling payment success:", error);
-        setResult({ status: "error", message: "Error handling payment success" });
-      }
-    };
-
-    handlePaymentSuccess();
-  }, [uid, payment_intent, addPayment, addCredits, checkIfPaymentProcessed]);
+    completePayment(payment_intent)
+      .then((completed) => {
+        if (completed.status === "success") setCredits(completed.credits);
+        setResult({ status: completed.status, receipt: completed.receipt });
+      })
+      .catch((error: unknown) => {
+        console.warn(
+          "Payment completion failed:",
+          error instanceof Error ? error.message : String(error)
+        );
+        setResult({ status: "error", message: "We couldn't apply this payment" });
+      });
+  }, [uid, payment_intent, setCredits]);
 
   const view: Result = payment_intent
     ? result
@@ -138,7 +92,7 @@ export default function PaymentSuccess({ payment_intent }: Props) {
                   : "This payment was already applied to your account."}
               </p>
               <p className="mt-2 font-serif text-4xl font-semibold tabular-nums text-primary">
-                +{formatCredits(view.receipt.amount + 1)}
+                +{formatCredits(CREDIT_PACK.credits)}
               </p>
               <p className="-mt-2 text-sm text-muted-foreground">credits</p>
               <dl className="mt-4 w-full divide-y divide-border rounded-lg border border-border text-left text-sm">

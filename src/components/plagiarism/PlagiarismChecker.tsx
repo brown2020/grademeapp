@@ -30,7 +30,7 @@ interface PlagiarismCheckerProps {
 export function PlagiarismChecker({ text = "", trigger, onSubmitted }: PlagiarismCheckerProps) {
   const textareaId = useId();
   const { uid } = useAuthStore();
-  const { profile, minusCredits } = useProfileStore();
+  const { profile, setCredits } = useProfileStore();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(text);
   const [isChecking, setIsChecking] = useState(false);
@@ -58,12 +58,7 @@ export function PlagiarismChecker({ text = "", trigger, onSubmitted }: Plagiaris
       const response = await fetch("/api/copyleaks/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          uid,
-          text: draft,
-          availableCredits: profile.credits,
-          useCredits: profile.useCredits,
-        }),
+        body: JSON.stringify({ uid, text: draft }),
       });
 
       if (!response.ok) {
@@ -71,11 +66,8 @@ export function PlagiarismChecker({ text = "", trigger, onSubmitted }: Plagiaris
         throw new Error(errorData.error || "Submission failed.");
       }
 
-      const { docId, creditsUsed } = await response.json();
-      const creditsDeducted = await minusCredits(creditsUsed);
-      if (!creditsDeducted) {
-        throw new Error("Failed to deduct credits.");
-      }
+      const { docId, credits } = await response.json();
+      if (typeof credits === "number") setCredits(credits);
 
       setReportLink(`/plagiarism-check/${uid}/${docId}`);
       toast.success("Submission successful! Your report is being generated.");
@@ -94,7 +86,7 @@ export function PlagiarismChecker({ text = "", trigger, onSubmitted }: Plagiaris
         {trigger ?? (
           <Button variant="outline" className="grader-plagiarism-button">
             <ScanSearch aria-hidden />
-            <span className="max-sm:sr-only">Plagiarism check</span>
+            <span>Plagiarism check</span>
           </Button>
         )}
       </DialogTrigger>

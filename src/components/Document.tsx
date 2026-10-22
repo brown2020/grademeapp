@@ -31,7 +31,7 @@ type Busy = "grading" | "correcting" | null;
 
 export default function Document() {
   const uid = useAuthStore((s) => s.uid);
-  const { profile, minusCredits } = useProfileStore();
+  const { profile, setCredits } = useProfileStore();
   const { gradingData, setGradingData } = useRubricStore();
   const params = useParams<{ summaryID: string; timestamp: string }>();
   const summaryID = params?.summaryID ?? "";
@@ -137,8 +137,7 @@ export default function Document() {
         profile,
         data: gradingData,
         rubricString: JSON.stringify(gradingData.rubric),
-        uid,
-        minusCredits,
+        onCredits: setCredits,
         onUpdate: (feedback, nextGrade) => {
           setSummary(feedback);
           setGrade(nextGrade);
@@ -166,16 +165,13 @@ export default function Document() {
     setFlagged("");
     setBusy("correcting");
     try {
-      const { correctedTextArray, totalCreditsUsed } = await correctGrammarAndSpelling(
+      const { correctedTextArray, credits } = await correctGrammarAndSpelling(
         gradingData.text,
-        profile.credits,
-        profile.useCredits,
-        uid,
         selectedModelId
       );
+      setCredits(credits);
       const finalText = correctedTextArray.join("");
       if (!finalText) throw new Error("No response");
-      if (!(await minusCredits(totalCreditsUsed))) throw new Error("Failed to deduct credits.");
       setGradingData({ text: finalText });
     } catch (error) {
       console.error(error);
