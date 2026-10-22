@@ -142,12 +142,13 @@ Firestore is the database, keyed under `users/{uid}` with `profile`, `summaries`
 
 ### Known limitations
 
-- **Repo security rules are not deployed yet.** `firestore.rules` and
-  `storage.rules` lock `credits` and other server-owned data and pass the emulator
-  suite, but production still runs console rules that let a signed-in user change
-  their own `profile/userData.credits` (confirmed 2026-10-21 with a +1 probe that
-  was reverted; cross-user access is denied). Deploy with
-  `firebase deploy --only firestore:rules,storage --project grademe-999af`.
+- **Security rules live in the repo and are deployed.** `firestore.rules` and
+  `storage.rules` were deployed to `grademe-999af` on 2026-10-22. Before that,
+  production let a signed-in user change their own credits; after deploy, a client
+  credit write returns `PERMISSION_DENIED` while owner edits, history and uploads
+  still work. Redeploy after any rules change with
+  `firebase deploy --only firestore:rules,storage --project grademe-999af`
+  (`firebase.json` names the bucket because the project has no App Engine default).
 - **Unused in-app purchase path is still callable.** The wrapper no longer starts
   purchases, but the `recordInAppPurchase` server action still grants a pack per
   unseen transaction id without App Store / Play receipt verification, so a
@@ -206,9 +207,9 @@ npm test && npm run build`) passes.
 
 Grading, grammar correction and plagiarism scans now debit on the server, payments
 grant credits once per intent on the server, and clients only mirror the balance.
-Clients can no longer write `credits` (repo rules, emulator-tested); profiles
-are created server-side. Remaining billing-integrity work (deploying those rules,
-IAP receipt verification) is tracked under Known limitations.
+Clients can no longer write `credits` (repo rules, emulator-tested, deployed
+2026-10-22); profiles are created server-side. Remaining billing-integrity work
+(the unverified IAP grant) is tracked under Known limitations.
 
 **User value:** users are billed accurately and fairly; the business stops leaking
 paid usage. This underpins every paid workflow, so it comes first.

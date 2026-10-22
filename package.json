@@ -10,7 +10,7 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "doctor": "react-doctor .",
-    "test:rules": "npx -y firebase-tools@15.34.1 emulators:exec --only firestore,storage --project demo-grademe-rules \"vitest run --config vitest.rules.config.ts\""
+    "test:rules": "npx -y firebase-tools@15.34.1 emulators:exec --config firebase.rules-test.json --only firestore,storage --project demo-grademe-rules \"vitest run --config vitest.rules.config.ts\""
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.85",

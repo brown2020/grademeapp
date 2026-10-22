@@ -272,8 +272,11 @@ runs the Vitest unit suite once (no watch mode), which is CI-safe.
   need Google's public keys / a Node runtime). It is a server-side gate, not full
   authorization. Data authorization is `firestore.rules` / `storage.rules`
   (owner-only trees; `credits`, profile creation, payments and plagiarism reports
-  are server-only), tested by `npm run test:rules` and deployed with
-  `firebase deploy --only firestore:rules,storage --project grademe-999af`, plus
+  are server-only), tested by `npm run test:rules` (emulators, using
+  `firebase.rules-test.json`) and deployed with
+  `firebase deploy --only firestore:rules,storage --project grademe-999af`
+  (`firebase.json`; it names the bucket because the project has no App Engine
+  default bucket). Deploy rules only after the app code that needs them is live, plus
   server-side token verification in route handlers/actions. A new client write
   path needs a matching rule and rules test. When adding any
   data path or sensitive operation, verify the user server-side
