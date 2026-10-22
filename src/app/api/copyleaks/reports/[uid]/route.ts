@@ -33,14 +33,7 @@ export async function GET(
       .collection("plagiarism_reports")
       .get();
 
-    if (reportsSnapshot.empty) {
-      return NextResponse.json(
-        { message: "No reports found for the specified user." },
-        { status: 404 }
-      );
-    }
-
-    // Map Firestore documents to JSON
+    // Map Firestore documents to JSON (an empty list is a normal state, not a 404)
     const reports = reportsSnapshot.docs.map((reportDoc: ReportDocument) => ({
       docId: reportDoc.id,
       ...reportDoc.data(),

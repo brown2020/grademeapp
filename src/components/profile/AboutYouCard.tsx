@@ -3,23 +3,17 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field } from "@/components/ui/input";
 import { SimpleSelect } from "@/components/ui/select";
-import { userInputs } from "@/lib/constants/userInputs";
 import useProfileStore from "@/zustand/useProfileStore";
-
-const FALLBACK_LEVELS = ["3rd grade"];
-
-const levelsFor = (identity: string) =>
-  userInputs?.identity?.identityLevels?.[identity] ?? FALLBACK_LEVELS;
-
-const toOptions = (values: string[]) =>
-  values.map((v) => ({ label: v.charAt(0).toUpperCase() + v.slice(1), value: v }));
+import { DEFAULT_IDENTITY, identityOptions, levelsFor, toOptions } from "./identityOptions";
 
 export default function AboutYouCard() {
   const profile = useProfileStore((s) => s.profile);
   const updateProfile = useProfileStore((s) => s.updateProfile);
 
-  const identity = profile.identity || "student";
-  const levels = levelsFor(identity);
+  const levels = levelsFor(profile.identity);
+  // Only show what is actually saved; a pre-filled fallback could never be selected (and saved).
+  const level =
+    profile.identityLevel && levels.includes(profile.identityLevel) ? profile.identityLevel : undefined;
 
   return (
     <Card>
@@ -33,11 +27,12 @@ export default function AboutYouCard() {
         <Field label="I am a" htmlFor="profile-identity">
           <SimpleSelect
             id="profile-identity"
-            value={identity}
-            options={toOptions(userInputs?.identity?.options ?? [])}
+            value={profile.identity || undefined}
+            placeholder="Select one…"
+            options={identityOptions()}
             onChange={(value) => {
               if (profile.identity !== value) {
-                updateProfile({ identity: value, identityLevel: levelsFor(value)[0] });
+                updateProfile({ identity: value, identityLevel: levelsFor(value)[0] ?? "" });
               }
             }}
           />
@@ -45,15 +40,12 @@ export default function AboutYouCard() {
         <Field label="Level" htmlFor="profile-identity-level">
           <SimpleSelect
             id="profile-identity-level"
-            value={
-              profile.identityLevel && levels.includes(profile.identityLevel)
-                ? profile.identityLevel
-                : levels[0]
-            }
+            value={level}
+            placeholder="Select level…"
             options={toOptions(levels)}
-            onChange={(value) => {
-              if (profile.identityLevel !== value) updateProfile({ identityLevel: value });
-            }}
+            onChange={(value) =>
+              updateProfile({ identity: profile.identity || DEFAULT_IDENTITY, identityLevel: value })
+            }
           />
         </Field>
       </CardContent>

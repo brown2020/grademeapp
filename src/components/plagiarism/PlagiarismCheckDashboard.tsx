@@ -14,10 +14,12 @@ import { sortNewestFirst, type PlagiarismReportDoc } from "./report";
 const POLL_MS = 15_000;
 
 async function parseReports(response: Response): Promise<PlagiarismReportDoc[]> {
-  // The list route answers 404 when the user has no reports yet.
-  if (response.status === 404) return [];
   if (!response.ok) {
-    throw new Error(`Failed to load reports (${response.status})`);
+    throw new Error(
+      response.status === 401 || response.status === 403
+        ? "Your session expired. Sign in again to see your reports."
+        : "We couldn't load your reports. Please try again."
+    );
   }
   const data = await response.json();
   return Array.isArray(data) ? sortNewestFirst(data) : [];
