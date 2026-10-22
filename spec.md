@@ -113,7 +113,8 @@ export results to `.docx`.
   Google, Groq, Azure OpenAI, and a generic OpenAI-compatible endpoint.
 - **Stripe** — credit purchases (PaymentIntents).
 - **Copyleaks** — plagiarism and AI-generated-content detection (async webhooks).
-- **React Native WebView** — the web app runs inside a mobile wrapper.
+- **React Native WebView** — the web app runs inside a mobile wrapper. Inside it the
+  site offers neither Google sign-in nor credit purchases (`useIsReactNativeWebView`).
 
 ### Current architecture summary
 
@@ -147,10 +148,10 @@ Firestore is the database, keyed under `users/{uid}` with `profile`, `summaries`
   their own `profile/userData.credits` (confirmed 2026-10-21 with a +1 probe that
   was reverted; cross-user access is denied). Deploy with
   `firebase deploy --only firestore:rules,storage --project grademe-999af`.
-- **In-app purchase receipts are not verified.** The wrapper's `IAP_SUCCESS`
-  message is only accepted inside the WebView and credits are granted by the
-  `recordInAppPurchase` server action once per transaction id, but without App
-  Store / Play receipt verification a crafted call can still grant a pack.
+- **Unused in-app purchase path is still callable.** The wrapper no longer starts
+  purchases, but the `recordInAppPurchase` server action still grants a pack per
+  unseen transaction id without App Store / Play receipt verification, so a
+  crafted call can grant credits. Remove it (and the profile page listener).
 - **Webhook signatures are optional outside production.** Without
   `COPYLEAKS_WEBHOOK_SECRET` the handler accepts unsigned callbacks in development;
   production fails closed.

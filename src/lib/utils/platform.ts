@@ -1,12 +1,17 @@
-// utils/platform.ts
-export function isIOSReactNativeWebView(): boolean {
-  if (typeof window === "undefined") {
-    return false; // Ensure this is only run client-side
-  }
+import { useSyncExternalStore } from "react";
 
-  // Check if we are in a React Native WebView
-  const isReactNativeWebView = typeof window.ReactNativeWebView !== "undefined";
+/** True inside the React Native wrapper, which injects `window.ReactNativeWebView`. */
+export function isReactNativeWebView(): boolean {
+  return typeof window !== "undefined" && typeof window.ReactNativeWebView !== "undefined";
+}
 
-  // Return true if in a React Native WebView
-  return isReactNativeWebView;
+const noopSubscribe = () => () => {};
+
+/**
+ * Whether the page runs inside the native app. `null` until hydration, so UI the
+ * app must not offer (Google sign-in, credit purchases) never renders before the
+ * client has checked.
+ */
+export function useIsReactNativeWebView(): boolean | null {
+  return useSyncExternalStore(noopSubscribe, isReactNativeWebView, () => null);
 }

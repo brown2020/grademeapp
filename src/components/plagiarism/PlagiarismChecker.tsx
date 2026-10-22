@@ -6,6 +6,7 @@ import { toast } from "react-hot-toast";
 import { CheckCircle2, ScanSearch } from "lucide-react";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import useProfileStore from "@/zustand/useProfileStore";
+import { useIsReactNativeWebView } from "@/lib/utils/platform";
 import { Button } from "@/components/ui/button";
 import { Field, Textarea } from "@/components/ui/input";
 import {
@@ -39,6 +40,7 @@ export function PlagiarismChecker({ text = "", trigger, onSubmitted }: Plagiaris
   const words = countWords(draft);
   const estimate = estimateScanCredits(draft);
   const lowCredits = estimate > 0 && profile.credits < estimate;
+  const canBuyCredits = useIsReactNativeWebView() === false;
 
   const handleOpenChange = (next: boolean) => {
     if (isChecking) return;
@@ -139,10 +141,15 @@ export function PlagiarismChecker({ text = "", trigger, onSubmitted }: Plagiaris
             </Field>
             {lowCredits && (
               <p className="rounded-lg bg-warning-soft px-3 py-2 text-sm">
-                You may not have enough credits for this scan.{" "}
-                <Link href="/payment-attempt" className="font-medium text-primary underline-offset-4 hover:underline">
-                  Buy credits
-                </Link>
+                You may not have enough credits for this scan.
+                {canBuyCredits && (
+                  <>
+                    {" "}
+                    <Link href="/payment-attempt" className="font-medium text-primary underline-offset-4 hover:underline">
+                      Buy credits
+                    </Link>
+                  </>
+                )}
               </p>
             )}
             <DialogFooter>

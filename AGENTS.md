@@ -124,9 +124,9 @@ src/
   the intent with the buyer's uid; after Stripe redirects back, `completePayment`
   verifies ownership, status and amount, and records the payment (keyed by intent
   id) plus the credit grant in one transaction, so reloads never double-credit.
-  In-app purchases from the React Native wrapper go through `recordInAppPurchase`
-  (server, idempotent per store transaction id); the store receipt is not yet
-  verified. New profiles and their starter balance are created by `ensureProfile`.
+  The React Native wrapper does not sell credits; the legacy `recordInAppPurchase`
+  action (idempotent per transaction id, no receipt verification) is slated for
+  removal. New profiles and their starter balance are created by `ensureProfile`.
 - **Data model (Firestore):**
   - `users/{uid}` — auth mirror (set by `useAuthStore.setAuthDetails`).
   - `users/{uid}/profile/userData` — profile: `credits`, `useCredits`, BYO API
@@ -341,7 +341,9 @@ runs the Vitest unit suite once (no watch mode), which is CI-safe.
 - Secrets: `.env`, `.env.local`, `service_key.json` exist locally and are
   gitignored. Never commit them, never print their contents.
 - React Native WebView branches (`window.ReactNativeWebView`) — don't break the
-  mobile wrapper when changing layout/scroll/auth.
+  mobile wrapper when changing layout/scroll/auth. Inside the wrapper never offer
+  Google sign-in or credit purchases; gate them with `useIsReactNativeWebView()`
+  (`null` until hydration, so they never flash).
 
 ## Git workflow expectations (main and dev)
 

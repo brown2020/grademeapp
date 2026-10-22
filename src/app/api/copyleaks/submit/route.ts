@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
     } catch (error) {
       if (error instanceof InsufficientCreditsError) {
         return NextResponse.json(
-          { error: "Insufficient credits. Please purchase more credits." },
+          { error: "You don't have enough credits for this scan." },
           { status: 402 }
         );
       }

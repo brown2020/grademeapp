@@ -1,17 +1,15 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import Link from "next/link";
 import { Coins, KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { isIOSReactNativeWebView } from "@/lib/utils/platform";
+import { useIsReactNativeWebView } from "@/lib/utils/platform";
 import useProfileStore from "@/zustand/useProfileStore";
 import PaymentHistory from "@/components/payments/PaymentHistory";
 import { CREDIT_PACK, formatCredits } from "@/components/payments/format";
 import ApiKeysForm from "./ApiKeysForm";
-
-const noopSubscribe = () => () => {};
 
 function ModeOption({
   checked,
@@ -59,18 +57,10 @@ export default function BillingCard() {
   const profile = useProfileStore((s) => s.profile);
   const updateProfile = useProfileStore((s) => s.updateProfile);
 
-  // Resolved after mount so SSR and the iOS WebView wrapper render consistently.
-  const isWeb = useSyncExternalStore(noopSubscribe, () => !isIOSReactNativeWebView(), () => true);
+  // Purchases and API keys are web-only; the native app shows the balance alone.
+  const isWeb = useIsReactNativeWebView() === false;
 
   const hasSavedKeys = Boolean(profile.fireworks_api_key || profile.openai_api_key);
-
-  const buyCredits = () => {
-    if (isWeb) {
-      window.location.href = "/payment-attempt";
-    } else {
-      window.ReactNativeWebView?.postMessage("INIT_IAP");
-    }
-  };
 
   const setUseCredits = (useCredits: boolean) => {
     if (profile.useCredits !== useCredits) updateProfile({ useCredits });
@@ -83,7 +73,7 @@ export default function BillingCard() {
         <CardDescription>
           {isWeb
             ? "Buy credits, or bring your own OpenAI / Fireworks API keys."
-            : "Buy credits to grade and check your writing."}
+            : "Credits you can use to grade and check your writing."}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-6">
@@ -96,9 +86,13 @@ export default function BillingCard() {
               {formatCredits(profile.credits)}
             </p>
           </div>
-          <Button onClick={buyCredits} className="w-full sm:w-auto">
-            <Coins /> Buy {formatCredits(CREDIT_PACK.credits)} credits
-          </Button>
+          {isWeb && (
+            <Button asChild className="w-full sm:w-auto">
+              <Link href="/payment-attempt">
+                <Coins /> Buy {formatCredits(CREDIT_PACK.credits)} credits
+              </Link>
+            </Button>
+          )}
         </div>
 
         {isWeb && (

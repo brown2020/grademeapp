@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useSyncExternalStore, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { Eye, EyeOff, MailCheck } from "lucide-react";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import { useAuthDialogStore } from "@/zustand/useAuthDialogStore";
-import { isIOSReactNativeWebView } from "@/lib/utils/platform";
+import { useIsReactNativeWebView } from "@/lib/utils/platform";
 import { signOutUser } from "@/lib/auth/signOut";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/input";
@@ -214,11 +214,7 @@ export function AuthDialog() {
   const [acceptTerms, setAcceptTerms] = useState(true);
   const [busy, setBusy] = useState(false);
 
-  const showGoogle = useSyncExternalStore(
-    () => () => {},
-    () => !isIOSReactNativeWebView(),
-    () => false
-  );
+  const showGoogle = useIsReactNativeWebView() === false;
 
   const setField = (key: keyof AuthFields) => (value: string) =>
     setFields((current) => ({ ...current, [key]: value }));

@@ -13,6 +13,12 @@ describe("authErrorMessage", () => {
     );
   });
 
+  it("explains that Google sign-in is unavailable in the native app", () => {
+    expect(
+      authErrorMessage(firebaseError("auth/operation-not-supported-in-this-environment"))
+    ).toBe("Google sign-in isn't available in the app. Use email instead.");
+  });
+
   it("falls back for unknown codes and non-Firebase errors", () => {
     expect(authErrorMessage(firebaseError("auth/something-new"))).toBe(
       "Unable to authenticate. Please try again."

@@ -1,3 +1,4 @@
+import { FirebaseError } from "firebase/app";
 import {
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
@@ -7,6 +8,7 @@ import {
   signInWithPopup,
 } from "firebase/auth";
 import { auth } from "@/firebase/firebaseClient";
+import { isReactNativeWebView } from "@/lib/utils/platform";
 import { isFirebaseError } from "./authErrors";
 
 export type AuthMode = "signin" | "signup" | "link" | "reset";
@@ -63,6 +65,10 @@ export const SUBMIT_ACTIONS: Record<AuthMode, (fields: AuthFields) => Promise<Au
 };
 
 export async function signInWithGoogle(): Promise<AuthOutcome> {
+  // Google blocks OAuth inside embedded WebViews, so the native app never offers it.
+  if (isReactNativeWebView()) {
+    throw new FirebaseError("auth/operation-not-supported-in-this-environment", "Google sign-in is not available in the app.");
+  }
   await signInWithPopup(auth, new GoogleAuthProvider());
   return "close";
 }

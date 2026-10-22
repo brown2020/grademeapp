@@ -43,3 +43,6 @@ grademeapp.code-workspace
 
 # Firebase emulator logs
 *-debug.log
+
+# Firebase emulator logs
+*-debug.log

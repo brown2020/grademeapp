@@ -23,6 +23,7 @@ const MESSAGES: Record<string, string> = {
   "auth/invalid-action-code": "This link is invalid or has expired.",
   "auth/popup-closed-by-user": "Sign-in was cancelled.",
   "auth/cancelled-popup-request": "Sign-in was cancelled.",
+  "auth/operation-not-supported-in-this-environment": "Google sign-in isn't available in the app. Use email instead.",
 };
 
 export function authErrorMessage(error: unknown): string {
