@@ -1,6 +1,7 @@
 "use server";
 
 import { streamText, type ModelMessage } from "ai";
+import { toPrompt } from "@/lib/server/prompt";
 import { getModel } from "@/lib/utils/registry";
 import { validateInputs, estimateTokens } from "@/lib/utils/textUtils";
 import { requireServerUser } from "@/lib/server/requestAuth";
@@ -58,9 +59,9 @@ async function generateGrammarCorrections(
   }
 
   // Proceed with API call
-  const { textStream, usage } = await streamText({
+  const { textStream, usage } = streamText({
     model,
-    messages,
+    ...toPrompt(messages),
     temperature: 0, // Deterministic response for grammar correction
   });
 

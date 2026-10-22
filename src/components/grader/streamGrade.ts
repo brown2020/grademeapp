@@ -5,7 +5,7 @@ import type { GradingData } from "@/lib/types/grading-data";
 import type { ProfileType } from "@/zustand/useProfileStore";
 
 export const GRADING_FAILED_MESSAGE =
-  "No suggestions found. Servers might be overloaded right now.";
+  "We couldn't grade this draft right now. Your text is still here, so please try again in a moment.";
 
 interface StreamGradeArgs {
   modelId: string;

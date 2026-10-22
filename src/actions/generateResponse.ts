@@ -2,6 +2,7 @@
 
 import { createStreamableValue } from "@ai-sdk/rsc";
 import { streamText, type ModelMessage } from "ai";
+import { toPrompt } from "@/lib/server/prompt";
 import { isProviderEnabled, getModel } from "@/lib/utils/registry";
 import { validateInputs } from "@/lib/utils/textUtils";
 import { requireServerUser } from "@/lib/server/requestAuth";
@@ -84,7 +85,7 @@ async function generateDeterministicResponse(
   // Proceed with the API call if the user has enough credits
   const { textStream, usage } = streamText({
     model,
-    messages,
+    ...toPrompt(messages),
     temperature: 0, // Deterministic response
   });
 
