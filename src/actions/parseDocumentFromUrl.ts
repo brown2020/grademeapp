@@ -98,7 +98,7 @@ export async function parseDocumentFromUrl(fileUrl: string): Promise<string> {
     ) {
       const buffer = Buffer.from(arrayBuffer);
       const ast = await officeParser.parseOffice(buffer);
-      const rawText = ast.toText();
+      const rawText = (await ast.to("text")).value;
 
       parsedHtml = `<html><body><p>${rawText.replace(/\n/g, '</p><p>')}</p></body></html>`;
 

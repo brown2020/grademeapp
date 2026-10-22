@@ -1,5 +1,12 @@
-import admin from "firebase-admin";
-import { getApps } from "firebase-admin/app";
+import {
+  getApps,
+  initializeApp,
+  cert,
+  type ServiceAccount,
+} from "firebase-admin/app";
+import { getFirestore } from "firebase-admin/firestore";
+import { getAuth } from "firebase-admin/auth";
+import { getStorage } from "firebase-admin/storage";
 
 const privateKey = process.env.FIREBASE_PRIVATE_KEY;
 
@@ -25,14 +32,14 @@ let adminAuth: any;
 
 try {
   if (!getApps().length) {
-    admin.initializeApp({
-      credential: admin.credential.cert(adminCredentials as admin.ServiceAccount),
+    initializeApp({
+      credential: cert(adminCredentials as ServiceAccount),
       storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGEBUCKET,
     });
   }
-  adminBucket = admin.storage().bucket();
-  adminDb = admin.firestore();
-  adminAuth = admin.auth();
+  adminBucket = getStorage().bucket();
+  adminDb = getFirestore();
+  adminAuth = getAuth();
 } catch (e) {
   console.warn("Firebase Admin initialization failed (expected in build):", e);
   adminBucket = {};
@@ -40,4 +47,4 @@ try {
   adminAuth = {};
 }
 
-export { adminBucket, adminDb, adminAuth, admin };
+export { adminBucket, adminDb, adminAuth };
