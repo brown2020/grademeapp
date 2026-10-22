@@ -79,7 +79,7 @@ export default function RubricCard({
         )}
       </button>
 
-      <div className="mt-auto flex items-center gap-2 border-t border-border px-4 py-3">
+      <div className="mt-auto flex flex-wrap items-center gap-2 border-t border-border px-4 py-3">
         <Button size="sm" onClick={() => actions.onUse(rubric)} className="flex-1 sm:flex-none">
           Use this rubric
         </Button>

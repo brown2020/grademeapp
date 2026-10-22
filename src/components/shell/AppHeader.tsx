@@ -34,10 +34,12 @@ export function AppHeader() {
             <ChevronLeft className="size-5" />
           </Button>
         )}
-        <Logo className="mr-4" href={uid ? "/grader" : "/"} />
+        <Logo className="mr-4 shrink-0" href={uid ? "/grader" : "/"} />
 
         {uid && (
-          <nav aria-label="Main" className="hidden items-center gap-1 md:flex">
+          // min-w-0 + overflow lets the nav scroll instead of pushing the actions off-screen
+          // when text is enlarged.
+          <nav aria-label="Main" className="scrollbar-thin hidden min-w-0 items-center gap-1 overflow-x-auto md:flex">
             {APP_NAV.map(({ href, label, icon: Icon }) => {
               const active = isActivePath(pathname, href);
               return (
@@ -46,7 +48,7 @@ export function AppHeader() {
                   href={href}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium transition-colors",
+                    "flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-3 text-sm font-medium transition-colors",
                     active
                       ? "bg-muted text-foreground"
                       : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
@@ -60,7 +62,7 @@ export function AppHeader() {
           </nav>
         )}
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex shrink-0 items-center gap-2">
           {uid ? (
             <>
               <Button asChild size="sm" className="hidden md:inline-flex">
