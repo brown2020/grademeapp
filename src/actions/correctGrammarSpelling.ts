@@ -6,6 +6,14 @@ import { getModel } from "@/lib/utils/registry";
 import { validateInputs, estimateTokens } from "@/lib/utils/textUtils";
 import { requireServerUser } from "@/lib/server/requestAuth";
 import { debitCredits, getBilling, InsufficientCreditsError } from "@/lib/server/billing";
+import { z } from "zod";
+import { resolveModelId } from "@/lib/utils";
+import { models } from "@/lib/types/models";
+
+const CorrectionRequestSchema = z.object({
+  text: z.string().max(200_000),
+  selectedModelId: z.string().regex(/^([a-z-]+:[\w.-]+)?$/),
+});
 
 // Function to split text into chunks based on max input tokens
 function splitTextIntoChunks(text: string, maxInputTokens: number): string[] {
@@ -97,7 +105,11 @@ function createCorrectionMessages(text: string): ModelMessage[] {
 }
 
 // Main function to handle grammar correction request
-export async function correctGrammarAndSpelling(text: string, selectedModelId: string) {
+export async function correctGrammarAndSpelling(rawText: string, requestedModelId: string) {
+  const { text, selectedModelId: requested } = CorrectionRequestSchema.parse({
+    text: rawText,
+    selectedModelId: requestedModelId,
+  });
   const validation = validateInputs(text);
   if (!validation.valid) {
     throw new Error(validation.error);
@@ -107,6 +119,8 @@ export async function correctGrammarAndSpelling(text: string, selectedModelId: s
   const { uid } = await requireServerUser();
   const { credits: availableCredits, useCredits, openaiApiKey, fireworksApiKey } =
     await getBilling(uid);
+  // Platform credits pay only for listed models (flat per-token rate); BYO keys may pick any.
+  const selectedModelId = useCredits ? resolveModelId(requested, models) : requested;
 
   const inputTokenEstimate = estimateTokens(text);
   const maxInputTokens = 16384;

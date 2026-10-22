@@ -7,8 +7,26 @@ import { isProviderEnabled, getModel } from "@/lib/utils/registry";
 import { validateInputs } from "@/lib/utils/textUtils";
 import { requireServerUser } from "@/lib/server/requestAuth";
 import { debitCredits, getBilling, InsufficientCreditsError } from "@/lib/server/billing";
-import { getDefaultModelId } from "@/lib/utils";
+import { z } from "zod";
+import { getDefaultModelId, resolveModelId } from "@/lib/utils";
 import { models } from "@/lib/types/models";
+
+const field = (max: number) => z.string().max(max);
+/** Bounds what a client can send; long essays and full rubric JSON fit comfortably. */
+const GradeRequestSchema = z.object({
+  selectedModelId: z.string().regex(/^([a-z-]+:[\w.-]+)?$/),
+  identity: field(100),
+  identityLevel: field(100),
+  assigner: field(200),
+  topic: field(1000),
+  prose: field(200),
+  audience: field(200),
+  wordLimitType: field(50),
+  wordLimit: field(20),
+  rubricString: field(100_000),
+  title: field(300),
+  text: field(200_000),
+});
 
 function getMessageText(content: ModelMessage["content"]): string {
   if (typeof content === "string") return content;
@@ -147,7 +165,11 @@ export async function generateGrade(
   title: string,
   text: string,
 ) {
-  const validation = validateInputs(text as string);
+  const input = GradeRequestSchema.parse({
+    selectedModelId, identity, identityLevel, assigner, topic, prose, audience,
+    wordLimitType, wordLimit, rubricString, title, text,
+  });
+  const validation = validateInputs(input.text);
   if (!validation.valid) {
     throw new Error(validation.error);
   }
@@ -155,26 +177,28 @@ export async function generateGrade(
   // Identity, balance and BYO keys come only from the verified session, never the client.
   const { uid } = await requireServerUser();
   const billing = await getBilling(uid);
+  // Platform credits pay only for listed models (flat per-token rate); BYO keys may pick any.
+  const modelId = billing.useCredits ? resolveModelId(input.selectedModelId, models) : input.selectedModelId;
 
   // Estimate output tokens based on average response length (adjust this as needed)
   // TODO: Implement a more accurate way to estimate output tokens
   const estimatedOutputTokens = 1000; // Rough estimate for response size
 
   const messages = createGradingMessages(
-    identity,
-    identityLevel,
-    assigner,
-    topic,
-    prose,
-    audience,
-    wordLimitType,
-    wordLimit,
-    rubricString,
-    title,
-    text,
+    input.identity,
+    input.identityLevel,
+    input.assigner,
+    input.topic,
+    input.prose,
+    input.audience,
+    input.wordLimitType,
+    input.wordLimit,
+    input.rubricString,
+    input.title,
+    input.text,
   );
   const { result, creditsUsed } = await generateDeterministicResponse(
-    selectedModelId,
+    modelId,
     messages,
     estimatedOutputTokens,
     billing.credits,

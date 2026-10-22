@@ -18,21 +18,17 @@ export type AuthFields = { email: string; password: string; name: string };
 /** What the dialog should do after a mode's action succeeds. */
 export type AuthOutcome = "close" | "link-sent" | "reset-sent";
 
-function rememberEmail(email: string) {
-  window.localStorage.setItem("generateEmail", email);
-  window.localStorage.setItem("generateName", email.split("@")[0]);
-}
+/** Where the address for an email sign-in link is kept until /loginfinish reads it. */
+export const EMAIL_LINK_STORAGE = { email: "grademeEmail", name: "grademeName" } as const;
 
 async function signIn({ email, password }: AuthFields): Promise<AuthOutcome> {
   await signInWithEmailAndPassword(auth, email, password);
-  rememberEmail(email);
   return "close";
 }
 
 async function signUp(fields: AuthFields): Promise<AuthOutcome> {
   try {
     await createUserWithEmailAndPassword(auth, fields.email, fields.password);
-    rememberEmail(fields.email);
     return "close";
   } catch (error) {
     if (isFirebaseError(error) && error.code === "auth/email-already-in-use") {
@@ -47,8 +43,8 @@ async function sendLink({ email, name }: AuthFields): Promise<AuthOutcome> {
     url: `${window.location.origin}/loginfinish`,
     handleCodeInApp: true,
   });
-  window.localStorage.setItem("grademeEmail", email);
-  window.localStorage.setItem("grademeName", name);
+  window.localStorage.setItem(EMAIL_LINK_STORAGE.email, email);
+  window.localStorage.setItem(EMAIL_LINK_STORAGE.name, name);
   return "link-sent";
 }
 

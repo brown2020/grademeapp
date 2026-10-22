@@ -3,6 +3,7 @@ import { useAuthStore } from "./useAuthStore";
 import { loadFirestore } from "@/firebase/loadFirestore";
 import { deleteAccountData } from "@/actions/deleteAccount";
 import { ensureProfile } from "@/actions/profileActions";
+import { onUserReset } from "./userScope";
 
 export interface ProfileType {
   email: string;
@@ -197,5 +198,7 @@ function handleProfileError(action: string, error: unknown): void {
     error instanceof Error ? error.message : "An unknown error occurred";
   console.error(`Error ${action}:`, errorMessage);
 }
+
+onUserReset(() => useProfileStore.setState({ profile: defaultProfile }));
 
 export default useProfileStore;

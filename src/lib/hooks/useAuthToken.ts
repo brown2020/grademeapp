@@ -4,6 +4,7 @@ import { deleteCookie, setCookie } from "cookies-next";
 import debounce from "lodash/debounce";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useAuthStore } from "@/zustand/useAuthStore";
+import { resetUserScopedStores } from "@/zustand/userScope";
 import { auth, hasClientConfig } from "@/firebase/firebaseClient";
 import { logAuthFailure } from "@/components/auth/authErrors";
 
@@ -95,6 +96,7 @@ const useAuthToken = (cookieName = "authToken") => {
 
     if (!user) {
       clearAuthDetails();
+      resetUserScopedStores();
       deleteCookie(cookieName, { path: "/" });
       return;
     }
@@ -113,6 +115,9 @@ const useAuthToken = (cookieName = "authToken") => {
       })
       .finally(() => {
         if (cancelled) return;
+        // A different account signed in without a sign-out: drop the previous user's data.
+        const previousUid = useAuthStore.getState().uid;
+        if (previousUid && previousUid !== user.uid) resetUserScopedStores();
         // Publishing the uid only after the cookie exists keeps signed-in UI (and the
         // requests it makes) from running ahead of the server session.
         setAuthDetails({

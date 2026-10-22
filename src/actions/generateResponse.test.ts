@@ -95,3 +95,30 @@ describe("generateGrade auth and billing", () => {
     expect(state.streamText).not.toHaveBeenCalled();
   });
 });
+
+describe("generateGrade input contract", () => {
+  const gradeWith = (modelId: string, text = "An essay about things.", title = "Title") =>
+    generateGrade(modelId, "student", "9th grade", "teacher", "topic", "essay",
+      "class", "less than", "500", "{}", title, text);
+
+  it("runs platform-credit grades only on listed models", async () => {
+    state.cookie = "token-bob";
+    await gradeWith("openai:gpt-6-astra");
+    expect(state.getModel).toHaveBeenCalledWith("openai:gpt-6-sol", "");
+  });
+
+  it("lets BYO-key users choose any model on their own key", async () => {
+    state.cookie = "token-alice";
+    await gradeWith("openai:gpt-6-astra");
+    expect(state.getModel).toHaveBeenCalledWith("openai:gpt-6-astra", "sk-alice");
+  });
+
+  it("rejects malformed or oversized input before auth, billing or model work", async () => {
+    state.cookie = "token-bob";
+    await expect(gradeWith("openai:gpt 6; drop")).rejects.toThrow();
+    await expect(gradeWith("openai:gpt-6-sol", "x".repeat(200_001))).rejects.toThrow();
+    await expect(gradeWith("openai:gpt-6-sol", "ok", "t".repeat(301))).rejects.toThrow();
+    expect(state.streamText).not.toHaveBeenCalled();
+    expect(db.docs.get(profileOf("bob"))?.credits).toBe(1000);
+  });
+});

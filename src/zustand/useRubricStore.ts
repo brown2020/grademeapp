@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { loadFirestore } from '@/firebase/loadFirestore';
+import { onUserReset } from './userScope';
 import { useAuthStore } from '@/zustand/useAuthStore';
 import useProfileStore from '@/zustand/useProfileStore';
 import { RubricType, type RubricState } from '@/lib/types/rubrics-types';
@@ -82,6 +83,17 @@ function suggestionContext(gradingData: GradingData) {
   };
 }
 
+/** Everything tied to the signed-in user: their rubrics, choice and draft. */
+const userScopedState = () => ({
+  rubricOptions: defaultRubrics,
+  customRubrics: [] as RubricState[],
+  customRubricsUid: null as string | null,
+  customRubricsLoading: false,
+  selectedRubric: pickSuggestedRubric(defaultRubrics, suggestionContext(initialGradingData)),
+  rubricChosenByUser: false,
+  gradingData: initialGradingData,
+});
+
 export const useRubricStore = create<RubricStoreState>((set, get) => {
   const withCustom = (customRubrics: RubricState[]) => ({
     customRubrics,
@@ -98,13 +110,7 @@ export const useRubricStore = create<RubricStoreState>((set, get) => {
   };
 
   return {
-    rubricOptions: defaultRubrics,
-    customRubrics: [],
-    customRubricsUid: null,
-    customRubricsLoading: false,
-    selectedRubric: pickSuggestedRubric(defaultRubrics, suggestionContext(initialGradingData)),
-    rubricChosenByUser: false,
-    gradingData: initialGradingData,
+    ...userScopedState(),
 
     setSelectedRubric: (rubric) =>
       set((state) => ({
@@ -209,3 +215,5 @@ export const useRubricStore = create<RubricStoreState>((set, get) => {
     },
   };
 });
+
+onUserReset(() => useRubricStore.setState(userScopedState()));

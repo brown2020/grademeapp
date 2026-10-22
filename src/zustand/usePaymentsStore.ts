@@ -2,6 +2,7 @@ import { create } from "zustand";
 import type { Timestamp } from "firebase/firestore";
 import { useAuthStore } from "./useAuthStore";
 import { loadFirestore } from "@/firebase/loadFirestore";
+import { onUserReset } from "./userScope";
 
 export type PaymentType = {
   id: string;
@@ -66,3 +67,5 @@ async function fetchUserPayments(uid: string): Promise<PaymentType[]> {
 
   return payments.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
 }
+
+onUserReset(() => usePaymentsStore.setState({ payments: [], paymentsLoading: false, paymentsError: null }));

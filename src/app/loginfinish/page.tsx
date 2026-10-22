@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import useProfileStore from "@/zustand/useProfileStore";
 import { authErrorMessage, isFirebaseError, logAuthFailure } from "@/components/auth/authErrors";
+import { EMAIL_LINK_STORAGE } from "@/components/auth/authActions";
 
 export default function LoginFinishPage() {
   const router = useRouter();
@@ -21,8 +22,8 @@ export default function LoginFinishPage() {
           throw new Error("Sign in link is not valid");
         }
 
-        let email = window.localStorage.getItem("grademeEmail");
-        const name = window.localStorage.getItem("grademeName") || "";
+        let email = window.localStorage.getItem(EMAIL_LINK_STORAGE.email);
+        const name = window.localStorage.getItem(EMAIL_LINK_STORAGE.name) || "";
 
         if (!email) {
           email = window.prompt("Please confirm your email");
@@ -62,8 +63,8 @@ export default function LoginFinishPage() {
               : "Couldn't finish signing in. Please try again."
         );
       } finally {
-        window.localStorage.removeItem("grademeEmail");
-        window.localStorage.removeItem("grademeName");
+        window.localStorage.removeItem(EMAIL_LINK_STORAGE.email);
+        window.localStorage.removeItem(EMAIL_LINK_STORAGE.name);
         window.location.assign("/");
       }
     }
