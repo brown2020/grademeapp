@@ -40,3 +40,6 @@ grademeapp-f0120-firebase-adminsdk-5ste8-10f1ec86e0.json
 grademeapp.code-workspace
 
 
+
+# Firebase emulator logs
+*-debug.log

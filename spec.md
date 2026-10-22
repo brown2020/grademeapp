@@ -141,14 +141,16 @@ Firestore is the database, keyed under `users/{uid}` with `profile`, `summaries`
 
 ### Known limitations
 
-- **Firestore security rules are not in the repo.** Server actions and route
-  handlers verify the ID token and own every credit debit/grant, but whether a
-  browser can write its own `profile/userData.credits` (or other users' data)
-  directly through the client SDK depends on console-managed rules. Adding the rules
-  to the repo, deny-by-default for `credits`, is the remaining step for end-to-end
-  billing integrity.
-- **In-app purchases grant credits client-side.** The React Native wrapper posts
-  `IAP_SUCCESS` and the profile page adds credits without receipt verification.
+- **Repo security rules are not deployed yet.** `firestore.rules` and
+  `storage.rules` lock `credits` and other server-owned data and pass the emulator
+  suite, but production still runs console rules that let a signed-in user change
+  their own `profile/userData.credits` (confirmed 2026-10-21 with a +1 probe that
+  was reverted; cross-user access is denied). Deploy with
+  `firebase deploy --only firestore:rules,storage --project grademe-999af`.
+- **In-app purchase receipts are not verified.** The wrapper's `IAP_SUCCESS`
+  message is only accepted inside the WebView and credits are granted by the
+  `recordInAppPurchase` server action once per transaction id, but without App
+  Store / Play receipt verification a crafted call can still grant a pack.
 - **Webhook signatures are optional outside production.** Without
   `COPYLEAKS_WEBHOOK_SECRET` the handler accepts unsigned callbacks in development;
   production fails closed.
@@ -199,8 +201,9 @@ npm test && npm run build`) passes.
 
 Grading, grammar correction and plagiarism scans now debit on the server, payments
 grant credits once per intent on the server, and clients only mirror the balance.
-Remaining billing-integrity work (Firestore rules, IAP receipt verification) is
-tracked under Known limitations.
+Clients can no longer write `credits` (repo rules, emulator-tested); profiles
+are created server-side. Remaining billing-integrity work (deploying those rules,
+IAP receipt verification) is tracked under Known limitations.
 
 **User value:** users are billed accurately and fairly; the business stops leaking
 paid usage. This underpins every paid workflow, so it comes first.

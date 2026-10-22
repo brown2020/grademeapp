@@ -37,3 +37,20 @@ jobs:
           NEXT_PUBLIC_CREDITS_PER_GRADING: ${{ secrets.NEXT_PUBLIC_CREDITS_PER_GRADING }}
           NEXT_PUBLIC_STRIPE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_KEY }}
         run: npm run build
+
+  security-rules:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+      - run: npm ci --ignore-scripts
+      # Firestore + Storage rules against the local emulators (demo project, no credentials).
+      - run: npm run test:rules

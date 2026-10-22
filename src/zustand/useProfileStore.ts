@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { useAuthStore } from "./useAuthStore";
 import { loadFirestore } from "@/firebase/loadFirestore";
 import { deleteAccountData } from "@/actions/deleteAccount";
+import { ensureProfile } from "@/actions/profileActions";
 
 export interface ProfileType {
   email: string;
@@ -43,7 +44,6 @@ interface ProfileState {
   updateProfile: (newProfile: Partial<ProfileType>) => Promise<void>;
   /** Mirrors a balance returned by the server, which owns all credit debits and grants. */
   setCredits: (credits: number) => void;
-  addCredits: (amount: number) => Promise<void>;
   deleteAccount: () => Promise<void>;
   addFavoriteRubric: (rubricId: string) => Promise<void>;
   removeFavoriteRubric: (rubricId: string) => Promise<void>;
@@ -74,33 +74,29 @@ const useProfileStore = create<ProfileState>((set, get) => ({
       useAuthStore.getState();
     if (!uid) return;
 
+    const authState = { authEmail, authDisplayName, authPhotoUrl };
     try {
-      const { db, doc, getDoc, setDoc } = await loadFirestore();
+      const { db, doc, getDoc, updateDoc } = await loadFirestore();
       const userRef = doc(db, `users/${uid}/profile/userData`);
       const docSnap = await getDoc(userRef);
 
-      const newProfile = docSnap.exists()
-        ? mergeProfileWithDefaults(docSnap.data() as ProfileType, {
-          authEmail,
-          authDisplayName,
-          authPhotoUrl,
-        })
-        : createNewProfile(
-          authEmail,
-          authDisplayName,
-          authPhotoUrl,
-          authEmailVerified
-        );
+      if (!docSnap.exists()) {
+        // Profiles (and their starter balance) are created on the server only.
+        const created = await ensureProfile({
+          email: authEmail,
+          displayName: authDisplayName,
+          photoUrl: authPhotoUrl,
+          emailVerified: authEmailVerified,
+        });
+        set({ profile: mergeProfileWithDefaults(created as Partial<ProfileType>, authState) });
+        return;
+      }
 
-      // console.log(
-      //     docSnap.exists()
-      //         ? "Profile found:"
-      //         : "No profile found. Creating new profile document.",
-      //     newProfile
-      // );
-
-      await setDoc(userRef, newProfile);
-      set({ profile: newProfile });
+      const stored = docSnap.data() as Partial<ProfileType>;
+      const profile = mergeProfileWithDefaults(stored, authState);
+      set({ profile });
+      const identity = identityChanges(stored, profile);
+      if (Object.keys(identity).length) await updateDoc(userRef, identity);
     } catch (error) {
       handleProfileError("fetching or creating profile", error);
     }
@@ -110,13 +106,12 @@ const useProfileStore = create<ProfileState>((set, get) => ({
     const uid = useAuthStore.getState().uid;
     if (!uid) return;
 
+    const changes: Partial<ProfileType> = { ...newProfile };
+    delete changes.credits;
     try {
       const { db, doc, updateDoc } = await loadFirestore();
-      const userRef = doc(db, `users/${uid}/profile/userData`);
-      const updatedProfile = { ...get().profile, ...newProfile };
-
-      set({ profile: updatedProfile });
-      await updateDoc(userRef, updatedProfile);
+      set({ profile: { ...get().profile, ...changes } });
+      await updateDoc(doc(db, `users/${uid}/profile/userData`), changes);
     } catch (error) {
       handleProfileError("updating profile", error);
     }
@@ -132,21 +127,6 @@ const useProfileStore = create<ProfileState>((set, get) => ({
 
   setCredits: (credits: number) => {
     set((state) => ({ profile: { ...state.profile, credits } }));
-  },
-
-  addCredits: async (amount: number) => {
-    const uid = useAuthStore.getState().uid;
-    if (!uid) return;
-
-    const profile = get().profile;
-    const newCredits = profile.credits + amount;
-
-    try {
-      await updateCredits(uid, newCredits);
-      set({ profile: { ...profile, credits: newCredits } });
-    } catch (error) {
-      handleProfileError("adding credits", error);
-    }
   },
 
   addFavoriteRubric: async (rubricId: string) => {
@@ -200,36 +180,15 @@ const useProfileStore = create<ProfileState>((set, get) => ({
   },
 }));
 
-// Helper function to create a new profile
-function createNewProfile(
-  authEmail?: string,
-  authDisplayName?: string,
-  authPhotoUrl?: string,
-  authEmailVerified?: boolean
-): ProfileType {
-  return {
-    email: authEmail || "",
-    contactEmail: "",
-    displayName: authDisplayName || "",
-    photoUrl: authPhotoUrl || "",
-    identityLevel: "",
-    identity: "",
-    emailVerified: authEmailVerified || false,
-    credits: 1000,
-    fireworks_api_key: "",
-    openai_api_key: "",
-    selectedAvatar: "",
-    selectedTalkingPhoto: "",
-    useCredits: true,
-    favoriteRubrics: [],
-  };
-}
+const IDENTITY_FIELDS = ["email", "contactEmail", "displayName", "photoUrl"] as const;
 
-// Helper function to update credits
-async function updateCredits(uid: string, credits: number): Promise<void> {
-  const { db, doc, updateDoc } = await loadFirestore();
-  const userRef = doc(db, `users/${uid}/profile/userData`);
-  await updateDoc(userRef, { credits });
+/** Auth-derived fields that differ from what is stored; never includes credits. */
+function identityChanges(stored: Partial<ProfileType>, merged: ProfileType): Partial<ProfileType> {
+  const changes: Partial<ProfileType> = {};
+  for (const key of IDENTITY_FIELDS) {
+    if (stored[key] !== merged[key]) changes[key] = merged[key];
+  }
+  return changes;
 }
 
 // Helper function to handle errors

@@ -124,7 +124,9 @@ src/
   the intent with the buyer's uid; after Stripe redirects back, `completePayment`
   verifies ownership, status and amount, and records the payment (keyed by intent
   id) plus the credit grant in one transaction, so reloads never double-credit.
-  In-app purchases from the React Native wrapper still grant credits client-side.
+  In-app purchases from the React Native wrapper go through `recordInAppPurchase`
+  (server, idempotent per store transaction id); the store receipt is not yet
+  verified. New profiles and their starter balance are created by `ensureProfile`.
 - **Data model (Firestore):**
   - `users/{uid}` — auth mirror (set by `useAuthStore.setAuthDetails`).
   - `users/{uid}/profile/userData` — profile: `credits`, `useCredits`, BYO API
@@ -159,6 +161,7 @@ npm run build          # production build — the primary correctness gate
 npm run start          # serve a production build
 npm run lint           # ESLint (flat config, eslint.config.mjs)
 npm test               # Vitest unit tests, run-once (vitest run) — CI-safe
+npm run test:rules     # firestore.rules + storage.rules in the emulators (needs Java 21)
 npx tsc --noEmit       # standalone typecheck (see caveat below)
 ```
 
@@ -266,9 +269,12 @@ runs the Vitest unit suite once (no watch mode), which is CI-safe.
   APIs, no network); it is unit-tested.
 - The proxy does **not** cryptographically verify the token signature (that would
   need Google's public keys / a Node runtime). It is a server-side gate, not full
-  authorization. There is still **no Firestore security rules file in this repo**;
-  authoritative authorization must come from Firestore rules (Firebase console)
-  plus server-side token verification in route handlers/actions. When adding any
+  authorization. Data authorization is `firestore.rules` / `storage.rules`
+  (owner-only trees; `credits`, profile creation, payments and plagiarism reports
+  are server-only), tested by `npm run test:rules` and deployed with
+  `firebase deploy --only firestore:rules,storage --project grademe-999af`, plus
+  server-side token verification in route handlers/actions. A new client write
+  path needs a matching rule and rules test. When adding any
   data path or sensitive operation, verify the user server-side
   (`adminAuth.verifyIdToken`) rather than trusting a client-supplied `uid`.
 - Server actions call `requireServerUser()` and route handlers call
@@ -284,7 +290,8 @@ runs the Vitest unit suite once (no watch mode), which is CI-safe.
   a local mirror; follow that pattern (optimistic local `set` + awaited Firestore
   write, with `handleProfileError`-style logging). **Credits are the exception:**
   the server owns every debit and grant, and the client only mirrors the returned
-  balance via `setCredits` (`addCredits` remains only for in-app purchases).
+  balance via `setCredits`. Client profile writes must never include `credits`
+  (the rules reject them).
 - `useAuthStore` holds the session mirror; `useProfileStore` owns `credits`,
   `useCredits`, BYO keys, and favorites; `useRubricStore` owns rubric options,
   the active/selected rubric, grading data, and custom-rubric CRUD.

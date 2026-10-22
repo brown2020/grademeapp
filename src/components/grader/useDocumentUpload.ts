@@ -5,6 +5,9 @@ import { toast } from "react-hot-toast";
 import { parseDocumentFromUrl } from "@/actions/parseDocumentFromUrl";
 import { useRubricStore } from "@/zustand/useRubricStore";
 
+/** Matches the size limit in storage.rules. */
+const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+
 /**
  * Uploads a draft to Firebase Storage, parses its text server-side and loads
  * it (and a title from the file name) into the grader.
@@ -16,6 +19,11 @@ export function useDocumentUpload(uid: string) {
   const upload = async (file: File) => {
     if (!uid) {
       toast.error("Please log in to upload a file.");
+      return false;
+    }
+
+    if (file.size >= MAX_UPLOAD_BYTES) {
+      toast.error("That file is over 10 MB. Please upload a smaller document.");
       return false;
     }
 

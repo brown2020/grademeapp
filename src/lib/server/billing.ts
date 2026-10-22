@@ -15,6 +15,9 @@ export interface Billing {
   fireworksApiKey: string;
 }
 
+/** Balance a new profile starts with; only the server creates profiles. */
+export const STARTER_CREDITS = 1000;
+
 export const profileRef = (uid: string): DocumentReference =>
   adminDb.doc(`users/${uid}/profile/userData`);
 

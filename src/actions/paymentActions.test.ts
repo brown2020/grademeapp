@@ -34,7 +34,8 @@ vi.mock("stripe", () => {
 });
 
 process.env.NEXT_PUBLIC_STRIPE_PRODUCT_NAME = "grademe_credits";
-const { completePayment, createPaymentIntent } = await import("./paymentActions");
+const { completePayment, createPaymentIntent, recordInAppPurchase } = await import("./paymentActions");
+const { CREDIT_PACK } = await import("@/components/payments/format");
 
 let db: FakeAdminDb;
 const PROFILE = "users/alice/profile/userData";
@@ -114,5 +115,37 @@ describe("completePayment", () => {
   it("rejects malformed payment references", async () => {
     state.cookie = "token-alice";
     await expect(completePayment("../users/x")).rejects.toThrow(/Invalid payment reference/i);
+  });
+});
+
+describe("recordInAppPurchase", () => {
+  const purchase = { transactionId: "1000000123", platform: "ios", productId: "credits_pack", amount: 9.99, currency: "USD" };
+
+  it("rejects without a session and grants nothing", async () => {
+    await expect(recordInAppPurchase(purchase)).rejects.toThrow(/Authentication required/i);
+    expect(db.docs.get(PROFILE)?.credits).toBe(50);
+  });
+
+  it("rejects malformed transaction ids", async () => {
+    state.cookie = "token-alice";
+    await expect(recordInAppPurchase({ ...purchase, transactionId: "../profile/userData" })).rejects.toThrow();
+    expect(db.docs.get(PROFILE)?.credits).toBe(50);
+  });
+
+  it("grants the pack once per transaction id, marked unverified", async () => {
+    state.cookie = "token-alice";
+    const first = await recordInAppPurchase(purchase);
+    const again = await recordInAppPurchase(purchase);
+    expect(first).toEqual({ status: "success", credits: 50 + CREDIT_PACK.credits });
+    expect(again).toEqual({ status: "already" });
+    expect(db.docs.get(PROFILE)?.credits).toBe(50 + CREDIT_PACK.credits);
+    expect(db.docs.get("users/alice/payments/iap_1000000123")).toMatchObject({ mode: "iap", receiptVerified: false });
+  });
+
+  it("treats purchases recorded by the old client path as already granted", async () => {
+    state.cookie = "token-alice";
+    db.docs.set("users/alice/payments/auto9", { id: "1000000123", mode: "iap" });
+    expect(await recordInAppPurchase(purchase)).toEqual({ status: "already" });
+    expect(db.docs.get(PROFILE)?.credits).toBe(50);
   });
 });

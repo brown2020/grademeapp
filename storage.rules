@@ -1,0 +1,21 @@
+rules_version = '2';
+
+// Uploaded drafts live under uploads/{uid}/. The server parses them through the
+// download URL, so only the owner needs direct access. Deny everything else.
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    match /uploads/{uid}/{fileName} {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && request.resource.size < 10 * 1024 * 1024;
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

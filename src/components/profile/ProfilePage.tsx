@@ -1,38 +1,51 @@
 "use client";
 
 import { useEffect } from "react";
+import { toast } from "react-hot-toast";
 import { PageContainer, PageHeader } from "@/components/ui/page-layout";
-import { usePaymentsStore } from "@/zustand/usePaymentsStore";
 import useProfileStore from "@/zustand/useProfileStore";
-import { CREDIT_PACK } from "@/components/payments/format";
+import { usePaymentsStore } from "@/zustand/usePaymentsStore";
+import { recordInAppPurchase } from "@/actions/paymentActions";
 import AboutYouCard from "./AboutYouCard";
 import AccountCard from "./AccountCard";
 import BillingCard from "./BillingCard";
 import DangerZoneCard from "./DangerZoneCard";
 
-/** Credits purchased through the native wrapper arrive as a postMessage from React Native. */
+/**
+ * Credits purchased through the native wrapper arrive as a postMessage from
+ * React Native. Only the wrapper can send them, and the server grants credits.
+ */
 function useInAppPurchaseListener() {
-  const addCredits = useProfileStore((s) => s.addCredits);
-  const addPayment = usePaymentsStore((s) => s.addPayment);
+  const setCredits = useProfileStore((s) => s.setCredits);
+  const fetchPayments = usePaymentsStore((s) => s.fetchPayments);
 
   useEffect(() => {
+    if (!window.ReactNativeWebView) return;
+
     const handleMessageFromRN = async (event: MessageEvent) => {
       const message = event.data;
-      if (message?.type !== "IAP_SUCCESS") return;
-      await addPayment({
-        id: message.message,
-        amount: message.amount,
-        status: "succeeded",
-        mode: "iap",
-        platform: message.platform,
-        productId: message.productId,
-        currency: message.currency,
-      });
-      await addCredits(CREDIT_PACK.credits);
+      if (message?.type !== "IAP_SUCCESS" || typeof message.message !== "string") return;
+      try {
+        const result = await recordInAppPurchase({
+          transactionId: message.message,
+          platform: String(message.platform ?? ""),
+          productId: String(message.productId ?? ""),
+          amount: Number(message.amount) || 0,
+          currency: String(message.currency ?? ""),
+        });
+        if (result.status === "success") {
+          setCredits(result.credits);
+          toast.success("Purchase complete. Credits added.");
+        }
+        fetchPayments();
+      } catch (error) {
+        console.error("Failed to record in-app purchase:", error);
+        toast.error("We couldn't add your purchase. Please contact support.");
+      }
     };
     window.addEventListener("message", handleMessageFromRN);
     return () => window.removeEventListener("message", handleMessageFromRN);
-  }, [addCredits, addPayment]);
+  }, [setCredits, fetchPayments]);
 }
 
 export default function ProfilePage() {

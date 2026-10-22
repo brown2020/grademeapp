@@ -2,6 +2,7 @@
 "use server";
 
 import Stripe from "stripe";
+import { z } from "zod";
 import {
   Timestamp,
   type DocumentReference,
@@ -113,5 +114,58 @@ export async function completePayment(paymentIntentId: string): Promise<Complete
     });
     tx.set(profileRef(uid), { credits }, { merge: true });
     return { status: "success", receipt, credits };
+  });
+}
+
+const InAppPurchaseSchema = z.object({
+  transactionId: z.string().regex(/^[\w.:-]{1,200}$/),
+  platform: z.string().max(40).default(""),
+  productId: z.string().max(200).default(""),
+  amount: z.number().finite().nonnegative().default(0),
+  currency: z.string().max(10).default(""),
+});
+
+export type InAppPurchaseResult = { status: "success"; credits: number } | { status: "already" };
+
+/**
+ * Grants the credit pack for a store purchase reported by the React Native
+ * wrapper, once per transaction id. The store receipt is not verified yet
+ * (needs App Store / Play credentials), so this is the one unverified credit
+ * grant; it is server-side, idempotent and recorded with `receiptVerified:
+ * false`, so it can be locked down by adding receipt verification here.
+ */
+export async function recordInAppPurchase(input: unknown): Promise<InAppPurchaseResult> {
+  const { uid } = await requireUser();
+  const purchase = InAppPurchaseSchema.parse(input);
+
+  const paymentRef: DocumentReference = adminDb.doc(`users/${uid}/payments/iap_${purchase.transactionId}`);
+  const legacyPayment: Query = adminDb
+    .collection(`users/${uid}/payments`)
+    .where("id", "==", purchase.transactionId)
+    .limit(1);
+
+  return adminDb.runTransaction(async (tx: Transaction): Promise<InAppPurchaseResult> => {
+    const [existing, legacy, profile] = await Promise.all([
+      tx.get(paymentRef),
+      tx.get(legacyPayment),
+      tx.get(profileRef(uid)),
+    ]);
+    if (existing.exists || !legacy.empty) return { status: "already" };
+
+    const current = Number(profile.data()?.credits ?? 0);
+    const credits = (Number.isFinite(current) ? current : 0) + CREDIT_PACK.credits;
+    tx.set(paymentRef, {
+      id: purchase.transactionId,
+      amount: purchase.amount,
+      createdAt: Timestamp.now(),
+      status: "succeeded",
+      mode: "iap",
+      platform: purchase.platform,
+      productId: purchase.productId,
+      currency: purchase.currency,
+      receiptVerified: false,
+    });
+    tx.set(profileRef(uid), { credits }, { merge: true });
+    return { status: "success", credits };
   });
 }

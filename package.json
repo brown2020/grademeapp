@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "doctor": "react-doctor ."
+    "doctor": "react-doctor .",
+    "test:rules": "npx -y firebase-tools@15.34.1 emulators:exec --only firestore,storage --project demo-grademe-rules \"vitest run --config vitest.rules.config.ts\""
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.85",
@@ -75,6 +76,7 @@
     "zustand": "^5.0.16"
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "^6.0.0",
     "@tailwindcss/postcss": "^4.3.0",
     "@tailwindcss/typography": "^0.5.19",
     "@types/lodash": "^4.17.27",

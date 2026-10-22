@@ -1,0 +1,47 @@
+rules_version = '2';
+
+// Grade.me Firestore rules. Deny by default; each user reaches only their own
+// tree. Credits, payments and plagiarism reports are written by the server
+// (Admin SDK bypasses these rules) and are read-only to the client.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    match /users/{uid} {
+      // Auth mirror written by useAuthStore. Deleting the account is server-side.
+      allow read, create, update: if isOwner(uid);
+
+      match /profile/userData {
+        allow read: if isOwner(uid);
+        // Created with the starter balance by ensureProfile; deleted by deleteAccountData.
+        allow create, delete: if false;
+        allow update: if isOwner(uid)
+          && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['credits']);
+      }
+
+      match /summaries/{summaryId} {
+        allow read, write: if isOwner(uid);
+      }
+
+      match /custom_rubrics/{rubricId} {
+        allow read, write: if isOwner(uid);
+      }
+
+      match /payments/{paymentId} {
+        allow read: if isOwner(uid);
+        allow write: if false;
+      }
+
+      match /plagiarism_reports/{reportId} {
+        allow read: if isOwner(uid);
+        allow write: if false;
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
