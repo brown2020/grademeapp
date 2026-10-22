@@ -79,7 +79,9 @@ src/
                            # usePaymentsStore, useMobileMenuStore, useInitializeStores
   firebase/                # firebaseClient.ts (browser), firebaseAdmin.ts (server)
   lib/
-    utils/                 # registry.ts (AI providers), user.ts (getApiKeys),
+    server/                # requestAuth.ts (session verification), billing.ts (credits),
+                           # testing/fakeAdminDb.ts (in-memory Firestore for tests)
+    utils/                 # registry.ts (AI providers), date.ts, grade.ts,
                            # saveHistory.ts, responseParser.ts, textUtils.ts, etc.
     types/ constants/ hooks/ dictionaries/
 ```
@@ -94,21 +96,34 @@ src/
 - **Auth flow:** `useAuthToken` (`src/lib/hooks/useAuthToken.ts`) subscribes to
   Firebase auth via `react-firebase-hooks`, writes an ID-token cookie
   (`NEXT_PUBLIC_COOKIE_NAME`), refreshes it on a 50-minute timer, and mirrors the
-  user into `useAuthStore`. `useInitializeStores` then loads the Firestore profile
+  user into `useAuthStore`. It never deletes the cookie while Firebase is still
+  restoring a session, and publishes the uid (and lets `ClientProvider` render the
+  app) only after the fresh cookie is written, so signed-in requests never run ahead
+  of the server session. `useInitializeStores` then loads the Firestore profile
   into `useProfileStore`.
-- **Grading flow:** `grader/Grader.tsx` (via `grader/streamGrade.ts`) calls the `generateGrade` server action, which
-  resolves a model from the registry, estimates token cost, streams text back via
-  `createStreamableValue`, and returns `creditsUsed`. The client consumes the
-  stream with `readStreamableValue`, deducts credits with
-  `useProfileStore.minusCredits`, then persists a record with `saveDocument`.
+- **Grading flow:** `grader/Grader.tsx` (via `grader/streamGrade.ts`) calls the
+  `generateGrade` server action, which verifies the session (`requireServerUser`),
+  reads the balance, billing mode and BYO keys from the server profile
+  (`lib/server/billing.ts`), resolves a model from the registry, streams text via
+  `createStreamableValue`, and **debits credits on the server**. It returns the new
+  balance, which the client mirrors with `useProfileStore.setCredits`, then persists
+  a record with `saveDocument`. `correctGrammarAndSpelling` follows the same pattern.
+  Actions never accept a uid, balance or billing mode from the client.
 - **AI providers:** `registry.ts` registers `openai`, `fireworks`, `xai`,
   `anthropic`, `google`, `groq`, `azure`, and `openai-compatible`. Model IDs are
   `"provider:model"`. Users may supply their own OpenAI/Fireworks keys
   (`profile.useCredits === false`); otherwise platform keys + credits are used.
-- **Plagiarism flow:** client → `POST /api/copyleaks/submit` (admin SDK checks
-  credits, writes a `pending` report, submits to Copyleaks with a webhook URL) →
-  Copyleaks calls `POST /api/copyleaks/webhook/[status]` → handler writes results
-  to Firestore → report pages read them.
+- **Plagiarism flow:** client → `POST /api/copyleaks/submit` (verifies the session
+  matches the uid, debits credits atomically, writes a `pending` report, submits to
+  Copyleaks, refunds the debit if submission fails) → Copyleaks calls
+  `POST /api/copyleaks/webhook/[status]` (HMAC-verified with
+  `COPYLEAKS_WEBHOOK_SECRET`) → handler writes results to Firestore → report pages
+  read them through SWR (`plagiarism/useJsonResource.ts`).
+- **Payments flow:** `createPaymentIntent` fixes the amount to `CREDIT_PACK` and tags
+  the intent with the buyer's uid; after Stripe redirects back, `completePayment`
+  verifies ownership, status and amount, and records the payment (keyed by intent
+  id) plus the credit grant in one transaction, so reloads never double-credit.
+  In-app purchases from the React Native wrapper still grant credits client-side.
 - **Data model (Firestore):**
   - `users/{uid}` — auth mirror (set by `useAuthStore.setAuthDetails`).
   - `users/{uid}/profile/userData` — profile: `credits`, `useCredits`, BYO API
@@ -168,12 +183,14 @@ runs the Vitest unit suite once (no watch mode), which is CI-safe.
 
 - Everything must run non-interactively and CI-safe. Never use watch mode, never
   start a headed browser, never rely on manual login or a running dev server.
-- Unit tests run via **Vitest** with `npm test` (`vitest run`, run-once). Coverage
-  is currently limited to pure utility logic under `src/lib/utils`
-  (`authToken`, `responseParser`, `textUtils`, model-id helpers). Add unit tests
-  alongside the code you change when the logic is pure and bug-prone.
-- There is **no component/e2e test setup** (no jsdom, React Testing Library, or
-  Playwright). Don't assume one exists. If a change needs browser/runtime
+- Unit tests run via **Vitest** with `npm test` (`vitest run`, run-once). They cover
+  pure utilities (`src/lib/utils`, rubric libs) **and** the server trust boundaries:
+  server actions and route handlers are tested with mocked `next/headers` /
+  `firebase-admin` and the in-memory `lib/server/testing/fakeAdminDb.ts`
+  (unauthenticated, forged, wrong-user and insufficient-credit denials, refunds,
+  idempotent payment completion).
+- There is **no component/e2e test setup** in the repo (no jsdom, React Testing
+  Library, or Playwright dependency). Don't assume one exists. If a change needs browser/runtime
   verification you cannot do with a Vitest unit test, document the manual steps in
   your report instead of attempting them.
 
@@ -195,7 +212,7 @@ runs the Vitest unit suite once (no watch mode), which is CI-safe.
 - Use semantic token classes only (`bg-surface`, `bg-muted`, `text-muted-foreground`,
   `border-border`, `bg-primary`, `bg-accent`, …). No raw palette colors, hex values, or
   `dark:` overrides — tokens handle dark mode.
-- Build pages as `<PageContainer><PageHeader …/>…</PageContainer>` (`ui/page`); use
+- Build pages as `<PageContainer><PageHeader …/>…</PageContainer>` (`ui/page-layout`); use
   `EmptyState`, `Skeleton`/`Spinner`, `Card`, `Button` (`loading`, `asChild`) rather than
   hand-rolled equivalents. AI feedback markdown goes inside `feedback-prose`; long legal
   text inside `legal-prose`.
@@ -251,8 +268,10 @@ runs the Vitest unit suite once (no watch mode), which is CI-safe.
   plus server-side token verification in route handlers/actions. When adding any
   data path or sensitive operation, verify the user server-side
   (`adminAuth.verifyIdToken`) rather than trusting a client-supplied `uid`.
-- Copyleaks submit/report route handlers verify the Firebase ID-token cookie with
-  `adminAuth.verifyIdToken` before reading or writing user-owned report data.
+- Server actions call `requireServerUser()` and route handlers call
+  `requireMatchingUid()` (`src/lib/server/requestAuth.ts`); both verify the ID-token
+  cookie with `adminAuth.verifyIdToken`. Every action that spends credits, reads BYO
+  keys, or grants credits derives the uid from the session — never from arguments.
 - To change which routes are protected, edit the `matcher` in `src/proxy.ts`. Keep
   API routes, Next internals, static assets, and public pages out of the matcher.
 
@@ -260,7 +279,9 @@ runs the Vitest unit suite once (no watch mode), which is CI-safe.
 
 - Global state is Zustand (`src/zustand`). Stores call Firestore directly and keep
   a local mirror; follow that pattern (optimistic local `set` + awaited Firestore
-  write, with `handleProfileError`-style logging).
+  write, with `handleProfileError`-style logging). **Credits are the exception:**
+  the server owns every debit and grant, and the client only mirrors the returned
+  balance via `setCredits` (`addCredits` remains only for in-app purchases).
 - `useAuthStore` holds the session mirror; `useProfileStore` owns `credits`,
   `useCredits`, BYO keys, and favorites; `useRubricStore` owns rubric options,
   the active/selected rubric, grading data, and custom-rubric CRUD.
@@ -276,7 +297,8 @@ runs the Vitest unit suite once (no watch mode), which is CI-safe.
   fast; the config uses the `node` environment and the `@/*` alias
   (`vitest.config.ts`). Co-locate tests as `*.test.ts` next to the code.
 - Add/extend unit tests for pure, bug-prone logic you touch (parsing, credit math,
-  id/string helpers). Avoid importing modules with heavy import-time side effects
+  id/string helpers), and a denial test for any new server action or route handler
+  that touches user data or credits. Avoid importing modules with heavy import-time side effects
   (e.g. `registry.ts` instantiates AI providers from env at module load).
 - The expected verification for every change is the canonical command:
   `npm run lint && npm test && npm run build` passes, plus a clear
@@ -288,19 +310,24 @@ runs the Vitest unit suite once (no watch mode), which is CI-safe.
 
 - `src/actions/parseDocumentFromUrl.ts` — has an SSRF guard (`isAllowedUrl`:
   HTTPS-only, blocks localhost/private ranges). Preserve and strengthen it; never
-  remove the guard. `officeparser` is on v7 here (`parseOffice` + `ast.toText()`),
-  not the old `parseOfficeAsync` API.
+  remove the guard. `officeparser` is on v8 here (`parseOffice` then
+  `(await ast.to("text")).value`); `ast.toText()` and `parseOfficeAsync` are gone.
 - `src/lib/utils/registry.ts` — provider/credentials wiring. Changing model IDs or
   provider names affects every grading call.
-- `src/actions/generateResponse.ts` / `correctGrammarSpelling.ts` — credit
-  estimation and deduction math; user-facing billing impact.
+- `src/actions/generateResponse.ts` / `correctGrammarSpelling.ts` /
+  `paymentActions.ts` and `src/lib/server/billing.ts` — credit estimation, debits
+  and grants; user-facing billing impact. Keep debits transactional and server-side.
 - `src/app/api/copyleaks/*` — external webhooks and admin-SDK writes; filename
   encodes `{uid}-{docId}` for webhook correlation. Keep that contract.
 - `src/firebase/firebaseAdmin.ts` / `firebaseClient.ts` — env-driven init with
   swallowed errors.
 - `package.json` / `package-lock.json` — `eslint`, `eslint-config-next`, and
   `eslint-plugin-react` are intentionally pinned; `officeparser` and `lucide-react`
-  have had pin history. Don't bump these casually.
+  have had pin history. Don't bump these casually. `overrides` pin patched
+  transitive versions (`@grpc/grpc-js`, `postcss-selector-parser`) and replace
+  `argparse` (only mammoth's CLI uses it) to drop a vulnerable `sprintf-js`.
+  The shadcn CLI is not installed; run `npx shadcn@latest add …` when adding a
+  primitive.
 - Secrets: `.env`, `.env.local`, `service_key.json` exist locally and are
   gitignored. Never commit them, never print their contents.
 - React Native WebView branches (`window.ReactNativeWebView`) — don't break the

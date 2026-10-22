@@ -86,20 +86,24 @@ export results to `.docx`.
 ### Current user flows (as implemented)
 
 - **Auth:** `useAuthToken` subscribes to Firebase auth, sets an ID-token cookie
-  (refreshed every 50 min), mirrors the user into `useAuthStore`, then
-  `useInitializeStores` loads `users/{uid}/profile/userData` into `useProfileStore`
-  (creating it with starter credits on first sign-in).
-- **Grade:** `grader/Grader.tsx` → `generateGrade(...)` resolves a `provider:model` from
-  the registry, estimates cost (+50% buffer), streams text, returns `creditsUsed`;
-  client streams via `readStreamableValue`, deducts with `minusCredits`, and saves
-  via `saveDocument`.
-- **Plagiarism:** client → `POST /api/copyleaks/submit` (admin SDK validates
-  credits, writes a `pending` report, submits base64 text to Copyleaks with a
-  webhook) → Copyleaks → `POST /api/copyleaks/webhook/[status]` writes results →
-  report pages render them. Filenames encode `{uid}-{docId}` for correlation.
-- **Payments:** checkout page creates a PaymentIntent (`createPaymentIntent`),
-  confirms client-side, and the success page validates (`validatePaymentIntent`)
-  and adds credits, guarding against double-credit.
+  (refreshed every 50 min), and publishes the user to `useAuthStore` only after the
+  cookie is written, so the first server requests after a page load are always
+  authenticated. `useInitializeStores` then loads `users/{uid}/profile/userData`
+  into `useProfileStore` (creating it with starter credits on first sign-in).
+- **Grade:** `grader/Grader.tsx` → `generateGrade(...)` verifies the session, reads
+  the balance/billing mode/BYO keys server-side, resolves a `provider:model` from the
+  registry, rejects short balances before calling the model, streams text, and
+  debits the actual cost on the server; the client mirrors the returned balance and
+  saves via `saveDocument`. Grammar correction works the same way.
+- **Plagiarism:** client → `POST /api/copyleaks/submit` (verifies the session uid,
+  debits credits atomically, writes a `pending` report, submits base64 text to
+  Copyleaks, refunds on failure) → Copyleaks → `POST /api/copyleaks/webhook/[status]`
+  (HMAC-verified) writes results → report pages render them, polling while pending.
+  Filenames encode `{uid}-{docId}` for correlation.
+- **Payments:** checkout creates a PaymentIntent for the fixed credit pack, tagged
+  with the buyer's uid; the success page calls `completePayment`, which verifies
+  ownership, status and amount and grants the credits once per intent in a
+  transaction (safe across reloads and retries).
 
 ### Existing integrations
 
@@ -133,22 +137,20 @@ Firestore is the database, keyed under `users/{uid}` with `profile`, `summaries`
 
 ### Known limitations
 
-- **[inferred] Grading credit deduction is client-side.** `generateGrade` returns
-  `creditsUsed`, but `minusCredits` runs in the browser after streaming. A
-  determined client could stream feedback without a reliable server-side debit.
-  Server-authoritative metering is the biggest integrity gap.
-- **[inferred] Plagiarism credits are checked server-side but debited
-  client-side.** `/api/copyleaks/submit` verifies sufficient credits but does not
-  deduct; the client calls `minusCredits` afterward, so the debit can be skipped.
-- **[inferred] No Copyleaks webhook authentication.** `webhook/[status]` trusts any
-  POST and writes to Firestore based on the filename-encoded `uid/docId`.
-- **Route protection is server-side but not full authorization.** `src/proxy.ts`
-  gates the authenticated routes, including plagiarism-check pages, by validating
-  the session cookie's structure and expiry, but does not verify the token
-  signature. There is still no Firestore rules file in the repo. Copyleaks
-  submit/report route handlers verify the Firebase ID-token cookie before using a
-  `uid`, but data safety elsewhere still depends on console-configured rules plus
-  server-side token verification in sensitive handlers/actions.
+- **Firestore security rules are not in the repo.** Server actions and route
+  handlers verify the ID token and own every credit debit/grant, but whether a
+  browser can write its own `profile/userData.credits` (or other users' data)
+  directly through the client SDK depends on console-managed rules. Adding the rules
+  to the repo, deny-by-default for `credits`, is the remaining step for end-to-end
+  billing integrity.
+- **In-app purchases grant credits client-side.** The React Native wrapper posts
+  `IAP_SUCCESS` and the profile page adds credits without receipt verification.
+- **Webhook signatures are optional outside production.** Without
+  `COPYLEAKS_WEBHOOK_SECRET` the handler accepts unsigned callbacks in development;
+  production fails closed.
+- **Route protection in `src/proxy.ts` is a gate, not authorization.** It checks
+  the session cookie's structure and expiry only; authorization lives in the
+  actions/handlers (`src/lib/server/requestAuth.ts`).
 - **Credits use one flat per-token rate for every model** (`generateResponse.ts`), so
   `src/lib/types/models.ts` is limited to mid/fast tiers; adding premium models needs
   per-model pricing first.
@@ -161,8 +163,22 @@ Firestore is the database, keyed under `users/{uid}` with `profile`, `summaries`
 - **AI-content % is not stored.** The Copyleaks completed webhook saves `results`
   only, so the report page cannot show an AI-detection score.
 - Tours were removed; no onboarding currently runs beyond the first-sign-in identity dialog.
-- Automated coverage is limited to pure utility modules; there is no component or
-  end-to-end test harness.
+- Automated tests cover pure utilities and the server trust boundaries (actions and
+  route handlers with an in-memory Firestore fake); there is no component or
+  end-to-end harness in the repo.
+
+### Performance budget
+
+Recorded 2026-10-21, before measuring. Checked against a local production build
+(`npm run build && npm run start`) on a developer laptop; field data is out of scope.
+
+| Item | Budget |
+| --- | --- |
+| `/` server response (warm, local) | median ≤ 200 ms over 10 requests |
+| `/` initial JavaScript, compressed | ≤ 350 KB |
+| `/grader` initial JavaScript, compressed | ≤ 600 KB (editor, Firebase and Stripe are inherently heavy) |
+| Server-only SDKs in client chunks | none: `firebase-admin`, `stripe` (Node), `openai`, `@ai-sdk/*` providers, `mammoth`, `pdf2json`, `officeparser` |
+| Grading requests per submit | exactly one `generateGrade` call; duplicate submits are ignored while one is in flight |
 
 ---
 
@@ -173,7 +189,12 @@ focused, PR-sized change (one clean commit sequence) and is product-oriented, no
 QA backlog. Acceptance criteria assume the canonical gate (`npm run lint &&
 npm test && npm run build`) passes.
 
-### M1 — Trustworthy, server-authoritative credit metering
+### M1 — Trustworthy, server-authoritative credit metering — **Done (2026-10-21)**
+
+Grading, grammar correction and plagiarism scans now debit on the server, payments
+grant credits once per intent on the server, and clients only mirror the balance.
+Remaining billing-integrity work (Firestore rules, IAP receipt verification) is
+tracked under Known limitations.
 
 **User value:** users are billed accurately and fairly; the business stops leaking
 paid usage. This underpins every paid workflow, so it comes first.
@@ -192,7 +213,10 @@ plagiarism scan debits server-side at submit time.
   model/Copyleaks call.
 - Balances shown in the UI match Firestore after a grade and after a scan.
 
-### M2 — Authenticate the Copyleaks webhook and harden report writes
+### M2 — Authenticate the Copyleaks webhook and harden report writes — **Partly done**
+
+HMAC signature verification (fail-closed in production) is in place. Still open:
+confirm the `uid/docId` resolves to an existing `pending` report before updating it.
 
 **User value:** users' plagiarism reports can't be spoofed or corrupted by forged
 callbacks; results they see are trustworthy.
