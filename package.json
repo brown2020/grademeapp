@@ -28,7 +28,6 @@
     "@radix-ui/react-tabs": "^1.1.21",
     "@stripe/react-stripe-js": "^7.0.0",
     "@stripe/stripe-js": "^10.1.0",
-    "@tailwindcss/typography": "^0.5.19",
     "@tiptap/core": "^3.26.0",
     "@tiptap/extension-bold": "^3.26.0",
     "@tiptap/extension-bubble-menu": "^3.26.0",
@@ -73,16 +72,15 @@
     "react-firebase-hooks": "^5.1.1",
     "react-hot-toast": "^2.6.0",
     "react-markdown": "10.1.0",
-    "shadcn": "^4.10.0",
     "stripe": "^23.0.0",
     "swr": "^2.5.1",
     "tailwind-merge": "3.7.0",
-    "tailwindcss-animate": "^1.0.7",
     "zod": "^4.4.3",
     "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.0",
+    "@tailwindcss/typography": "^0.5.19",
     "@types/lodash": "^4.17.24",
     "@types/node": "^26.6.5",
     "@types/nspell": "^2.1.6",
@@ -97,6 +95,7 @@
     "raw-loader": "^4.0.2",
     "react-doctor": "^0.9.14",
     "tailwindcss": "^4.3.0",
+    "tailwindcss-animate": "^1.0.7",
     "typescript": "^6.0.3",
     "vite": "^7.3.7",
     "vitest": "^5.0.5"
@@ -107,6 +106,9 @@
     "pdfjs-dist": "6.2.108",
     "officeparser": {
       "pdfjs-dist": "6.2.108"
-    }
+    },
+    "@grpc/grpc-js": "^1.14.6",
+    "argparse": "^2.0.1",
+    "postcss-selector-parser": "^7.1.7"
   }
 }
