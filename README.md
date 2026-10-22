@@ -26,7 +26,7 @@ AI-powered writing feedback for students, educators, and writers. Submit an essa
 | Language | TypeScript ^6.0.3 |
 | State | Zustand ^5.0.14 |
 | Backend | Firebase ^12.14.0 + Firebase Admin ^13.10.0 (Auth, Firestore, Storage) |
-| AI | Vercel AI SDK (`ai` ^6, `@ai-sdk/*` including OpenAI, Anthropic, Google, Azure, xAI, RSC streaming) |
+| AI | Vercel AI SDK (`ai` ^7, `@ai-sdk/*` including OpenAI, Anthropic, Google, Azure, xAI, RSC streaming) |
 | Payments | Stripe ^22 + `@stripe/react-stripe-js` |
 | Docs | mammoth (DOCX), officeparser (PDF, ODT), `@iarna/rtf-to-html`, `docx` |
 | Plagiarism | Copyleaks REST API (route handlers) |

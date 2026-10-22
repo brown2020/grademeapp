@@ -292,4 +292,3 @@ export const userInputs: UserInputs = {
   }
 };
 
-export default userInputs;

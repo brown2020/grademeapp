@@ -58,8 +58,13 @@ describe("parseDocumentFromUrl", () => {
   it("parses TXT and RTF", async () => {
     serve("Line one\n\n<b>Line two</b>", "text/plain");
     expect(await parseDocumentFromUrl(uploadUrl("a.txt"))).toBe("<p>Line one</p><p>&lt;b&gt;Line two&lt;/b&gt;</p>");
-    serve("{\\rtf1\\ansi\\deff0 {\\fonttbl {\\f0 Times;}}\\f0 Hello {\\b world}.\\par Second paragraph.\\par}", "application/rtf");
-    expect(await parseDocumentFromUrl(uploadUrl("a.rtf"))).toMatch(/<p>Hello world\.<\/p>[\s\S]*<p>Second paragraph\.<\/p>/);
+    serve(
+      String.raw`{\rtf1\ansi\deff0 {\fonttbl {\f0 Times;}}\f0 Hello {\b world}.\par Caf\'e9 \ldblquote quotes\rdblquote  & <b>tags</b>.\par}`,
+      "application/rtf"
+    );
+    expect(await parseDocumentFromUrl(uploadUrl("a.rtf"))).toBe(
+      "<p>Hello world.</p><p>Café “quotes” &amp; &lt;b&gt;tags&lt;/b&gt;.</p>"
+    );
   });
 
   it("rejects unsupported types and oversized files instead of returning error text", async () => {

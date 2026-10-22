@@ -21,10 +21,6 @@ export const models: Model[] = [
     provider: 'Anthropic',
     providerId: 'anthropic'
   },
-  {
-    id: 'grok-4.7',
-    name: 'Grok 4.7',
-    provider: 'XAI',
-    providerId: 'xai'
-  },
+  // Grok 4.7 (xai) is withheld while the platform xAI key is disabled; re-add it
+  // here once the key works, since a listed model that cannot run always fails.
 ]

@@ -2,7 +2,6 @@
 
 import mammoth from "mammoth";
 import { Buffer } from "buffer";
-import rtfToHTML from "@iarna/rtf-to-html";
 import { parseOffice } from "officeparser";
 import { officeNodesToHtml, plainTextToHtml } from "@/lib/utils/documentHtml";
 import { requireServerUser } from "@/lib/server/requestAuth";
@@ -27,14 +26,6 @@ function detectFormat(contentType: string | null, extension: string | undefined)
     if (extension === "rtf") return "rtf";
   }
   return null;
-}
-
-function rtfToHtml(rtf: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    rtfToHTML.fromString(rtf, (err: Error | null, html: string) =>
-      err ? reject(new Error("Failed to parse RTF content.")) : resolve(html)
-    );
-  });
 }
 
 /**
@@ -65,12 +56,11 @@ export async function parseDocumentFromUrl(fileUrl: string): Promise<string> {
       return (await mammoth.convertToHtml({ buffer })).value;
     case "pdf":
     case "odt":
+    case "rtf":
       // The type hint is required: buffer auto-detection fails inside the Next server bundle.
       return officeNodesToHtml((await parseOffice(buffer, { fileType: format })).content);
     case "txt":
       return plainTextToHtml(new TextDecoder().decode(arrayBuffer));
-    case "rtf":
-      return rtfToHtml(new TextDecoder().decode(arrayBuffer));
     default:
       throw new Error("Unsupported file type. Upload a DOCX, PDF, ODT, RTF or TXT file.");
   }

@@ -1,0 +1,6 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": ["rules/**/*.test.ts", "vitest.rules.config.ts", "src/lib/types/*.ts"],
+  "ignoreDependencies": ["@tiptap/extension-bubble-menu", "@tiptap/extension-floating-menu"],
+  "ignoreExportsUsedInFile": true
+}

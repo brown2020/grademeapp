@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { ChevronDown } from "lucide-react";
 import { useRubricStore } from "@/zustand/useRubricStore";
-import userInputs from "@/lib/constants/userInputs";
+import { userInputs } from "@/lib/constants/userInputs";
 import type { GradingData } from "@/lib/types/grading-data";
 import { Field, Input } from "@/components/ui/input";
 import { SimpleSelect } from "@/components/ui/select";

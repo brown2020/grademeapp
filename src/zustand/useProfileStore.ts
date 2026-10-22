@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { toast } from "react-hot-toast";
 import { useAuthStore } from "./useAuthStore";
 import { loadFirestore } from "@/firebase/loadFirestore";
 import { deleteAccountData } from "@/actions/deleteAccount";
@@ -109,12 +110,22 @@ const useProfileStore = create<ProfileState>((set, get) => ({
 
     const changes: Partial<ProfileType> = { ...newProfile };
     delete changes.credits;
+    const previous = get().profile;
+    set({ profile: { ...previous, ...changes } });
     try {
       const { db, doc, updateDoc } = await loadFirestore();
-      set({ profile: { ...get().profile, ...changes } });
       await updateDoc(doc(db, `users/${uid}/profile/userData`), changes);
     } catch (error) {
+      // Roll back only the fields this update touched; later edits and balance updates stay.
+      set((state) => {
+        const restored = { ...state.profile };
+        for (const key of Object.keys(changes) as (keyof ProfileType)[]) {
+          (restored as Record<string, unknown>)[key] = previous[key];
+        }
+        return { profile: restored };
+      });
       handleProfileError("updating profile", error);
+      toast.error("Couldn't save your profile change. Please try again.");
     }
   },
 

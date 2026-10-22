@@ -163,6 +163,10 @@ Firestore is the database, keyed under `users/{uid}` with `profile`, `summaries`
   per-model pricing first.
 - **Fireworks/Groq have no listed models** since Llama was removed, so a saved
   Fireworks BYO key is currently unused.
+- **Grok 4.7 is withheld from the model list.** On 2026-10-22 the platform xAI key
+  reported `api_key_disabled: true`, so every Grok grade failed. Re-enable the key
+  in console.x.ai, then restore the entry in `src/lib/types/models.ts`. Verified
+  the same day: `gpt-6-sol` (live grade) and `claude-sonnet-5` (models API).
 - **[inferred] Inconsistent starter-credit defaults** across `useAuthStore` (1000),
   `useProfileStore` default (0), and `createNewProfile` (1000).
 - **[inferred] Output-token cost estimate is a fixed guess** (1000 tokens; see the
