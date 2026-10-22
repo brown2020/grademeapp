@@ -53,10 +53,10 @@
     "cookies-next": "6.1.1",
     "decode-uri-component": "^0.5.0",
     "docx": "^9.7.1",
-    "firebase": "^13.0.0",
+    "firebase": "^13.1.0",
     "firebase-admin": "^14.5.0",
     "lodash": "^4.18.1",
-    "lucide-react": "^1.17.0",
+    "lucide-react": "^1.61.0",
     "mammoth": "^1.12.0",
     "next": "^16.2.7",
     "node-html-parser": "^9.0.5",
@@ -72,12 +72,12 @@
     "swr": "^2.5.1",
     "tailwind-merge": "3.7.0",
     "zod": "^4.4.3",
-    "zustand": "^5.0.14"
+    "zustand": "^5.0.16"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.0",
     "@tailwindcss/typography": "^0.5.19",
-    "@types/lodash": "^4.17.24",
+    "@types/lodash": "^4.17.27",
     "@types/node": "^26.6.5",
     "@types/nspell": "^2.1.6",
     "@types/react": "^19.2.17",
@@ -89,7 +89,7 @@
     "tailwindcss": "^4.3.0",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^6.0.3",
-    "vite": "^7.3.7",
+    "vite": "^8.3.5",
     "vitest": "^5.0.5"
   },
   "overrides": {
