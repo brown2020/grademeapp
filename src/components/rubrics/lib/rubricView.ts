@@ -19,7 +19,8 @@ export interface TraitView {
   subCriteria: { description: string; levels: LevelEntry[] }[];
 }
 
-export type TreeNode = { label: string; text?: string; children?: TreeNode[] };
+/** `id` is the node's key path in the source rubric, unique among siblings. */
+export type TreeNode = { id: string; label: string; text?: string; children?: TreeNode[] };
 
 export type RubricView =
   | { kind: "levels"; levels: LevelEntry[] }
@@ -52,18 +53,19 @@ export function humanizeKey(key: string): string {
   return spaced.charAt(0).toUpperCase() + spaced.slice(1);
 }
 
-function toTree(value: unknown, label: string): TreeNode {
-  if (isScalar(value)) return { label, text: String(value) };
+function toTree(value: unknown, label: string, id: string): TreeNode {
+  if (isScalar(value)) return { id, label, text: String(value) };
   if (Array.isArray(value)) {
-    return { label, children: value.map((v, i) => toTree(v, String(i + 1))) };
+    return { id, label, children: value.map((v, i) => toTree(v, String(i + 1), `${id}/${i}`)) };
   }
   if (isPlainObject(value)) {
     return {
+      id,
       label,
-      children: Object.entries(value).map(([k, v]) => toTree(v, humanizeKey(k))),
+      children: Object.entries(value).map(([k, v]) => toTree(v, humanizeKey(k), `${id}/${k}`)),
     };
   }
-  return { label };
+  return { id, label };
 }
 
 function toMatrixRow(name: string, value: unknown): MatrixRow | null {
@@ -152,7 +154,7 @@ export function buildRubricView(rubric: Pick<RubricState, "type" | "criteria"> &
   for (const [name, value] of entries) {
     const row = toMatrixRow(name, value);
     if (!row) {
-      return { kind: "tree", nodes: entries.map(([k, v]) => toTree(v, humanizeKey(k))) };
+      return { kind: "tree", nodes: entries.map(([k, v]) => toTree(v, humanizeKey(k), k)) };
     }
     rows.push(row);
   }

@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { StatusBadge } from "./StatusBadge";
-import { excerpt, formatDate, similarityPercent, type PlagiarismReportDoc } from "./report";
+import { formatDate } from "@/lib/utils/date";
+import { excerpt, similarityPercent, type PlagiarismReportDoc } from "./report";
 
 export function ReportListItem({ uid, report }: { uid: string; report: PlagiarismReportDoc }) {
   const date = formatDate(report.createdAt);

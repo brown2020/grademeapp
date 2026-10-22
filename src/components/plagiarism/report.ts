@@ -69,17 +69,6 @@ export function excerpt(text: string | undefined, max = 90): string {
   return clean.length > max ? `${clean.slice(0, max).trimEnd()}…` : clean;
 }
 
-export function formatDate(iso?: string): string | null {
-  if (!iso) return null;
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return null;
-  return date.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
 export function sortNewestFirst(reports: PlagiarismReportDoc[]): PlagiarismReportDoc[] {
   return [...reports].sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""));
 }

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Mail, MapPin } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageContainer, PageHeader } from "@/components/ui/page";
+import { PageContainer, PageHeader } from "@/components/ui/page-layout";
 import { LEGAL } from "@/components/legal/legalInfo";
 
 export function SupportContact() {

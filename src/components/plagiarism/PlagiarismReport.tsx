@@ -4,14 +4,14 @@ import { useParams } from "next/navigation";
 import { AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { EmptyState, PageContainer, PageHeader } from "@/components/ui/page";
+import { EmptyState, PageContainer, PageHeader } from "@/components/ui/page-layout";
 import { Skeleton, Spinner } from "@/components/ui/spinner";
 import { MatchedSources } from "./MatchedSources";
 import { ScoreCard } from "./ScoreCard";
 import { StatusBadge } from "./StatusBadge";
-import { useJsonResource, usePolling } from "./useJsonResource";
+import { useJsonResource } from "./useJsonResource";
+import { formatDate } from "@/lib/utils/date";
 import {
-  formatDate,
   matchedSources,
   similarityPercent,
   similarityTone,
@@ -118,23 +118,16 @@ export default function PlagiarismReport() {
   const url = uid && docId ? `/api/copyleaks/reports/${uid}/${docId}` : null;
   const { data: report, error, isLoading, isRefreshing, reload } = useJsonResource(
     url,
-    parseReport
+    parseReport,
+    { pollWhile: (latest) => latest?.status === "pending", pollMs: POLL_MS }
   );
-  usePolling(report?.status === "pending", POLL_MS, reload);
-
-  const date = formatDate(report?.createdAt);
-  const details = [
-    date,
-    typeof report?.wordCount === "number" ? `${report.wordCount.toLocaleString()} words` : null,
-    typeof report?.creditCost === "number" ? `${report.creditCost.toLocaleString()} credits` : null,
-  ].filter(Boolean);
 
   return (
     <PageContainer>
       <PageHeader
         eyebrow="Plagiarism & AI check"
         title="Scan report"
-        description={details.length > 0 ? details.join(" · ") : undefined}
+        description={reportDetails(report) || undefined}
         actions={
           report && (
             <div className="flex items-center gap-2">
@@ -147,39 +140,69 @@ export default function PlagiarismReport() {
           )
         }
       />
-
-      {isLoading || !url ? (
-        <ReportSkeleton />
-      ) : error && !report ? (
-        <EmptyState
-          icon={<AlertCircle />}
-          title="Couldn't load this report"
-          description={error}
-          action={
-            <Button variant="outline" onClick={reload}>
-              Try again
-            </Button>
-          }
-        />
-      ) : report ? (
-        <div className="flex flex-col gap-4">
-          <ReportBody report={report} />
-          {report.text && (
-            <Card>
-              <details className="group">
-                <summary className="cursor-pointer list-none rounded-xl px-5 py-4 text-sm font-medium marker:content-none focus-visible:outline-2 focus-visible:outline-ring">
-                  Submitted text
-                  <span className="ml-2 text-muted-foreground group-open:hidden">Show</span>
-                  <span className="ml-2 hidden text-muted-foreground group-open:inline">Hide</span>
-                </summary>
-                <div className="scrollbar-thin max-h-96 overflow-y-auto whitespace-pre-wrap break-words border-t border-border px-5 py-4 font-serif leading-relaxed">
-                  {report.text}
-                </div>
-              </details>
-            </Card>
-          )}
-        </div>
-      ) : null}
+      <ReportContent loading={isLoading || !url} error={error} report={report} onRetry={reload} />
     </PageContainer>
+  );
+}
+
+function reportDetails(report: PlagiarismReportDoc | undefined) {
+  return [
+    formatDate(report?.createdAt),
+    typeof report?.wordCount === "number" ? `${report.wordCount.toLocaleString()} words` : null,
+    typeof report?.creditCost === "number" ? `${report.creditCost.toLocaleString()} credits` : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+}
+
+function ReportContent({
+  loading,
+  error,
+  report,
+  onRetry,
+}: {
+  loading: boolean;
+  error?: string;
+  report?: PlagiarismReportDoc;
+  onRetry: () => void;
+}) {
+  if (loading) return <ReportSkeleton />;
+  if (!report) {
+    if (!error) return null;
+    return (
+      <EmptyState
+        icon={<AlertCircle />}
+        title="Couldn't load this report"
+        description={error}
+        action={
+          <Button variant="outline" onClick={onRetry}>
+            Try again
+          </Button>
+        }
+      />
+    );
+  }
+  return (
+    <div className="flex flex-col gap-4">
+      <ReportBody report={report} />
+      {report.text && <SubmittedText text={report.text} />}
+    </div>
+  );
+}
+
+function SubmittedText({ text }: { text: string }) {
+  return (
+    <Card>
+      <details className="group">
+        <summary className="cursor-pointer list-none rounded-xl px-5 py-4 text-sm font-medium marker:content-none focus-visible:outline-2 focus-visible:outline-ring">
+          Submitted text
+          <span className="ml-2 text-muted-foreground group-open:hidden">Show</span>
+          <span className="ml-2 hidden text-muted-foreground group-open:inline">Hide</span>
+        </summary>
+        <div className="scrollbar-thin max-h-96 overflow-y-auto whitespace-pre-wrap break-words border-t border-border px-5 py-4 font-serif leading-relaxed">
+          {text}
+        </div>
+      </details>
+    </Card>
   );
 }

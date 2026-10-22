@@ -8,9 +8,10 @@ import type { ProfileType } from "@/zustand/useProfileStore";
 import { PlagiarismChecker } from "@/components/plagiarism/PlagiarismChecker";
 import { RichTextEditor } from "@/components/editor/RichTextEditor";
 import { Button } from "@/components/ui/button";
-import { PageContainer, PageHeader } from "@/components/ui/page";
+import { PageContainer, PageHeader } from "@/components/ui/page-layout";
 import DownloadPopover from "@/components/ui/DownloadPopover";
 import { GradeBadge } from "@/components/grader/GradeBadge";
+import { formatDateTime } from "@/lib/utils/date";
 import { GradeResult } from "@/components/grader/GradeResult";
 import { GradingError, GradingPending } from "@/components/grader/GradingStatus";
 import { GradingPanel } from "@/components/grader/GradingPanel";
@@ -36,11 +37,6 @@ export interface DocumentShellProps {
   onFixGrammarSpelling: () => void;
 }
 
-const dateFormat = new Intl.DateTimeFormat(undefined, {
-  dateStyle: "medium",
-  timeStyle: "short",
-});
-
 /** Editor-centric view of one saved submission: revise, correct, re-grade. */
 export default function DocumentShell({
   summaryID,
@@ -64,7 +60,7 @@ export default function DocumentShell({
   return (
     <PageContainer size="wide">
       <PageHeader
-        eyebrow={`Submission · ${dateFormat.format(submittedAt)}`}
+        eyebrow={`Submission · ${formatDateTime(submittedAt) ?? "—"}`}
         title="Revise and re-grade"
         description="Edit your draft, fix grammar and spelling, then grade it again. Each grade is saved as a new version."
         actions={

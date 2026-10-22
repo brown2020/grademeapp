@@ -2,7 +2,8 @@ import Link from "next/link";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { UserHistoryType } from "@/lib/types/user-history";
-import { formatDate, GradeBadge } from "./format";
+import { formatDate } from "@/lib/utils/date";
+import { GradePill } from "./GradePill";
 
 export const HISTORY_GRID =
   "md:grid md:grid-cols-[minmax(0,1fr)_8rem_7rem_5rem_2.5rem] md:items-center md:gap-4";
@@ -33,17 +34,17 @@ export default function HistoryRow({ summary, onDelete }: Props) {
           {rubricName || "No rubric"}
         </p>
         <p className="mt-1.5 text-xs text-muted-foreground md:hidden">
-          {formatDate(summary.timestamp)} · {count} {count === 1 ? "submission" : "submissions"}
+          {formatDate(summary.timestamp) ?? "—"} · {count} {count === 1 ? "submission" : "submissions"}
         </p>
       </div>
       <div className="hidden text-sm text-muted-foreground md:block">
-        {formatDate(summary.timestamp)}
+        {formatDate(summary.timestamp) ?? "—"}
       </div>
       <div className="hidden text-sm tabular-nums text-muted-foreground md:block">
         {count} {count === 1 ? "submission" : "submissions"}
       </div>
       <div className="shrink-0">
-        <GradeBadge grade={latest?.grade} />
+        <GradePill grade={latest?.grade} />
       </div>
       <Button
         variant="ghost"

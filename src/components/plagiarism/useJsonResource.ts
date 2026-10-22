@@ -1,63 +1,36 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import useSWR from "swr";
 
-type Snapshot<T> = { url: string; key: string; data?: T; error?: string };
+type Options<T> = {
+  /** Poll every `pollMs` while this returns true for the latest data. */
+  pollWhile?: (data: T | undefined) => boolean;
+  pollMs?: number;
+};
 
 /**
- * Fetches `url` (skipped while null) and re-fetches on `reload()`. Loading
- * state is derived, so no setState runs synchronously inside the effect.
+ * Fetches JSON from `url` (skipped while null) through SWR, which dedupes
+ * requests, ignores stale responses and keeps the last good data on refresh.
  */
 export function useJsonResource<T>(
   url: string | null,
-  parse: (response: Response) => Promise<T>
+  parse: (response: Response) => Promise<T>,
+  { pollWhile, pollMs = 0 }: Options<T> = {}
 ) {
-  const [nonce, setNonce] = useState(0);
-  const [snapshot, setSnapshot] = useState<Snapshot<T> | null>(null);
-  const key = url ? `${url}#${nonce}` : "";
-
-  useEffect(() => {
-    if (!url) return;
-    let active = true;
-    fetch(url, { cache: "no-store" })
-      .then(parse)
-      .then((data) => {
-        if (active) setSnapshot({ url, key, data });
-      })
-      .catch((err: unknown) => {
-        if (!active) return;
-        const error = err instanceof Error ? err.message : "Something went wrong.";
-        setSnapshot((prev) => ({
-          url,
-          key,
-          data: prev?.url === url ? prev.data : undefined,
-          error,
-        }));
-      });
-    return () => {
-      active = false;
-    };
-  }, [url, key, parse]);
-
-  const reload = useCallback(() => setNonce((n) => n + 1), []);
-
-  const current = snapshot && snapshot.url === url ? snapshot : null;
-  const settled = current?.key === key;
+  const { data, error, isLoading, isValidating, mutate } = useSWR<T, unknown, string | null>(
+    url,
+    (key) => fetch(key, { cache: "no-store" }).then(parse),
+    {
+      keepPreviousData: true,
+      refreshInterval: (latest) => (pollWhile?.(latest) ? pollMs : 0),
+    }
+  );
 
   return {
-    data: current?.data,
-    error: settled ? current?.error : undefined,
-    isLoading: Boolean(url) && !current?.data && !settled,
-    isRefreshing: Boolean(current?.data) && !settled,
-    reload,
+    data,
+    error: error ? (error instanceof Error ? error.message : "Something went wrong.") : undefined,
+    isLoading,
+    isRefreshing: isValidating && data !== undefined,
+    reload: () => void mutate(),
   };
-}
-
-/** Calls `callback` every `ms` while `enabled`. */
-export function usePolling(enabled: boolean, ms: number, callback: () => void) {
-  useEffect(() => {
-    if (!enabled) return;
-    const id = window.setInterval(callback, ms);
-    return () => window.clearInterval(id);
-  }, [enabled, ms, callback]);
 }

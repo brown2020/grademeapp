@@ -6,9 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/spinner";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import { usePaymentsStore } from "@/zustand/usePaymentsStore";
+import { formatDate } from "@/lib/utils/date";
 import { formatAmount } from "./format";
 
-const dateFormatter = new Intl.DateTimeFormat(undefined, { dateStyle: "medium" });
 
 export default function PaymentHistory() {
   const uid = useAuthStore((s) => s.uid);
@@ -49,7 +49,7 @@ export default function PaymentHistory() {
                   {formatAmount(payment.amount, payment.currency)}
                 </p>
                 <p className="truncate text-xs text-muted-foreground">
-                  {payment.createdAt ? dateFormatter.format(payment.createdAt.toDate()) : "—"}
+                  {formatDate(payment.createdAt) ?? "—"}
                   {payment.mode ? ` · ${payment.mode === "iap" ? "In-app" : "Card"}` : ""}
                 </p>
               </div>

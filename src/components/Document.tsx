@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { doc as firestoreDoc, getDoc, Timestamp } from "firebase/firestore";
@@ -15,7 +15,7 @@ import { updateDocument } from "@/lib/utils/saveHistory";
 import type { GradingData } from "@/lib/types/grading-data";
 import type { Submission, UserHistoryType } from "@/lib/types/user-history";
 import { Button } from "@/components/ui/button";
-import { EmptyState, PageContainer } from "@/components/ui/page";
+import { EmptyState, PageContainer } from "@/components/ui/page-layout";
 import { PageLoader } from "@/components/ui/spinner";
 import { GRADING_FAILED_MESSAGE, streamGrade } from "@/components/grader/streamGrade";
 import { useScrollIntoView } from "@/components/grader/useScrollIntoView";
@@ -42,7 +42,7 @@ export default function Document() {
   const [loading, setLoading] = useState(true);
   const [summary, setSummary] = useState("");
   const [grade, setGrade] = useState("");
-  const [fileUrl, setFileUrl] = useState("");
+  const fileUrlRef = useRef("");
   const [flagged, setFlagged] = useState("");
   const [busy, setBusy] = useState<Busy>(null);
   const [justGraded, setJustGraded] = useState(false);
@@ -93,7 +93,7 @@ export default function Document() {
           });
           setSummary(match.response);
           setGrade(match.grade);
-          setFileUrl(loaded.fileUrl);
+          fileUrlRef.current = loaded.fileUrl;
         }
       } catch (error) {
         if (cancelled) return;
@@ -117,7 +117,7 @@ export default function Document() {
       timestamp: Timestamp.now(),
     };
     const submissions = [...(userDoc?.submissions ?? []), submission];
-    await updateDocument(uid, summaryID, gradingData, submissions, fileUrl || null);
+    await updateDocument(uid, summaryID, gradingData, submissions, fileUrlRef.current || null);
     setUserDoc((prev) => (prev ? { ...prev, submissions } : prev));
     toast.success("Document updated successfully");
   };

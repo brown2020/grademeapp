@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { PageContainer, PageHeader } from "@/components/ui/page";
+import { PageContainer, PageHeader } from "@/components/ui/page-layout";
 import { usePaymentsStore } from "@/zustand/usePaymentsStore";
 import useProfileStore from "@/zustand/useProfileStore";
 import { CREDIT_PACK } from "@/components/payments/format";

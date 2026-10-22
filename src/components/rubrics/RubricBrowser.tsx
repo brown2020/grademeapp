@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { Blocks, Search, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { EmptyState } from "@/components/ui/page";
+import { EmptyState } from "@/components/ui/page-layout";
 import { SimpleSelect } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/spinner";
 import type { RubricState } from "@/lib/types/rubrics-types";

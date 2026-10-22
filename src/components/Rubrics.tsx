@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { Plus, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { PageContainer, PageHeader } from "@/components/ui/page";
+import { PageContainer, PageHeader } from "@/components/ui/page-layout";
 import ConfirmDeleteDialog from "@/components/ui/ConfirmDeleteDialog";
 import type { RubricState } from "@/lib/types/rubrics-types";
 import { useAuthStore } from "@/zustand/useAuthStore";

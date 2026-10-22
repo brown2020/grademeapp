@@ -7,7 +7,7 @@ import { AlertCircle, Lock } from "lucide-react";
 import { createPaymentIntent } from "@/actions/paymentActions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { PageContainer, PageHeader } from "@/components/ui/page";
+import { PageContainer, PageHeader } from "@/components/ui/page-layout";
 import { Spinner } from "@/components/ui/spinner";
 import OrderSummary from "./OrderSummary";
 import { formatAmount } from "./format";

@@ -77,8 +77,8 @@ function StackedRows({ rows, className }: { rows: MatrixRow[]; className?: strin
 function Tree({ nodes }: { nodes: TreeNode[] }) {
   return (
     <ul className="flex flex-col gap-2">
-      {nodes.map((node, i) => (
-        <li key={`${node.label}-${i}`} className="text-sm">
+      {nodes.map((node) => (
+        <li key={node.id} className="text-sm">
           <span className="font-medium">{node.label}</span>
           {node.text !== undefined && (
             <span className="text-muted-foreground">: {node.text}</span>

@@ -6,10 +6,11 @@ import { AlertCircle, ArrowRight, CheckCircle2 } from "lucide-react";
 import { completePayment, type PaymentReceipt } from "@/actions/paymentActions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { PageContainer } from "@/components/ui/page";
+import { PageContainer } from "@/components/ui/page-layout";
 import { Spinner } from "@/components/ui/spinner";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import useProfileStore from "@/zustand/useProfileStore";
+import { formatDateTime } from "@/lib/utils/date";
 import { CREDIT_PACK, formatAmount, formatCredits } from "./format";
 
 type Result =
@@ -103,7 +104,7 @@ export default function PaymentSuccess({ payment_intent }: Props) {
                 <div className="flex justify-between gap-4 px-3 py-2">
                   <dt className="text-muted-foreground">Date</dt>
                   <dd>
-                    {view.receipt.created ? new Date(view.receipt.created).toLocaleString() : "—"}
+                    {formatDateTime(view.receipt.created) ?? "—"}
                   </dd>
                 </div>
                 <div className="flex justify-between gap-4 px-3 py-2">

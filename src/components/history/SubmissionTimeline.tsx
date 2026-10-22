@@ -4,7 +4,8 @@ import { ChevronRight, PenLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Submission } from "@/lib/types/user-history";
 import { cn } from "@/lib/utils";
-import { formatDateTime, GradeBadge } from "./format";
+import { formatDateTime } from "@/lib/utils/date";
+import { GradePill } from "./GradePill";
 
 function Collapsible({
   summary,
@@ -59,10 +60,10 @@ export default function SubmissionTimeline({ summaryID, submissions }: Props) {
                     )}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    {formatDateTime(submission.timestamp)}
+                    {formatDateTime(submission.timestamp) ?? "—"}
                   </p>
                 </div>
-                <GradeBadge grade={submission.grade} />
+                <GradePill grade={submission.grade} />
                 <Button asChild variant="outline" size="sm">
                   <Link href={`/assignments/${summaryID}/${submission.timestamp?.toMillis?.()}`}>
                     <PenLine /> Open in editor

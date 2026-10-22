@@ -1,12 +1,13 @@
 import { cn } from "@/lib/utils";
+import { gradeTone, type GradeTone } from "@/lib/utils/grade";
 
-function gradeTone(grade: string) {
-  const value = Number.parseInt(grade, 10);
-  if (Number.isNaN(value)) return "bg-muted text-muted-foreground";
-  if (value >= 80) return "bg-success-soft text-success";
-  if (value >= 60) return "bg-warning-soft text-foreground";
-  return "bg-danger-soft text-destructive";
-}
+const TONE_CLASSES: Record<GradeTone, string> = {
+  success: "bg-success-soft text-success",
+  primary: "bg-accent text-accent-foreground",
+  warning: "bg-warning-soft text-foreground",
+  danger: "bg-danger-soft text-destructive",
+  neutral: "bg-muted text-muted-foreground",
+};
 
 /** Large serif grade tile, e.g. "85%". Shows an em dash until a grade is known. */
 export function GradeBadge({
@@ -24,7 +25,7 @@ export function GradeBadge({
       className={cn(
         "flex shrink-0 flex-col items-center justify-center rounded-xl",
         size === "lg" ? "size-16 sm:size-20" : "size-14",
-        gradeTone(known ? grade : ""),
+        TONE_CLASSES[gradeTone(known ? grade : "")],
         className
       )}
     >

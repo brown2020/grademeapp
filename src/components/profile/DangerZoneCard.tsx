@@ -21,20 +21,18 @@ export default function DangerZoneCard() {
     setDeleting(true);
     try {
       await deleteAccount();
+      // The auth user is already gone server-side; this clears the local session.
+      await signOutUser().catch((error: unknown) =>
+        logAuthFailure("sign-out after account deletion", error)
+      );
+      toast.success("Your account and all of its data were deleted.");
+      router.replace("/");
     } catch (error) {
       logAuthFailure("delete-account", error);
       toast.error("Couldn't delete your account. Please try again.");
+    } finally {
       setDeleting(false);
-      return;
     }
-    try {
-      // The auth user is already gone server-side; this clears the local session.
-      await signOutUser();
-    } catch (error) {
-      logAuthFailure("sign-out after account deletion", error);
-    }
-    toast.success("Your account and all of its data were deleted.");
-    router.replace("/");
   };
 
   return (

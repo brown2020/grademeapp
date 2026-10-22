@@ -7,7 +7,7 @@ import { toast } from "react-hot-toast";
 import { History, Plus, Search, SearchX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { EmptyState, PageContainer, PageHeader } from "@/components/ui/page";
+import { EmptyState, PageContainer, PageHeader } from "@/components/ui/page-layout";
 import ConfirmDeleteDialog from "@/components/ui/ConfirmDeleteDialog";
 import { UserHistoryType } from "@/lib/types/user-history";
 import { useAuthStore } from "@/zustand/useAuthStore";

@@ -4,11 +4,11 @@ import { AlertCircle, Plus, RefreshCw, ScanSearch } from "lucide-react";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { EmptyState, PageContainer, PageHeader } from "@/components/ui/page";
+import { EmptyState, PageContainer, PageHeader } from "@/components/ui/page-layout";
 import { Skeleton } from "@/components/ui/spinner";
 import { PlagiarismChecker } from "./PlagiarismChecker";
 import { ReportListItem } from "./ReportListItem";
-import { useJsonResource, usePolling } from "./useJsonResource";
+import { useJsonResource } from "./useJsonResource";
 import { sortNewestFirst, type PlagiarismReportDoc } from "./report";
 
 const POLL_MS = 15_000;
@@ -46,9 +46,9 @@ export default function PlagiarismCheckDashboard() {
   const url = uid ? `/api/copyleaks/reports/${uid}` : null;
   const { data: reports, error, isLoading, isRefreshing, reload } = useJsonResource(
     url,
-    parseReports
+    parseReports,
+    { pollWhile: (list) => Boolean(list?.some((r) => r.status === "pending")), pollMs: POLL_MS }
   );
-  usePolling(Boolean(reports?.some((r) => r.status === "pending")), POLL_MS, reload);
 
   const newScan = (
     <PlagiarismChecker

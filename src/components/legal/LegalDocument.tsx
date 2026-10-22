@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { PageContainer, PageHeader } from "@/components/ui/page";
+import { PageContainer, PageHeader } from "@/components/ui/page-layout";
 import { LEGAL } from "@/components/legal/legalInfo";
 
 /** Narrow page shell for long-form legal text. */

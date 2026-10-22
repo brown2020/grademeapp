@@ -9,10 +9,11 @@ import { useAuthStore } from "@/zustand/useAuthStore";
 import useProfileStore from "@/zustand/useProfileStore";
 import { useRubricStore } from "@/zustand/useRubricStore";
 import { saveDocument } from "@/lib/utils/saveHistory";
+import type { GradingData } from "@/lib/types/grading-data";
 import { PlagiarismChecker } from "@/components/plagiarism/PlagiarismChecker";
 import { RichTextEditor } from "@/components/editor/RichTextEditor";
 import { Button } from "@/components/ui/button";
-import { PageContainer, PageHeader } from "@/components/ui/page";
+import { PageContainer, PageHeader } from "@/components/ui/page-layout";
 import DownloadPopover from "@/components/ui/DownloadPopover";
 import { GradeResult } from "./GradeResult";
 import { GradingError, GradingPending } from "./GradingStatus";
@@ -26,68 +27,83 @@ import { useScrollIntoView } from "./useScrollIntoView";
 import { useSelectedModel } from "./useSelectedModel";
 import { WorkspaceLayout } from "./WorkspaceLayout";
 
+type GradingState = { response: string; grade: string; flagged: string; thinking: boolean };
+
+const IDLE: GradingState = { response: "", grade: "", flagged: "", thinking: false };
+
+/** Runs a grading request, streams its feedback and saves the result to history. */
+function useGrading(uid: string, fileUrl: string | null) {
+  const { profile, setCredits } = useProfileStore();
+  const [state, setState] = useState<GradingState>(IDLE);
+
+  const startGrading = async (data: GradingData, modelId: string) => {
+    setState({ ...IDLE, thinking: true });
+    let result: { feedback: string; grade: string };
+    try {
+      result = await streamGrade({
+        modelId,
+        profile,
+        data,
+        rubricString: JSON.stringify(data.rubric),
+        onCredits: setCredits,
+        onUpdate: (response, nextGrade) =>
+          setState((s) => ({ ...s, response, grade: nextGrade })),
+      });
+    } catch (error) {
+      console.error(error);
+      setState({ ...IDLE, flagged: GRADING_FAILED_MESSAGE });
+      return;
+    } finally {
+      setState((s) => ({ ...s, thinking: false }));
+    }
+    if (result.feedback) await saveToHistory(uid, data, result, fileUrl);
+  };
+
+  return { ...state, startGrading, profile };
+}
+
+async function saveToHistory(
+  uid: string,
+  data: GradingData,
+  result: { feedback: string; grade: string },
+  fileUrl: string | null
+) {
+  try {
+    await saveDocument(
+      uid,
+      data,
+      [{ text: data.text, response: result.feedback, grade: result.grade, timestamp: Timestamp.now() }],
+      fileUrl
+    );
+  } catch (error) {
+    console.error("Failed to save grading to history:", error);
+    toast.error("Graded, but couldn't save to your history.");
+  }
+}
+
+function scrollTarget({ response, flagged, thinking }: GradingState) {
+  if (response) return "response";
+  if (flagged) return "flagged";
+  return thinking ? "thinking" : null;
+}
+
 export default function Grader() {
   const uid = useAuthStore((s) => s.uid);
-  const { profile, setCredits } = useProfileStore();
   const { selectedRubric, gradingData, setGradingData } = useRubricStore();
   const [selectedModelId, setSelectedModelId] = useSelectedModel();
   const { uploading, fileUrl, upload } = useDocumentUpload(uid);
-
-  const [response, setResponse] = useState("");
-  const [grade, setGrade] = useState("");
-  const [flagged, setFlagged] = useState("");
-  const [thinking, setThinking] = useState(false);
+  const grading = useGrading(uid, fileUrl);
+  const { profile, response, grade, flagged, thinking } = grading;
 
   const hasCredits = profile.credits > 0 || !profile.useCredits;
   const canSubmit = gradingData.text.length > 1 && hasCredits && !thinking && !uploading;
 
-  useScrollIntoView(
-    response ? "response" : flagged ? "flagged" : thinking ? "thinking" : null
-  );
+  useScrollIntoView(scrollTarget(grading));
 
   const runGrading = async () => {
     if (!canSubmit) return;
-    setResponse("");
-    setGrade("");
-    setFlagged("");
-    setThinking(true);
-
-    const data = { ...gradingData, rubric: selectedRubric };
     setGradingData({ rubric: selectedRubric });
-
-    let result: { feedback: string; grade: string };
-    try {
-      result = await streamGrade({
-        modelId: selectedModelId,
-        profile,
-        data,
-        rubricString: JSON.stringify(selectedRubric),
-        onCredits: setCredits,
-        onUpdate: (feedback, nextGrade) => {
-          setResponse(feedback);
-          setGrade(nextGrade);
-        },
-      });
-    } catch (error) {
-      console.error(error);
-      setFlagged(GRADING_FAILED_MESSAGE);
-      return;
-    } finally {
-      setThinking(false);
-    }
-
-    if (!result.feedback) return;
-    try {
-      await saveDocument(
-        uid,
-        data,
-        [{ text: data.text, response: result.feedback, grade: result.grade, timestamp: Timestamp.now() }],
-        fileUrl
-      );
-    } catch (error) {
-      console.error("Failed to save grading to history:", error);
-      toast.error("Graded, but couldn't save to your history.");
-    }
+    await grading.startGrading({ ...gradingData, rubric: selectedRubric }, selectedModelId);
   };
 
   const handleSubmit = (e: FormEvent) => {
@@ -149,43 +165,71 @@ export default function Grader() {
           </GradingPanel>
         }
         results={
-          (thinking || flagged || response) && (
-            <>
-              {thinking && !response && <GradingPending />}
-              {flagged && <GradingError message={flagged} />}
-              {response && (
-                <GradeResult
-                  grade={grade}
-                  feedback={response}
-                  streaming={thinking}
-                  rubricName={selectedRubric?.name}
-                  actions={
-                    <>
-                      <Button asChild variant="ghost" size="sm">
-                        <Link href="/assignments">
-                          <History />
-                          View in history
-                        </Link>
-                      </Button>
-                      <DownloadPopover
-                        content={gradingData.text}
-                        fileName={gradingData.title || "essay"}
-                        label="Download .docx"
-                        variant="ghost"
-                        size="sm"
-                      />
-                      <Button size="sm" variant="secondary" onClick={runGrading} disabled={!canSubmit}>
-                        <RefreshCw />
-                        Grade again
-                      </Button>
-                    </>
-                  }
-                />
-              )}
-            </>
-          )
+          <GraderResults
+            state={grading}
+            rubricName={selectedRubric?.name}
+            text={gradingData.text}
+            title={gradingData.title}
+            canRegrade={canSubmit}
+            onRegrade={runGrading}
+          />
         }
       />
     </PageContainer>
+  );
+}
+
+function GraderResults({
+  state,
+  rubricName,
+  text,
+  title,
+  canRegrade,
+  onRegrade,
+}: {
+  state: GradingState;
+  rubricName?: string;
+  text: string;
+  title: string;
+  canRegrade: boolean;
+  onRegrade: () => void;
+}) {
+  const { response, grade, flagged, thinking } = state;
+  if (!thinking && !flagged && !response) return null;
+
+  return (
+    <>
+      {thinking && !response && <GradingPending />}
+      {flagged && <GradingError message={flagged} />}
+      {response && (
+        <GradeResult
+          grade={grade}
+          feedback={response}
+          streaming={thinking}
+          rubricName={rubricName}
+          actions={
+            <>
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/assignments">
+                  <History />
+                  View in history
+                </Link>
+              </Button>
+              <DownloadPopover
+                content={text}
+                fileName={title || "essay"}
+                label="Download .docx"
+                variant="ghost"
+                size="sm"
+              />
+              <Button size="sm" variant="secondary" onClick={onRegrade} disabled={!canRegrade}>
+                <RefreshCw />
+                Grade again
+              </Button>
+            </>
+          }
+        />
+      )}
+    </>
   );
 }

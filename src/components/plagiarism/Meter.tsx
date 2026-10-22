@@ -22,15 +22,10 @@ export function Meter({
   className?: string;
 }) {
   return (
-    <div
-      role="meter"
-      aria-label={label}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-valuenow={value}
-      className={cn("h-2 w-full overflow-hidden rounded-full bg-muted", className)}
-    >
+    <div className={cn("h-2 w-full overflow-hidden rounded-full bg-muted", className)}>
+      <meter className="sr-only" min={0} max={100} value={value} aria-label={label} />
       <div
+        aria-hidden
         className={cn("h-full rounded-full transition-[width]", TONE_CLASSES[tone])}
         style={{ width: `${value}%` }}
       />
