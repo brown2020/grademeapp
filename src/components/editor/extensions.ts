@@ -16,7 +16,7 @@ import FontFamily from "@tiptap/extension-font-family";
 import { CharacterCount, Placeholder, UndoRedo } from "@tiptap/extensions";
 import { Spellcheck } from "./spellcheck";
 
-export const countWords = (text: string) =>
+const countWords = (text: string) =>
   text.split(/\s+/).filter((word) => word !== "").length;
 
 export function createExtensions(placeholder: string) {

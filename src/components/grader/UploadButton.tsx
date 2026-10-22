@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { Paperclip } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export const ACCEPTED_UPLOAD_TYPES = ".docx,.pdf,.odt,.txt,.rtf";
+const ACCEPTED_UPLOAD_TYPES = ".docx,.pdf,.odt,.txt,.rtf";
 
 /** Opens a file picker for a draft document (DOCX, PDF, ODT, RTF, TXT). */
 export function UploadButton({

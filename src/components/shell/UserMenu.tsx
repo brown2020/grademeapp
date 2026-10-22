@@ -24,7 +24,7 @@ import { useAuthStore } from "@/zustand/useAuthStore";
 import { signOutUser } from "@/lib/auth/signOut";
 import { logAuthFailure } from "@/components/auth/authErrors";
 
-export function Avatar({
+function Avatar({
   src,
   name,
   className = "size-8",

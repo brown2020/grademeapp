@@ -1,5 +1,5 @@
 import Link from "next/link";
-import ReactMarkdown from "react-markdown";
+import { Markdown } from "@/components/ui/Markdown";
 import { ChevronRight, PenLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Submission } from "@/lib/types/user-history";
@@ -74,7 +74,7 @@ export default function SubmissionTimeline({ summaryID, submissions }: Props) {
               <Collapsible summary="Feedback" defaultOpen={isLatest}>
                 {submission.response ? (
                   <div className="feedback-prose">
-                    <ReactMarkdown>{submission.response}</ReactMarkdown>
+                    <Markdown>{submission.response}</Markdown>
                   </div>
                 ) : (
                   <p className="text-sm text-muted-foreground">No feedback saved.</p>

@@ -13,7 +13,7 @@ import {
   Timestamp,
   updateDoc,
 } from "firebase/firestore";
-import { db } from "@/firebase/firebaseClient";
+import { db } from "@/firebase/firestore";
 import { UserHistoryType } from "@/lib/types/user-history";
 
 const PAGE_SIZE = 100;

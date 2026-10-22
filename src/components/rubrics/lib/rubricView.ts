@@ -47,7 +47,7 @@ function toLevels(record: PlainObject): LevelEntry[] | null {
   return out;
 }
 
-export function humanizeKey(key: string): string {
+function humanizeKey(key: string): string {
   if (!/[_]/.test(key) && /[A-Z\s]/.test(key)) return key;
   const spaced = key.replace(/_/g, " ").trim();
   return spaced.charAt(0).toUpperCase() + spaced.slice(1);

@@ -1,12 +1,10 @@
 import { getApp, getApps, initializeApp, type FirebaseApp } from "firebase/app";
-import { getFirestore, type Firestore } from "firebase/firestore";
 import {
   getAuth,
   type Auth,
   type Unsubscribe,
   type User,
 } from "firebase/auth";
-import { getStorage, type FirebaseStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_APIKEY,
@@ -50,21 +48,17 @@ function createDeferredAuth(): Auth {
 
 let app: FirebaseApp | undefined;
 let auth: Auth;
-let db: Firestore;
-let storage: FirebaseStorage;
 
 if (hasClientConfig) {
   app = getApps().length ? getApp() : initializeApp(firebaseConfig);
   auth = getAuth(app);
-  db = getFirestore(app);
-  storage = getStorage(app);
 } else {
   console.warn(
     "Firebase client config missing (NEXT_PUBLIC_FIREBASE_APIKEY); deferring init",
   );
   auth = createDeferredAuth();
-  db = null as unknown as Firestore;
-  storage = null as unknown as FirebaseStorage;
 }
 
-export { auth, db, storage, hasClientConfig };
+/* Firestore and Storage live in ./firestore and ./storage so pages that never
+   touch data (the signed-out landing page) don't download those SDKs. */
+export { app, auth, hasClientConfig };

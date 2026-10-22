@@ -63,7 +63,7 @@ export interface RubricDraft {
 let seq = 0;
 const nextId = (prefix: string) => `${prefix}-${++seq}`;
 
-export const CHECKLIST_VALUE = "Yes/No";
+const CHECKLIST_VALUE = "Yes/No";
 
 type PlainObject = Record<string, unknown>;
 

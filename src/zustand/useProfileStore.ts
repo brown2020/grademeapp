@@ -1,7 +1,6 @@
 import { create } from "zustand";
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { useAuthStore } from "./useAuthStore";
-import { db } from "@/firebase/firebaseClient";
+import { loadFirestore } from "@/firebase/loadFirestore";
 import { deleteAccountData } from "@/actions/deleteAccount";
 
 export interface ProfileType {
@@ -76,6 +75,7 @@ const useProfileStore = create<ProfileState>((set, get) => ({
     if (!uid) return;
 
     try {
+      const { db, doc, getDoc, setDoc } = await loadFirestore();
       const userRef = doc(db, `users/${uid}/profile/userData`);
       const docSnap = await getDoc(userRef);
 
@@ -111,6 +111,7 @@ const useProfileStore = create<ProfileState>((set, get) => ({
     if (!uid) return;
 
     try {
+      const { db, doc, updateDoc } = await loadFirestore();
       const userRef = doc(db, `users/${uid}/profile/userData`);
       const updatedProfile = { ...get().profile, ...newProfile };
 
@@ -157,6 +158,7 @@ const useProfileStore = create<ProfileState>((set, get) => ({
 
     try {
       const updatedFavorites = [...profile.favoriteRubrics, rubricId];
+      const { db, doc, updateDoc } = await loadFirestore();
       await updateDoc(doc(db, `users/${uid}/profile/userData`), {
         favoriteRubrics: updatedFavorites,
       });
@@ -181,6 +183,7 @@ const useProfileStore = create<ProfileState>((set, get) => ({
 
     try {
       const updatedFavorites = profile.favoriteRubrics.filter(id => id !== rubricId);
+      const { db, doc, updateDoc } = await loadFirestore();
       await updateDoc(doc(db, `users/${uid}/profile/userData`), {
         favoriteRubrics: updatedFavorites,
       });
@@ -224,6 +227,7 @@ function createNewProfile(
 
 // Helper function to update credits
 async function updateCredits(uid: string, credits: number): Promise<void> {
+  const { db, doc, updateDoc } = await loadFirestore();
   const userRef = doc(db, `users/${uid}/profile/userData`);
   await updateDoc(userRef, { credits });
 }

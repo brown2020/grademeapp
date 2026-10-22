@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import ReactMarkdown from "react-markdown";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Markdown } from "@/components/ui/Markdown";
 import { Badge } from "@/components/ui/badge";
 import { GradeBadge } from "./GradeBadge";
 
@@ -34,7 +34,7 @@ export function GradeResult({
       </div>
       <CardContent className="border-t border-border pt-5 sm:px-6">
         <div className="feedback-prose">
-          <ReactMarkdown>{feedback}</ReactMarkdown>
+          <Markdown>{feedback}</Markdown>
         </div>
       </CardContent>
       {actions && !streaming && (

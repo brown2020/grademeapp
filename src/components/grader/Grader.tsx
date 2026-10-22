@@ -2,12 +2,12 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
-import { Timestamp } from "firebase/firestore";
 import { toast } from "react-hot-toast";
 import { History, RefreshCw, RotateCcw } from "lucide-react";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import useProfileStore from "@/zustand/useProfileStore";
 import { useRubricStore } from "@/zustand/useRubricStore";
+import { loadFirestore } from "@/firebase/loadFirestore";
 import { saveDocument } from "@/lib/utils/saveHistory";
 import type { GradingData } from "@/lib/types/grading-data";
 import { PlagiarismChecker } from "@/components/plagiarism/PlagiarismChecker";
@@ -69,6 +69,7 @@ async function saveToHistory(
   fileUrl: string | null
 ) {
   try {
+    const { Timestamp } = await loadFirestore();
     await saveDocument(
       uid,
       data,

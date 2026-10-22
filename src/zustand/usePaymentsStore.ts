@@ -1,15 +1,8 @@
 import { create } from "zustand";
-import {
-  collection,
-  addDoc,
-  query,
-  where,
-  getDocs,
-  Timestamp,
-} from "firebase/firestore";
+import type { Timestamp } from "firebase/firestore";
 import { useAuthStore } from "./useAuthStore";
 import toast from "react-hot-toast";
-import { db } from "@/firebase/firebaseClient";
+import { loadFirestore } from "@/firebase/loadFirestore";
 
 export type PaymentType = {
   id: string;
@@ -83,6 +76,7 @@ export const usePaymentsStore = create<PaymentsStoreState>((set) => ({
 }));
 
 async function fetchUserPayments(uid: string): Promise<PaymentType[]> {
+  const { db, collection, getDocs, query } = await loadFirestore();
   const q = query(collection(db, "users", uid, "payments"));
   const querySnapshot = await getDocs(q);
   const payments = querySnapshot.docs.map((snap) => {
@@ -106,6 +100,7 @@ async function checkPaymentExists(
   uid: string,
   paymentId: string
 ): Promise<boolean> {
+  const { db, collection, getDocs, query, where } = await loadFirestore();
   const q = query(
     collection(db, "users", uid, "payments"),
     where("id", "==", paymentId)
@@ -118,6 +113,7 @@ async function createPayment(
   uid: string,
   payment: Omit<PaymentType, "createdAt">
 ): Promise<PaymentType> {
+  const { db, addDoc, collection, Timestamp } = await loadFirestore();
   const createdAt = Timestamp.now();
   const newPaymentDoc = await addDoc(collection(db, "users", uid, "payments"), {
     id: payment.id,

@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import { doc as firestoreDoc, getDoc, Timestamp } from "firebase/firestore";
 import { toast } from "react-hot-toast";
 import { FileQuestion } from "lucide-react";
-import { db } from "@/firebase/firebaseClient";
+import { db } from "@/firebase/firestore";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import useProfileStore from "@/zustand/useProfileStore";
 import { useRubricStore } from "@/zustand/useRubricStore";

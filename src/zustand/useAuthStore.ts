@@ -1,6 +1,6 @@
-import { db } from "@/firebase/firebaseClient";
-import { Timestamp, doc, setDoc, serverTimestamp } from "firebase/firestore";
+import type { Timestamp } from "firebase/firestore";
 import { create } from "zustand";
+import { loadFirestore } from "@/firebase/loadFirestore";
 
 interface AuthState {
   uid: string;
@@ -61,8 +61,6 @@ async function updateUserDetailsInFirestore(
   uid: string
 ) {
   if (uid) {
-    const userRef = doc(db, `users/${uid}`);
-
     // Sanitize the details object to exclude any functions
     const sanitizedDetails = { ...details };
 
@@ -75,8 +73,9 @@ async function updateUserDetailsInFirestore(
 
     // console.log("Updating auth details in Firestore:", sanitizedDetails);
     try {
+      const { db, doc, setDoc, serverTimestamp } = await loadFirestore();
       await setDoc(
-        userRef,
+        doc(db, `users/${uid}`),
         { ...sanitizedDetails, lastSignIn: serverTimestamp() },
         { merge: true }
       );

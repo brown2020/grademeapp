@@ -47,17 +47,6 @@ interface UserInputs {
   };
 }
 
-// Function to get the verb from a given value
-export function getVerbsByValue(value: string) {
-  const foundItem = userInputs.textType.find(item => item.value === value);
-  return foundItem ? foundItem.verbs : []; // Return the array of verbs or an empty array if not found
-}
-
-export function getValuebyVerb(verb: string) {
-  const foundItem = userInputs.textType.find(item => item.verbs.includes(verb));
-  return foundItem ? foundItem.value : ""; // Return the value or an empty string if not found
-}
-
 export const userInputs: UserInputs = {
   // Identity selection
   identity: {

@@ -45,7 +45,7 @@ before submitting it. The grade is a means to the feedback, not the end. See
   (`createStreamableValue` / `readStreamableValue`).
 - **Payments:** Stripe (`stripe` server SDK + `@stripe/react-stripe-js`).
 - **Plagiarism / AI detection:** Copyleaks REST API via Next.js route handlers.
-- **Editor:** TipTap 3; spellcheck via `nspell` + bundled `en_US` dictionaries.
+- **Editor:** TipTap 3; spellcheck via `nspell` + `en_US` dictionaries served from `public/dictionaries`.
 - **Doc parsing:** `mammoth` (DOCX), `pdf2json` (PDF), `officeparser` (ODT/OOXML),
   `@iarna/rtf-to-html` (RTF).
 
@@ -77,13 +77,14 @@ src/
     ui/                    # design-system primitives
   zustand/                 # useAuthStore, useProfileStore, useRubricStore,
                            # usePaymentsStore, useMobileMenuStore, useInitializeStores
-  firebase/                # firebaseClient.ts (browser), firebaseAdmin.ts (server)
+  firebase/                # firebaseClient.ts (app + auth), firestore.ts, loadFirestore.ts,
+                           # storage.ts (browser); firebaseAdmin.ts (server)
   lib/
     server/                # requestAuth.ts (session verification), billing.ts (credits),
                            # testing/fakeAdminDb.ts (in-memory Firestore for tests)
     utils/                 # registry.ts (AI providers), date.ts, grade.ts,
                            # saveHistory.ts, responseParser.ts, textUtils.ts, etc.
-    types/ constants/ hooks/ dictionaries/
+    types/ constants/ hooks/
 ```
 
 ## Core architecture overview
@@ -237,8 +238,10 @@ runs the Vitest unit suite once (no watch mode), which is CI-safe.
 
 ## Server/client boundary guidance
 
-- Browser Firebase access uses `@/firebase/firebaseClient` (`auth`, `db`,
-  `storage`). Server/admin access uses `@/firebase/firebaseAdmin` (`adminDb`,
+- Browser Firebase access: `auth` from `@/firebase/firebaseClient`; Firestore via
+  `loadFirestore()` from `@/firebase/loadFirestore` (required in anything the app
+  shell imports) or `db` from `@/firebase/firestore` in route-only code; Storage
+  from `@/firebase/storage`, imported on demand. Server/admin access uses `@/firebase/firebaseAdmin` (`adminDb`,
   `adminAuth`, `adminBucket`). Never import `firebaseAdmin` into client code.
 - New backend logic belongs in a `"use server"` action under `src/actions` or a
   route handler under `src/app/api`. Route handlers are the right place for

@@ -5,7 +5,7 @@ import { google } from "@ai-sdk/google";
 import { createAzure } from "@ai-sdk/azure";
 import { createXai } from "@ai-sdk/xai";
 
-export const registry = createProviderRegistry({
+const registry = createProviderRegistry({
   openai,
   fireworks: createOpenAI({
     apiKey: process.env.FIREWORKS_API_KEY,

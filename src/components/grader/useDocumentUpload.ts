@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { toast } from "react-hot-toast";
-import { storage } from "@/firebase/firebaseClient";
 import { parseDocumentFromUrl } from "@/actions/parseDocumentFromUrl";
 import { useRubricStore } from "@/zustand/useRubricStore";
 
@@ -27,6 +25,11 @@ export function useDocumentUpload(uid: string) {
       const { setGradingData } = useRubricStore.getState();
       setGradingData({ title: file.name.split(".")[0] });
 
+      // Storage is only needed once a user uploads, so it loads on demand.
+      const [{ getDownloadURL, ref, uploadBytes }, { storage }] = await Promise.all([
+        import("firebase/storage"),
+        import("@/firebase/storage"),
+      ]);
       const fileRef = ref(storage, `uploads/${uid}/${file.name}`);
       await uploadBytes(fileRef, file);
       const downloadURL = await getDownloadURL(fileRef);

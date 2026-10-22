@@ -1,9 +1,7 @@
 import { Extension } from "@tiptap/core";
-import { Decoration, DecorationSet } from "prosemirror-view";
-import { Plugin } from "prosemirror-state";
-import nspell from "nspell";
-import affData from "@/lib/dictionaries/en_US.aff";
-import dicData from "@/lib/dictionaries/en_US.dic";
+import { Decoration, DecorationSet } from "@tiptap/pm/view";
+import { Plugin } from "@tiptap/pm/state";
+import type nspell from "nspell";
 
 interface SpellcheckStorage {
   spellchecker: nspell | null;
@@ -12,7 +10,25 @@ interface SpellcheckStorage {
 const ERROR_CLASS =
   "spellcheck-error underline decoration-wavy decoration-destructive/70 underline-offset-4";
 
-/** Underlines misspelled words using a bundled en_US Hunspell dictionary. */
+/* Served from /public so the ~550 KB word list is a cached static asset
+   fetched after the editor mounts, not part of the grader's JavaScript. */
+const DICTIONARY_URL = "/dictionaries/en_US";
+
+async function loadSpellchecker(): Promise<nspell> {
+  const fetchText = async (ext: "aff" | "dic") => {
+    const res = await fetch(`${DICTIONARY_URL}.${ext}`);
+    if (!res.ok) throw new Error(`Dictionary ${ext} request failed: ${res.status}`);
+    return res.text();
+  };
+  const [{ default: NSpell }, aff, dic] = await Promise.all([
+    import("nspell"),
+    fetchText("aff"),
+    fetchText("dic"),
+  ]);
+  return new NSpell(aff, dic);
+}
+
+/** Underlines misspelled words using an en_US Hunspell dictionary loaded on demand. */
 export const Spellcheck = Extension.create<object, SpellcheckStorage>({
   name: "spellcheck",
 
@@ -21,13 +37,17 @@ export const Spellcheck = Extension.create<object, SpellcheckStorage>({
   },
 
   onCreate() {
-    try {
-      this.storage.spellchecker = new nspell(affData, dicData);
-      // Re-run decorations now that the dictionary is ready.
-      this.editor.view.dispatch(this.editor.state.tr);
-    } catch (error) {
-      console.error("Error initializing spellchecker:", error);
-    }
+    loadSpellchecker()
+      .then((spellchecker) => {
+        if (this.editor.isDestroyed) return;
+        this.storage.spellchecker = spellchecker;
+        // Re-run decorations now that the dictionary is ready.
+        this.editor.view.dispatch(this.editor.state.tr);
+      })
+      .catch((error) => {
+        // Spellcheck is an enhancement; the editor stays fully usable without it.
+        console.warn("[spellcheck] unavailable:", error instanceof Error ? error.message : error);
+      });
   },
 
   addProseMirrorPlugins() {

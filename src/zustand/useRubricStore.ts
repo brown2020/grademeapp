@@ -1,6 +1,5 @@
 import { create } from 'zustand';
-import { collection, deleteDoc, doc, getDocs, setDoc, Timestamp, updateDoc } from 'firebase/firestore';
-import { db } from '@/firebase/firebaseClient';
+import { loadFirestore } from '@/firebase/loadFirestore';
 import { useAuthStore } from '@/zustand/useAuthStore';
 import useProfileStore from '@/zustand/useProfileStore';
 import { RubricType, type RubricState } from '@/lib/types/rubrics-types';
@@ -22,7 +21,7 @@ const isValidRubricState = (rubric: unknown): rubric is RubricState => {
   );
 };
 
-export const defaultRubrics: RubricState[] = (rawRubrics as unknown[])
+const defaultRubrics: RubricState[] = (rawRubrics as unknown[])
   .filter(isValidRubricState)
   .map((rubric) => ({ ...rubric, tags: rubric.tags || [] }) as RubricState);
 
@@ -90,6 +89,7 @@ export const useRubricStore = create<RubricStoreState>((set, get) => {
   });
 
   const saveNewCustomRubric = async (rubric: RubricState, uid: string): Promise<RubricState> => {
+    const { db, collection, doc, setDoc, Timestamp } = await loadFirestore();
     const ref = doc(collection(db, 'users', uid, 'custom_rubrics'));
     const saved = { ...rubric, id: ref.id, timestamp: Timestamp.now(), isCustom: true } as RubricState;
     await setDoc(ref, saved);
@@ -126,6 +126,7 @@ export const useRubricStore = create<RubricStoreState>((set, get) => {
       if (!uid) return;
       set({ customRubricsLoading: true });
       try {
+        const { db, collection, getDocs } = await loadFirestore();
         const snapshot = await getDocs(collection(db, 'users', uid, 'custom_rubrics'));
         const fetched = snapshot.docs.map(
           (d) => ({ ...d.data(), id: d.id, type: d.data().type as RubricType, isCustom: true }) as RubricState
@@ -159,6 +160,7 @@ export const useRubricStore = create<RubricStoreState>((set, get) => {
       if (updates.feedback) sanitized.feedback = updates.feedback;
 
       try {
+        const { db, doc, updateDoc } = await loadFirestore();
         await updateDoc(doc(db, 'users', uid, 'custom_rubrics', rubricId), sanitized);
         set((state) => {
           const apply = (r: RubricState) => (r.id === rubricId ? ({ ...r, ...sanitized } as RubricState) : r);
@@ -178,6 +180,7 @@ export const useRubricStore = create<RubricStoreState>((set, get) => {
     deleteCustomRubric: async (rubricId) => {
       const uid = requireUid('delete a custom rubric');
       try {
+        const { db, deleteDoc, doc } = await loadFirestore();
         await deleteDoc(doc(db, 'users', uid, 'custom_rubrics', rubricId));
         set((state) => {
           const wasSelected = state.selectedRubric?.id === rubricId;

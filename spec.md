@@ -132,8 +132,11 @@ Firestore is the database, keyed under `users/{uid}` with `profile`, `summaries`
 - `eslint*` packages are intentionally pinned; `officeparser`/`lucide-react` have
   pin history.
 - Must remain React Native WebView-safe.
-- Spellcheck dictionaries (`.aff`/`.dic`) are bundled through a `raw-loader`
-  webpack rule.
+- Spellcheck dictionaries (`.aff`/`.dic`) are static files in `public/dictionaries`,
+  fetched with `nspell` after the editor mounts; keep them out of the JS bundle.
+- The shell (layout, header, auth, profile/payments stores) must not import
+  `firebase/firestore` or `firebase/storage` statically; use `loadFirestore()` so
+  the signed-out landing page ships no Firestore code.
 
 ### Known limitations
 
@@ -169,16 +172,18 @@ Firestore is the database, keyed under `users/{uid}` with `profile`, `summaries`
 
 ### Performance budget
 
-Recorded 2026-10-21, before measuring. Checked against a local production build
-(`npm run build && npm run start`) on a developer laptop; field data is out of scope.
+Budgets recorded 2026-06-06, before measuring. Checked against a local production
+build (`npm run build && npm run start`) on a developer laptop; field data is out of
+scope. "Initial JavaScript" is the scripts referenced by the route's server HTML
+(lazy chunks and `Link` prefetches excluded).
 
-| Item | Budget |
-| --- | --- |
-| `/` server response (warm, local) | median ≤ 200 ms over 10 requests |
-| `/` initial JavaScript, compressed | ≤ 350 KB |
-| `/grader` initial JavaScript, compressed | ≤ 600 KB (editor, Firebase and Stripe are inherently heavy) |
-| Server-only SDKs in client chunks | none: `firebase-admin`, `stripe` (Node), `openai`, `@ai-sdk/*` providers, `mammoth`, `pdf2json`, `officeparser` |
-| Grading requests per submit | exactly one `generateGrade` call; duplicate submits are ignored while one is in flight |
+| Item | Budget | Measured 2026-06-06 |
+| --- | --- | --- |
+| `/` server response (warm, local) | median ≤ 200 ms over 10 requests | 6 ms |
+| `/` initial JavaScript, compressed | ≤ 350 KB | 256 KB (was 406 KB) |
+| `/grader` initial JavaScript, compressed | ≤ 600 KB (editor, Firebase and Stripe are inherently heavy) | 451 KB (was 833 KB) |
+| Server-only SDKs in client chunks | none: `firebase-admin`, `stripe` (Node), `@ai-sdk/*` providers, `mammoth`, `pdf2json`, `officeparser` | none |
+| Grading requests per submit | exactly one `generateGrade` call; duplicate submits are ignored while one is in flight | 1 request for 3 clicks |
 
 ---
 
