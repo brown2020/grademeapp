@@ -46,8 +46,9 @@ before submitting it. The grade is a means to the feedback, not the end. See
 - **Payments:** Stripe (`stripe` server SDK + `@stripe/react-stripe-js`).
 - **Plagiarism / AI detection:** Copyleaks REST API via Next.js route handlers.
 - **Editor:** TipTap 3; spellcheck via `nspell` + `en_US` dictionaries served from `public/dictionaries`.
-- **Doc parsing:** `mammoth` (DOCX), `pdf2json` (PDF), `officeparser` (ODT/OOXML),
-  `@iarna/rtf-to-html` (RTF).
+- **Doc parsing:** `mammoth` (DOCX), `officeparser` (PDF, ODT; content tree →
+  HTML via `lib/utils/documentHtml.ts`), `@iarna/rtf-to-html` (RTF). `pdf2json`
+  was removed: it rejected PDFs with cross-reference streams (most modern exports).
 
 Package manager is **npm** (the lockfile is `package-lock.json`). Do not switch
 package managers. `.npmrc` sets `legacy-peer-deps=true`; keep it.
@@ -65,7 +66,7 @@ src/
   actions/                 # "use server" server actions
     generateResponse.ts        # generateGrade(): streamed rubric grading
     correctGrammarSpelling.ts  # grammar/spelling correction
-    parseDocumentFromUrl.ts    # fetch + parse uploaded docs (SSRF-guarded)
+    parseDocumentFromUrl.ts    # fetch + parse the user's own uploads (allowlisted)
     paymentActions.ts          # Stripe PaymentIntent create/validate
     htmlToDocx.ts              # editor HTML -> .docx (base64)
   components/              # UI, grouped by feature area:
@@ -318,10 +319,12 @@ runs the Vitest unit suite once (no watch mode), which is CI-safe.
 
 ## Files and systems requiring extra caution
 
-- `src/actions/parseDocumentFromUrl.ts` — has an SSRF guard (`isAllowedUrl`:
-  HTTPS-only, blocks localhost/private ranges). Preserve and strengthen it; never
-  remove the guard. `officeparser` is on v8 here (`parseOffice` then
-  `(await ast.to("text")).value`); `ast.toText()` and `parseOfficeAsync` are gone.
+- `src/actions/parseDocumentFromUrl.ts` — requires a session and an SSRF
+  allowlist (`isOwnUploadUrl` in `lib/server/uploadUrl.ts`: HTTPS Firebase Storage,
+  the configured bucket, the caller's own `uploads/{uid}/` path, 10 MB cap, no
+  redirects). Never loosen it to a denylist. Parse failures throw (never return
+  error text into the editor). `officeparser` is on v8 (`parseOffice(buffer)` →
+  `ast.content`); `ast.toText()` and `parseOfficeAsync` are gone.
 - `src/lib/utils/registry.ts` — provider/credentials wiring. Changing model IDs or
   provider names affects every grading call.
 - `src/actions/generateResponse.ts` / `correctGrammarSpelling.ts` /

@@ -72,7 +72,7 @@ export results to `.docx`.
 | Custom rubric builder | ✅ Working | One schema-driven builder (`components/rubrics/builder`, config in `rubrics/lib/rubricTypeConfig.ts`); stored shapes per type unchanged. |
 | Favorite + relevance-sorted rubrics | ✅ Working | `useRubricStore.sortAndGroupRubrics`. |
 | Grammar/spelling correction | ✅ Working | `correctGrammarAndSpelling`, chunked for long text. |
-| Document upload + parsing | ✅ Working | DOCX/PDF/ODT/RTF/TXT; SSRF-guarded. |
+| Document upload + parsing | ✅ Working | DOCX/PDF/ODT/RTF/TXT up to 10 MB; parses only the caller's own Storage upload. Modern PDFs (cross-reference streams) failed before 2026-10-22. |
 | Plagiarism / AI-content detection | ✅ Working | Copyleaks submit + webhook + report pages. |
 | Grading history ("assignments") | ✅ Working | `users/{uid}/summaries`. |
 | Credit purchase (Stripe) | ✅ Working | PaymentIntent create/validate; credited on success. |
@@ -186,7 +186,7 @@ scope. "Initial JavaScript" is the scripts referenced by the route's server HTML
 | `/` server response (warm, local) | median ≤ 200 ms over 10 requests | 6 ms |
 | `/` initial JavaScript, compressed | ≤ 350 KB | 256 KB (was 406 KB) |
 | `/grader` initial JavaScript, compressed | ≤ 600 KB (editor, Firebase and Stripe are inherently heavy) | 451 KB (was 833 KB) |
-| Server-only SDKs in client chunks | none: `firebase-admin`, `stripe` (Node), `@ai-sdk/*` providers, `mammoth`, `pdf2json`, `officeparser` | none |
+| Server-only SDKs in client chunks | none: `firebase-admin`, `stripe` (Node), `@ai-sdk/*` providers, `mammoth`, `officeparser` | none |
 | Grading requests per submit | exactly one `generateGrade` call; duplicate submits are ignored while one is in flight | 1 request for 3 clicks |
 
 ---
@@ -308,7 +308,12 @@ existing estimation math). Remove the dead `useCredits` branch in
 - The user sees an estimated cost before confirming a grade or a scan.
 - No dead credit-branch code remains.
 
-### M7 — Resilient document upload feedback
+### M7 — Resilient document upload feedback — **Partly done**
+
+The parser now throws on unsupported types, oversized files and parse failures
+(the grader shows a toast) instead of loading error text into the editor, and the
+allowlist is covered by `uploadUrl.test.ts`. Still open: specific per-failure
+messages in the UI (production masks server-action error text).
 
 **User value:** users who upload a file always know whether it worked and why,
 instead of getting silent failures or an unparsed essay.

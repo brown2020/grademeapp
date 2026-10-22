@@ -1,129 +1,77 @@
 "use server";
 
 import mammoth from "mammoth";
-import PDFParser from "pdf2json";
 import { Buffer } from "buffer";
-import { extractTextFromPDF } from "@/lib/utils/pdfFormatter";
 import rtfToHTML from "@iarna/rtf-to-html";
-import officeParser from "officeparser";
+import { parseOffice } from "officeparser";
+import { officeNodesToHtml, plainTextToHtml } from "@/lib/utils/documentHtml";
+import { requireServerUser } from "@/lib/server/requestAuth";
+import { isOwnUploadUrl, MAX_UPLOAD_BYTES } from "@/lib/server/uploadUrl";
 
+const DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+const ODT = "application/vnd.oasis.opendocument.text";
 
-function isAllowedUrl(urlString: string): boolean {
-  let parsed: URL;
-  try {
-    parsed = new URL(urlString);
-  } catch {
-    return false;
+type Format = "docx" | "pdf" | "odt" | "txt" | "rtf";
+
+function detectFormat(contentType: string | null, extension: string | undefined): Format | null {
+  if (contentType === DOCX) return "docx";
+  if (contentType === "application/pdf") return "pdf";
+  if (contentType === ODT) return "odt";
+  if (contentType === "text/plain") return "txt";
+  if (contentType === "application/rtf" || contentType === "text/rtf") return "rtf";
+  if (contentType === "application/octet-stream" || !contentType) {
+    if (extension === "docx") return "docx";
+    if (extension === "pdf") return "pdf";
+    if (extension === "odt") return "odt";
+    if (extension === "txt") return "txt";
+    if (extension === "rtf") return "rtf";
   }
-
-  if (parsed.protocol !== "https:") {
-    return false;
-  }
-
-  const hostname = parsed.hostname.toLowerCase();
-  const blockedPatterns = [
-    /^localhost$/,
-    /^127\./,
-    /^10\./,
-    /^192\.168\./,
-    /^169\.254\./,
-    /^172\.(1[6-9]|2\d|3[01])\./,
-    /^\[::1\]$/,
-  ];
-
-  return !blockedPatterns.some((pattern) => pattern.test(hostname));
+  return null;
 }
 
+function rtfToHtml(rtf: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    rtfToHTML.fromString(rtf, (err: Error | null, html: string) =>
+      err ? reject(new Error("Failed to parse RTF content.")) : resolve(html)
+    );
+  });
+}
+
+/**
+ * Fetches the signed-in user's uploaded draft from Firebase Storage and returns
+ * editor HTML. Throws on anything it cannot parse, so callers never load an
+ * error message into the editor as if it were the essay.
+ */
 export async function parseDocumentFromUrl(fileUrl: string): Promise<string> {
-  try {
-    if (!isAllowedUrl(fileUrl)) {
-      throw new Error("URL is not allowed. Only public HTTPS URLs are permitted.");
-    }
+  const { uid } = await requireServerUser();
+  if (typeof fileUrl !== "string" || !isOwnUploadUrl(fileUrl, uid, process.env.NEXT_PUBLIC_FIREBASE_STORAGEBUCKET)) {
+    throw new Error("Only your own uploaded files can be parsed.");
+  }
 
-    const response = await fetch(fileUrl);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch file from URL: ${fileUrl}`);
-    }
+  const response = await fetch(fileUrl, { redirect: "error" });
+  if (!response.ok) throw new Error("Couldn't download the uploaded file.");
+  if (Number(response.headers.get("content-length") ?? 0) > MAX_UPLOAD_BYTES) {
+    throw new Error("That file is over 10 MB.");
+  }
+  const arrayBuffer = await response.arrayBuffer();
+  if (arrayBuffer.byteLength > MAX_UPLOAD_BYTES) throw new Error("That file is over 10 MB.");
 
-    const contentType = response.headers.get("content-type");
+  const extension = new URL(fileUrl).pathname.split(".").pop()?.toLowerCase();
+  const format = detectFormat(response.headers.get("content-type"), extension);
+  const buffer = Buffer.from(arrayBuffer);
 
-    const arrayBuffer = await response.arrayBuffer();
-
-    let parsedHtml = "";
-
-    // Helper function to determine file extension
-    const getFileExtension = (url: string) => {
-      const path = url.split("?")[0]; // Remove query parameters
-      return path.split(".").pop()?.toLowerCase();
-    };
-    const fileExtension = getFileExtension(fileUrl);
-
-    if (contentType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
-      const buffer = Buffer.from(arrayBuffer);
-      const result = await mammoth.convertToHtml({ buffer });
-      parsedHtml = result.value;
-    } else if (contentType === "application/pdf") {
-      const buffer = Buffer.from(arrayBuffer);
-      const pdfParser = new PDFParser(null, true);
-
-      const rawText = await new Promise<string>((resolve, reject) => {
-        pdfParser.on("pdfParser_dataError", (errMsg) => {
-          const parserError =
-            errMsg instanceof Error ? errMsg : ("parserError" in errMsg ? errMsg.parserError : undefined);
-          console.error("PDF parsing error:", parserError ?? errMsg);
-          reject(new Error(parserError?.message ?? "Failed to parse PDF content."));
-        });
-
-        pdfParser.on("pdfParser_dataReady", (pdfData) => {
-          const text = extractTextFromPDF(pdfData);
-          resolve(text);
-        });
-
-        pdfParser.parseBuffer(buffer);
-      });
-
-      parsedHtml = rawText
-        .split(/\n\s*\n/) // Split by double newlines for paragraphs
-        .map((para) => `<p>${para.trim()}</p>`)
-        .join("");
-    } else if (
-      contentType === "text/plain" ||
-      (contentType === "application/octet-stream" && fileExtension === "txt")
-    ) {
-      const rawText = new TextDecoder().decode(arrayBuffer);
-      parsedHtml = rawText.replace(/\n/g, "<br>");
-    } else if (
-      contentType === "application/vnd.oasis.opendocument.text" ||
-      (contentType === "application/octet-stream" && fileExtension === "odt")
-    ) {
-      const buffer = Buffer.from(arrayBuffer);
-      const ast = await officeParser.parseOffice(buffer);
-      const rawText = (await ast.to("text")).value;
-
-      parsedHtml = `<html><body><p>${rawText.replace(/\n/g, '</p><p>')}</p></body></html>`;
-
-    } else if (contentType === "application/rtf" || (contentType === "application/octet-stream" && fileExtension === "rtf")) {
-
-      const rawText = new TextDecoder().decode(arrayBuffer);
-
-      parsedHtml = await new Promise((resolve, reject) => {
-        rtfToHTML.fromString(rawText, (err: Error | null, html: string) => {
-          if (err) {
-            console.error('RTF parsing error:', err);
-            reject(new Error('Failed to parse RTF content.'));
-          } else {
-            resolve(html);
-          }
-        });
-      });
-
-    } else {
-      return "Unrecognized content type and file extension. File may not be supported.";
-    }
-
-    return parsedHtml;
-  } catch (error) {
-    console.error("Failed to parse document:", error);
-    return `Failed to parse document: ${(error as Error).message}`;
+  switch (format) {
+    case "docx":
+      return (await mammoth.convertToHtml({ buffer })).value;
+    case "pdf":
+    case "odt":
+      // The type hint is required: buffer auto-detection fails inside the Next server bundle.
+      return officeNodesToHtml((await parseOffice(buffer, { fileType: format })).content);
+    case "txt":
+      return plainTextToHtml(new TextDecoder().decode(arrayBuffer));
+    case "rtf":
+      return rtfToHtml(new TextDecoder().decode(arrayBuffer));
+    default:
+      throw new Error("Unsupported file type. Upload a DOCX, PDF, ODT, RTF or TXT file.");
   }
 }
