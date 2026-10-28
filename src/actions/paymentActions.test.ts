@@ -35,7 +35,6 @@ vi.mock("stripe", () => {
 
 process.env.NEXT_PUBLIC_STRIPE_PRODUCT_NAME = "grademe_credits";
 const { completePayment, createPaymentIntent, recordInAppPurchase } = await import("./paymentActions");
-const { CREDIT_PACK } = await import("@/components/payments/format");
 
 let db: FakeAdminDb;
 const PROFILE = "users/alice/profile/userData";
@@ -132,20 +131,13 @@ describe("recordInAppPurchase", () => {
     expect(db.docs.get(PROFILE)?.credits).toBe(50);
   });
 
-  it("grants the pack once per transaction id, marked unverified", async () => {
+  it("refuses to grant credits without a verified store receipt", async () => {
     state.cookie = "token-alice";
-    const first = await recordInAppPurchase(purchase);
-    const again = await recordInAppPurchase(purchase);
-    expect(first).toEqual({ status: "success", credits: 50 + CREDIT_PACK.credits });
-    expect(again).toEqual({ status: "already" });
-    expect(db.docs.get(PROFILE)?.credits).toBe(50 + CREDIT_PACK.credits);
-    expect(db.docs.get("users/alice/payments/iap_1000000123")).toMatchObject({ mode: "iap", receiptVerified: false });
-  });
-
-  it("treats purchases recorded by the old client path as already granted", async () => {
-    state.cookie = "token-alice";
-    db.docs.set("users/alice/payments/auto9", { id: "1000000123", mode: "iap" });
-    expect(await recordInAppPurchase(purchase)).toEqual({ status: "already" });
+    await expect(recordInAppPurchase(purchase)).rejects.toThrow(/verified store receipt/i);
+    await expect(recordInAppPurchase({ ...purchase, transactionId: "another-id" })).rejects.toThrow(
+      /verified store receipt/i
+    );
     expect(db.docs.get(PROFILE)?.credits).toBe(50);
+    expect(db.docs.has("users/alice/payments/iap_1000000123")).toBe(false);
   });
 });

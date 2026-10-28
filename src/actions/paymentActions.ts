@@ -4,22 +4,20 @@
 import Stripe from "stripe";
 import { z } from "zod";
 import {
-  Timestamp,
-  type DocumentReference,
-  type Query,
-  type Transaction,
-} from "firebase-admin/firestore";
-import { adminDb } from "@/firebase/firebaseAdmin";
-import { profileRef } from "@/lib/server/billing";
-import {
   requireServerUser,
   UnauthorizedError,
 } from "@/lib/server/requestAuth";
-import { CREDIT_PACK } from "@/components/payments/format";
+import {
+  grantCreditPack,
+  isCreditPackPayment,
+  PACK_AMOUNT,
+  type CompletedPayment,
+  type PaymentReceipt,
+} from "@/lib/server/creditPack";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "");
 
-const PACK_AMOUNT = Math.round(CREDIT_PACK.price * 100);
+export type { CompletedPayment, PaymentReceipt };
 
 async function requireUser() {
   try {
@@ -54,12 +52,6 @@ export async function createPaymentIntent() {
   }
 }
 
-export type PaymentReceipt = { id: string; amount: number; created: number; status: string };
-
-export type CompletedPayment =
-  | { status: "success"; receipt: PaymentReceipt; credits: number }
-  | { status: "already"; receipt: PaymentReceipt };
-
 /**
  * Verifies a succeeded intent belongs to the caller and grants the pack's credits
  * exactly once. The payment record (keyed by intent id) and the credit increment
@@ -74,46 +66,16 @@ export async function completePayment(paymentIntentId: string): Promise<Complete
   const intent = await stripe.paymentIntents.retrieve(paymentIntentId);
   if (intent.status !== "succeeded") throw new Error("Payment was not successful");
   if (intent.metadata?.uid !== uid) throw new Error("This payment belongs to a different account.");
-  if (intent.amount !== PACK_AMOUNT || intent.currency !== "usd") {
+  if (!isCreditPackPayment(intent.amount, intent.currency)) {
     throw new Error("Unexpected payment amount.");
   }
 
-  const receipt: PaymentReceipt = {
-    id: intent.id,
+  return grantCreditPack({
+    uid,
+    intentId: intent.id,
     amount: intent.amount,
-    created: intent.created * 1000,
+    createdMs: intent.created * 1000,
     status: intent.status,
-  };
-
-  const paymentRef: DocumentReference = adminDb.doc(`users/${uid}/payments/${intent.id}`);
-  // Payments recorded before intent-id keys used auto ids with an `id` field.
-  const legacyPayment: Query = adminDb
-    .collection(`users/${uid}/payments`)
-    .where("id", "==", intent.id)
-    .limit(1);
-
-  return adminDb.runTransaction(async (tx: Transaction): Promise<CompletedPayment> => {
-    const [existing, legacy, profile] = await Promise.all([
-      tx.get(paymentRef),
-      tx.get(legacyPayment),
-      tx.get(profileRef(uid)),
-    ]);
-    if (existing.exists || !legacy.empty) return { status: "already", receipt };
-
-    const current = Number(profile.data()?.credits ?? 0);
-    const credits = (Number.isFinite(current) ? current : 0) + CREDIT_PACK.credits;
-    tx.set(paymentRef, {
-      id: intent.id,
-      amount: intent.amount,
-      createdAt: Timestamp.now(),
-      status: intent.status,
-      mode: "stripe",
-      platform: "web",
-      productId: "payment_gateway",
-      currency: "$",
-    });
-    tx.set(profileRef(uid), { credits }, { merge: true });
-    return { status: "success", receipt, credits };
   });
 }
 
@@ -128,44 +90,11 @@ const InAppPurchaseSchema = z.object({
 export type InAppPurchaseResult = { status: "success"; credits: number } | { status: "already" };
 
 /**
- * Grants the credit pack for a store purchase reported by the React Native
- * wrapper, once per transaction id. The store receipt is not verified yet
- * (needs App Store / Play credentials), so this is the one unverified credit
- * grant; it is server-side, idempotent and recorded with `receiptVerified:
- * false`, so it can be locked down by adding receipt verification here.
+ * Store purchases are not credited. App Store / Play receipt verification is
+ * not configured, and a client-supplied transaction id is not proof of payment.
  */
 export async function recordInAppPurchase(input: unknown): Promise<InAppPurchaseResult> {
-  const { uid } = await requireUser();
-  const purchase = InAppPurchaseSchema.parse(input);
-
-  const paymentRef: DocumentReference = adminDb.doc(`users/${uid}/payments/iap_${purchase.transactionId}`);
-  const legacyPayment: Query = adminDb
-    .collection(`users/${uid}/payments`)
-    .where("id", "==", purchase.transactionId)
-    .limit(1);
-
-  return adminDb.runTransaction(async (tx: Transaction): Promise<InAppPurchaseResult> => {
-    const [existing, legacy, profile] = await Promise.all([
-      tx.get(paymentRef),
-      tx.get(legacyPayment),
-      tx.get(profileRef(uid)),
-    ]);
-    if (existing.exists || !legacy.empty) return { status: "already" };
-
-    const current = Number(profile.data()?.credits ?? 0);
-    const credits = (Number.isFinite(current) ? current : 0) + CREDIT_PACK.credits;
-    tx.set(paymentRef, {
-      id: purchase.transactionId,
-      amount: purchase.amount,
-      createdAt: Timestamp.now(),
-      status: "succeeded",
-      mode: "iap",
-      platform: purchase.platform,
-      productId: purchase.productId,
-      currency: purchase.currency,
-      receiptVerified: false,
-    });
-    tx.set(profileRef(uid), { credits }, { merge: true });
-    return { status: "success", credits };
-  });
+  await requireUser();
+  InAppPurchaseSchema.parse(input);
+  throw new Error("In-app purchases require a verified store receipt.");
 }
