@@ -115,19 +115,26 @@ src/
   `anthropic`, `google`, `groq`, `azure`, and `openai-compatible`. Model IDs are
   `"provider:model"`. Users may supply their own OpenAI/Fireworks keys
   (`profile.useCredits === false`); otherwise platform keys + credits are used.
+  A BYO flag only skips the debit when the request is for OpenAI or Fireworks and
+  that provider's saved key is non-blank. Every other request is allowlisted and
+  billed to platform credits. Grading reserves the estimate before the provider
+  call and reconciles to measured usage when the stream finishes.
 - **Plagiarism flow:** client → `POST /api/copyleaks/submit` (verifies the session
-  matches the uid, debits credits atomically, writes a `pending` report, submits to
-  Copyleaks, refunds the debit if submission fails) → Copyleaks calls
-  `POST /api/copyleaks/webhook/[status]` (HMAC-verified with
-  `COPYLEAKS_WEBHOOK_SECRET`) → handler writes results to Firestore → report pages
+  matches the uid, requires `COPYLEAKS_WEBHOOK_SECRET` and `BASE_URL` before any
+  debit, debits credits atomically, writes a `pending` report, submits to
+  Copyleaks with `x-copyleaks-secret` in `statusHeaders`, and settles the report
+  to `error` with a refund if submission fails) → Copyleaks calls
+  `POST /api/copyleaks/webhook/[status]` (shared-secret header, fail closed when
+  unset) → handler writes results to Firestore → report pages
   read them through SWR (`plagiarism/useJsonResource.ts`).
 - **Payments flow:** `createPaymentIntent` fixes the amount to `CREDIT_PACK` and tags
   the intent with the buyer's uid; after Stripe redirects back, `completePayment`
   verifies ownership, status and amount, and records the payment (keyed by intent
   id) plus the credit grant in one transaction, so reloads never double-credit.
-  The React Native wrapper does not sell credits; the legacy `recordInAppPurchase`
-  action (idempotent per transaction id, no receipt verification) is slated for
-  removal. New profiles and their starter balance are created by `ensureProfile`.
+  `POST /api/stripe/webhook` grants the same pack for `payment_intent.succeeded`
+  when `STRIPE_WEBHOOK_SECRET` is set, and returns 503 without granting when it
+  is not. `recordInAppPurchase` refuses every call until a store receipt can be
+  verified. New profiles and their starter balance are created by `ensureProfile`.
 - **Data model (Firestore):**
   - `users/{uid}` — auth mirror (set by `useAuthStore.setAuthDetails`).
   - `users/{uid}/profile/userData` — profile: `credits`, `useCredits`, BYO API
@@ -257,20 +264,21 @@ runs the Vitest unit suite once (no watch mode), which is CI-safe.
 ## Route-protection guidance
 
 - Protection is **server-side** via the Next.js proxy convention in `src/proxy.ts`
-  (Next 16's renamed `middleware`; the file must `export function proxy`). Its
+  (Next 16's renamed `middleware`; the file must `export async function proxy`). Its
   `config.matcher` covers the authenticated areas — `/grader`, `/rubrics`,
   `/assignments`, `/dashboard`, `/profile`, `/plagiarism-check` (and subpaths).
   Unauthenticated requests are redirected to `/` (where sign-in lives) and the
   stale cookie is cleared.
 - Auth state is read from the Firebase **ID-token session cookie**
-  (`NEXT_PUBLIC_COOKIE_NAME`, default `grademeAuthToken`), which `useAuthToken`
-  sets on sign-in and refreshes on a timer. The proxy validates the token's
-  structure and `exp` via `isSessionTokenActive` (`src/lib/utils/authToken.ts`) —
-  an Edge-safe, signature-less check. Keep that helper pure and Edge-safe (no Node
-  APIs, no network); it is unit-tested.
-- The proxy does **not** cryptographically verify the token signature (that would
-  need Google's public keys / a Node runtime). It is a server-side gate, not full
-  authorization. Data authorization is `firestore.rules` / `storage.rules`
+  (`NEXT_PUBLIC_COOKIE_NAME`, default `grademeAuthToken`). `useAuthToken` posts the
+  ID token to `POST /api/session`, which verifies it and sets an HttpOnly cookie.
+  The proxy checks structure and `exp` via `isSessionTokenActive`
+  (`src/lib/utils/authToken.ts`), then verifies the RS256 signature against
+  Google's Secure Token JWKS with Web Crypto (`src/lib/server/firebaseIdToken.ts`).
+  Keep the expiry helper pure and Edge-safe (no Node APIs); it is unit-tested.
+  A missing project id or a bad signature fails closed.
+- The proxy is a server-side gate, not the data authorization layer. Data
+  authorization is `firestore.rules` / `storage.rules`
   (owner-only trees; `credits`, profile creation, payments and plagiarism reports
   are server-only), tested by `npm run test:rules` (emulators, using
   `firebase.rules-test.json`) and deployed with

@@ -149,16 +149,18 @@ Firestore is the database, keyed under `users/{uid}` with `profile`, `summaries`
   still work. Redeploy after any rules change with
   `firebase deploy --only firestore:rules,storage --project grademe-999af`
   (`firebase.json` names the bucket because the project has no App Engine default).
-- **Unused in-app purchase path is still callable.** The wrapper no longer starts
-  purchases, but the `recordInAppPurchase` server action still grants a pack per
-  unseen transaction id without App Store / Play receipt verification, so a
-  crafted call can grant credits. Remove it (and the profile page listener).
-- **Webhook signatures are optional outside production.** Without
-  `COPYLEAKS_WEBHOOK_SECRET` the handler accepts unsigned callbacks in development;
-  production fails closed.
-- **Route protection in `src/proxy.ts` is a gate, not authorization.** It checks
-  the session cookie's structure and expiry only; authorization lives in the
-  actions/handlers (`src/lib/server/requestAuth.ts`).
+- **In-app purchases are refused.** `recordInAppPurchase` does not grant credits
+  until a store receipt can be verified. The profile page no longer listens for
+  wrapper purchase messages. Stripe pack grants also run from
+  `POST /api/stripe/webhook` when `STRIPE_WEBHOOK_SECRET` is set; without it the
+  route returns 503 and the browser `completePayment` path still grants the pack.
+- **Copyleaks callbacks require `COPYLEAKS_WEBHOOK_SECRET`.** Submit sends it as
+  the `x-copyleaks-secret` status header and refuses the scan (503, no debit)
+  when that secret or `BASE_URL` is unset. Unsigned callbacks are rejected in
+  every environment.
+- **Route protection verifies the session cookie.** `src/proxy.ts` checks expiry
+  and the Firebase RS256 signature. Data authorization still lives in the
+  actions and handlers (`src/lib/server/requestAuth.ts`).
 - **Credits use one flat per-token rate for every model** (`generateResponse.ts`), so
   `src/lib/types/models.ts` is limited to mid/fast tiers; adding premium models needs
   per-model pricing first.
@@ -230,12 +232,14 @@ plagiarism scan debits server-side at submit time.
 
 ### M2 — Authenticate the Copyleaks webhook and harden report writes — **Done**
 
-HMAC signature verification (fail-closed in production) is in place. Callbacks
+Callbacks must echo `x-copyleaks-secret` (the value submit places in
+`webhooks.statusHeaders`). The secret is required in every environment. Callbacks
 resolve the report from `developerPayload` (`uid/docId`, falling back to the
 filename), settle it in a transaction only while it is `pending`, and refund the
-scan's credits on `error`; unknown reports are acknowledged without writes. Covered
-by `webhook/[status]/route.test.ts`. A live Copyleaks round trip (paid) has not been
-run against these changes.
+scan's credits on `error`; unknown reports are acknowledged without writes. A
+failed submit marks the saved report `error` in that same settlement so a later
+error callback cannot refund twice. Covered by `webhook/[status]/route.test.ts`.
+A live Copyleaks round trip (paid) has not been run against these changes.
 
 **User value:** users' plagiarism reports can't be spoofed or corrupted by forged
 callbacks; results they see are trustworthy.

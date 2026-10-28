@@ -87,6 +87,7 @@ Start from `.env.example`. Additional keys are read in code for optional provide
 | `XAI_API_KEY` / `XAI_API_URL` | xAI provider | [console.x.ai](https://console.x.ai) |
 | `NEXT_PUBLIC_STRIPE_KEY` | Stripe publishable key | Stripe Dashboard |
 | `STRIPE_SECRET_KEY` | Stripe secret key | Stripe Dashboard |
+| `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret. Unset: `POST /api/stripe/webhook` returns 503 and grants nothing. Browser checkout still completes the pack. | Stripe Dashboard → Webhooks |
 | `NEXT_PUBLIC_STRIPE_PRODUCT_NAME` | Credit product label | Your Stripe product / choice |
 | `NEXT_PUBLIC_CREDITS_PER_GRADING` | Credits charged per grading (client display) | Tune for your pricing |
 
@@ -100,8 +101,9 @@ Start from `.env.example`. Additional keys are read in code for optional provide
 | `AZURE_API_KEY` / `AZURE_RESOURCE_NAME` | Azure OpenAI |
 | `OPENAI_COMPATIBLE_API_KEY` / `OPENAI_COMPATIBLE_API_BASE_URL` / `NEXT_PUBLIC_OPENAI_COMPATIBLE_MODEL` | OpenAI-compatible endpoint |
 | `XAI_BASE_URL` | Override xAI base URL (code may use this name) |
-| `COPYLEAKS_EMAIL` / `COPYLEAKS_API_KEY` / `COPYLEAKS_WEBHOOK_SECRET` | Copyleaks plagiarism / AI detection |
-| `BASE_URL` | Public base URL for webhooks / callbacks |
+| `COPYLEAKS_EMAIL` / `COPYLEAKS_API_KEY` | Copyleaks account. Both required before a scan is accepted. |
+| `COPYLEAKS_WEBHOOK_SECRET` | Shared secret echoed by Copyleaks as `x-copyleaks-secret`. Unset: scans return 503 and callbacks are rejected. |
+| `BASE_URL` | Public base URL Copyleaks calls back. Unset: scans return 503. |
 | `CREDITS_PER_INPUT_TOKEN` / `CREDITS_PER_OUTPUT_TOKEN` / `CREDITS_PER_DOLLAR` | Server-side credit accounting |
 
 Never commit real values. Wire CI build secrets via GitHub Actions secrets only.
