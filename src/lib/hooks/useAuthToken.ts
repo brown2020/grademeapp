@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { getIdToken } from "firebase/auth";
-import { deleteCookie, setCookie } from "cookies-next";
 import debounce from "lodash/debounce";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useAuthStore } from "@/zustand/useAuthStore";
@@ -26,31 +25,35 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   });
 }
 
-const useAuthToken = (cookieName = "authToken") => {
+async function publishSession(idToken: string): Promise<void> {
+  const response = await fetch("/api/session", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ token: idToken }),
+  });
+  if (!response.ok) throw new Error("Session cookie was not accepted.");
+}
+
+const useAuthToken = () => {
   const [user, loading, error] = useAuthState(auth);
   const setAuthDetails = useAuthStore((state) => state.setAuthDetails);
   const clearAuthDetails = useAuthStore((state) => state.clearAuthDetails);
 
   const refreshInterval = 50 * 60 * 1000; // 50 minutes
-  const lastTokenRefresh = `lastTokenRefresh_${cookieName}`;
+  const lastTokenRefresh = "lastTokenRefresh";
   const activityTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const refreshAuthTokenRef = useRef(async () => {
     try {
       if (!hasClientConfig || !auth.currentUser) throw new Error("No user found");
       const idTokenResult = await getIdToken(auth.currentUser, true);
-
-      setCookie(cookieName, idTokenResult, {
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        path: "/",
-      });
+      await publishSession(idTokenResult);
       if (!window.ReactNativeWebView) {
         window.localStorage.setItem(lastTokenRefresh, Date.now().toString());
       }
     } catch (error: unknown) {
+      // Keep the existing cookie. A failed refresh must not sign the user out.
       logAuthFailure("token refresh", error);
-      deleteCookie(cookieName, { path: "/" });
     }
   });
 
@@ -95,27 +98,22 @@ const useAuthToken = (cookieName = "authToken") => {
     if (loading) return;
 
     if (!user) {
+      const hadSession = Boolean(useAuthStore.getState().uid);
       clearAuthDetails();
       resetUserScopedStores();
-      deleteCookie(cookieName, { path: "/" });
+      if (hadSession) {
+        void fetch("/api/session", { method: "DELETE" }).catch((error: unknown) => {
+          console.error("Failed to clear the session cookie:", error);
+        });
+      }
       return;
     }
 
     let cancelled = false;
     withTimeout(getIdToken(user), COOKIE_SYNC_TIMEOUT_MS)
-      .then((idToken) => {
-        setCookie(cookieName, idToken, {
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "lax",
-          path: "/",
-        });
-      })
-      .catch((error: unknown) => {
-        logAuthFailure("session cookie", error);
-      })
-      .finally(() => {
+      .then((idToken) => publishSession(idToken))
+      .then(() => {
         if (cancelled) return;
-        // A different account signed in without a sign-out: drop the previous user's data.
         const previousUid = useAuthStore.getState().uid;
         if (previousUid && previousUid !== user.uid) resetUserScopedStores();
         // Publishing the uid only after the cookie exists keeps signed-in UI (and the
@@ -130,12 +128,16 @@ const useAuthToken = (cookieName = "authToken") => {
           authPending: false,
         });
         setSyncedUid(user.uid);
+      })
+      .catch((error: unknown) => {
+        logAuthFailure("session cookie", error);
+        if (!cancelled) setSyncedUid(user.uid);
       });
 
     return () => {
       cancelled = true;
     };
-  }, [clearAuthDetails, cookieName, loading, setAuthDetails, user]);
+  }, [clearAuthDetails, loading, setAuthDetails, user]);
 
   const sessionReady = !loading && (!user || syncedUid === user.uid);
   if (sessionReady && !settled) setSettled(true);

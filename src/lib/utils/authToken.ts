@@ -1,11 +1,9 @@
 // Edge-safe helpers for validating the Firebase ID-token session cookie.
 //
-// The session cookie holds a Firebase ID token (a JWT). The proxy uses these
-// helpers to gate protected routes server-side. This performs a lightweight,
-// signature-less expiry/structure check that is safe to run in the Edge runtime
-// (no Node APIs, no network). Cryptographic verification of the signature still
-// happens on the client (Firebase SDK) and should be added server-side in API
-// handlers for authoritative authorization (see spec.md).
+// The session cookie holds a Firebase ID token (a JWT). These helpers are a
+// fast, signature-less expiry check that is safe in the Edge runtime. The proxy
+// also verifies the RS256 signature (`firebaseIdToken.ts`) before allowing a
+// protected route. API handlers verify the same cookie with the Admin SDK.
 
 interface JwtPayload {
   exp?: number;

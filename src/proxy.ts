@@ -1,16 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
+import { SESSION_COOKIE_NAME } from "@/lib/auth/sessionCookie";
+import { verifyFirebaseIdToken } from "@/lib/server/firebaseIdToken";
 import { isSessionTokenActive } from "@/lib/utils/authToken";
-
-const COOKIE_NAME = process.env.NEXT_PUBLIC_COOKIE_NAME || "grademeAuthToken";
 
 // Server-side route protection. Runs (per the matcher below) only on protected
 // routes and redirects unauthenticated requests to the home page, where the
-// sign-in flow lives. Authentication state is read from the Firebase ID-token
-// session cookie set by `useAuthToken` on sign-in.
-export function proxy(request: NextRequest) {
-  const token = request.cookies.get(COOKIE_NAME)?.value;
-
-  if (isSessionTokenActive(token)) {
+// sign-in flow lives. The session cookie is the HttpOnly Firebase ID token set
+// by POST /api/session. A missing, expired, or badly signed token is rejected.
+export async function proxy(request: NextRequest) {
+  const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
+  if (token && isSessionTokenActive(token) && (await verifyFirebaseIdToken(token))) {
     return NextResponse.next();
   }
 
@@ -19,8 +18,7 @@ export function proxy(request: NextRequest) {
   redirectUrl.search = "";
 
   const response = NextResponse.redirect(redirectUrl);
-  // Clear a stale/expired session cookie so the client re-establishes it.
-  response.cookies.delete(COOKIE_NAME);
+  response.cookies.delete(SESSION_COOKIE_NAME);
   return response;
 }
 

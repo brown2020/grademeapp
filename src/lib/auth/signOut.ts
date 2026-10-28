@@ -1,13 +1,13 @@
 import { signOut } from "firebase/auth";
-import { deleteCookie } from "cookies-next";
 import { auth } from "@/firebase/firebaseClient";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import { resetUserScopedStores } from "@/zustand/userScope";
 
-/** Clears the session cookie before Firebase sign-out so the proxy never sees a stale token. */
+/** Clears the HttpOnly session cookie before Firebase sign-out. */
 export async function signOutUser() {
-  const cookieName = process.env.NEXT_PUBLIC_COOKIE_NAME || "authToken";
-  deleteCookie(cookieName, { path: "/" });
+  await fetch("/api/session", { method: "DELETE" }).catch((error: unknown) => {
+    console.error("Failed to clear the session cookie:", error);
+  });
   await signOut(auth);
   useAuthStore.getState().clearAuthDetails();
   resetUserScopedStores();

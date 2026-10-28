@@ -7,7 +7,7 @@ import ErrorBoundary from "./ErrorBoundary";
 import { LogoMark } from "./shell/Logo";
 
 export function ClientProvider({ children }: { children: React.ReactNode }) {
-  const { loading } = useAuthToken(process.env.NEXT_PUBLIC_COOKIE_NAME!);
+  const { loading } = useAuthToken();
   useInitializeStores();
 
   return (

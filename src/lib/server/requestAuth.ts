@@ -1,8 +1,9 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { adminAuth } from "@/firebase/firebaseAdmin";
+import { SESSION_COOKIE_NAME } from "@/lib/auth/sessionCookie";
 
-const COOKIE_NAME = process.env.NEXT_PUBLIC_COOKIE_NAME || "grademeAuthToken";
+const COOKIE_NAME = SESSION_COOKIE_NAME;
 
 type RequestAuthResult =
   | { ok: true; uid: string }
