@@ -25,12 +25,31 @@ vi.mock("@/firebase/firebaseAdmin", () => ({
 }));
 vi.mock("@/lib/utils/registry", () => ({
   isProviderEnabled: () => true,
-  getModel: (model: string, apiKey?: string) => state.getModel(model, apiKey),
+  getModel: (model: string, apiKey?: string) =>
+    apiKey ? state.getModel(model, apiKey) : state.getModel(model),
 }));
 vi.mock("ai", () => ({ streamText: () => state.streamText() }));
-vi.mock("@ai-sdk/rsc", () => ({ createStreamableValue: (value: unknown) => ({ value }) }));
+vi.mock("@ai-sdk/rsc", () => ({
+  createStreamableValue: () => {
+    const stream = {
+      value: "stream",
+      append() {
+        return stream;
+      },
+      done() {
+        return stream;
+      },
+      error() {
+        return stream;
+      },
+    };
+    return stream;
+  },
+}));
 
 const { generateGrade } = await import("./generateResponse");
+const { creditsForTokens } = await import("@/lib/server/creditCost");
+const { waitForSettlements } = await import("@/lib/server/gradeStream");
 
 const grade = () =>
   generateGrade("openai:gpt-6-sol", "student", "9th grade", "teacher", "topic", "essay",
@@ -44,6 +63,7 @@ beforeEach(() => {
     [profileOf("alice")]: { credits: 1000, useCredits: false, openai_api_key: "sk-alice" },
     [profileOf("bob")]: { credits: 1000, useCredits: true, openai_api_key: "sk-bob" },
     [profileOf("broke")]: { credits: 0, useCredits: true },
+    [profileOf("carol")]: { credits: 1000, useCredits: false, openai_api_key: "  ", fireworks_api_key: "" },
   });
   state.db = db;
   state.cookie = undefined;
@@ -75,18 +95,36 @@ describe("generateGrade auth and billing", () => {
   it("uses only the session user's BYO key and does not charge credits", async () => {
     state.cookie = "token-alice";
     const result = await grade();
+    await waitForSettlements();
     expect(state.getModel).toHaveBeenCalledWith("openai:gpt-6-sol", "sk-alice");
     expect(result.credits).toBe(1000);
     expect(db.docs.get(profileOf("alice"))?.credits).toBe(1000);
     expect(db.docs.get(profileOf("bob"))?.credits).toBe(1000);
   });
 
-  it("debits the session user's credits on the server", async () => {
+  it("reserves credits before the model call and settles to measured usage", async () => {
     state.cookie = "token-bob";
     const result = await grade();
-    expect(result.creditsUsed).toBeGreaterThan(0);
-    expect(result.credits).toBe(1000 - result.creditsUsed);
+    expect(state.streamText).toHaveBeenCalled();
+    expect(result.credits).toBeLessThan(1000);
     expect(db.docs.get(profileOf("bob"))?.credits).toBe(result.credits);
+    await waitForSettlements();
+    expect(db.docs.get(profileOf("bob"))?.credits).toBe(1000 - creditsForTokens(1000, 1000));
+  });
+
+  it("refunds the reservation when the provider call fails", async () => {
+    state.cookie = "token-bob";
+    state.streamText = vi.fn(() => ({
+      textStream: (async function* () {
+        yield "Grade: 1%";
+      })(),
+      usage: Promise.resolve().then(() => {
+        throw new Error("provider down");
+      }),
+    }));
+    await grade();
+    await waitForSettlements();
+    expect(db.docs.get(profileOf("bob"))?.credits).toBe(1000);
   });
 
   it("refuses to grade on credits the server says the user does not have", async () => {
@@ -104,13 +142,28 @@ describe("generateGrade input contract", () => {
   it("runs platform-credit grades only on listed models", async () => {
     state.cookie = "token-bob";
     await gradeWith("openai:gpt-6-astra");
-    expect(state.getModel).toHaveBeenCalledWith("openai:gpt-6-sol", "");
+    expect(state.getModel).toHaveBeenCalledWith("openai:gpt-6-sol");
   });
 
-  it("lets BYO-key users choose any model on their own key", async () => {
+  it("lets BYO-key users choose any OpenAI model on their own key", async () => {
     state.cookie = "token-alice";
     await gradeWith("openai:gpt-6-astra");
     expect(state.getModel).toHaveBeenCalledWith("openai:gpt-6-astra", "sk-alice");
+    expect(db.docs.get(profileOf("alice"))?.credits).toBe(1000);
+  });
+
+  it("bills platform credits when BYO mode requests a non-BYO provider", async () => {
+    state.cookie = "token-alice";
+    await gradeWith("anthropic:claude-opus-x");
+    expect(state.getModel).toHaveBeenCalledWith("openai:gpt-6-sol");
+    expect(db.docs.get(profileOf("alice"))?.credits).toBeLessThan(1000);
+  });
+
+  it("bills platform credits when the saved BYO key is blank", async () => {
+    state.cookie = "token-carol";
+    await gradeWith("openai:gpt-6-sol");
+    expect(state.getModel).toHaveBeenCalledWith("openai:gpt-6-sol");
+    expect(db.docs.get(profileOf("carol"))?.credits).toBeLessThan(1000);
   });
 
   it("rejects malformed or oversized input before auth, billing or model work", async () => {

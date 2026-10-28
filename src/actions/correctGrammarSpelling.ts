@@ -2,12 +2,14 @@
 
 import { streamText, type ModelMessage } from "ai";
 import { toPrompt } from "@/lib/server/prompt";
-import { getModel } from "@/lib/utils/registry";
 import { validateInputs, estimateTokens } from "@/lib/utils/textUtils";
 import { requireServerUser } from "@/lib/server/requestAuth";
-import { debitCredits, getBilling, InsufficientCreditsError } from "@/lib/server/billing";
+import { debitCredits, getBilling, reconcileCredits, refundCredits } from "@/lib/server/billing";
+import { creditsForTokens, reservedCredits } from "@/lib/server/creditCost";
+import { resolveModelAccess, type ModelAccess } from "@/lib/server/modelAccess";
+import { isProviderEnabled, getModel } from "@/lib/utils/registry";
 import { z } from "zod";
-import { resolveModelId } from "@/lib/utils";
+import { getDefaultModelId } from "@/lib/utils";
 import { models } from "@/lib/types/models";
 
 const CorrectionRequestSchema = z.object({
@@ -41,56 +43,33 @@ function splitTextIntoChunks(text: string, maxInputTokens: number): string[] {
   return chunks;
 }
 
-// Function to generate grammar and spelling corrections
-async function generateGrammarCorrections(
-  messages: ModelMessage[],
-  inputTokenEstimate: number,
-  estimatedOutputTokens: number,
-  availableCredits: number,
-  useCredits: boolean,
-  selectedModelId: string,
-  apiKey: string
-) {
-  const creditsPerDollar = Number(process.env.CREDITS_PER_DOLLAR) || 500;
-  const creditsPerInputToken = Number(process.env.CREDITS_PER_INPUT_TOKEN) || 0.000005;
-  const creditsPerOutputToken = Number(process.env.CREDITS_PER_OUTPUT_TOKEN) || 0.000015;
+function modelFor(access: ModelAccess) {
+  const providerId = access.modelId.split(":")[0] ?? "";
+  const modelId =
+    access.billCredits && !isProviderEnabled(providerId)
+      ? getDefaultModelId(models)
+      : access.modelId;
+  return access.apiKey ? getModel(modelId, access.apiKey) : getModel(modelId);
+}
 
-  const model = getModel(selectedModelId, apiKey);
-
-  // Estimate token usage
-  if (useCredits) {
-    const estimatedCreditCost = (inputTokenEstimate * creditsPerInputToken + estimatedOutputTokens * creditsPerOutputToken) * creditsPerDollar * 1.5; // 50% buffer
-
-    if (availableCredits < estimatedCreditCost) {
-      throw new InsufficientCreditsError();
-    }
-  }
-
-  // Proceed with API call
+async function generateGrammarCorrections(messages: ModelMessage[], access: ModelAccess) {
   const { textStream, usage } = streamText({
-    model,
+    model: modelFor(access),
     ...toPrompt(messages),
-    temperature: 0, // Deterministic response for grammar correction
+    temperature: 0,
   });
 
-  // Handle the streamable value correctly using the SDK's methods
   const chunks: string[] = [];
   for await (const chunk of textStream) {
     chunks.push(chunk);
   }
 
   const usageResult = await usage;
-  const inputTokens = usageResult.inputTokens ?? 0;
-  const outputTokens = usageResult.outputTokens ?? 0;
-
-  const creditsUsed = useCredits
-    ? (inputTokens * creditsPerInputToken + outputTokens * creditsPerOutputToken) * creditsPerDollar
+  const creditsUsed = access.billCredits
+    ? creditsForTokens(usageResult.inputTokens ?? 0, usageResult.outputTokens ?? 0)
     : 0;
 
-  return {
-    chunks,
-    creditsUsed,
-  };
+  return { chunks, creditsUsed };
 }
 
 // Create the system and user messages for correction
@@ -117,59 +96,49 @@ export async function correctGrammarAndSpelling(rawText: string, requestedModelI
 
   // Identity, balance and BYO keys come only from the verified session, never the client.
   const { uid } = await requireServerUser();
-  const { credits: availableCredits, useCredits, openaiApiKey, fireworksApiKey } =
-    await getBilling(uid);
-  // Platform credits pay only for listed models (flat per-token rate); BYO keys may pick any.
-  const selectedModelId = useCredits ? resolveModelId(requested, models) : requested;
+  const billing = await getBilling(uid);
+  const access = resolveModelAccess({
+    requestedModelId: requested,
+    useCredits: billing.useCredits,
+    openaiApiKey: billing.openaiApiKey,
+    fireworksApiKey: billing.fireworksApiKey,
+    models,
+  });
 
-  const inputTokenEstimate = estimateTokens(text);
   const maxInputTokens = 16384;
-  const estimatedOutputTokens = inputTokenEstimate;
-
+  const inputTokenEstimate = estimateTokens(text);
   let chunks: string[] = [text];
   if (inputTokenEstimate > maxInputTokens) {
     chunks = splitTextIntoChunks(text, maxInputTokens);
   }
 
-  const correctedTextArray: string[] = [];
-  let totalCreditsUsed = 0;
+  const reserve = access.billCredits
+    ? chunks.reduce((sum, chunk) => {
+        const tokens = estimateTokens(chunk);
+        return sum + reservedCredits(tokens, tokens);
+      }, 0)
+    : 0;
+  if (reserve > 0) await debitCredits(uid, reserve);
 
-  let apiKey = '';
-  if (!useCredits) {
-    const [provider] = selectedModelId.split(':');
-    apiKey = provider === 'openai' ? openaiApiKey : fireworksApiKey;
-    if (!apiKey) {
-      throw new Error("User API keys not found");
+  try {
+    const chunkResults = await Promise.all(
+      chunks.map((chunk) => generateGrammarCorrections(createCorrectionMessages(chunk), access))
+    );
+    const correctedTextArray: string[] = [];
+    let totalCreditsUsed = 0;
+    for (const result of chunkResults) {
+      correctedTextArray.push(...result.chunks);
+      totalCreditsUsed += result.creditsUsed;
     }
-  }
-
-  const chunkResults = await Promise.all(
-    chunks.map(async (chunk) => {
-      const messages = createCorrectionMessages(chunk);
-      return generateGrammarCorrections(
-        messages,
-        inputTokenEstimate,
-        estimatedOutputTokens,
-        availableCredits,
-        useCredits,
-        selectedModelId,
-        apiKey
+    const credits = reserve > 0 ? await reconcileCredits(uid, reserve, totalCreditsUsed) : billing.credits;
+    return { correctedTextArray, totalCreditsUsed, credits };
+  } catch (error) {
+    if (reserve > 0) {
+      await refundCredits(uid, reserve).catch((refundError) =>
+        console.error("Failed to refund correction credits:", refundError)
       );
-    })
-  );
-  for (const { chunks: resultChunks, creditsUsed } of chunkResults) {
-    correctedTextArray.push(...resultChunks);
-    totalCreditsUsed += creditsUsed;
+    }
+    throw error;
   }
-
-  const credits = useCredits
-    ? await debitCredits(uid, totalCreditsUsed, { allowPartial: true })
-    : availableCredits;
-
-  return {
-    correctedTextArray, // Return all corrected text chunks
-    totalCreditsUsed,
-    credits,
-  };
 }
 

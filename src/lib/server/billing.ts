@@ -64,3 +64,23 @@ export async function refundCredits(uid: string, amount: number): Promise<void> 
   if (!(amount > 0)) return;
   await profileRef(uid).update({ credits: FieldValue.increment(amount) });
 }
+
+/**
+ * Adjusts a reservation to the measured cost. A shortfall is refunded.
+ * An extra charge is applied only when the balance covers it; otherwise the
+ * reservation stands and the caller does not receive a free request.
+ */
+export async function reconcileCredits(uid: string, reserved: number, actual: number): Promise<number> {
+  const safeActual = Number.isFinite(actual) && actual > 0 ? actual : 0;
+  const safeReserved = Number.isFinite(reserved) && reserved > 0 ? reserved : 0;
+  if (safeActual < safeReserved) {
+    await refundCredits(uid, safeReserved - safeActual);
+  } else if (safeActual > safeReserved) {
+    try {
+      return await debitCredits(uid, safeActual - safeReserved);
+    } catch (error) {
+      if (!(error instanceof InsufficientCreditsError)) throw error;
+    }
+  }
+  return toCredits((await profileRef(uid).get()).data()?.credits);
+}

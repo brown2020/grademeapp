@@ -2,7 +2,7 @@ import { readStreamableValue } from "@ai-sdk/rsc";
 import { generateGrade } from "@/actions/generateResponse";
 import { extractGrade } from "@/lib/utils/responseParser";
 import type { GradingData } from "@/lib/types/grading-data";
-import type { ProfileType } from "@/zustand/useProfileStore";
+import useProfileStore, { type ProfileType } from "@/zustand/useProfileStore";
 
 export const GRADING_FAILED_MESSAGE =
   "We couldn't grade this draft right now. Your text is still here, so please try again in a moment.";
@@ -49,12 +49,18 @@ export async function streamGrade({
 
   let feedback = "";
   let grade = "";
-  for await (const content of readStreamableValue(result)) {
-    if (content) {
-      feedback = content.trim();
-      grade = extractGrade(feedback);
-      onUpdate(feedback, grade);
+  try {
+    for await (const content of readStreamableValue(result)) {
+      if (content) {
+        feedback = content.trim();
+        grade = extractGrade(feedback);
+        onUpdate(feedback, grade);
+      }
     }
+    return { feedback, grade };
+  } finally {
+    // The server reserved the estimate up front and refunds the difference when
+    // the stream closes. Reload so the balance matches that settlement.
+    await useProfileStore.getState().fetchProfile().catch(() => undefined);
   }
-  return { feedback, grade };
 }

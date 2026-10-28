@@ -12,7 +12,7 @@ vi.mock("@/firebase/firebaseAdmin", () => ({
   },
 }));
 
-const { debitCredits, getBilling, InsufficientCreditsError, refundCredits } = await import("./billing");
+const { debitCredits, getBilling, InsufficientCreditsError, reconcileCredits, refundCredits } = await import("./billing");
 
 const PROFILE = "users/u1/profile/userData";
 let db: FakeAdminDb;
@@ -76,5 +76,24 @@ describe("refundCredits", () => {
   it("adds the amount back", async () => {
     await refundCredits("u1", 25);
     expect(db.docs.get(PROFILE)?.credits).toBe(125);
+  });
+});
+
+describe("reconcileCredits", () => {
+  it("refunds the unused part of a reservation", async () => {
+    await debitCredits("u1", 40);
+    expect(await reconcileCredits("u1", 40, 10)).toBe(90);
+    expect(db.docs.get(PROFILE)?.credits).toBe(90);
+  });
+
+  it("charges the extra when the balance covers it", async () => {
+    await debitCredits("u1", 40);
+    expect(await reconcileCredits("u1", 40, 55)).toBe(45);
+  });
+
+  it("keeps the reservation when the extra does not fit", async () => {
+    await debitCredits("u1", 90);
+    expect(await reconcileCredits("u1", 90, 200)).toBe(10);
+    expect(db.docs.get(PROFILE)?.credits).toBe(10);
   });
 });

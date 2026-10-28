@@ -6,9 +6,12 @@ import { toPrompt } from "@/lib/server/prompt";
 import { isProviderEnabled, getModel } from "@/lib/utils/registry";
 import { validateInputs } from "@/lib/utils/textUtils";
 import { requireServerUser } from "@/lib/server/requestAuth";
-import { debitCredits, getBilling, InsufficientCreditsError } from "@/lib/server/billing";
+import { debitCredits, getBilling, reconcileCredits, refundCredits } from "@/lib/server/billing";
+import { creditsForTokens, reservedCredits } from "@/lib/server/creditCost";
+import { trackSettlement } from "@/lib/server/gradeStream";
+import { resolveModelAccess, type ModelAccess } from "@/lib/server/modelAccess";
 import { z } from "zod";
-import { getDefaultModelId, resolveModelId } from "@/lib/utils";
+import { getDefaultModelId } from "@/lib/utils";
 import { models } from "@/lib/types/models";
 
 const field = (max: number) => z.string().max(max);
@@ -62,66 +65,21 @@ async function estimateTokens(messages: ModelMessage[], estimatedOutputTokens: n
   };
 }
 
-// Function to generate a deterministic response using OpenAI
-async function generateDeterministicResponse(
-  selectedModelId: string,
-  messages: ModelMessage[],
-  estimatedOutputTokens: number,
-  availableCredits: number,
-  useCredits: boolean,
-  fireworks_api_key: string,
-  openai_api_key: string,
-) {
-  const creditsPerDollar = Number(process.env.CREDITS_PER_DOLLAR) || 500 as number;
-  const creditsPerInputToken = Number(process.env.CREDITS_PER_INPUT_TOKEN) || 0.000005 as number;
-  const creditsPerOutputToken = Number(process.env.CREDITS_PER_OUTPUT_TOKEN) || 0.000015 as number;
+function modelFor(access: ModelAccess) {
+  const providerId = access.modelId.split(":")[0] ?? "";
+  const modelId =
+    access.billCredits && !isProviderEnabled(providerId)
+      ? getDefaultModelId(models)
+      : access.modelId;
+  return access.apiKey ? getModel(modelId, access.apiKey) : getModel(modelId);
+}
 
-  const providerId = selectedModelId ? selectedModelId.split(':')[0] : 'openai'
+type Usage = { inputTokens?: number; outputTokens?: number };
 
-  // Set the API key based on the provider
-  let apiKey = '';
-  if (!useCredits) {
-    if (providerId === 'fireworks') {
-      apiKey = fireworks_api_key;
-    } else if (providerId === 'openai') {
-      apiKey = openai_api_key;
-    }
-  }
-
-  const model = !isProviderEnabled(providerId) && useCredits
-    ? getModel(getDefaultModelId(models))
-    : getModel(selectedModelId, apiKey);
-
-  // Estimate token usage before making the request
-  const { inputTokens, outputTokens } = await estimateTokens(messages, estimatedOutputTokens);
-  const estimatedCreditCost = ((inputTokens * 0.000005) + (outputTokens * 0.000015)) * creditsPerDollar * 1.5; // Add 50% buffer
-
-  if (useCredits && availableCredits < estimatedCreditCost) {
-    throw new InsufficientCreditsError();
-  }
-
-  // Proceed with the API call if the user has enough credits
-  const { textStream, usage } = streamText({
-    model,
-    ...toPrompt(messages),
-    temperature: 0, // Deterministic response
-  });
-
-  const stream = createStreamableValue(textStream);
-
-  // Calculate the actual credits used based on the usage returned by the API
-  const usageResult = await usage;
-  const usedInputTokens = usageResult.inputTokens ?? 0;
-  const usedOutputTokens = usageResult.outputTokens ?? 0;
-  const creditsUsed =
-    (usedInputTokens * creditsPerInputToken + usedOutputTokens * creditsPerOutputToken) * creditsPerDollar;
-
-
-  return {
-    result: stream.value,
-    creditsUsed,
-  };
-};
+function measuredCredits(usage: Usage | undefined, reserved: number): number {
+  if (!usage || (usage.inputTokens == null && usage.outputTokens == null)) return reserved;
+  return creditsForTokens(usage.inputTokens ?? 0, usage.outputTokens ?? 0);
+}
 
 // Helper function to create the grading messages
 function createGradingMessages(
@@ -177,12 +135,17 @@ export async function generateGrade(
   // Identity, balance and BYO keys come only from the verified session, never the client.
   const { uid } = await requireServerUser();
   const billing = await getBilling(uid);
-  // Platform credits pay only for listed models (flat per-token rate); BYO keys may pick any.
-  const modelId = billing.useCredits ? resolveModelId(input.selectedModelId, models) : input.selectedModelId;
+  const access = resolveModelAccess({
+    requestedModelId: input.selectedModelId,
+    useCredits: billing.useCredits,
+    openaiApiKey: billing.openaiApiKey,
+    fireworksApiKey: billing.fireworksApiKey,
+    models,
+  });
 
   // Estimate output tokens based on average response length (adjust this as needed)
   // TODO: Implement a more accurate way to estimate output tokens
-  const estimatedOutputTokens = 1000; // Rough estimate for response size
+  const estimatedOutputTokens = 1000;
 
   const messages = createGradingMessages(
     input.identity,
@@ -197,19 +160,60 @@ export async function generateGrade(
     input.title,
     input.text,
   );
-  const { result, creditsUsed } = await generateDeterministicResponse(
-    modelId,
-    messages,
-    estimatedOutputTokens,
-    billing.credits,
-    billing.useCredits,
-    billing.fireworksApiKey,
-    billing.openaiApiKey,
+  const { inputTokens, outputTokens } = await estimateTokens(messages, estimatedOutputTokens);
+  const reserve = access.billCredits ? reservedCredits(inputTokens, outputTokens) : 0;
+  // Hold the estimate before the provider call so parallel grades cannot all pass a stale check.
+  const credits = reserve > 0 ? await debitCredits(uid, reserve) : billing.credits;
+
+  let textStream: AsyncIterable<string>;
+  let usage: PromiseLike<Usage>;
+  try {
+    ({ textStream, usage } = streamText({
+      model: modelFor(access),
+      ...toPrompt(messages),
+      temperature: 0,
+    }));
+  } catch (error) {
+    if (reserve > 0) await refundCredits(uid, reserve);
+    throw error;
+  }
+
+  const stream = createStreamableValue("");
+  // Return the stream immediately. Reconciliation finishes before `done`, which
+  // keeps this invocation open until the provider call completes.
+  trackSettlement(pipeGrade(stream, textStream, usage, uid, reserve));
+
+  return { result: stream.value, creditsUsed: reserve, credits };
+}
+
+async function pipeGrade(
+  stream: ReturnType<typeof createStreamableValue<string>>,
+  textStream: AsyncIterable<string>,
+  usage: PromiseLike<Usage>,
+  uid: string,
+  reserved: number,
+) {
+  const safeUsage = Promise.resolve(usage).then(
+    (value) => ({ ok: true as const, value }),
+    () => ({ ok: false as const, value: undefined })
   );
-
-  const credits = billing.useCredits
-    ? await debitCredits(uid, creditsUsed, { allowPartial: true })
-    : billing.credits;
-
-  return { result, creditsUsed: billing.useCredits ? creditsUsed : 0, credits };
+  try {
+    for await (const delta of textStream) {
+      if (delta) stream.append(delta);
+    }
+    const result = await safeUsage;
+    if (!result.ok) throw new Error("Grading usage was not reported.");
+    if (reserved > 0) {
+      await reconcileCredits(uid, reserved, measuredCredits(result.value, reserved));
+    }
+    stream.done();
+  } catch (error) {
+    console.error("Grading stream failed:", error);
+    if (reserved > 0) {
+      await refundCredits(uid, reserved).catch((refundError) =>
+        console.error("Failed to refund grading credits:", refundError)
+      );
+    }
+    stream.error(new Error("Grading failed."));
+  }
 }
