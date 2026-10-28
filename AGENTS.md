@@ -1,8 +1,9 @@
 # AGENTS.md
 
 Authoritative operating guide for AI agents (Codex, Claude, etc.) working in this
-repository. Read this file fully before making any change. For product scope,
-current-state inventory, and the roadmap, see [`spec.md`](./spec.md).
+repository. Read this file fully before making any change. For product scope
+and the current-state inventory, see [`spec.md`](./spec.md). For the punchlist
+of next steps, known bugs, and open issues, see [`roadmap.md`](./roadmap.md).
 
 ---
 

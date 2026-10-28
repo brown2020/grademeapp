@@ -1,9 +1,8 @@
 # Grade.me — Product Specification
 
-Authoritative product spec and roadmap for **Grade.me** (`grademeapp`). This is the
-single source of truth for what the product is, what it does today, and what to
-build next. For agent/contributor workflow and engineering conventions, see
-[`AGENTS.md`](./AGENTS.md). For setup instructions, see [`README.md`](./README.md).
+What **Grade.me** (`grademeapp`) is and what it does today. Next steps, known bugs,
+and open issues are in [`roadmap.md`](./roadmap.md). Agent workflow is
+[`AGENTS.md`](./AGENTS.md). Setup is [`README.md`](./README.md).
 
 Conclusions drawn from reading the code (rather than from prior docs) are marked
 **[inferred]**.
@@ -80,31 +79,38 @@ export results to `.docx`.
 | Multi-method auth | ✅ Working | Google, email/password, email link. |
 | `.docx` export | ✅ Working | `htmlToDocx` + `DownloadPopover`. |
 | In-app guided tours | ⛔ Removed | Dormant `react-joyride` stubs deleted in the 2026-09 redesign. |
-| Automated tests | 🟡 Limited | Vitest covers pure utility logic under `src/lib/utils`; no component/e2e harness. |
+| Automated tests | 🟡 Limited | Vitest covers utilities and server trust boundaries (auth, billing, webhooks). No component or browser harness. |
 | OpenAI-compatible provider | 🟡 Partial | Registered, but commented out in the model list. |
 
 ### Current user flows (as implemented)
 
-- **Auth:** `useAuthToken` subscribes to Firebase auth, sets an ID-token cookie
-  (refreshed every 50 min), and publishes the user to `useAuthStore` only after the
-  cookie is written, so the first server requests after a page load are always
-  authenticated. `useInitializeStores` then loads `users/{uid}/profile/userData`
+- **Auth:** `useAuthToken` subscribes to Firebase auth and posts the ID token to
+  `POST /api/session`, which verifies it and sets an HttpOnly cookie (refreshed
+  every 50 min). The uid is published to `useAuthStore` only after that cookie
+  write succeeds. `useInitializeStores` then loads `users/{uid}/profile/userData`
   into `useProfileStore` (creating it with starter credits on first sign-in).
+  `src/proxy.ts` checks expiry and the Firebase RS256 signature before protected
+  pages render.
 - **Grade:** `grader/Grader.tsx` → `generateGrade(...)` verifies the session, reads
-  the balance/billing mode/BYO keys server-side, resolves a `provider:model` from the
-  registry, rejects short balances before calling the model, streams text, and
-  debits the actual cost on the server; the client mirrors the returned balance and
-  saves via `saveDocument`. Grammar correction works the same way.
-- **Plagiarism:** client → `POST /api/copyleaks/submit` (verifies the session uid,
-  debits credits atomically, writes a `pending` report, submits base64 text to
-  Copyleaks, refunds on failure) → Copyleaks → `POST /api/copyleaks/webhook/[status]`
-  (HMAC-verified) settles the pending report once (completed, or error with a
-  credit refund) → report pages render it, polling while pending.
-  Filenames encode `{uid}-{docId}` for correlation.
+  the balance, billing mode, and BYO keys server-side, and bills platform credits
+  unless the request is OpenAI or Fireworks with a non-blank saved key. It reserves
+  the estimate before the provider call, streams text, then reconciles to measured
+  usage. The client mirrors the reservation and reloads the profile when the stream
+  finishes. Grammar correction uses the same billing rules.
+- **Plagiarism:** the scan dialog shows plain text (editor HTML is stripped before
+  display, word count, and submit). `POST /api/copyleaks/submit` verifies the
+  session uid, refuses the scan with 503 before any debit when
+  `COPYLEAKS_WEBHOOK_SECRET` or `BASE_URL` is unset, debits credits, writes a
+  `pending` report, and submits base64 text. A failed submit settles that report
+  to `error` and refunds once. Copyleaks calls
+  `POST /api/copyleaks/webhook/[status]` with `x-copyleaks-secret`. Report pages
+  poll while a scan is pending. Filenames encode `{uid}-{docId}` for correlation.
 - **Payments:** checkout creates a PaymentIntent for the fixed credit pack, tagged
-  with the buyer's uid; the success page calls `completePayment`, which verifies
-  ownership, status and amount and grants the credits once per intent in a
-  transaction (safe across reloads and retries).
+  with the buyer's uid. The success page calls `completePayment`, and
+  `POST /api/stripe/webhook` grants the same pack for a signed
+  `payment_intent.succeeded` when `STRIPE_WEBHOOK_SECRET` is set (503 and no grant
+  when it is not). Grants are once per intent. `recordInAppPurchase` does not
+  grant credits.
 
 ### Existing integrations
 
@@ -161,25 +167,15 @@ Firestore is the database, keyed under `users/{uid}` with `profile`, `summaries`
 - **Route protection verifies the session cookie.** `src/proxy.ts` checks expiry
   and the Firebase RS256 signature. Data authorization still lives in the
   actions and handlers (`src/lib/server/requestAuth.ts`).
-- **Credits use one flat per-token rate for every model** (`generateResponse.ts`), so
-  `src/lib/types/models.ts` is limited to mid/fast tiers; adding premium models needs
-  per-model pricing first.
-- **Fireworks/Groq have no listed models** since Llama was removed, so a saved
-  Fireworks BYO key is currently unused.
-- **Grok 4.7 is withheld from the model list.** On 2026-10-22 the platform xAI key
-  reported `api_key_disabled: true`, so every Grok grade failed. Re-enable the key
-  in console.x.ai, then restore the entry in `src/lib/types/models.ts`. Verified
-  the same day: `gpt-6-sol` (live grade) and `claude-sonnet-5` (models API).
-- **[inferred] Inconsistent starter-credit defaults** across `useAuthStore` (1000),
-  `useProfileStore` default (0), and `createNewProfile` (1000).
-- **[inferred] Output-token cost estimate is a fixed guess** (1000 tokens; see the
-  in-code `TODO`), so pre-flight credit checks are rough.
-- **AI-content % is not stored.** The Copyleaks completed webhook saves `results`
-  only, so the report page cannot show an AI-detection score.
-- Tours were removed; no onboarding currently runs beyond the first-sign-in identity dialog.
-- Automated tests cover pure utilities and the server trust boundaries (actions and
-  route handlers with an in-memory Firestore fake); there is no component or
-  end-to-end harness in the repo.
+- Listed models are `openai:gpt-6-sol` (default) and `anthropic:claude-sonnet-5`.
+  Credits use one flat per-token rate, so the catalog stays on mid/fast tiers.
+- Bring-your-own keys apply only to OpenAI and Fireworks, and only when the saved
+  key is non-blank. Other providers always use platform keys and credits.
+- Storage uploads are limited to document content types in `storage.rules`. Deploy
+  rule changes separately; this app does not deploy them.
+- The open punchlist (billing consistency, plagiarism result UX, model catalog,
+  onboarding, upload messages, shareable rubrics, and known bugs) is
+  [`roadmap.md`](./roadmap.md).
 
 ### Performance budget
 
@@ -198,162 +194,8 @@ scope. "Initial JavaScript" is the scripts referenced by the route's server HTML
 
 ---
 
-## 3. Product roadmap
+## 3. What comes next
 
-Ordered by product impact and dependency order. Each item is sized for a single
-focused, PR-sized change (one clean commit sequence) and is product-oriented, not a
-QA backlog. Acceptance criteria assume the canonical gate (`npm run lint &&
-npm test && npm run build`) passes.
-
-### M1 — Trustworthy, server-authoritative credit metering — **Done (2026-10-21)**
-
-Grading, grammar correction and plagiarism scans now debit on the server, payments
-grant credits once per intent on the server, and clients only mirror the balance.
-Clients can no longer write `credits` (repo rules, emulator-tested, deployed
-2026-10-22); profiles are created server-side. Remaining billing-integrity work
-(the unverified IAP grant) is tracked under Known limitations.
-
-**User value:** users are billed accurately and fairly; the business stops leaking
-paid usage. This underpins every paid workflow, so it comes first.
-
-**Implementation intent:** make the server the source of truth for debits. Have the
-grading path debit credits server-side against `users/{uid}/profile/userData` using
-the actual usage returned by the model (the value already computed as `creditsUsed`)
-via the admin SDK, and have the client reflect the resulting balance instead of
-performing the debit. Apply the same pattern to `/api/copyleaks/submit` so the
-plagiarism scan debits server-side at submit time.
-
-**Acceptance criteria:**
-- Grading and plagiarism debits are written server-side; the client no longer needs
-  `minusCredits` to make billing correct.
-- A request with insufficient credits is rejected server-side before any
-  model/Copyleaks call.
-- Balances shown in the UI match Firestore after a grade and after a scan.
-
-### M2 — Authenticate the Copyleaks webhook and harden report writes — **Done**
-
-Callbacks must echo `x-copyleaks-secret` (the value submit places in
-`webhooks.statusHeaders`). The secret is required in every environment. Callbacks
-resolve the report from `developerPayload` (`uid/docId`, falling back to the
-filename), settle it in a transaction only while it is `pending`, and refund the
-scan's credits on `error`; unknown reports are acknowledged without writes. A
-failed submit marks the saved report `error` in that same settlement so a later
-error callback cannot refund twice. Covered by `webhook/[status]/route.test.ts`.
-A live Copyleaks round trip (paid) has not been run against these changes.
-
-**User value:** users' plagiarism reports can't be spoofed or corrupted by forged
-callbacks; results they see are trustworthy.
-
-**Implementation intent:** verify inbound webhooks (shared-secret path segment or
-Copyleaks signature) before writing, and confirm the `uid/docId` resolves to an
-existing `pending` report owned by that user before updating it. Reject and log
-anything else.
-
-**Acceptance criteria:**
-- Unauthenticated/forged webhook POSTs are rejected (4xx) and write nothing.
-- Valid completion/error callbacks update only the matching pending report.
-- Manual-verification steps documented (no automated test infra required).
-
-### M3 — Reliable plagiarism status and result UX
-
-**User value:** after submitting a scan, users get clear, automatic progress and a
-readable result instead of a static "being generated" message.
-
-**Implementation intent:** surface the `pending → completed/error` lifecycle on the
-report page by subscribing to the report document, and present a focused result
-summary (overall similarity + AI-detection signal) with graceful empty/error
-states. No polling hacks.
-
-**Acceptance criteria:**
-- Report page transitions from pending to completed/error without a manual refresh.
-- Completed reports show similarity and AI-detection results clearly; errors show a
-  retry path.
-- Insufficient-credit and submission failures are explained in-product.
-
-### M4 — Refresh the model catalog and provider selection
-
-**User value:** users grade with current, higher-quality models; feedback quality
-and speed improve immediately.
-
-**Implementation intent:** update `src/lib/types/models.ts` to current models per
-enabled provider, ensure `ModelSelector` only offers providers that
-`isProviderEnabled` reports as configured, and pick a sensible default. Keep the
-`provider:model` contract intact.
-
-**Acceptance criteria:**
-- Only configured providers/models appear in the selector.
-- A clearly-labeled default model is preselected.
-- Grading succeeds end-to-end with the new default.
-
-### M5 — First-run activation: a working onboarding moment
-
-**User value:** new users reach their first useful grade quickly, which is the core
-activation event.
-
-**Implementation intent:** replace the dormant `react-joyride` tours with a
-lightweight, React-19-compatible first-run experience (e.g. a dismissible,
-persisted "grade your first essay" prompt with sample text and a preselected rubric
-on the grader). Remove or clearly retire the dead tour components so there is one
-onboarding path.
-
-**Acceptance criteria:**
-- A first-time user is guided to produce a grade with minimal input.
-- The onboarding state persists per user and never blocks returning users.
-- No disabled/`null` tour components remain wired into pages.
-
-### M6 — Consistent, transparent credit model
-
-**User value:** users understand what an action costs and start with a correct,
-predictable balance; trust in billing increases.
-
-**Implementation intent:** unify the starter-credit defaults across the auth store,
-profile default, and `createNewProfile` to one documented value, and show an
-estimated credit cost before grading and before a plagiarism scan (reusing the
-existing estimation math). Remove the dead `useCredits` branch in
-`generateResponse.ts`.
-
-**Acceptance criteria:**
-- New accounts always start with the same documented credit balance.
-- The user sees an estimated cost before confirming a grade or a scan.
-- No dead credit-branch code remains.
-
-### M7 — Resilient document upload feedback — **Partly done**
-
-The parser now throws on unsupported types, oversized files and parse failures
-(the grader shows a toast) instead of loading error text into the editor, and the
-allowlist is covered by `uploadUrl.test.ts`. Still open: specific per-failure
-messages in the UI (production masks server-action error text).
-
-**User value:** users who upload a file always know whether it worked and why,
-instead of getting silent failures or an unparsed essay.
-
-**Implementation intent:** surface parse outcomes from `parseDocumentFromUrl`
-(unsupported type, blocked URL, parse failure) as clear in-product messages, and
-confirm the supported-format list in the UI matches what the parser actually
-handles. Keep the SSRF guard intact.
-
-**Acceptance criteria:**
-- Each failure mode shows a specific, actionable message.
-- Supported formats advertised in the UI match parser behavior.
-- The SSRF guard remains and is exercised by the allowed-URL path.
-
-### M8 — Shareable rubrics
-
-**User value:** educators can reuse and distribute a rubric to students/peers,
-making feedback consistent across a class — a natural extension of the existing
-custom-rubric system.
-
-**Implementation intent:** allow exporting a custom rubric and importing/copying it
-into another account (e.g. via a shareable link or export/import payload),
-reusing the existing `copyDefaultRubric`/`addCustomRubric` paths and rubric type
-validation.
-
-**Acceptance criteria:**
-- A user can produce a shareable artifact/link for a custom rubric.
-- A recipient can import it into their own `custom_rubrics` with validation.
-- Imported rubrics behave identically to natively created ones.
-
-> Roadmap note: items M1–M3 protect revenue and trust and should land first; M4–M7
-> raise core-workflow quality, performance, and activation; M8 extends an existing
-> capability into clear new user value. None introduce a product direction
-> unsupported by the current app.
+Server-authoritative credit metering and Copyleaks callback authentication are
+already shipped. The ordered punchlist, known bugs, and open issues are in
+[`roadmap.md`](./roadmap.md).
