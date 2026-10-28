@@ -85,7 +85,12 @@ describe("firestore.rules: user data", () => {
 describe("storage.rules", () => {
   it("lets owners upload drafts under 10 MB to their own folder only", async () => {
     const own = env.authenticatedContext("alice").storage();
-    await assertSucceeds(uploadBytes(ref(own, "uploads/alice/draft.txt"), new Uint8Array(16)));
+    await assertSucceeds(
+      uploadBytes(ref(own, "uploads/alice/draft.txt"), new Uint8Array(16), { contentType: "text/plain" })
+    );
+    await assertFails(
+      uploadBytes(ref(own, "uploads/alice/page.html"), new Uint8Array(16), { contentType: "text/html" })
+    );
     await assertFails(uploadBytes(ref(own, "uploads/alice/huge.txt"), new Uint8Array(10 * 1024 * 1024)));
     await assertFails(uploadBytes(ref(own, "uploads/bob/draft.txt"), new Uint8Array(16)));
     await assertFails(uploadBytes(ref(own, "elsewhere/draft.txt"), new Uint8Array(16)));

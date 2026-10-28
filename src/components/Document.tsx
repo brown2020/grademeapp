@@ -39,7 +39,14 @@ export default function Document() {
   const [selectedModelId, setSelectedModelId] = useSelectedModel();
 
   const [userDoc, setUserDoc] = useState<UserHistoryType | null>(null);
-  const [loading, setLoading] = useState(true);
+  const canLoad = Boolean(uid && summaryID && !Number.isNaN(timestampMillis));
+  const requestKey = canLoad ? `${uid}:${summaryID}:${timestampMillis}` : "";
+  const [activeKey, setActiveKey] = useState(requestKey);
+  const [loading, setLoading] = useState(canLoad);
+  if (requestKey !== activeKey) {
+    setActiveKey(requestKey);
+    setLoading(canLoad);
+  }
   const [summary, setSummary] = useState("");
   const [grade, setGrade] = useState("");
   const fileUrlRef = useRef("");
@@ -62,7 +69,7 @@ export default function Document() {
   );
 
   useEffect(() => {
-    if (!uid || !summaryID || Number.isNaN(timestampMillis)) return;
+    if (!requestKey || !uid) return;
     const submissionTimestamp = Timestamp.fromMillis(timestampMillis);
     let cancelled = false;
 
@@ -107,7 +114,7 @@ export default function Document() {
     return () => {
       cancelled = true;
     };
-  }, [uid, summaryID, timestampMillis, setGradingData]);
+  }, [requestKey, uid, summaryID, timestampMillis, setGradingData]);
 
   const saveSubmission = async (response: string, finalGrade: string) => {
     const submission: Submission = {

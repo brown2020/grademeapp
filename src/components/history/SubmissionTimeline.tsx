@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Submission } from "@/lib/types/user-history";
 import { cn } from "@/lib/utils";
 import { formatDateTime } from "@/lib/utils/date";
+import { sanitizeHtml } from "@/lib/utils/sanitizeHtml";
 import { GradePill } from "./GradePill";
 
 function Collapsible({
@@ -85,7 +86,7 @@ export default function SubmissionTimeline({ summaryID, submissions }: Props) {
                 <div
                   className="feedback-prose scrollbar-thin max-h-96 overflow-y-auto font-serif"
                   dangerouslySetInnerHTML={{
-                    __html: submission.text || "<p>No text submitted</p>",
+                    __html: sanitizeHtml(submission.text || "<p>No text submitted</p>"),
                   }}
                 />
               </Collapsible>

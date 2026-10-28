@@ -11,7 +11,16 @@ service firebase.storage {
     match /uploads/{uid}/{fileName} {
       allow read, delete: if isOwner(uid);
       allow create, update: if isOwner(uid)
-        && request.resource.size < 10 * 1024 * 1024;
+        && request.resource.size < 10 * 1024 * 1024
+        && request.resource.contentType in [
+          'application/pdf',
+          'text/plain',
+          'text/rtf',
+          'application/rtf',
+          'application/octet-stream',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'application/vnd.oasis.opendocument.text'
+        ];
     }
 
     match /{allPaths=**} {

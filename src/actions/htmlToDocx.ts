@@ -3,8 +3,15 @@
 
 import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx';
 import { parse, HTMLElement } from 'node-html-parser';
+import { requireServerUser } from '@/lib/server/requestAuth';
+
+const MAX_HTML_CHARS = 1_000_000;
 
 export async function htmlToDocx(htmlContent: string): Promise<string> {
+  await requireServerUser();
+  if (typeof htmlContent !== "string" || !htmlContent.trim() || htmlContent.length > MAX_HTML_CHARS) {
+    throw new Error("Document is empty or too large.");
+  }
   const root = parse(htmlContent);
   const sections: { children: Paragraph[] }[] = [];
 
