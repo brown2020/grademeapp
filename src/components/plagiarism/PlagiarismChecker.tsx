@@ -18,7 +18,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { countWords, estimateScanCredits } from "./report";
+import { countWords, estimateScanCredits, htmlToPlainText } from "./report";
 
 interface PlagiarismCheckerProps {
   /** Text to pre-fill, e.g. the essay open in the grader. */
@@ -33,7 +33,7 @@ export function PlagiarismChecker({ text = "", trigger, onSubmitted }: Plagiaris
   const { uid } = useAuthStore();
   const { profile, setCredits } = useProfileStore();
   const [open, setOpen] = useState(false);
-  const [draft, setDraft] = useState(text);
+  const [draft, setDraft] = useState(() => htmlToPlainText(text));
   const [isChecking, setIsChecking] = useState(false);
   const [reportLink, setReportLink] = useState("");
 
@@ -45,7 +45,7 @@ export function PlagiarismChecker({ text = "", trigger, onSubmitted }: Plagiaris
   const handleOpenChange = (next: boolean) => {
     if (isChecking) return;
     if (next) {
-      setDraft(text);
+      setDraft(htmlToPlainText(text));
       setReportLink("");
     }
     setOpen(next);

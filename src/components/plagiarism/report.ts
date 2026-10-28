@@ -31,6 +31,28 @@ export interface PlagiarismReportDoc {
   results?: CopyleaksResults;
 }
 
+const TAG = /<\/?[a-z][^>]*>/i;
+
+/** Visible essay text. Editor HTML is stored as markup; scans and counts use the words. */
+export function htmlToPlainText(value: string): string {
+  if (!value || !TAG.test(value)) return value;
+  const decoded = value
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, " ")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(p|div|h[1-6]|li|tr|blockquote|ul|ol|pre|section)>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex: string) => String.fromCodePoint(parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_, num: string) => String.fromCodePoint(Number(num)));
+  return decoded.replace(/[ \t]+\n/g, "\n").replace(/[ \t]{2,}/g, " ").replace(/\n{3,}/g, "\n\n").trim();
+}
+
 /** Mirrors the credit formula in /api/copyleaks/submit so the UI can show a hint. */
 export function estimateScanCredits(text: string): number {
   const wordCount = countWords(text);
@@ -42,7 +64,7 @@ export function estimateScanCredits(text: string): number {
 }
 
 export function countWords(text: string): number {
-  const trimmed = text.trim();
+  const trimmed = htmlToPlainText(text).trim();
   return trimmed ? trimmed.split(/\s+/).length : 0;
 }
 
@@ -64,7 +86,7 @@ export function matchedSources(report: PlagiarismReportDoc): MatchedSource[] {
 }
 
 export function excerpt(text: string | undefined, max = 90): string {
-  const clean = (text ?? "").replace(/\s+/g, " ").trim();
+  const clean = htmlToPlainText(text ?? "").replace(/\s+/g, " ").trim();
   if (!clean) return "Untitled scan";
   return clean.length > max ? `${clean.slice(0, max).trimEnd()}…` : clean;
 }

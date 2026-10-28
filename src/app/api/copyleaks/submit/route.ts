@@ -3,7 +3,7 @@ import { adminDb } from "@/firebase/firebaseAdmin";
 import { requireMatchingUid } from "@/lib/server/requestAuth";
 import { debitCredits, InsufficientCreditsError } from "@/lib/server/billing";
 import { undoFailedScan } from "@/lib/server/plagiarismReport";
-import { countWords, estimateScanCredits } from "@/components/plagiarism/report";
+import { countWords, estimateScanCredits, htmlToPlainText } from "@/components/plagiarism/report";
 import { Buffer } from "buffer";
 
 const MAX_SCAN_CHARS = 200_000;
@@ -84,8 +84,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Plagiarism scans are not configured." }, { status: 503 });
     }
 
-    const wordCount = countWords(text);
-    const creditCost = estimateScanCredits(text);
+    const scanText = htmlToPlainText(text);
+    const wordCount = countWords(scanText);
+    const creditCost = estimateScanCredits(scanText);
 
     // Check and debit atomically before the paid Copyleaks call; refunded below on failure.
     let credits: number;
@@ -103,12 +104,12 @@ export async function POST(request: NextRequest) {
     charged = { uid, amount: creditCost };
 
     // Save document to Firestore
-    const { docId } = await saveDocument({ uid, text, wordCount, creditCost });
+    const { docId } = await saveDocument({ uid, text: scanText, wordCount, creditCost });
     charged = { uid, amount: creditCost, docId };
 
     const scanId = (`${docId}`).toLowerCase(); // Encode `uid` in `scanId`
 
-    const base64Text = Buffer.from(text).toString("base64");
+    const base64Text = Buffer.from(scanText).toString("base64");
 
     const token = await getCopyleaksToken();
 

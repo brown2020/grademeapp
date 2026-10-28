@@ -103,6 +103,17 @@ describe("POST /api/copyleaks/submit", () => {
     expect(reports[0]?.[1]).toMatchObject({ status: "error" });
   });
 
+  it("scans the visible words when the draft is editor HTML", async () => {
+    const html = "<p>Hello <strong>there</strong></p><p>friend</p>";
+    const res = await submit({ uid: "alice", text: html }, "token-alice");
+    expect(res.status).toBe(201);
+    const body = await res.json();
+    const saved = db.docs.get(`users/alice/plagiarism_reports/${body.docId}`);
+    expect(saved).toMatchObject({ status: "pending", text: "Hello there\nfriend", wordCount: 3 });
+    const sent = JSON.parse(String(fetchMock.mock.calls.find((call) => String(call[0]).includes("scans"))?.[1]?.body));
+    expect(Buffer.from(sent.base64, "base64").toString("utf8")).toBe("Hello there\nfriend");
+  });
+
   it("refuses a scan before charging when the webhook secret is unset", async () => {
     delete process.env.COPYLEAKS_WEBHOOK_SECRET;
     const res = await submit({ uid: "alice", text: "some words here" }, "token-alice");
