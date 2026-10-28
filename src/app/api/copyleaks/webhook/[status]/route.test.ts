@@ -19,11 +19,12 @@ let db: FakeAdminDb;
 const report = "users/u1/plagiarism_reports/doc1";
 const profile = "users/u1/profile/userData";
 
-const send = (status: string, body: unknown) =>
+const send = (status: string, body: unknown, secret = "hook-secret") =>
   POST(
     new NextRequest(`http://localhost/api/copyleaks/webhook/${status}`, {
       method: "POST",
       body: typeof body === "string" ? body : JSON.stringify(body),
+      headers: secret ? { "x-copyleaks-secret": secret } : {},
     }),
     { params: Promise.resolve({ status }) }
   );
@@ -34,6 +35,7 @@ beforeEach(() => {
     [profile]: { credits: 70 },
   });
   state.db = db;
+  process.env.COPYLEAKS_WEBHOOK_SECRET = "hook-secret";
 });
 
 describe("POST /api/copyleaks/webhook/[status]", () => {
@@ -67,6 +69,19 @@ describe("POST /api/copyleaks/webhook/[status]", () => {
     const res = await send("completed", { developerPayload: "u1/nope", results: {} });
     expect(res.status).toBe(200);
     expect(db.docs.has("users/u1/plagiarism_reports/nope")).toBe(false);
+  });
+
+  it("rejects unsigned callbacks and an unset secret", async () => {
+    expect((await send("completed", { developerPayload: "u1/doc1", results: {} }, "")).status).toBe(401);
+    delete process.env.COPYLEAKS_WEBHOOK_SECRET;
+    expect((await send("completed", { developerPayload: "u1/doc1", results: {} })).status).toBe(401);
+    expect(db.docs.get(report)?.status).toBe("pending");
+  });
+
+  it("rejects ids that are not safe document paths", async () => {
+    const res = await send("completed", { developerPayload: "u1/../admin", results: {} });
+    expect(res.status).toBe(400);
+    expect(db.docs.get(report)?.status).toBe("pending");
   });
 
   it("rejects malformed bodies and payloads without report ids", async () => {

@@ -33,8 +33,8 @@ export interface PlagiarismReportDoc {
 
 /** Mirrors the credit formula in /api/copyleaks/submit so the UI can show a hint. */
 export function estimateScanCredits(text: string): number {
-  if (!text.trim()) return 0;
-  const wordCount = Number(text.split(/\s+/).length);
+  const wordCount = countWords(text);
+  if (!wordCount) return 0;
   const copyleaksCredits = Math.ceil(wordCount / 250);
   const costInDollars = (17 / 100) * copyleaksCredits;
   const gradeMeCost = costInDollars * 1.5;

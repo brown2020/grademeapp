@@ -50,6 +50,10 @@ beforeEach(() => {
   state.db = db;
   fetchMock = okFetch();
   vi.stubGlobal("fetch", fetchMock);
+  process.env.BASE_URL = "https://grade.example";
+  process.env.COPYLEAKS_WEBHOOK_SECRET = "hook-secret";
+  process.env.COPYLEAKS_API_KEY = "key";
+  process.env.COPYLEAKS_EMAIL = "scan@example.com";
 });
 
 afterEach(() => vi.unstubAllGlobals());
@@ -84,7 +88,7 @@ describe("POST /api/copyleaks/submit", () => {
     expect(db.docs.get(`users/alice/plagiarism_reports/${body.docId}`)).toMatchObject({ status: "pending" });
   });
 
-  it("refunds the debit when Copyleaks rejects the scan", async () => {
+  it("refunds the debit and marks the report when Copyleaks rejects the scan", async () => {
     fetchMock.mockImplementation(async (url: string) =>
       String(url).includes("login")
         ? new Response(JSON.stringify({ access_token: "t" }), { status: 200 })
@@ -92,6 +96,18 @@ describe("POST /api/copyleaks/submit", () => {
     );
     const res = await submit({ uid: "alice", text: "some words here" }, "token-alice");
     expect(res.status).toBe(500);
+    expect(await res.json()).toEqual({ error: "Internal Server Error" });
     expect(db.docs.get(profileOf("alice"))?.credits).toBe(500);
+    const reports = [...db.docs.entries()].filter(([path]) => path.startsWith("users/alice/plagiarism_reports/"));
+    expect(reports).toHaveLength(1);
+    expect(reports[0]?.[1]).toMatchObject({ status: "error" });
+  });
+
+  it("refuses a scan before charging when the webhook secret is unset", async () => {
+    delete process.env.COPYLEAKS_WEBHOOK_SECRET;
+    const res = await submit({ uid: "alice", text: "some words here" }, "token-alice");
+    expect(res.status).toBe(503);
+    expect(db.docs.get(profileOf("alice"))?.credits).toBe(500);
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });

@@ -1,18 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/firebase/firebaseAdmin";
 import { requireMatchingUid } from "@/lib/server/requestAuth";
-import { debitCredits, InsufficientCreditsError, refundCredits } from "@/lib/server/billing";
+import { debitCredits, InsufficientCreditsError } from "@/lib/server/billing";
+import { undoFailedScan } from "@/lib/server/plagiarismReport";
+import { countWords, estimateScanCredits } from "@/components/plagiarism/report";
 import { Buffer } from "buffer";
 
-const COPYLEAKS_API_KEY = process.env.COPYLEAKS_API_KEY;
-const COPYLEAKS_EMAIL = process.env.COPYLEAKS_EMAIL;
-const GRADE_ME_CREDIT_COST = 1 / 200; // $1 for 200 credits
+const MAX_SCAN_CHARS = 200_000;
 
 async function getCopyleaksToken() {
   const response = await fetch("https://id.copyleaks.com/v3/account/login/api", {
     method: "POST",
     headers: { "Content-Type": "application/json", Accept: "application/json" },
-    body: JSON.stringify({ email: COPYLEAKS_EMAIL, key: COPYLEAKS_API_KEY }),
+    body: JSON.stringify({
+      email: process.env.COPYLEAKS_EMAIL,
+      key: process.env.COPYLEAKS_API_KEY,
+    }),
   });
 
   if (!response.ok) {
@@ -21,14 +24,6 @@ async function getCopyleaksToken() {
 
   const { access_token } = await response.json();
   return access_token;
-}
-
-function calculateWordCost(wordCount: number): number {
-  const copyleaksCredits = Math.ceil(wordCount / 250); // 1 Copyleaks credit per 250 words
-  const costInDollars = (17 / 100) * copyleaksCredits; // Copyleaks cost: $17 for 100 credits
-  const gradeMeCost = costInDollars * 1.5; // Add 50% margin
-  const gradeMeCredits = Math.ceil(gradeMeCost / GRADE_ME_CREDIT_COST); // Convert to GradMe credits
-  return Number(gradeMeCredits);
 }
 
 interface SaveDocumentParams {
@@ -58,8 +53,9 @@ async function saveDocument({ uid, text, wordCount, creditCost }: SaveDocumentPa
 
 export async function POST(request: NextRequest) {
 
-  const BASE_URL = process.env.BASE_URL;
-  let charged: { uid: string; amount: number } | null = null;
+  const baseUrl = process.env.BASE_URL;
+  const webhookSecret = process.env.COPYLEAKS_WEBHOOK_SECRET;
+  let charged: { uid: string; amount: number; docId?: string } | null = null;
 
   try {
     const body = (await request.json()) as { uid?: unknown; text?: unknown };
@@ -77,15 +73,19 @@ export async function POST(request: NextRequest) {
       return authResult.response;
     }
 
-    if (typeof text !== "string" || !text.trim()) {
+    if (typeof text !== "string" || !text.trim() || text.length > MAX_SCAN_CHARS) {
       return NextResponse.json(
         { error: "Text cannot be empty." },
         { status: 400 }
       );
     }
 
-    const wordCount = Number(text.split(/\s+/).length); // Count words in the text
-    const creditCost = calculateWordCost(wordCount);
+    if (!baseUrl || !webhookSecret || !process.env.COPYLEAKS_API_KEY || !process.env.COPYLEAKS_EMAIL) {
+      return NextResponse.json({ error: "Plagiarism scans are not configured." }, { status: 503 });
+    }
+
+    const wordCount = countWords(text);
+    const creditCost = estimateScanCredits(text);
 
     // Check and debit atomically before the paid Copyleaks call; refunded below on failure.
     let credits: number;
@@ -104,6 +104,7 @@ export async function POST(request: NextRequest) {
 
     // Save document to Firestore
     const { docId } = await saveDocument({ uid, text, wordCount, creditCost });
+    charged = { uid, amount: creditCost, docId };
 
     const scanId = (`${docId}`).toLowerCase(); // Encode `uid` in `scanId`
 
@@ -136,15 +137,15 @@ export async function POST(request: NextRequest) {
           scanMethodAlgorithm: 0,
           sensitivityLevel: 2,
           webhooks: {
-            status: `${BASE_URL}/api/copyleaks/webhook/{STATUS}`,
+            status: `${baseUrl}/api/copyleaks/webhook/{STATUS}`,
+            statusHeaders: [["x-copyleaks-secret", webhookSecret]],
           },
         },
       }),
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || "Failed to submit scan.");
+      throw new Error("Failed to submit scan.");
     }
 
     charged = null;
@@ -154,12 +155,11 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     if (charged) {
-      await refundCredits(charged.uid, charged.amount).catch((refundError) =>
+      await undoFailedScan(charged).catch((refundError) =>
         console.error("Failed to refund plagiarism credits:", refundError)
       );
     }
     console.error("Error in submit handler:", error);
-    const errorMessage = error instanceof Error ? error.message : "Internal Server Error";
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
