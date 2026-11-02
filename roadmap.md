@@ -1,6 +1,6 @@
 # Grade.me — Roadmap
 
-Punchlist of next steps, known bugs, and open issues as of 2026-10-28.
+Punchlist of next steps, known bugs, and open issues as of 2026-11-02.
 What the product does today is [`spec.md`](./spec.md). Setup is [`README.md`](./README.md).
 
 Each item should stay small enough for one review. The gate is
@@ -65,16 +65,25 @@ providers `isProviderEnabled` reports as configured.
 
 ## Known bugs and open issues
 
-- **Firebase client packages declare Node `>=24.12.0`.** CI and local development
-  use Node 22. `npm install` warns `EBADENGINE` for `@firebase/app`,
-  `@firebase/auth`, `@firebase/firestore`, `@firebase/storage`, and
-  `@firebase/ai`. The app still installs and builds. Moving CI to Node 24 is a
-  separate decision.
-- **TypeScript 7 is not usable yet.** `typescript-eslint` (via
-  `eslint-config-next`) rejects TypeScript 7.0. The app stays on TypeScript 6.0.3.
-- **`jwks-rsa@4` needs `jose@5.10.0`.** `firebase-admin` 14 depends on
-  `jwks-rsa` 4, which asks for `jose` 6. The `jose@5.10.0` override is what lets
-  `require('firebase-admin/auth')` load. Do not drop it.
+- **Node 24 is required.** Firebase client packages declare Node `>=24.12.0`.
+  CI runs on Node 24. Node 22 still installs, with `EBADENGINE` warnings for
+  `@firebase/app`, `@firebase/auth`, `@firebase/firestore`, `@firebase/storage`,
+  and `@firebase/ai`.
+- **TypeScript 7.0.2 is held back.** `tsc` 7.0.2 typechecks this repo, but
+  `typescript-eslint` 8.72.1 (pulled in by `eslint-config-next` 16.4.3) exits
+  with "does not support TS 7.0" and declares a peer range of
+  `typescript >=4.8.4 <6.1.0`. Lint is part of the gate, so the app stays on
+  TypeScript 6.0.3. Track [typescript-eslint#10940](https://github.com/typescript-eslint/typescript-eslint/issues/10940).
+- **`jwks-rsa@4.1.0` needs `jose@5.10.0`.** `firebase-admin` 14 depends on
+  `jwks-rsa` 4, which `require()`s `jose`. `jose` 6 is ESM-only, so
+  `require('firebase-admin/auth')` fails without the override. Do not drop it.
+- **Audit overrides stay.** `minimatch@11.0.4` and `glob@14.0.3` clear the
+  moderate `npm audit` findings (glob-parts amplification and an AbortSignal
+  cancellation bypass). ESLint still depends on `minimatch` 10, and other
+  packages still depend on `glob` before 14.0.2. Keep the overrides until those
+  ranges move.
+- **`pdfjs-dist` is overridden to 6.5.438.** `officeparser` 8.5 still declares
+  6.2.108. The PDF fixture test passes on the override.
 - **`.env.example` used to name `XAI_API_URL`.** The registry reads
   `XAI_BASE_URL`. Production should use that name. `XAI_API_URL` is not read.
 - **`NEXT_PUBLIC_CREDITS_PER_GRADING` is unused** by application code. It is still

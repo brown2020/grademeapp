@@ -29,11 +29,14 @@ Product behavior is [`spec.md`](./spec.md). Next steps and known issues are [`ro
 | Backend | Firebase 13 and `firebase-admin` 14 (Auth, Firestore, Storage) |
 | AI | Vercel AI SDK (`ai` 7 and `@ai-sdk/*` for OpenAI, Anthropic, Google, Azure, xAI, and RSC streaming) |
 | Payments | Stripe 23 and `@stripe/react-stripe-js` |
-| Documents | `mammoth`, `officeparser`, `docx` |
+| Documents | `mammoth`, `officeparser` 8, `docx` 9 |
 | Plagiarism | Copyleaks REST API through route handlers |
 | Tests | Vitest 5, ESLint 10 |
+| Runtime | Node.js 24 |
 
-`firebase-admin` 14 pulls `jwks-rsa` 4. `package.json` overrides that package's `jose` dependency to `5.10.0` so `require('firebase-admin/auth')` loads.
+`firebase-admin` 14 pulls `jwks-rsa` 4, which `require()`s `jose`. `jose` 6 is ESM-only, so `package.json` overrides that dependency to `jose@5.10.0`. That is what lets `require('firebase-admin/auth')` load.
+
+`npm audit` is clean with two more overrides: `minimatch@11.0.4` and `glob@14.0.3`. ESLint still declares older releases that sit inside the current advisories, so those overrides stay. `officeparser` 8.5 still declares `pdfjs-dist@6.2.108`; the override resolves `6.5.438`.
 
 ## Project structure
 
@@ -57,7 +60,7 @@ src/
 
 ### Prerequisites
 
-- Node.js 22 (CI uses 22; some Firebase client packages warn that they prefer Node 24)
+- Node.js 24 (CI uses 24). Firebase client packages require Node `>=24.12.0`
 - npm (`.npmrc` sets `legacy-peer-deps=true`)
 - A Firebase project with Auth, Firestore, and Storage
 - A Stripe account for credit purchases
