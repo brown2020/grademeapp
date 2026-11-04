@@ -9,7 +9,7 @@ export async function POST(
   const { status } = routeParams;
 
   const secret = process.env.COPYLEAKS_WEBHOOK_SECRET;
-  if (!secret || !copyleaksSecretMatches(request.headers.get("x-copyleaks-secret"), secret)) {
+  if (!secret || !verifyWebhookSecret(request.headers.get("x-copyleaks-secret"), secret)) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
@@ -41,6 +41,10 @@ export async function POST(
     console.error("Error processing webhook:", error);
     return NextResponse.json({ error: "Failed to process webhook" }, { status: 500 });
   }
+}
+
+function verifyWebhookSecret(provided: string | null, secret: string): boolean {
+  return copyleaksSecretMatches(provided, secret);
 }
 
 interface WebhookBody {

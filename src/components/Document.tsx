@@ -8,7 +8,7 @@ import { toast } from "react-hot-toast";
 import { FileQuestion } from "lucide-react";
 import { db } from "@/firebase/firestore";
 import { useAuthStore } from "@/zustand/useAuthStore";
-import useProfileStore from "@/zustand/useProfileStore";
+import useProfileStore, { type ProfileType } from "@/zustand/useProfileStore";
 import { useRubricStore } from "@/zustand/useRubricStore";
 import { correctGrammarAndSpelling } from "@/actions/correctGrammarSpelling";
 import { updateDocument } from "@/lib/utils/saveHistory";
@@ -28,6 +28,160 @@ async function fetchDocumentById(uid: string, id: string) {
 }
 
 type Busy = "grading" | "correcting" | null;
+
+function scrollTarget(flagged: string, thinking: boolean, summary: string, justGraded: boolean) {
+  if (flagged) return "flagged" as const;
+  if (thinking && !summary) return "thinking" as const;
+  if (justGraded && summary) return "response" as const;
+  return null;
+}
+
+function submissionAt(loaded: UserHistoryType | null, stamp: Timestamp) {
+  return (
+    loaded?.submissions.find(
+      (sub) => sub.timestamp.seconds === stamp.seconds && sub.timestamp.nanoseconds === stamp.nanoseconds
+    ) ?? null
+  );
+}
+
+function gradingDataFrom(loaded: UserHistoryType, match: Submission): Partial<GradingData> {
+  const input = loaded.userInput;
+  return {
+    title: input.title,
+    text: match.text,
+    assigner: input.assigner,
+    textType: input.textType,
+    topic: input.topic,
+    prose: input.prose,
+    audience: input.audience,
+    wordLimitType: input.wordLimitType as GradingData["wordLimitType"],
+    wordLimit: input.wordLimit,
+    customRubric: input.customRubric,
+    rubric: input.rubric,
+  };
+}
+
+async function loadHistoryDocument(
+  uid: string,
+  summaryID: string,
+  timestampMillis: number,
+  isCancelled: () => boolean,
+  apply: (loaded: UserHistoryType | null, match: Submission | null, fileUrl: string) => void
+) {
+  const stamp = Timestamp.fromMillis(timestampMillis);
+  try {
+    const loaded = await fetchDocumentById(uid, summaryID);
+    if (isCancelled()) return;
+    const match = submissionAt(loaded, stamp);
+    apply(loaded, loaded && match ? match : null, loaded?.fileUrl ?? "");
+  } catch (error) {
+    if (isCancelled()) return;
+    console.error("Error in getDocument", error);
+    toast.error("Failed to load document");
+  }
+}
+
+async function saveSubmission(input: {
+  uid: string | null;
+  summaryID: string;
+  gradingData: GradingData;
+  userDoc: UserHistoryType | null;
+  fileUrl: string;
+  response: string;
+  finalGrade: string;
+  setUserDoc: (value: UserHistoryType | null | ((prev: UserHistoryType | null) => UserHistoryType | null)) => void;
+}) {
+  const submission: Submission = {
+    text: input.gradingData.text,
+    response: input.response,
+    grade: input.finalGrade,
+    timestamp: Timestamp.now(),
+  };
+  const submissions = [...(input.userDoc?.submissions ?? []), submission];
+  await updateDocument(input.uid, input.summaryID, input.gradingData, submissions, input.fileUrl || null);
+  input.setUserDoc((prev) => (prev ? { ...prev, submissions } : prev));
+  toast.success("Document updated successfully");
+}
+
+async function gradeDraft(input: {
+  modelId: string;
+  profile: ProfileType;
+  gradingData: GradingData;
+  setCredits: (credits: number) => void;
+  setSummary: (value: string) => void;
+  setGrade: (value: string) => void;
+  setFlagged: (value: string) => void;
+  setJustGraded: (value: boolean) => void;
+  setBusy: (value: Busy) => void;
+  uid: string | null;
+  summaryID: string;
+  userDoc: UserHistoryType | null;
+  fileUrl: string;
+  setUserDoc: (value: UserHistoryType | null | ((prev: UserHistoryType | null) => UserHistoryType | null)) => void;
+}) {
+  input.setSummary("");
+  input.setFlagged("");
+  input.setJustGraded(false);
+
+  let result: { feedback: string; grade: string };
+  try {
+    result = await streamGrade({
+      modelId: input.modelId,
+      profile: input.profile,
+      data: input.gradingData,
+      rubricString: JSON.stringify(input.gradingData.rubric),
+      onCredits: input.setCredits,
+      onUpdate: (feedback, nextGrade) => {
+        input.setSummary(feedback);
+        input.setGrade(nextGrade);
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    input.setFlagged(GRADING_FAILED_MESSAGE);
+    return;
+  } finally {
+    input.setBusy(null);
+  }
+
+  input.setJustGraded(true);
+  if (!input.uid || !input.summaryID) return;
+  try {
+    await saveSubmission({
+      uid: input.uid,
+      summaryID: input.summaryID,
+      gradingData: input.gradingData,
+      userDoc: input.userDoc,
+      fileUrl: input.fileUrl,
+      response: result.feedback,
+      finalGrade: result.grade,
+      setUserDoc: input.setUserDoc,
+    });
+  } catch (error) {
+    console.error("Failed to save submission:", error);
+    toast.error("Graded, but couldn't save this version.");
+  }
+}
+
+async function correctDraft(input: {
+  text: string;
+  modelId: string;
+  setFlagged: (value: string) => void;
+  setCredits: (credits: number) => void;
+  setGradingData: (data: Partial<GradingData>) => void;
+}) {
+  input.setFlagged("");
+  try {
+    const { correctedTextArray, credits } = await correctGrammarAndSpelling(input.text, input.modelId);
+    input.setCredits(credits);
+    const finalText = correctedTextArray.join("");
+    if (!finalText) throw new Error("No response");
+    input.setGradingData({ text: finalText });
+  } catch (error) {
+    console.error(error);
+    input.setFlagged(GRADING_FAILED_MESSAGE);
+  }
+}
 
 export default function Document() {
   const uid = useAuthStore((s) => s.uid);
@@ -55,134 +209,60 @@ export default function Document() {
   const [justGraded, setJustGraded] = useState(false);
 
   const thinking = busy === "grading";
-  const canSubmit =
-    gradingData.text.length > 1 && (profile.credits > 0 || !profile.useCredits) && !busy;
+  const canSubmit = gradingData.text.length > 1 && (profile.credits > 0 || !profile.useCredits) && !busy;
 
-  useScrollIntoView(
-    flagged
-      ? "flagged"
-      : thinking && !summary
-        ? "thinking"
-        : justGraded && summary
-          ? "response"
-          : null
-  );
+  useScrollIntoView(scrollTarget(flagged, thinking, summary, justGraded));
 
   useEffect(() => {
     if (!requestKey || !uid) return;
-    const submissionTimestamp = Timestamp.fromMillis(timestampMillis);
     let cancelled = false;
-
-    void (async () => {
-      try {
-        const loaded = await fetchDocumentById(uid, summaryID);
-        if (cancelled) return;
-        setUserDoc(loaded);
-        const match = loaded?.submissions.find(
-          (sub) =>
-            sub.timestamp.seconds === submissionTimestamp.seconds &&
-            sub.timestamp.nanoseconds === submissionTimestamp.nanoseconds
-        );
-        if (loaded && match) {
-          const input = loaded.userInput;
-          setGradingData({
-            title: input.title,
-            text: match.text,
-            assigner: input.assigner,
-            textType: input.textType,
-            topic: input.topic,
-            prose: input.prose,
-            audience: input.audience,
-            wordLimitType: input.wordLimitType as GradingData["wordLimitType"],
-            wordLimit: input.wordLimit,
-            customRubric: input.customRubric,
-            rubric: input.rubric,
-          });
-          setSummary(match.response);
-          setGrade(match.grade);
-          fileUrlRef.current = loaded.fileUrl;
-        }
-      } catch (error) {
-        if (cancelled) return;
-        console.error("Error in getDocument", error);
-        toast.error("Failed to load document");
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-
+    void loadHistoryDocument(uid, summaryID, timestampMillis, () => cancelled, (loaded, match, fileUrl) => {
+      setUserDoc(loaded);
+      if (!loaded || !match) return;
+      setGradingData(gradingDataFrom(loaded, match));
+      setSummary(match.response);
+      setGrade(match.grade);
+      fileUrlRef.current = fileUrl;
+    }).finally(() => {
+      if (!cancelled) setLoading(false);
+    });
     return () => {
       cancelled = true;
     };
   }, [requestKey, uid, summaryID, timestampMillis, setGradingData]);
 
-  const saveSubmission = async (response: string, finalGrade: string) => {
-    const submission: Submission = {
-      text: gradingData.text,
-      response,
-      grade: finalGrade,
-      timestamp: Timestamp.now(),
-    };
-    const submissions = [...(userDoc?.submissions ?? []), submission];
-    await updateDocument(uid, summaryID, gradingData, submissions, fileUrlRef.current || null);
-    setUserDoc((prev) => (prev ? { ...prev, submissions } : prev));
-    toast.success("Document updated successfully");
-  };
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
     if (!canSubmit) return;
     setBusy("grading");
-    setSummary("");
-    setFlagged("");
-    setJustGraded(false);
-
-    let result: { feedback: string; grade: string };
-    try {
-      result = await streamGrade({
-        modelId: selectedModelId,
-        profile,
-        data: gradingData,
-        rubricString: JSON.stringify(gradingData.rubric),
-        onCredits: setCredits,
-        onUpdate: (feedback, nextGrade) => {
-          setSummary(feedback);
-          setGrade(nextGrade);
-        },
-      });
-    } catch (error) {
-      console.error(error);
-      setFlagged(GRADING_FAILED_MESSAGE);
-      return;
-    } finally {
-      setBusy(null);
-    }
-
-    setJustGraded(true);
-    if (!uid || !summaryID) return;
-    try {
-      await saveSubmission(result.feedback, result.grade);
-    } catch (error) {
-      console.error("Failed to save submission:", error);
-      toast.error("Graded, but couldn't save this version.");
-    }
+    await gradeDraft({
+      modelId: selectedModelId,
+      profile,
+      gradingData,
+      setCredits,
+      setSummary,
+      setGrade,
+      setFlagged,
+      setJustGraded,
+      setBusy,
+      uid,
+      summaryID,
+      userDoc,
+      fileUrl: fileUrlRef.current,
+      setUserDoc,
+    });
   };
 
   const handleFixGrammarSpelling = async () => {
-    setFlagged("");
     setBusy("correcting");
     try {
-      const { correctedTextArray, credits } = await correctGrammarAndSpelling(
-        gradingData.text,
-        selectedModelId
-      );
-      setCredits(credits);
-      const finalText = correctedTextArray.join("");
-      if (!finalText) throw new Error("No response");
-      setGradingData({ text: finalText });
-    } catch (error) {
-      console.error(error);
-      setFlagged(GRADING_FAILED_MESSAGE);
+      await correctDraft({
+        text: gradingData.text,
+        modelId: selectedModelId,
+        setFlagged,
+        setCredits,
+        setGradingData,
+      });
     } finally {
       setBusy(null);
     }

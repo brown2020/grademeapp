@@ -6,8 +6,11 @@ import { useAuthStore } from "@/zustand/useAuthStore";
 import { resetUserScopedStores } from "@/zustand/userScope";
 import { auth, hasClientConfig } from "@/firebase/firebaseClient";
 import { logAuthFailure } from "@/components/auth/authErrors";
+import { clearSessionCookie, publishSession } from "@/lib/auth/sessionClient";
 
 const COOKIE_SYNC_TIMEOUT_MS = 10_000;
+const SESSION_REFRESH_KEY = "lastSessionRefresh";
+const PREVIOUS_REFRESH_KEY = "lastTokenRefresh";
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   return new Promise<T>((resolve, reject) => {
@@ -25,22 +28,12 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   });
 }
 
-async function publishSession(idToken: string): Promise<void> {
-  const response = await fetch("/api/session", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ token: idToken }),
-  });
-  if (!response.ok) throw new Error("Session cookie was not accepted.");
-}
-
 const useAuthToken = () => {
   const [user, loading, error] = useAuthState(auth);
   const setAuthDetails = useAuthStore((state) => state.setAuthDetails);
   const clearAuthDetails = useAuthStore((state) => state.clearAuthDetails);
 
   const refreshInterval = 50 * 60 * 1000; // 50 minutes
-  const lastTokenRefresh = "lastTokenRefresh";
   const activityTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const refreshAuthTokenRef = useRef(async () => {
@@ -49,7 +42,7 @@ const useAuthToken = () => {
       const idTokenResult = await getIdToken(auth.currentUser, true);
       await publishSession(idTokenResult);
       if (!window.ReactNativeWebView) {
-        window.localStorage.setItem(lastTokenRefresh, Date.now().toString());
+        window.localStorage.setItem(SESSION_REFRESH_KEY, Date.now().toString());
       }
     } catch (error: unknown) {
       // Keep the existing cookie. A failed refresh must not sign the user out.
@@ -70,7 +63,7 @@ const useAuthToken = () => {
 
   useEffect(() => {
     const handleStorageChange = debounce((e: StorageEvent) => {
-      if (e.key === lastTokenRefresh) {
+      if (e.key === SESSION_REFRESH_KEY || e.key === PREVIOUS_REFRESH_KEY) {
         scheduleTokenRefreshRef.current();
       }
     }, 1000);
@@ -86,7 +79,7 @@ const useAuthToken = () => {
       }
       handleStorageChange.cancel();
     };
-  }, [lastTokenRefresh]);
+  }, []);
 
   // uid whose session cookie has been written (or attempted) for the current user.
   const [syncedUid, setSyncedUid] = useState<string | null>(null);
@@ -101,11 +94,7 @@ const useAuthToken = () => {
       const hadSession = Boolean(useAuthStore.getState().uid);
       clearAuthDetails();
       resetUserScopedStores();
-      if (hadSession) {
-        void fetch("/api/session", { method: "DELETE" }).catch((error: unknown) => {
-          console.error("Failed to clear the session cookie:", error);
-        });
-      }
+      if (hadSession) clearSessionCookie();
       return;
     }
 
