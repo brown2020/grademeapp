@@ -12,19 +12,20 @@ const ODT = "application/vnd.oasis.opendocument.text";
 
 type Format = "docx" | "pdf" | "odt" | "txt" | "rtf";
 
-function detectFormat(contentType: string | null, extension: string | undefined): Format | null {
+function detectFormat(header: string | null, extension: string | undefined): Format | null {
+  // Download responses often append parameters (`text/plain; charset=utf-8`).
+  // Rules and this parser only understand the base media type.
+  const contentType = header?.split(";")[0]?.trim().toLowerCase() ?? "";
   if (contentType === DOCX) return "docx";
   if (contentType === "application/pdf") return "pdf";
   if (contentType === ODT) return "odt";
   if (contentType === "text/plain") return "txt";
   if (contentType === "application/rtf" || contentType === "text/rtf") return "rtf";
-  if (contentType === "application/octet-stream" || !contentType) {
-    if (extension === "docx") return "docx";
-    if (extension === "pdf") return "pdf";
-    if (extension === "odt") return "odt";
-    if (extension === "txt") return "txt";
-    if (extension === "rtf") return "rtf";
-  }
+  if (extension === "docx") return "docx";
+  if (extension === "pdf") return "pdf";
+  if (extension === "odt") return "odt";
+  if (extension === "txt") return "txt";
+  if (extension === "rtf") return "rtf";
   return null;
 }
 
@@ -39,7 +40,15 @@ export async function parseDocumentFromUrl(fileUrl: string): Promise<string> {
     throw new Error("Only your own uploaded files can be parsed.");
   }
 
-  const response = await fetch(fileUrl, { redirect: "error" });
+  let response: Response;
+  try {
+    response = await fetch(fileUrl, { redirect: "error", signal: AbortSignal.timeout(20_000) });
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error("Couldn't download the uploaded file.");
+    }
+    throw error;
+  }
   if (!response.ok) throw new Error("Couldn't download the uploaded file.");
   if (Number(response.headers.get("content-length") ?? 0) > MAX_UPLOAD_BYTES) {
     throw new Error("That file is over 10 MB.");

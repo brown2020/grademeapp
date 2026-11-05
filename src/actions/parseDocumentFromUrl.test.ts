@@ -56,7 +56,7 @@ describe("parseDocumentFromUrl", () => {
   });
 
   it("parses TXT and RTF", async () => {
-    serve("Line one\n\n<b>Line two</b>", "text/plain");
+    serve("Line one\n\n<b>Line two</b>", "text/plain; charset=utf-8");
     expect(await parseDocumentFromUrl(uploadUrl("a.txt"))).toBe("<p>Line one</p><p>&lt;b&gt;Line two&lt;/b&gt;</p>");
     serve(
       String.raw`{\rtf1\ansi\deff0 {\fonttbl {\f0 Times;}}\f0 Hello {\b world}.\par Caf\'e9 \ldblquote quotes\rdblquote  & <b>tags</b>.\par}`,
