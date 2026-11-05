@@ -15,6 +15,7 @@ Product behavior is [`spec.md`](./spec.md). Next steps and known issues are [`ro
 - Credits via Stripe PaymentIntents, plus a signed Stripe webhook when configured
 - Bring-your-own OpenAI or Fireworks key (any other provider bills platform credits)
 - Firebase auth: Google, email/password, and passwordless email link, with an HttpOnly session cookie
+- Firebase Analytics page views after the cookie notice is accepted (live measurement id `G-GWRP3K8W2J`)
 - DOCX export of feedback and the document
 - React Native WebView embed (no Google sign-in and no credit purchase inside the wrapper)
 
@@ -105,7 +106,7 @@ Names only. Values belong in `.env.local`, the host, or GitHub Actions secrets.
 | `NEXT_PUBLIC_FIREBASE_STORAGEBUCKET` | Storage bucket |
 | `NEXT_PUBLIC_FIREBASE_MESSAGINGSENDERID` | Client sender id |
 | `NEXT_PUBLIC_FIREBASE_APPID` | Client app id |
-| `NEXT_PUBLIC_FIREBASE_MEASUREMENTID` | Analytics measurement id |
+| `NEXT_PUBLIC_FIREBASE_MEASUREMENTID` | Analytics measurement id (live site: `G-GWRP3K8W2J`) |
 | `NEXT_PUBLIC_COOKIE_NAME` | Session cookie name (default `grademeAuthToken`) |
 
 ### Payments

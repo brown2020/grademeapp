@@ -79,7 +79,8 @@ src/
     ui/                    # design-system primitives
   zustand/                 # useAuthStore, useProfileStore, useRubricStore,
                            # usePaymentsStore, useMobileMenuStore, useInitializeStores
-  firebase/                # firebaseClient.ts (app + auth), firestore.ts, loadFirestore.ts,
+  firebase/                # firebaseClient.ts (app + auth), analytics.ts (after cookie
+                           # consent), firestore.ts, loadFirestore.ts,
                            # storage.ts (browser); firebaseAdmin.ts (server)
   lib/
     server/                # requestAuth.ts (session verification), billing.ts (credits),
@@ -104,6 +105,14 @@ src/
   app) only after the fresh cookie is written, so signed-in requests never run ahead
   of the server session. `useInitializeStores` then loads the Firestore profile
   into `useProfileStore`.
+- **Analytics:** `AnalyticsRouteTracker` calls `trackPageView` on client route
+  changes. That starts Firebase Analytics (`isSupported`, then
+  `initializeAnalytics` with `send_page_view: false`, then `getAnalytics`) only
+  after the existing `CookieConsent=true` cookie, and logs one `page_view` per
+  path. The measurement id is `app.options.measurementId`
+  (`NEXT_PUBLIC_FIREBASE_MEASUREMENTID`, live `G-GWRP3K8W2J`). The analytics SDK
+  is loaded only after consent. The React Native wrapper hides the cookie
+  notice, so Analytics does not start there unless the cookie is already set.
 - **Grading flow:** `grader/Grader.tsx` (via `grader/streamGrade.ts`) calls the
   `generateGrade` server action, which verifies the session (`requireServerUser`),
   reads the balance, billing mode and BYO keys from the server profile

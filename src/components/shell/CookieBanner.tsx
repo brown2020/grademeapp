@@ -3,12 +3,9 @@
 import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { grantCookieConsent, hasCookieConsentValue } from "@/lib/cookieConsent";
 
-// Same cookie name react-cookie-consent used, so existing users are not re-prompted.
-const COOKIE = "CookieConsent";
-
-const hasConsent = () =>
-  document.cookie.split("; ").some((c) => c === `${COOKIE}=true`);
+const hasConsent = () => hasCookieConsentValue(document.cookie);
 
 export function CookieBanner() {
   const [accepted, setAccepted] = useState(false);
@@ -21,7 +18,7 @@ export function CookieBanner() {
   if (!shouldAsk || accepted) return null;
 
   const accept = () => {
-    document.cookie = `${COOKIE}=true; path=/; max-age=31536000; samesite=lax`;
+    grantCookieConsent();
     setAccepted(true);
   };
 

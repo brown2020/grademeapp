@@ -77,6 +77,7 @@ export results to `.docx`.
 | Credit purchase (Stripe) | ✅ Working | PaymentIntent create/validate; credited on success. |
 | Bring-your-own API key | ✅ Working | OpenAI/Fireworks keys in profile; `useCredits=false`. |
 | Multi-method auth | ✅ Working | Google, email/password, email link. |
+| Product analytics | ✅ Working | Firebase Analytics starts after the existing `CookieConsent` cookie. Client route changes log `page_view`. Measurement id stays `NEXT_PUBLIC_FIREBASE_MEASUREMENTID` (live `G-GWRP3K8W2J`). |
 | `.docx` export | ✅ Working | `htmlToDocx` + `DownloadPopover`. |
 | In-app guided tours | ⛔ Removed | Dormant `react-joyride` stubs deleted in the 2026-09 redesign. |
 | Automated tests | 🟡 Limited | Vitest covers utilities and server trust boundaries (auth, billing, webhooks). No component or browser harness. |
@@ -114,7 +115,12 @@ export results to `.docx`.
 
 ### Existing integrations
 
-- **Firebase** — Auth, Firestore, Storage (client SDK + `firebase-admin`).
+- **Firebase** — Auth, Firestore, Storage (client SDK + `firebase-admin`). Analytics
+  (`getAnalytics` / `isSupported`) starts only after the cookie notice is accepted
+  and logs `page_view` on client route changes. The measurement id is the one
+  already on the Firebase app (`G-GWRP3K8W2J` on the live site). The native
+  wrapper hides the notice, so Analytics stays off there unless that cookie is
+  already set.
 - **AI providers** via Vercel AI SDK registry — OpenAI, Fireworks, xAI, Anthropic,
   Google, Groq, Azure OpenAI, and a generic OpenAI-compatible endpoint.
 - **Stripe** — credit purchases (PaymentIntents).
